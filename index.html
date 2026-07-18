@@ -56,6 +56,7 @@ canvas { display:block; }
 .msg { font-size:13px; line-height:1.55; animation:fadein .4s; }
 @keyframes fadein { from { opacity:0; transform:translateY(6px); } }
 .msg .who { font-weight:700; margin-right:6px; }
+.msg .ava { width:18px; height:18px; border-radius:50%; vertical-align:-4px; margin-right:5px; border:1px solid var(--gold-dim); }
 .msg.sys { color:var(--dim); font-size:11.5px; }
 .msg.madam .who { color:#e8a0bf; } .msg.andy .who { color:var(--cyan); } .msg.justin .who { color:#a78bfa; }
 .chatlock { border-top:1px solid var(--line); padding:10px 14px; font-size:11.5px; color:var(--dim); background:var(--panel2); }
@@ -63,7 +64,8 @@ canvas { display:block; }
 /* 전략가 탭 */
 .chars { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px; }
 .char { background:linear-gradient(160deg,var(--panel2),var(--panel)); border:1px solid var(--line); border-radius:14px; padding:22px; }
-.char .avatar { width:64px; height:64px; border-radius:50%; border:2px solid var(--gold-dim); display:flex; align-items:center; justify-content:center; font-size:28px; background:var(--bg); margin-bottom:12px; }
+.char .avatar { width:64px; height:64px; border-radius:50%; border:2px solid var(--gold-dim); display:flex; align-items:center; justify-content:center; font-size:28px; background:var(--bg); margin-bottom:12px; overflow:hidden; }
+.char .avatar img { width:100%; height:100%; object-fit:cover; }
 .char .nm { font-family:Georgia,serif; font-size:17px; color:var(--gold); }
 .char .role { font-size:11px; color:var(--dim); margin:4px 0 14px; letter-spacing:.5px; }
 .char .desc { font-size:12.5px; color:#b9bdc7; line-height:1.7; }
@@ -431,7 +433,7 @@ body.shake { animation:shake .5s; }
 <div id="tab-chars" class="hidden">
 <div class="chars">
   <div class="char">
-    <div class="avatar">📜</div>
+    <div class="avatar"><img src="avatars/madam.png" alt="鄭마담"></div>
     <div class="nm">鄭마담</div>
     <div class="role">여의도 · 살롱의 안주인 · 시스템 트레이딩 총괄</div>
     <div class="desc">비트코인 시스템 포지션을 총괄한다. 매일 아침 9시 판 상황을 서신으로 전하고, 판이 움직이는 순간엔 급전을 띄운다. 추세와 국면이 허락할 때만 움직이는 것이 그녀의 원칙.</div>
@@ -456,7 +458,7 @@ body.shake { animation:shake .5s; }
     </div>
   </div>
   <div class="char">
-    <div class="avatar">📨</div>
+    <div class="avatar"><img src="avatars/andy.png" alt="Andy"></div>
     <div class="nm">Andy</div>
     <div class="role">Chicago · 종목 스카우터 · 매일 20시 전보</div>
     <div class="desc">거래대금 상위 150여 개 알트코인을 매일 밤 스캔한다. 갓 돌파한 놈, 달리는 놈, 바닥에서 기어오르는 놈 — 그물에 걸린 것만 가져온다. 고르는 건 언제나 너다.</div>
@@ -480,7 +482,7 @@ body.shake { animation:shake .5s; }
     </div>
   </div>
   <div class="char">
-    <div class="avatar">🎓</div>
+    <div class="avatar"><img src="avatars/prof.png" alt="Prof. Justin"></div>
     <div class="nm">Prof. Justin</div>
     <div class="role">연구실 · 수석 연구원 · 월간 소견서</div>
     <div class="desc">매월 1일, 시장 국면 판정 모형을 최신 데이터로 다시 학습시키고 소견서를 발행한다. 판단은 모형이, 결정은 사람이 — 연구실의 오랜 원칙이다.</div>
@@ -894,10 +896,12 @@ setInterval(() => {
 
 // ═══ 라운지 피드 ═══
 const feed = $('feed');
+const CHAT_AVA = { madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png' };
 function say(cls, who, body) {
   const m = document.createElement('div');
   m.className = 'msg ' + cls;
-  m.innerHTML = (who ? `<span class="who">${who}</span>` : '') + `<span class="body">${body}</span>`;
+  const ava = CHAT_AVA[cls] ? `<img class="ava" src="${CHAT_AVA[cls]}" alt="">` : '';
+  m.innerHTML = ava + (who ? `<span class="who">${who}</span>` : '') + `<span class="body">${body}</span>`;
   feed.appendChild(m);
   while (feed.children.length > 60) feed.removeChild(feed.firstChild);
   feed.scrollTop = feed.scrollHeight;
