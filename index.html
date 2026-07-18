@@ -71,6 +71,16 @@ canvas { display:block; }
 .char .letters h4 { font-size:10px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; }
 .letter { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; line-height:1.6; color:#c6cad3; margin-bottom:8px; white-space:pre-line; }
 .letter .lt { font-size:10px; color:var(--dim); margin-bottom:4px; }
+.char .chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 2px; }
+.char .chip { font-size:10px; letter-spacing:.5px; color:#b9bdc7; border:1px solid var(--line); border-radius:20px; padding:4px 10px; background:var(--bg); }
+.char .chip b { color:var(--gold); font-weight:600; }
+.char .radarWrap { display:flex; justify-content:center; margin:8px 0 2px; }
+.char .diary { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+.char .diary h4 { font-size:10px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; }
+.char .de { display:flex; gap:8px; font-size:11.5px; line-height:1.55; color:#c6cad3; padding:5px 0; border-bottom:1px dashed var(--line); }
+.char .de:last-child { border-bottom:none; }
+.char .de .dt { flex:0 0 44px; color:var(--dim); font-size:10px; padding-top:2px; }
+.char .verdict { display:inline-block; margin-top:10px; font-size:11px; letter-spacing:1px; color:var(--gold); border:1px solid var(--gold-dim); border-radius:6px; padding:5px 12px; background:var(--bg); }
 
 #deck { display:flex; gap:8px; padding:14px; overflow:hidden; align-items:flex-end; justify-content:flex-end; height:150px; }
 .card { width:76px; min-width:76px; height:118px; border-radius:9px; position:relative; flex-shrink:0;
@@ -405,6 +415,19 @@ body.shake { animation:shake .5s; }
     <div class="nm">鄭마담</div>
     <div class="role">여의도 · 살롱의 안주인 · 시스템 트레이딩 총괄</div>
     <div class="desc">비트코인 시스템 포지션을 총괄한다. 매일 아침 9시 판 상황을 서신으로 전하고, 판이 움직이는 순간엔 급전을 띄운다. 추세와 국면이 허락할 때만 움직이는 것이 그녀의 원칙.</div>
+    <div class="chips">
+      <span class="chip">무대 <b>BTC · 金</b></span>
+      <span class="chip">호흡 <b>수 주 단위</b></span>
+      <span class="chip">원칙 <b>추세 × 국면 이중 관문</b></span>
+      <span class="chip">쉬는 법 <b>금괴를 안고</b></span>
+    </div>
+    <div class="radarWrap"><canvas id="rd_madam" width="190" height="140"></canvas></div>
+    <div class="diary">
+      <h4>매매 일지</h4>
+      <div class="de"><span class="dt">7/14</span><span>새벽 1시, 추세가 꺾이자마자 대장 정리 — <b style="color:var(--grn)">+1.5%</b>, 12일 장사. 2초 뒤 금괴 입고. 손이 빠른 게 아니라 시스템이 빠른 거야.</span></div>
+      <div class="de"><span class="dt">7/2</span><span>대장 61,582에 진입. 국면이 열렸고, 추세가 손짓했으니까.</span></div>
+      <div class="de"><span class="dt">평소</span><span>판이 험할 땐 아무것도 안 한다. 그것도 매매다.</span></div>
+    </div>
     <div class="letters">
       <h4>최근 서신</h4>
       <div class="letter"><div class="lt">오늘 09:05 · 아침 서신</div>비트는 잠시 내려놓고 금괴로 갈아탄 상태야. 판이 험할 땐 금이 이불이지.
@@ -417,6 +440,19 @@ body.shake { animation:shake .5s; }
     <div class="nm">Andy</div>
     <div class="role">Chicago · 종목 스카우터 · 매일 20시 전보</div>
     <div class="desc">거래대금 상위 150여 개 알트코인을 매일 밤 스캔한다. 갓 돌파한 놈, 달리는 놈, 바닥에서 기어오르는 놈 — 그물에 걸린 것만 가져온다. 고르는 건 언제나 너다.</div>
+    <div class="chips">
+      <span class="chip">전장 <b>알트 150여 곳</b></span>
+      <span class="chip">타전 <b>매일 20:00</b></span>
+      <span class="chip">그물 <b>돌파 · 추세 · 바닥 3종</b></span>
+      <span class="chip">신조 <b>발굴은 기계, 결정은 사람</b></span>
+    </div>
+    <div class="radarWrap"><canvas id="rd_andy" width="190" height="140"></canvas></div>
+    <div class="diary">
+      <h4>스캔 일지</h4>
+      <div class="de"><span class="dt">어제</span><span>전장 136곳 훑어 27놈 포착. TRX 전적이 물건 — 10전 8승짜리 싸움꾼이다.</span></div>
+      <div class="de"><span class="dt">7/13</span><span>그물 유동성 하한 보강. 약세장이라 후보가 줄었지만, 그게 정상이다.</span></div>
+      <div class="de"><span class="dt">평소</span><span>떨어지는 칼도 그물엔 담는다. 잡을지 말지는 네 손이 정하는 거고.</span></div>
+    </div>
     <div class="letters">
       <h4>최근 전보</h4>
       <div class="letter"><div class="lt">어제 20:00 · 스캔 전보</div>전장 136곳 훑었고 27놈이 걸렸다. TRX 전적이 물건이야 (10전 8승).
@@ -428,6 +464,19 @@ body.shake { animation:shake .5s; }
     <div class="nm">Prof. Justin</div>
     <div class="role">연구실 · 수석 연구원 · 월간 소견서</div>
     <div class="desc">매월 1일, 시장 국면 판정 모형을 최신 데이터로 다시 학습시키고 소견서를 발행한다. 판단은 모형이, 결정은 사람이 — 연구실의 오랜 원칙이다.</div>
+    <div class="chips">
+      <span class="chip">재학습 <b>매월 1일</b></span>
+      <span class="chip">판정 <b>허용 · 차단 · 비상 3단계</b></span>
+      <span class="chip">재료 <b>온체인 · 심리 · 거시</b></span>
+      <span class="chip">비법 <b>연구실 기밀</b></span>
+    </div>
+    <div class="radarWrap"><canvas id="rd_justin" width="190" height="140"></canvas></div>
+    <div class="diary">
+      <h4>연구 일지</h4>
+      <div class="de"><span class="dt">7/1</span><span>7월 재학습 완료. 국면 판정은 "진입 허용" — 겨울이 끝났다 단정할 순 없으나 봄을 준비할 계절.</span></div>
+      <div class="de"><span class="dt">평소</span><span>모형이 무엇을 보는지는 늘 그렇듯 연구실 비밀입니다. 숫자는 차갑지만, 그래서 믿을 만합니다.</span></div>
+    </div>
+    <span class="verdict">이달의 판정 — 진입 허용</span>
     <div class="letters">
       <h4>최근 소견서</h4>
       <div class="letter"><div class="lt">7월 1일 · 월간 소견서</div>이달 시장 국면: "진입 허용" 판정입니다. 데이터가 말하는 바는 명확합니다 — 겨울이 끝났다고 단정할 수는 없으나, 적어도 봄을 준비할 계절이라는 것.</div>
@@ -1194,6 +1243,38 @@ function blindFinish(early) {
 }
 window.blindOpen = blindOpen; window.blindStart = blindStart;
 window.blindTrade = blindTrade; window.blindNext = blindNext; window.blindFinish = blindFinish;
+
+// ═══ 전략가 스타일 레이더 ═══
+function drawRadar(id, vals, color) {
+  const cv = $(id); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const labels = ['기술', '거시', '온체인', '심리', '인내'];
+  const cx = cv.width / 2, cy = cv.height / 2 + 4, R = 44;
+  const pt = (i, r) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / 5;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+  ctx.strokeStyle = '#232838'; ctx.fillStyle = '#6b7280'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+  for (const f of [0.33, 0.66, 1]) {
+    ctx.beginPath();
+    for (let i = 0; i <= 5; i++) { const [x, y] = pt(i % 5, R * f); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  }
+  for (let i = 0; i < 5; i++) {
+    const [x, y] = pt(i, R);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
+    const [lx, ly] = pt(i, R + 14);
+    ctx.fillText(labels[i], lx, ly + 3);
+  }
+  ctx.beginPath();
+  for (let i = 0; i <= 5; i++) { const [x, y] = pt(i % 5, R * vals[i % 5] / 100); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.closePath();
+  ctx.fillStyle = color + '33'; ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke(); ctx.lineWidth = 1;
+}
+drawRadar('rd_madam',  [85, 70, 60, 35, 95], '#ec4899');
+drawRadar('rd_andy',   [90, 40, 55, 65, 50], '#3b82f6');
+drawRadar('rd_justin', [55, 85, 90, 75, 80], '#10b981');
 
 // 선물 청산
 const wsl = new WebSocket('wss://fstream.binance.com/stream?streams=!forceOrder@arr/btcdomusdt@kline_1m');
