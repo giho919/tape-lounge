@@ -180,6 +180,7 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .tfb { flex:1; text-align:center; font-size:10px; letter-spacing:.5px; color:var(--dim); padding:4px 0; border:1px solid var(--line); border-radius:6px; cursor:pointer; }
 .tfb:hover { color:var(--gold); }
 .tfb.on { color:var(--gold); border-color:var(--gold-dim); background:var(--panel2); }
+.maLgd { flex:0 0 auto; font-size:9.5px; color:var(--dim); padding:5px 2px 0 6px; letter-spacing:.5px; white-space:nowrap; }
 .chd { display:flex; gap:12px; align-items:baseline; padding:8px 14px; font-size:11px; color:var(--dim); border-bottom:1px solid var(--line); }
 .chd .sym { color:#fff; font-weight:700; letter-spacing:1px; }
 .chd .px2 { font-size:14px; color:#fff; }
@@ -286,6 +287,7 @@ body.shake { animation:shake .5s; }
         <span class="tfb" data-tf="1d" onclick="setTf('1d')">일봉</span>
         <span class="tfb" data-tf="1w" onclick="setTf('1w')">주봉</span>
         <span class="tfb" data-tf="1M" onclick="setTf('1M')">월봉</span>
+        <span class="maLgd">MA <b style="color:#f6d365">10</b> <b style="color:#ff9f43">20</b> <b style="color:#4ade80">60</b> <b style="color:#38bdf8">120</b> <b style="color:#c084fc">200</b></span>
       </div>
       <div class="caroPage" data-p="0">
         <div class="chd"><span class="sym">BTC/USDT</span><span class="px2 num" id="livePx">—</span><span class="num" id="liveChg">—</span><span style="margin-left:auto">마감 <b class="num" id="cd">--</b></span></div>
@@ -345,14 +347,14 @@ body.shake { animation:shake .5s; }
     <div class="chatlock">💬 라이브 채팅은 곧 열립니다 — 지금은 살롱 식구들의 서신과 시장 소식이 흐르는 중.</div>
   </div>
   <div class="panel">
-    <h3>🎯 다음 캔들 예측 <small>지금 거는 베팅은 다음 봉 판정</small></h3>
+    <h3>🎯 다음 캔들 예측 <small><b style="color:var(--gold)">BTC 1분봉</b> 고정 · 지금 거는 베팅은 다음 봉 판정</small></h3>
     <div id="betBtns">
       <div class="betBtn up" id="betUp">🟢 UP</div>
       <div class="betBtn dn" id="betDn">🔴 DOWN</div>
     </div>
     <div id="chipZone"></div>
     <div id="betArmed"></div>
-    <div id="betRes"><span style="color:var(--dim)">다음 캔들의 방향을 미리 골라두세요</span></div>
+    <div id="betRes"><span style="color:var(--dim)">다음 1분봉(BTC)의 방향을 미리 골라두세요</span></div>
     <div id="betStat">
       <div>연승<b class="num" id="stStreak">0</b></div>
       <div>최고 연승<b class="num gold" id="stBest">0</b></div>
@@ -596,7 +598,8 @@ pollUpbit(); setInterval(pollUpbit, 3000);
   } catch(e) {}
 })();
 
-// ═══ 라이브 차트 2x2 (lightweight-charts) ═══
+// ═══ 라이브 차트 (lightweight-charts) ═══
+const MA_DEFS = [[10, '#f6d365'], [20, '#ff9f43'], [60, '#4ade80'], [120, '#38bdf8'], [200, '#c084fc']];
 function makeChart(elId) {
   const el = $(elId);
   const ch = LightweightCharts.createChart(el, {
@@ -612,8 +615,23 @@ function makeChart(elId) {
     upColor: '#4ade80', downColor: '#f87171', borderVisible: false,
     wickUpColor: '#4ade80', wickDownColor: '#f87171',
   });
+  const ma = MA_DEFS.map(([p, c]) => ch.addLineSeries({
+    color: c, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
+  }));
   new ResizeObserver(() => ch.applyOptions({ width: el.clientWidth })).observe(el);
-  return { ch, s };
+  return { ch, s, ma };
+}
+function seedMA(chart, closes, times) {
+  MA_DEFS.forEach(([p], mi) => {
+    const data = [];
+    let sum = 0;
+    for (let j = 0; j < closes.length; j++) {
+      sum += closes[j];
+      if (j >= p) sum -= closes[j - p];
+      if (j >= p - 1) data.push({ time: times[j], value: sum / p });
+    }
+    chart.ma[mi].setData(data);
+  });
 }
 const cBTC = makeChart('c_btc'), cETH = makeChart('c_eth'), cDOM = makeChart('c_dom'), cQQQ = makeChart('c_qqq');
 
@@ -670,6 +688,7 @@ async function seedAll() {
       if (!Array.isArray(kl)) throw new Error('bad');
       chartSeed[i] = kl;
       chartOf(i).s.setData(kl.map(k => ({ time: k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4] })));
+      seedMA(chartOf(i), kl.map(k => +k[4]), kl.map(k => k[0]/1000));
       chartOf(i).ch.timeScale().scrollToRealTime();
     } catch(e) { chartSeed[i] = null; }
   }));
@@ -694,9 +713,25 @@ function cdTxt(ms) {
   return (s/86400|0) + '일';
 }
 
+function maTick(i, k) {
+  const seed = chartSeed[i];
+  if (!seed) return;
+  const closes = [];   // 완결 봉 종가, 최신부터 (진행 중 봉 제외)
+  for (let j = seed.length - 1; j >= 0 && closes.length < 200; j--) {
+    if (seed[j][0] < k.t) closes.push(+seed[j][4]);
+  }
+  MA_DEFS.forEach(([p], mi) => {
+    if (closes.length < p - 1) return;
+    let sum = +k.c;
+    for (let j = 0; j < p - 1; j++) sum += closes[j];
+    chartOf(i).ma[mi].update({ time: k.t/1000, value: sum / p });
+  });
+}
+
 function handleChartK(stream, k) {
   const i = stream.startsWith('btcdom') ? 2 : stream.startsWith('btcusdt') ? 0 : stream.startsWith('ethusdt') ? 1 : 3;
   chartOf(i).s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
+  maTick(i, k);
   if (i === 0) $('cd').textContent = cdTxt(k.T - Date.now());
   if (i === 1) {
     $('ethPx').textContent = fmt(+k.c, 1);
@@ -716,7 +751,9 @@ function handleChartK(stream, k) {
   }
   if (k.x) {
     if (chartSeed[i]) {
-      chartSeed[i].push([k.t, k.o, k.h, k.l, k.c, k.v]);
+      const last = chartSeed[i][chartSeed[i].length - 1];
+      if (last && last[0] === k.t) chartSeed[i][chartSeed[i].length - 1] = [k.t, k.o, k.h, k.l, k.c, k.v];
+      else chartSeed[i].push([k.t, k.o, k.h, k.l, k.c, k.v]);
       if (chartSeed[i].length > 300) chartSeed[i].shift();
     }
     if (i === caroIdx) dealFromSeedTail(i);
@@ -1206,7 +1243,7 @@ betRender();  // 초기 렌더 (모든 정의 이후에 호출해야 함 — TDZ
 // ═══ 🎰 블라인드 차트 게임 ═══
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
 const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
-let bgCh = null, bgS = null, bg = null;
+let bgCh = null, bgS = null, bgMA = null, bg = null;
 
 function blindOpen() {
   if (!bgCh) {
@@ -1225,6 +1262,9 @@ function blindOpen() {
         wickUpColor: '#4ade80', wickDownColor: '#f87171',
         priceFormat: { type: 'price', precision: 2, minMove: 0.01 },
       });
+      bgMA = MA_DEFS.map(([p, c]) => bgCh.addLineSeries({
+        color: c, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
+      }));
       bgCh.resize(el.clientWidth, el.clientHeight || 480);
     });
   }
@@ -1250,6 +1290,7 @@ async function blindStart() {
         idx: BG_HIST - 1, cash: 10000, coin: 0, trades: [], markers: [], over: false,
       };
       bgS.setData(bg.norm.slice(0, bg.idx + 1));
+      bgMASet();
       bgS.setMarkers([]);
       bgCh.timeScale().fitContent();
       $('bgOver').classList.add('hidden');
@@ -1262,6 +1303,19 @@ async function blindStart() {
   $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
 }
 
+function bgMASet() {
+  const vis = bg.norm.slice(0, bg.idx + 1);
+  MA_DEFS.forEach(([p], mi) => {
+    const data = [];
+    let sum = 0;
+    for (let j = 0; j < vis.length; j++) {
+      sum += vis[j].close;
+      if (j >= p) sum -= vis[j - p].close;
+      if (j >= p - 1) data.push({ time: vis[j].time, value: sum / p });
+    }
+    bgMA[mi].setData(data);
+  });
+}
 function bgPrice() { return bg.norm[bg.idx].close; }
 function bgTotal() { return bg.cash + bg.coin * bgPrice(); }
 
@@ -1305,6 +1359,12 @@ function blindNext(n) {
   for (let i = 0; i < n && bg.idx < BG_TOTAL - 1; i++) {
     bg.idx++;
     bgS.update(bg.norm[bg.idx]);
+    MA_DEFS.forEach(([p], mi) => {
+      if (bg.idx + 1 < p) return;
+      let sum = 0;
+      for (let j = bg.idx - p + 1; j <= bg.idx; j++) sum += bg.norm[j].close;
+      bgMA[mi].update({ time: bg.norm[bg.idx].time, value: sum / p });
+    });
   }
   bgCh.timeScale().scrollToRealTime();
   blindStatus();
