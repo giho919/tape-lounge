@@ -285,6 +285,7 @@ body.shake { animation:shake .5s; }
 .flowRow { display:flex; gap:14px; align-items:stretch; }
 .flowRow #rainWrap { flex:1; min-width:0; }
 #bookPanel { flex:0 0 234px; position:relative; }
+.bookLgd { font-size:9.5px; color:var(--dim); padding:0 11px 7px; letter-spacing:.3px; border-bottom:1px solid var(--line); margin-bottom:4px; }
 .bookSide { display:flex; flex-direction:column; }
 #bookAsks { justify-content:flex-end; }
 .bookRow { position:relative; display:flex; justify-content:space-between; align-items:center; height:16px; padding:0 11px; font-size:10.5px; }
@@ -343,6 +344,10 @@ body.shake { animation:shake .5s; }
 
 <div class="main">
   <div class="col">
+    <div class="panel" id="deckPanel">
+      <h3>🃏 캔들 덱 <small id="deckSub">BTC · 1분 — 마감마다 새 카드 · 장대봉 = 레어</small></h3>
+      <div id="deck"></div>
+    </div>
     <div class="panel caro">
       <div class="caroTabs">
         <span class="arr" onclick="caroMove(-1)">‹</span>
@@ -380,18 +385,7 @@ body.shake { animation:shake .5s; }
       </div>
     </div>
 
-    <div class="panel" id="deckPanel">
-      <h3>🃏 캔들 덱 <small id="deckSub">BTC · 1분 — 마감마다 새 카드 · 장대봉 = 레어</small></h3>
-      <div id="deck"></div>
-    </div>
-
     <div class="flowRow">
-    <div class="panel" id="bookPanel">
-      <h3>📊 호가창 <small>매도벽·매수벽 · 체결이 벽을 부순다</small></h3>
-      <div id="bookAsks" class="bookSide"></div>
-      <div id="bookMid"><span id="bookMidPx" class="num">—</span><span id="bookSpread" class="num"></span></div>
-      <div id="bookBids" class="bookSide"></div>
-    </div>
     <div class="panel" id="rainWrap">
       <h3>🌧 체결의 비 <small>실시간 전체 체결 · 왼쪽 매도 / 오른쪽 매수</small></h3>
       <div id="rainLegend">
@@ -416,6 +410,13 @@ body.shake { animation:shake .5s; }
       <canvas id="rain" height="330"></canvas>
       <span class="rainlbl" style="left:14px">◀ SELL</span>
       <span class="rainlbl" style="right:14px">BUY ▶</span>
+    </div>
+    <div class="panel" id="bookPanel">
+      <h3>📊 호가창</h3>
+      <div class="bookLgd">매도벽·매수벽 · 체결이 벽을 부순다</div>
+      <div id="bookAsks" class="bookSide"></div>
+      <div id="bookMid"><span id="bookMidPx" class="num">—</span><span id="bookSpread" class="num"></span></div>
+      <div id="bookBids" class="bookSide"></div>
     </div>
     </div>
 
