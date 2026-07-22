@@ -644,6 +644,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
   if (t.dataset.tab === 'game') blindOpen();
   if (t.dataset.tab === 'arena') arenaOpen();
+  if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
 });
 
 let usd = 0, krw = 0, usdtKrw = 1380, kimchi = null;
@@ -1169,20 +1170,53 @@ async function pushScore() {
   });
 }
 async function loadBoard() {
+  // 1) 정적 스냅샷 우선 — 서버가 주기적으로 push (CDN, 무한 확장 · Supabase 읽기 부하 0)
+  try {
+    const r = await fetch('reports/leaderboard.json?t=' + Math.floor(Date.now() / 60000));
+    if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j.length) { boardCache = j; renderBoard(); return; } }
+  } catch(e) {}
+  // 2) 폴백 — 스냅샷 없으면(초기·저트래픽) Supabase 직접
   if (!sbc) return;
   const { data } = await sbc.from('salon_board').select('*').order('streak_best', { ascending: false }).limit(20);
   if (data && data.length) { boardCache = data; renderBoard(); }
 }
-(async () => {
-  if (!sbc) return;
+
+// ═══ 채팅 지연 연결 — 실제 관여 시에만 Realtime 회선 사용 (무료 티어 200 동접 보호) ═══
+let chatChannel = null, chatHistoryLoaded = false, chatInteracted = false, chatIdleTimer = null;
+async function loadChatHistory() {
+  if (chatHistoryLoaded || !sbc) return;
+  chatHistoryLoaded = true;
   const { data } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
   if (data) data.reverse().forEach(m => sayUser(m.nick, m.body));
-  sbc.channel('salon-chat')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
-        p => sayUser(p.new.nick, p.new.body))
-    .subscribe();
-  loadBoard(); setInterval(loadBoard, 60000);
-})();
+}
+function chatWanted() {
+  const onLounge = document.querySelector('.tab.on')?.dataset.tab === 'lounge';
+  return sbc && chatInteracted && !document.hidden && onLounge;
+}
+async function syncChat() {
+  if (chatWanted()) {
+    if (!chatChannel) {
+      await loadChatHistory();
+      chatChannel = sbc.channel('salon-chat')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
+            p => sayUser(p.new.nick, p.new.body))
+        .subscribe();
+    }
+  } else if (chatChannel) {
+    sbc.removeChannel(chatChannel); chatChannel = null;   // 백그라운드·타 탭·유휴 시 회선 반납
+  }
+}
+function markActive() {
+  chatInteracted = true;
+  clearTimeout(chatIdleTimer);
+  chatIdleTimer = setTimeout(() => { chatInteracted = false; syncChat(); }, 5 * 60 * 1000);  // 5분 유휴 → 회선 반납
+  syncChat();
+}
+['click','keydown','scroll','touchstart'].forEach(ev => window.addEventListener(ev, markActive, { passive: true }));
+document.addEventListener('visibilitychange', syncChat);
+window.syncChat = syncChat;
+
+loadBoard();  // 리더보드는 로드 시 1회 (이후 내 점수 변동 시에만 갱신)
 
 // ═══ 칩 스택 ═══
 const chipZone = $('chipZone');
