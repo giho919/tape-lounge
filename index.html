@@ -36,6 +36,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 
 .main { display:grid; grid-template-columns:2.1fr 1fr; gap:12px; }
 .col { display:flex; flex-direction:column; gap:12px; }
+#chatPanel { flex:1 1 auto; min-height:360px; }   /* 우측 컬럼을 꽉 채워 채팅을 길게 + 리더보드를 바닥(좌측과 수평)에 고정 */
 .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
 .panel h3 { font-size:11px; letter-spacing:3px; color:var(--gold); padding:11px 15px 9px; border-bottom:1px solid var(--line); font-weight:600; display:flex; justify-content:space-between; align-items:baseline; }
 .panel h3 small { color:var(--dim); letter-spacing:1px; font-weight:400; }
@@ -970,12 +971,7 @@ function sizeRain(){
   rain.height = Math.max(220, wrap.clientHeight - h3h - lg - 6);
 }
 function alignPanels(){
-  // 채팅 패널 하단 = 캔들 덱 하단 (수평 맞춤)
-  const cp = $('chatPanel');
-  cp.style.height = '';
-  const dB = $('deckPanel').getBoundingClientRect().bottom;
-  const cT = cp.getBoundingClientRect().top;
-  cp.style.height = Math.max(320, Math.round(dB - cT)) + 'px';
+  // 컬럼 정렬은 CSS grid stretch + 채팅 flex:1이 담당 — 여기선 rain 캔버스 크기만 갱신
   sizeRain();
 }
 window.addEventListener('resize', alignPanels);
