@@ -228,6 +228,11 @@ body.shake { animation:shake .5s; }
 .gbtn.sell { border-color:rgba(248,113,113,.35); color:var(--red); }
 .gbtn.next { background:var(--gold-dim); border-color:var(--gold); color:#0c0e12; font-weight:800; }
 .gbtn.next:hover { color:#0c0e12; filter:brightness(1.15); }
+.bgPctRow { display:flex; align-items:center; gap:9px; padding:8px 15px 4px; }
+.bgPctRow input[type=range] { flex:1; accent-color:var(--gold); height:4px; }
+.bgPctRow input[type=number] { width:52px; background:var(--bg); border:1px solid var(--line); border-radius:6px; color:#e5e7eb; font-size:12px; text-align:center; padding:4px 2px; }
+.bgPctRow input[type=number]::-webkit-inner-spin-button { opacity:.5; }
+.bgPctSign { font-size:11px; color:var(--dim); }
 #bgLog { max-height:200px; overflow-y:auto; padding:8px 15px 12px; font-size:11px; }
 #bgLog .tr { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
@@ -495,6 +500,15 @@ body.shake { animation:shake .5s; }
         <div class="gbtn sell" onclick="blindTrade('sell',.25)">매도 25%</div>
         <div class="gbtn sell" onclick="blindTrade('sell',.5)">50%</div>
         <div class="gbtn sell" onclick="blindTrade('sell',1)">전량</div>
+      </div>
+      <div class="bgPctRow">
+        <input type="range" id="bgPctSlider" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
+        <input type="number" id="bgPctNum" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
+        <span class="bgPctSign">%</span>
+      </div>
+      <div class="gRow">
+        <div class="gbtn buy" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">매수 25%</div>
+        <div class="gbtn sell" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">매도 25%</div>
       </div>
       <div class="gRow">
         <div class="gbtn next" onclick="blindNext(1)">다음 날 ▶</div>
@@ -1575,7 +1589,15 @@ betRender();  // 초기 렌더 (모든 정의 이후에 호출해야 함 — TDZ
 // ═══ 🎰 블라인드 차트 게임 ═══
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
 const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
-let bgCh = null, bgS = null, bgMA = null, bg = null;
+let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25;
+function bgPctSync(v) {
+  v = Math.max(1, Math.min(100, Math.round(+v) || 1));
+  bgPct = v;
+  $('bgPctSlider').value = v; $('bgPctNum').value = v;
+  $('bgBuyCustom').textContent = `매수 ${v}%`;
+  $('bgSellCustom').textContent = `매도 ${v}%`;
+}
+window.bgPctSync = bgPctSync;
 
 function blindOpen() {
   if (!bgCh) {
@@ -1597,11 +1619,16 @@ function blindOpen() {
       bgMA = MA_DEFS.map(([p, c]) => bgCh.addLineSeries({
         color: c, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
       }));
+      bgVol = bgCh.addHistogramSeries({
+        priceFormat: { type: 'volume' }, priceScaleId: '', priceLineVisible: false, lastValueVisible: false,
+      });
+      bgVol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16%에 거래량 오버레이
       bgCh.resize(el.clientWidth, el.clientHeight || 480);
     });
   }
   const best = localStorage.getItem('salonBlindBest');
   if (best !== null) $('bgBest').textContent = `최고 기록 ${(+best >= 0 ? '+' : '')}${(+best).toFixed(1)}%`;
+  bgPctSync(bgPct);
 }
 
 async function blindStart() {
@@ -1618,11 +1645,12 @@ async function blindStart() {
         sym,
         realStart: new Date(kl[0][0]).toISOString().slice(0, 10),
         realEnd: new Date(kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
-        norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100 })),
+        norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
         idx: BG_HIST - 1, cash: 10000, coin: 0, trades: [], markers: [], over: false,
       };
       bgS.setData(bg.norm.slice(0, bg.idx + 1));
       bgMASet();
+      bgVolSet();
       bgS.setMarkers([]);
       bgCh.timeScale().fitContent();
       $('bgOver').classList.add('hidden');
@@ -1647,6 +1675,11 @@ function bgMASet() {
     }
     bgMA[mi].setData(data);
   });
+}
+function bgVolSet() {
+  bgVol.setData(bg.norm.slice(0, bg.idx + 1).map(x => ({
+    time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)',
+  })));
 }
 function bgPrice() { return bg.norm[bg.idx].close; }
 function bgTotal() { return bg.cash + bg.coin * bgPrice(); }
@@ -1691,6 +1724,8 @@ function blindNext(n) {
   for (let i = 0; i < n && bg.idx < BG_TOTAL - 1; i++) {
     bg.idx++;
     bgS.update(bg.norm[bg.idx]);
+    const x = bg.norm[bg.idx];
+    bgVol.update({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)' });
     MA_DEFS.forEach(([p], mi) => {
       if (bg.idx + 1 < p) return;
       let sum = 0;
