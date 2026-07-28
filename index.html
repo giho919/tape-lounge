@@ -228,11 +228,28 @@ body.shake { animation:shake .5s; }
 .gbtn.sell { border-color:rgba(248,113,113,.35); color:var(--red); }
 .gbtn.next { background:var(--gold-dim); border-color:var(--gold); color:#0c0e12; font-weight:800; }
 .gbtn.next:hover { color:#0c0e12; filter:brightness(1.15); }
-.bgPctRow { display:flex; align-items:center; gap:9px; padding:8px 15px 4px; }
-.bgPctRow input[type=range] { flex:1; accent-color:var(--gold); height:4px; }
-.bgPctRow input[type=number] { width:52px; background:var(--bg); border:1px solid var(--line); border-radius:6px; color:#e5e7eb; font-size:12px; text-align:center; padding:4px 2px; }
-.bgPctRow input[type=number]::-webkit-inner-spin-button { opacity:.5; }
-.bgPctSign { font-size:11px; color:var(--dim); }
+/* 거래소 스타일 주문 비율 위젯 */
+.ordBox { margin:10px 15px 2px; padding:11px 13px 9px; background:var(--bg); border:1px solid var(--line); border-radius:10px; }
+.ordHead { display:flex; justify-content:space-between; align-items:center; font-size:10.5px; color:var(--dim); letter-spacing:.5px; margin-bottom:9px; }
+.ordNumWrap { display:flex; align-items:center; gap:4px; background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:3px 8px; }
+.ordNumWrap input[type=number] { width:34px; background:none; border:none; color:var(--gold); font-size:12.5px; font-weight:700; text-align:right; padding:0; }
+.ordNumWrap input[type=number]:focus { outline:none; }
+.ordNumWrap input[type=number]::-webkit-inner-spin-button { opacity:0; }
+.ordPct { font-size:11px; color:var(--dim); }
+.ordSlider { position:relative; height:20px; display:flex; align-items:center; }
+.ordFill { position:absolute; left:0; height:5px; border-radius:3px; background:linear-gradient(90deg,#8a7325,var(--gold)); pointer-events:none; box-shadow:0 0 8px rgba(212,175,55,.35); }
+.ordSlider input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:20px; margin:0; background:transparent; position:relative; z-index:2; cursor:pointer; }
+.ordSlider input[type=range]::-webkit-slider-runnable-track { height:5px; border-radius:3px; background:var(--line); }
+.ordSlider input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; margin-top:-5px; border-radius:50%; background:var(--gold); border:2px solid #0c0e12; box-shadow:0 1px 5px rgba(0,0,0,.6); cursor:pointer; }
+.ordSlider input[type=range]::-moz-range-track { height:5px; border-radius:3px; background:var(--line); }
+.ordSlider input[type=range]::-moz-range-thumb { width:15px; height:15px; border-radius:50%; background:var(--gold); border:2px solid #0c0e12; cursor:pointer; }
+.ordTicks { display:flex; justify-content:space-between; padding:5px 1px 0; }
+.ordTicks span { font-size:9.5px; color:var(--dim); cursor:pointer; letter-spacing:.3px; padding:1px 3px; border-radius:3px; }
+.ordTicks span:hover { color:var(--gold); background:rgba(212,175,55,.1); }
+.gbtn.buy.solid { background:linear-gradient(160deg,#4ade80,#2fae63); border-color:transparent; color:#06210f; font-weight:800; }
+.gbtn.buy.solid:hover { filter:brightness(1.1); color:#06210f; }
+.gbtn.sell.solid { background:linear-gradient(160deg,#f87171,#d43f3f); border-color:transparent; color:#2a0a0a; font-weight:800; }
+.gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 #bgLog { max-height:200px; overflow-y:auto; padding:8px 15px 12px; font-size:11px; }
 #bgLog .tr { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
@@ -491,24 +508,20 @@ body.shake { animation:shake .5s; }
         <div class="r"><div class="l2">총자산</div><div class="v2 num" id="bgTot">$10,000</div></div>
         <div class="r"><div class="l2">수익률</div><div class="v2 num" id="bgRoi">+0.00%</div></div>
       </div>
-      <div class="gRow">
-        <div class="gbtn buy" onclick="blindTrade('buy',.25)">매수 25%</div>
-        <div class="gbtn buy" onclick="blindTrade('buy',.5)">50%</div>
-        <div class="gbtn buy" onclick="blindTrade('buy',1)">몰빵</div>
+      <div class="ordBox">
+        <div class="ordHead"><span>주문 비율</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="1" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
+        <div class="ordSlider">
+          <div class="ordFill" id="bgPctFill" style="width:25%"></div>
+          <input type="range" id="bgPctSlider" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
+        </div>
+        <div class="ordTicks">
+          <span onclick="bgPctSync(25)">25</span><span onclick="bgPctSync(50)">50</span>
+          <span onclick="bgPctSync(75)">75</span><span onclick="bgPctSync(100)">100</span>
+        </div>
       </div>
       <div class="gRow">
-        <div class="gbtn sell" onclick="blindTrade('sell',.25)">매도 25%</div>
-        <div class="gbtn sell" onclick="blindTrade('sell',.5)">50%</div>
-        <div class="gbtn sell" onclick="blindTrade('sell',1)">전량</div>
-      </div>
-      <div class="bgPctRow">
-        <input type="range" id="bgPctSlider" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
-        <input type="number" id="bgPctNum" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
-        <span class="bgPctSign">%</span>
-      </div>
-      <div class="gRow">
-        <div class="gbtn buy" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">매수 25%</div>
-        <div class="gbtn sell" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">매도 25%</div>
+        <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">매수 25%</div>
+        <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">매도 25%</div>
       </div>
       <div class="gRow">
         <div class="gbtn next" onclick="blindNext(1)">다음 날 ▶</div>
@@ -780,9 +793,12 @@ function makeChart(elId) {
   const ma = MA_DEFS.map(([p, c]) => ch.addLineSeries({
     color: c, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
   }));
+  const vol = ch.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: '', priceLineVisible: false, lastValueVisible: false });
+  vol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16% 오버레이
   new ResizeObserver(() => ch.applyOptions({ width: el.clientWidth })).observe(el);
-  return { ch, s, ma };
+  return { ch, s, ma, vol };
 }
+const volColor = (o, c) => c >= o ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)';
 function seedMA(chart, closes, times) {
   MA_DEFS.forEach(([p], mi) => {
     const data = [];
@@ -850,6 +866,7 @@ async function seedAll() {
       if (!Array.isArray(kl)) throw new Error('bad');
       chartSeed[i] = kl;
       chartOf(i).s.setData(kl.map(k => ({ time: k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4] })));
+      chartOf(i).vol.setData(kl.map(k => ({ time: k[0]/1000, value: +k[5], color: volColor(+k[1], +k[4]) })));
       seedMA(chartOf(i), kl.map(k => +k[4]), kl.map(k => k[0]/1000));
       chartOf(i).ch.timeScale().scrollToRealTime();
     } catch(e) { chartSeed[i] = null; }
@@ -893,6 +910,7 @@ function maTick(i, k) {
 function handleChartK(stream, k) {
   const i = stream.startsWith('btcdom') ? 2 : stream.startsWith('btcusdt') ? 0 : stream.startsWith('ethusdt') ? 1 : 3;
   chartOf(i).s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
+  chartOf(i).vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
   maTick(i, k);
   if (i === 0) $('cd').textContent = cdTxt(k.T - Date.now());
   if (i === 1) {
@@ -1594,6 +1612,7 @@ function bgPctSync(v) {
   v = Math.max(1, Math.min(100, Math.round(+v) || 1));
   bgPct = v;
   $('bgPctSlider').value = v; $('bgPctNum').value = v;
+  $('bgPctFill').style.width = v + '%';
   $('bgBuyCustom').textContent = `매수 ${v}%`;
   $('bgSellCustom').textContent = `매도 ${v}%`;
 }
