@@ -1189,8 +1189,21 @@ window.setNick = setNick;
 const SUPA_URL = 'https://mmvhyzajmfkilldxxazs.supabase.co';
 const SUPA_KEY = 'sb_publishable_S5ohCvizmH8zI-H1wvRupA_aHTG4YOH';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let sbc = null;
+let sbc = null, myUid = null;
 try { sbc = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.log('supabase off', e); }
+// 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
+async function ensureAuth() {
+  if (!sbc) return null;
+  if (myUid) return myUid;
+  try {
+    const { data: { session } } = await sbc.auth.getSession();
+    if (session?.user) { myUid = session.user.id; return myUid; }
+    const { data, error } = await sbc.auth.signInAnonymously();
+    if (error) { console.log('anon auth off', error.message); return null; }
+    myUid = data.user?.id || null;
+  } catch(e) { console.log('auth err', e); }
+  return myUid;
+}
 
 function nickColor(n) {
   let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) % 360;
@@ -1211,20 +1224,22 @@ async function chatSend() {
   if (!body) return;
   if (myNick.startsWith('나 ')) { setNick(); if (myNick.startsWith('나 ')) return; }
   if (Date.now() - _lastChat < 3000) return;   // 도배 쿨다운 3초
+  await ensureAuth(); if (!myUid) return;
   _lastChat = Date.now();
   inp.value = '';
-  const { error } = await sbc.from('salon_chat').insert({ nick: myNick, body });
+  const { error } = await sbc.from('salon_chat').insert({ nick: myNick, body, user_id: myUid });
   if (error) console.log('chat err', error.message);
 }
 window.chatSend = chatSend;
 
 async function pushScore() {
   if (!sbc || myNick.startsWith('나 ')) return;
+  await ensureAuth(); if (!myUid) return;
   const blind = parseFloat(localStorage.getItem('salonBlindBest'));
   await sbc.from('salon_board').upsert({
-    nick: myNick, streak_best: bet.best, w: bet.w, l: bet.l,
+    user_id: myUid, nick: myNick, streak_best: bet.best, w: bet.w, l: bet.l,
     blind_best: isNaN(blind) ? null : blind, updated_at: new Date().toISOString(),
-  });
+  }, { onConflict: 'user_id' });
 }
 async function loadBoard() {
   // 1) 정적 스냅샷 우선 — 서버가 주기적으로 push (CDN, 무한 확장 · Supabase 읽기 부하 0)
