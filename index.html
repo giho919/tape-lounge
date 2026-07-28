@@ -502,6 +502,10 @@ body.shake { animation:shake .5s; }
       <span class="bgModeBtn on" data-m="solo" onclick="bgSetMode('solo')">🎲 나만의 판</span>
       <span class="bgModeBtn" data-m="daily" onclick="bgSetMode('daily')">🌍 오늘의 판</span>
     </div>
+    <div class="bgModeRow hidden" id="bgTrackRow">
+      <span class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</span>
+      <span class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</span>
+    </div>
     <div class="chd">
       <span class="sym" id="bgSym">❓ ??? / USDT</span>
       <span class="num" id="bgDay">—</span>
@@ -557,13 +561,13 @@ body.shake { animation:shake .5s; }
     <div class="panel hidden" id="bgPulsePanel">
       <h3>🌍 참가자 심리 <small>지금 이 순간 · 오늘의 판</small></h3>
       <div class="crowdRow">
-        <div class="crowdLbl">코인 보유 <span class="crowdSub" id="pulseSub">집계 중…</span></div>
+        <div class="crowdLbl"><span id="pulseLbl">코인 보유</span> <span class="crowdSub" id="pulseSub">집계 중…</span></div>
         <div class="crowdBar"><div class="cbL pulseCoin" id="pulseCoinBar" style="width:50%"></div><div class="cbR pulseCash" id="pulseCashBar" style="width:50%"></div></div>
         <div class="crowdNum num" id="pulseNum">—</div>
       </div>
     </div>
     <div class="panel hidden" id="bgDailyBoardPanel">
-      <h3>🏆 오늘의 순위 <small>완주자만 · 자정(KST) 초기화</small></h3>
+      <h3>🏆 오늘의 순위 <small id="bgDailyBoardSub">완주자만 · 자정(KST) 초기화</small></h3>
       <div id="bgDailyBoard"><div style="padding:10px 0;color:var(--dim)">아직 완주자가 없습니다</div></div>
     </div>
     <div class="panel">
@@ -1657,7 +1661,32 @@ betRender();  // 초기 렌더 (모든 정의 이후에 호출해야 함 — TDZ
 
 // ═══ 🎰 블라인드 차트 게임 ═══
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
+const BG_POOL_STOCK = ['AAPL','MSFT','GOOGL','AMZN','META','NFLX','NVDA','JPM','V','MA','DIS','KO','PEP','WMT','XOM','CVX','BA','MCD','NKE','INTC','AMD','CSCO','IBM','ADBE','CRM','PYPL','QCOM','VZ','PFE','JNJ','UNH','HD','COST'];
 const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
+// 미국주식은 CORS 미지원(Yahoo) → 프록시 폴백 체인. 오늘의 판은 세션당 1회 fetch라 프록시 불안정에 상대적으로 강함
+const BG_STOCK_PROXIES = [
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+];
+async function fetchStockDaily(sym, period1, period2) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&period1=${period1}&period2=${period2}`;
+  for (const mk of BG_STOCK_PROXIES) {
+    try {
+      const r = await (await fetch(mk(url))).json();
+      const res = r?.chart?.result?.[0];
+      const ts = res?.timestamp, q = res?.indicators?.quote?.[0];
+      if (!ts || !q) continue;
+      const rows = [];
+      for (let i = 0; i < ts.length; i++) {
+        if (q.open[i] == null || q.close[i] == null) continue;   // 휴장·결측일 제거
+        rows.push([ts[i]*1000, q.open[i], q.high[i], q.low[i], q.close[i], q.volume[i] || 0]);
+      }
+      if (rows.length) return rows;
+    } catch (e) { /* 다음 프록시 */ }
+  }
+  return null;
+}
 let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25;
 function bgPctSync(v) {
   v = Math.max(1, Math.min(100, Math.round(+v) || 1));
@@ -1854,12 +1883,22 @@ function dailyOrigin(dayKey) { return Date.parse(dayKey + 'T00:00:00+09:00'); } 
 function dailyElapsedDays(dayKey, nowMs = Date.now()) {
   return Math.max(0, Math.min(BG_PLAY, Math.floor((nowMs - dailyOrigin(dayKey)) / BG_TICK_MS)));
 }
-function dailyCandidate(dayKey, attempt) {
-  const hh = seededHash(dayKey + ':' + attempt);
+function dailyCandidate(dayKey, attempt, track) {
+  const hh = seededHash(dayKey + ':' + track + ':' + attempt);
+  if (track === 'stock') {
+    const sym = BG_POOL_STOCK[hh % BG_POOL_STOCK.length];
+    const minEnd = Date.parse('2019-06-01');   // PYPL(2015 IPO) 등 최소 상장 이력 확보한 여유
+    const maxEnd = dailyOrigin(dayKey) - 30 * 86400e3;   // 고정 기준 — 하루 내내 같은 값
+    const span = Math.max(1, maxEnd - minEnd);
+    const endMs = minEnd + (hh % 1000000007) % span;
+    const period2 = Math.floor(endMs / 1000);
+    const period1 = period2 - Math.ceil(BG_TOTAL * 1.6) * 86400;   // 주말·휴장 여유 포함해 넉넉히 받은 뒤 최근 BG_TOTAL 거래일만 사용
+    return { sym, stock: true, period1, period2 };
+  }
   const minEnd = Date.parse('2021-06-01');
   const maxEnd = dailyOrigin(dayKey) - 10 * 86400e3;   // 고정 기준(Date.now() 미사용) — 하루 내내 같은 값
   const span = Math.max(1, maxEnd - minEnd);
-  return { sym: BG_POOL[hh % BG_POOL.length], endTime: minEnd + (hh % 1000000007) % span };
+  return { sym: BG_POOL[hh % BG_POOL.length], stock: false, endTime: minEnd + (hh % 1000000007) % span };
 }
 function fmtHMS(ms) {
   const s = Math.floor(ms / 1000);
@@ -1869,12 +1908,12 @@ function dailyCleanup(todayKey) {
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const k = localStorage.key(i);
     if (!k) continue;
-    if ((k.startsWith('salonDailyState_') || k.startsWith('salonDailyDone_')) && !k.endsWith(todayKey)) localStorage.removeItem(k);
+    if ((k.startsWith('salonDailyState_') || k.startsWith('salonDailyDone_')) && !k.includes(todayKey)) localStorage.removeItem(k);
   }
 }
 function dailySaveState() {
   if (!bg || !bg.daily) return;
-  localStorage.setItem('salonDailyState_' + bgDayKey, JSON.stringify({ cash: bg.cash, coin: bg.coin, trades: bg.trades }));
+  localStorage.setItem(`salonDailyState_${bgDayKey}_${bg.track}`, JSON.stringify({ cash: bg.cash, coin: bg.coin, trades: bg.trades }));
 }
 
 function bgShowSoloOverlay() {
@@ -1887,10 +1926,11 @@ function bgShowSoloOverlay() {
   $('bgOver').classList.remove('hidden');
 }
 
+let bgTrack = 'crypto';
 function bgSetMode(mode) {
   if (bgMode === mode) return;
   bgMode = mode;
-  document.querySelectorAll('.bgModeBtn').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+  document.querySelectorAll('.bgModeBtn[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
   $('bgModeDesc').textContent = mode === 'daily'
     ? '전원 동일 차트 · 실시간 자동 진행 — 하루에 한 번'
     : '정체를 숨긴 과거의 실제 시장 — 살아남아 보시길';
@@ -1899,6 +1939,7 @@ function bgSetMode(mode) {
   $('bgLiveRow').classList.toggle('hidden', mode !== 'daily');
   $('bgPulsePanel').classList.toggle('hidden', mode !== 'daily');
   $('bgDailyBoardPanel').classList.toggle('hidden', mode !== 'daily');
+  $('bgTrackRow').classList.toggle('hidden', mode !== 'daily');
   clearInterval(bgDailyTimer); bgDailyTimer = null;
   stopPulsePolling();
   if (mode === 'daily') {
@@ -1911,37 +1952,60 @@ function bgSetMode(mode) {
 }
 window.bgSetMode = bgSetMode;
 
+function bgSetTrack(track) {
+  if (bgTrack === track) return;
+  bgTrack = track;
+  document.querySelectorAll('.bgTrackBtn').forEach(b => b.classList.toggle('on', b.dataset.t === track));
+  $('pulseLbl').textContent = track === 'stock' ? '보유 중' : '코인 보유';
+  $('bgDailyBoardSub').textContent = (track === 'stock' ? '미국주식 · ' : '코인 · ') + '완주자만 · 자정(KST) 초기화';
+  clearInterval(bgDailyTimer); bgDailyTimer = null;
+  stopPulsePolling();
+  bgResumeIfNeeded();
+}
+window.bgSetTrack = bgSetTrack;
+
 function bgResumeIfNeeded() {
   if (bgMode !== 'daily') return;
   const today = dailyDayKey();
-  if (bg && bg.daily && bg.dayKey === today) {
+  if (bg && bg.daily && bg.dayKey === today && bg.track === bgTrack) {
     if (!bg.over) { dailyTickStart(); startPulsePolling(); dailyTick(); }
     else { loadDailyBoard(); }
   } else {
-    startDailyMode();
+    startDailyMode(bgTrack);
   }
 }
 
-async function startDailyMode() {
+async function startDailyMode(track) {
+  track = track || bgTrack || 'crypto';
+  bgTrack = track;
   const dayKey = dailyDayKey();
   dailyCleanup(dayKey);
   bgDayKey = dayKey;
-  bgDailySubmitted = !!localStorage.getItem('salonDailyDone_' + dayKey);
-  $('bgOverBox').innerHTML = '<h4>🌍 오늘의 판</h4><p>오늘의 판을 여는 중…</p>';
+  const stateKey = `salonDailyState_${dayKey}_${track}`, doneKey = `salonDailyDone_${dayKey}_${track}`;
+  bgDailySubmitted = !!localStorage.getItem(doneKey);
+  $('bgOverBox').innerHTML = `<h4>🌍 오늘의 판</h4><p>오늘의 ${track === 'stock' ? '미국 증시' : '코인'} 판을 여는 중…</p>`;
   $('bgOver').classList.remove('hidden');
-  const saved = JSON.parse(localStorage.getItem('salonDailyState_' + dayKey) || 'null');
+  const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
 
   for (let attempt = 0; attempt < 8; attempt++) {
-    const { sym, endTime } = dailyCandidate(dayKey, attempt);
+    const cand = dailyCandidate(dayKey, attempt, track);
     try {
-      const kl = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
-      if (!Array.isArray(kl) || kl.length !== BG_TOTAL) continue;
+      let kl;
+      if (cand.stock) {
+        const rows = await fetchStockDaily(cand.sym, cand.period1, cand.period2);
+        if (!rows || rows.length < BG_TOTAL) continue;
+        kl = rows.slice(-BG_TOTAL);
+      } else {
+        const r = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${cand.sym}&interval=1d&limit=${BG_TOTAL}&endTime=${cand.endTime}`)).json();
+        if (!Array.isArray(r) || r.length !== BG_TOTAL) continue;
+        kl = r;
+      }
       const base = +kl[0][4];
       const elapsed = dailyElapsedDays(dayKey);
       bg = {
-        sym, dayKey, daily: true,
-        realStart: new Date(kl[0][0]).toISOString().slice(0, 10),
-        realEnd: new Date(kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
+        sym: cand.sym, dayKey, track, daily: true,
+        realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
+        realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
         norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
         idx: BG_HIST - 1 + elapsed,
         cash: saved ? saved.cash : 10000, coin: saved ? saved.coin : 0, trades: saved ? saved.trades : [],
@@ -1955,7 +2019,7 @@ async function startDailyMode() {
       bgMASet(); bgVolSet(); bgS.setMarkers(bg.markers);
       bgCh.timeScale().fitContent();
       $('bgOver').classList.add('hidden');
-      $('bgSym').textContent = '❓ ??? / USDT';
+      $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
       $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0, 30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
       blindStatus();
       loadDailyBoard(); startPulsePolling();
@@ -1963,7 +2027,7 @@ async function startDailyMode() {
       return;
     } catch (e) { /* 다음 후보 시도 */ }
   }
-  $('bgOverBox').innerHTML = '<h4>🌍 오늘의 판</h4><p>판을 열지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="startDailyMode()">재시도</div>';
+  $('bgOverBox').innerHTML = `<h4>🌍 오늘의 판</h4><p>판을 열지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="startDailyMode('${track}')">재시도</div>`;
 }
 
 function dailyTickStart() {
@@ -2001,11 +2065,11 @@ function dailyReveal() {
   const roi = (bgTotal() / 10000 - 1) * 100;
   const bh = (bg.norm[BG_TOTAL - 1].close / bg.norm[BG_HIST - 1].close - 1) * 100;
   const name = bg.sym.replace('USDT', '');
-  $('bgSym').textContent = `${name} / USDT`;
+  $('bgSym').textContent = bg.track === 'stock' ? name : `${name} / USDT`;
   const played = bg.trades.length > 0;
   if (!bgDailySubmitted && played) {
     if (myNick.startsWith('나 ')) setNick();
-    localStorage.setItem('salonDailyDone_' + bgDayKey, '1');
+    localStorage.setItem(`salonDailyDone_${bgDayKey}_${bg.track}`, '1');
     bgDailySubmitted = true;
     pushDailyScore(roi);
   }
@@ -2029,14 +2093,14 @@ function dailyReveal() {
 }
 
 async function pushDailyScore(roi) {
-  if (!sbc) return;
+  if (!sbc || !bg) return;
   await ensureAuth(); if (!myUid) return;
-  await sbc.from('blind_daily_result').upsert({ day_key: bgDayKey, user_id: myUid, nick: myNick, roi }, { onConflict: 'day_key,user_id' });
+  await sbc.from('blind_daily_result').upsert({ day_key: bgDayKey, track: bg.track, user_id: myUid, nick: myNick, roi }, { onConflict: 'day_key,track,user_id' });
   loadDailyBoard();
 }
 async function loadDailyBoard() {
   if (!sbc || !bgDayKey) return;
-  const { data } = await sbc.from('blind_daily_result').select('*').eq('day_key', bgDayKey).order('roi', { ascending: false }).limit(10);
+  const { data } = await sbc.from('blind_daily_result').select('*').eq('day_key', bgDayKey).eq('track', bgTrack).order('roi', { ascending: false }).limit(10);
   const el = $('bgDailyBoard');
   if (!data || !data.length) { el.innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 완주자가 없습니다</div>'; return; }
   el.innerHTML = data.map((r, i) => `
@@ -2051,11 +2115,11 @@ async function pulseWrite() {
   if (!sbc || !bg || !bg.daily) return;
   await ensureAuth(); if (!myUid) return;
   const side = bg.coin * bgPrice() > bg.cash ? 'coin' : 'cash';
-  await sbc.from('blind_pulse').upsert({ user_id: myUid, day_key: bgDayKey, side, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  await sbc.from('blind_pulse').upsert({ user_id: myUid, day_key: bgDayKey, track: bg.track, side, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
 }
 async function pulseRead() {
   if (!sbc || !bgDayKey || document.hidden) return;
-  const { data } = await sbc.from('blind_pulse').select('side').eq('day_key', bgDayKey);
+  const { data } = await sbc.from('blind_pulse').select('side').eq('day_key', bgDayKey).eq('track', bgTrack);
   if (!data) return;
   const coin = data.filter(r => r.side === 'coin').length, total = data.length;
   const coinPct = total ? Math.round(coin / total * 100) : 50;
