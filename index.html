@@ -936,7 +936,7 @@ function handleChartK(stream, k) {
   chartOf(i).s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
   chartOf(i).vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
   maTick(i, k);
-  if (i === 0) $('cd').textContent = cdTxt(k.T - Date.now());
+  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; updatePredMarkers(); }
   if (i === 1) {
     $('ethPx').textContent = fmt(+k.c, 1);
     if (ethOpen) {
@@ -1011,6 +1011,7 @@ async function setTf(tf) {
   await seedAll();
   connectChartWS();
   reseedDeck();
+  predWsTime = null; updatePredMarkers();   // 타임프레임 바뀌면 예측 마커 정리(1분에서만 표시)
 }
 window.setTf = setTf;
 seedAll().then(reseedDeck);
@@ -1125,6 +1126,22 @@ loadLetters();
 let bet = JSON.parse(localStorage.getItem('salonBet') || '{"streak":0,"best":0,"w":0,"l":0}');
 let pick = null;    // 접수 중 — 다음 봉에 걸릴 예측 (마감 전까지 변경 가능)
 let armed = null;   // 잠금 — 지금 진행 중인 봉의 예측 (이번 마감에 판정)
+
+// BTC 1분 라이브 차트에 예측 대상 봉 표시: 현재 봉=🔒(판정 중), 다음 봉 자리=? (내 예측 색)
+let lastBtcKt = null, predWsTime = null;
+function updatePredMarkers() {
+  if (!cBTC || !cBTC.s) return;
+  if (lastBtcKt === null || chartTf !== '1m') { cBTC.s.setMarkers([]); predWsTime = null; return; }
+  const curTime = Math.floor(lastBtcKt / 1000), nextTime = curTime + 60;
+  if (predWsTime !== nextTime) { cBTC.s.update({ time: nextTime }); predWsTime = nextTime; }   // 다음 봉 빈 자리
+  const m = [];
+  if (armed !== null) m.push({ time: curTime, position: armed ? 'aboveBar' : 'belowBar',
+    color: armed ? '#4ade80' : '#f87171', shape: 'circle', text: armed ? '🔒▲' : '🔒▼' });
+  m.push({ time: nextTime, position: pick === false ? 'belowBar' : 'aboveBar',
+    color: pick === true ? '#4ade80' : pick === false ? '#f87171' : '#8a7325', shape: 'circle',
+    text: pick === null ? '?' : (pick ? '▲?' : '▼?') });
+  cBTC.s.setMarkers(m);
+}
 function betRender() {
   $('stStreak').textContent = bet.streak;
   $('stBest').textContent = bet.best;
@@ -1133,6 +1150,7 @@ function betRender() {
   $('betDn').classList.toggle('on', pick === false);
   $('betArmed').innerHTML = armed === null ? '' :
     `🔒 이번 봉에 걸린 예측: <b class="${armed?'up':'dn'}">${armed?'▲ UP':'▼ DOWN'}</b> — 마감 시 판정`;
+  updatePredMarkers();   // 차트의 ? 유령캔들 색 즉시 반영
   renderBoard();
 }
 $('betUp').onclick = () => { pick = pick === true ? null : true; betRender(); };
