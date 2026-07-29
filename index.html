@@ -1661,9 +1661,23 @@ betRender();  // 초기 렌더 (모든 정의 이후에 호출해야 함 — TDZ
 
 // ═══ 🎰 블라인드 차트 게임 ═══
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
-const BG_POOL_STOCK = ['AAPL','MSFT','GOOGL','AMZN','META','NFLX','NVDA','JPM','V','MA','DIS','KO','PEP','WMT','XOM','CVX','BA','MCD','NKE','INTC','AMD','CSCO','IBM','ADBE','CRM','PYPL','QCOM','VZ','PFE','JNJ','UNH','HD','COST'];
 const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
-// 미국주식은 브라우저에서 Yahoo CORS 불가 → 서버가 매일 생성한 reports/blind_daily_stock.json을 읽음
+// 미국주식은 브라우저에서 Yahoo CORS 불가 → 서버가 전체 이력을 받아 만든 번들(reports/stocks.json)을 1회 로드
+let stockBundle = null;
+async function loadStockBundle() {
+  if (stockBundle) return stockBundle;
+  const r = await fetch('reports/stocks.json');
+  if (!r.ok) throw new Error('bundle fetch ' + r.status);
+  stockBundle = await r.json();
+  return stockBundle;
+}
+// 종목 배열에서 endMs(이하) 마지막 캔들 기준 460봉 슬라이스 (부족하면 null)
+function stockSlice(arr, endMs) {
+  let endIdx = -1;
+  for (let i = 0; i < arr.length; i++) { if (arr[i][0] <= endMs) endIdx = i; else break; }
+  if (endIdx < BG_TOTAL - 1) return null;
+  return arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
+}
 let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25;
 function bgPctSync(v) {
   v = Math.max(1, Math.min(100, Math.round(+v) || 1));
@@ -1708,8 +1722,43 @@ function blindOpen() {
   bgResumeIfNeeded();
 }
 
+// kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
+function bgSetupSolo(kl, symName, track) {
+  const base = +kl[0][4];
+  bg = {
+    sym: symName, track,
+    realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
+    realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
+    norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
+    idx: BG_HIST - 1, cash: 10000, coin: 0, trades: [], markers: [], over: false,
+  };
+  bgS.setData(bg.norm.slice(0, bg.idx + 1));
+  bgMASet(); bgVolSet(); bgS.setMarkers([]);
+  bgCh.timeScale().fitContent();
+  $('bgOver').classList.add('hidden');
+  $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
+  $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
+  blindStatus();
+}
+
 async function blindStart() {
+  const track = bgTrack;
   $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>과거의 판을 뒤지는 중…</p>';
+  if (track === 'stock') {
+    try {
+      const b = await loadStockBundle();
+      const syms = Object.keys(b);
+      for (let t = 0; t < 12; t++) {
+        const sym = syms[Math.floor(Math.random() * syms.length)];
+        const arr = b[sym];
+        const endIdx = BG_TOTAL - 1 + Math.floor(Math.random() * (arr.length - BG_TOTAL + 1));
+        const kl = arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
+        if (kl.length === BG_TOTAL) { bgSetupSolo(kl, sym, 'stock'); return; }
+      }
+    } catch (e) { /* 아래 실패 메시지 */ }
+    $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
+    return;
+  }
   for (let t = 0; t < 8; t++) {
     const sym = BG_POOL[Math.floor(Math.random() * BG_POOL.length)];
     const minEnd = Date.parse('2021-06-01'), maxEnd = Date.now() - 10 * 86400e3;
@@ -1717,23 +1766,7 @@ async function blindStart() {
     try {
       const kl = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
       if (!Array.isArray(kl) || kl.length !== BG_TOTAL) continue;
-      const base = +kl[0][4];
-      bg = {
-        sym,
-        realStart: new Date(kl[0][0]).toISOString().slice(0, 10),
-        realEnd: new Date(kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
-        norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
-        idx: BG_HIST - 1, cash: 10000, coin: 0, trades: [], markers: [], over: false,
-      };
-      bgS.setData(bg.norm.slice(0, bg.idx + 1));
-      bgMASet();
-      bgVolSet();
-      bgS.setMarkers([]);
-      bgCh.timeScale().fitContent();
-      $('bgOver').classList.add('hidden');
-      $('bgSym').textContent = '❓ ??? / USDT';
-      $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
-      blindStatus();
+      bgSetupSolo(kl, sym, 'crypto');
       return;
     } catch (e) { /* 다른 종목 재시도 */ }
   }
@@ -1858,22 +1891,12 @@ function seededHash(str) {
 }
 function dailyOrigin(dayKey) { return Date.parse(dayKey + 'T00:00:00+09:00'); }   // 그날 00:00 KST (시드·다음 판 카운트다운용)
 function elapsedDays() { return bg ? Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS)) : 0; }   // 누적 플레이 시간 → 진행 일수
-function dailyCandidate(dayKey, attempt, track) {
-  const hh = seededHash(dayKey + ':' + track + ':' + attempt);
-  if (track === 'stock') {
-    const sym = BG_POOL_STOCK[hh % BG_POOL_STOCK.length];
-    const minEnd = Date.parse('2019-06-01');   // PYPL(2015 IPO) 등 최소 상장 이력 확보한 여유
-    const maxEnd = dailyOrigin(dayKey) - 30 * 86400e3;   // 고정 기준 — 하루 내내 같은 값
-    const span = Math.max(1, maxEnd - minEnd);
-    const endMs = minEnd + (hh % 1000000007) % span;
-    const period2 = Math.floor(endMs / 1000);
-    const period1 = period2 - Math.ceil(BG_TOTAL * 1.6) * 86400;   // 주말·휴장 여유 포함해 넉넉히 받은 뒤 최근 BG_TOTAL 거래일만 사용
-    return { sym, stock: true, period1, period2 };
-  }
+function dailyCandidate(dayKey, attempt) {   // 코인 전용 (주식은 stocks.json 번들에서 인라인 선택)
+  const hh = seededHash(dayKey + ':crypto:' + attempt);
   const minEnd = Date.parse('2021-06-01');
   const maxEnd = dailyOrigin(dayKey) - 10 * 86400e3;   // 고정 기준(Date.now() 미사용) — 하루 내내 같은 값
   const span = Math.max(1, maxEnd - minEnd);
-  return { sym: BG_POOL[hh % BG_POOL.length], stock: false, endTime: minEnd + (hh % 1000000007) % span };
+  return { sym: BG_POOL[hh % BG_POOL.length], endTime: minEnd + (hh % 1000000007) % span };
 }
 function fmtHMS(ms) {
   const s = Math.floor(ms / 1000);
@@ -1892,12 +1915,13 @@ function dailySaveState() {
 }
 
 function bgShowSoloOverlay() {
-  $('bgOverBox').innerHTML = `<h4>🎰 블라인드 차트</h4><p>과거의 어느 실제 코인 시장에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
+  const stock = bgTrack === 'stock';
+  $('bgOverBox').innerHTML = `<h4>🎰 블라인드 차트</h4><p>과거의 어느 실제 ${stock ? '미국 증시' : '코인 시장'}에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
     시작가는 100으로 환산되어 힌트가 없습니다.<br>
     밑천 <b style="color:var(--gold)">$10,000</b> — 하루씩 넘기며 사고팔아 보세요.<br>
     200일 뒤, 정체가 공개되고 당신의 성적이 판정됩니다.</p>
     <div class="go" onclick="blindStart()">판에 앉는다 →</div>`;
-  $('bgSym').textContent = '❓ ??? / USDT';
+  $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgOver').classList.remove('hidden');
 }
 
@@ -1914,7 +1938,7 @@ function bgSetMode(mode) {
   $('bgLiveRow').classList.toggle('hidden', mode !== 'daily');
   $('bgPulsePanel').classList.toggle('hidden', mode !== 'daily');
   $('bgDailyBoardPanel').classList.toggle('hidden', mode !== 'daily');
-  $('bgTrackRow').classList.toggle('hidden', mode !== 'daily');
+  $('bgTrackRow').classList.remove('hidden');   // 트랙(코인/미국주식)은 두 모드 모두 노출
   clearInterval(bgDailyTimer); bgDailyTimer = null;
   stopPulsePolling();
   if (mode === 'daily') {
@@ -1935,7 +1959,13 @@ function bgSetTrack(track) {
   $('bgDailyBoardSub').textContent = (track === 'stock' ? '미국주식 · ' : '코인 · ') + '완주자만 · 자정(KST) 초기화';
   clearInterval(bgDailyTimer); bgDailyTimer = null;
   stopPulsePolling();
-  bgResumeIfNeeded();
+  if (bgMode === 'daily') {
+    bgResumeIfNeeded();
+  } else {
+    if (bg) bg.over = true;
+    bg = null;
+    bgShowSoloOverlay();   // 나만의 판: 새 트랙 인트로로 (판에 앉는다 누르면 시작)
+  }
 }
 window.bgSetTrack = bgSetTrack;
 
@@ -1992,17 +2022,21 @@ async function startDailyMode(track) {
   $('bgOver').classList.remove('hidden');
   const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
 
-  // 미국주식: 서버가 매일 생성한 JSON을 읽음 (무료 CORS 프록시 불안정 → 서버 경유). 코인: 브라우저에서 Binance 직접
-  const attempts = track === 'stock' ? 1 : 8;
-  for (let attempt = 0; attempt < attempts; attempt++) {
+  // 미국주식: 서버 번들(stocks.json)에서 날짜 시드로 종목·구간 결정. 코인: 브라우저에서 Binance 직접
+  for (let attempt = 0; attempt < 8; attempt++) {
     try {
       let kl, symName;
       if (track === 'stock') {
-        const j = await (await fetch('reports/blind_daily_stock.json?t=' + dayKey)).json();
-        if (!j || !Array.isArray(j.candles) || j.candles.length < BG_TOTAL) break;
-        kl = j.candles.slice(-BG_TOTAL); symName = j.sym;
+        const b = await loadStockBundle();
+        const syms = Object.keys(b).sort();   // 안정적 순서 (전원 동일)
+        const hh = seededHash(`${dayKey}:stock:${attempt}`);
+        symName = syms[hh % syms.length];
+        const minEnd = Date.parse('2019-06-01'), maxEnd = dailyOrigin(dayKey) - 30 * 86400e3;
+        const endMs = minEnd + (hh % 1000000007) % Math.max(1, maxEnd - minEnd);
+        kl = stockSlice(b[symName], endMs);
+        if (!kl) continue;
       } else {
-        const cand = dailyCandidate(dayKey, attempt, track);
+        const cand = dailyCandidate(dayKey, attempt);
         const r = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${cand.sym}&interval=1d&limit=${BG_TOTAL}&endTime=${cand.endTime}`)).json();
         if (!Array.isArray(r) || r.length !== BG_TOTAL) continue;
         kl = r; symName = cand.sym;
