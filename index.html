@@ -497,12 +497,8 @@ body.shake { animation:shake .5s; }
 <div id="tab-game" class="hidden">
 <div class="bgWrap">
   <div class="panel" style="position:relative">
-    <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 살아남아 보시길</small></h3>
-    <div class="bgModeRow">
-      <span class="bgModeBtn on" data-m="solo" onclick="bgSetMode('solo')">🎲 나만의 판</span>
-      <span class="bgModeBtn" data-m="daily" onclick="bgSetMode('daily')">🌍 오늘의 판</span>
-    </div>
-    <div class="bgModeRow hidden" id="bgTrackRow">
+    <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
+    <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</span>
       <span class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</span>
     </div>
@@ -547,28 +543,16 @@ body.shake { animation:shake .5s; }
         <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">매수 25%</div>
         <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">매도 25%</div>
       </div>
-      <div class="gRow" id="bgSoloControls">
-        <div class="gbtn next" onclick="blindNext(1)">다음 날 ▶</div>
-        <div class="gbtn next" onclick="blindNext(7)">7일 ▶▶</div>
+      <div class="gRow" id="bgPlayRow">
+        <div class="gbtn next" id="bgPlayBtn" onclick="soloPauseToggle()">⏸ 일시정지</div>
+        <div class="gbtn" id="bgSpeedBtn" onclick="soloCycleSpeed()">속도 1×</div>
       </div>
       <div class="gRow" id="bgSoloFinish" style="padding-bottom:14px">
         <div class="gbtn" onclick="blindFinish(true)">🏳 여기서 정산</div>
       </div>
       <div class="bgLiveRow hidden" id="bgLiveRow">
-        <span class="bgLiveDot" id="bgLiveDot"></span><span id="bgLiveTxt">LIVE · 대기 중…</span>
+        <span class="bgLiveDot" id="bgLiveDot"></span><span id="bgLiveTxt">—</span>
       </div>
-    </div>
-    <div class="panel hidden" id="bgPulsePanel">
-      <h3>🌍 참가자 심리 <small>지금 이 순간 · 오늘의 판</small></h3>
-      <div class="crowdRow">
-        <div class="crowdLbl"><span id="pulseLbl">코인 보유</span> <span class="crowdSub" id="pulseSub">집계 중…</span></div>
-        <div class="crowdBar"><div class="cbL pulseCoin" id="pulseCoinBar" style="width:50%"></div><div class="cbR pulseCash" id="pulseCashBar" style="width:50%"></div></div>
-        <div class="crowdNum num" id="pulseNum">—</div>
-      </div>
-    </div>
-    <div class="panel hidden" id="bgDailyBoardPanel">
-      <h3>🏆 오늘의 순위 <small id="bgDailyBoardSub">완주자만 · 자정(KST) 초기화</small></h3>
-      <div id="bgDailyBoard"><div style="padding:10px 0;color:var(--dim)">아직 완주자가 없습니다</div></div>
     </div>
     <div class="panel">
       <h3>📒 거래 장부 <small id="bgBest">최고 기록 —</small></h3>
@@ -738,7 +722,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
   if (t.dataset.tab === 'game') { blindOpen(); }
-  else { clearInterval(bgDailyTimer); bgDailyTimer = null; stopPulsePolling(); }   // 게임 탭 이탈 시 자동 틱·펄스 폴링 정지
+  else { clearInterval(bgTimer); bgTimer = null; }   // 게임 탭 이탈 시 자동 진행 정지(일시정지)
   if (t.dataset.tab === 'arena') arenaOpen();
   if (t.dataset.tab === 'lounge') requestAnimationFrame(trimDeck);   // 복귀 시 실제 폭으로 덱 재정렬
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
@@ -1719,7 +1703,9 @@ function blindOpen() {
   const best = localStorage.getItem('salonBlindBest');
   if (best !== null) $('bgBest').textContent = `최고 기록 ${(+best >= 0 ? '+' : '')}${(+best).toFixed(1)}%`;
   bgPctSync(bgPct);
-  bgResumeIfNeeded();
+  // 게임 탭 복귀: 진행 중이면 재개, 없으면 시작 인트로
+  if (bg && !bg.over) { if (bg.playing) soloTickStart(); soloStatus(); }
+  else if (!bg) bgShowSoloOverlay();
 }
 
 // kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
@@ -1739,6 +1725,7 @@ function bgSetupSolo(kl, symName, track) {
   $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
   blindStatus();
+  soloStart();   // 시간 자동 진행 시작
 }
 
 async function blindStart() {
@@ -1829,7 +1816,6 @@ function blindTrade(action, pct) {
   bgS.setMarkers(bg.markers);
   $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
   blindStatus();
-  if (bg.daily) { dailySaveState(); pulseWrite(); }
 }
 
 function bgAdvanceOneDay() {
@@ -1844,21 +1830,14 @@ function bgAdvanceOneDay() {
     bgMA[mi].update({ time: x.time, value: sum / p });
   });
 }
-function blindNext(n) {
-  if (!bg || bg.over || bg.daily) return;   // 오늘의 판은 시간이 자동 진행 — 수동 넘기기 차단
-  for (let i = 0; i < n && bg.idx < BG_TOTAL - 1; i++) bgAdvanceOneDay();
-  bgCh.timeScale().scrollToRealTime();
-  blindStatus();
-  if (bg.idx >= BG_TOTAL - 1) blindFinish(false);
-}
-
 function blindFinish(early) {
-  if (!bg || bg.over || bg.daily) return;   // 오늘의 판은 완주 시 dailyReveal이 처리
+  if (!bg || bg.over) return;
   bg.over = true;
+  clearInterval(bgTimer); bgTimer = null;
   const roi = (bgTotal() / 10000 - 1) * 100;
   const bh = (bg.norm[bg.idx].close / bg.norm[BG_HIST - 1].close - 1) * 100;  // 같은 기간 존버
   const name = bg.sym.replace('USDT', '');
-  $('bgSym').textContent = `${name} / USDT`;
+  $('bgSym').textContent = bg.track === 'stock' ? name : `${name} / USDT`;
   const prevBest = localStorage.getItem('salonBlindBest');
   const isBest = prevBest === null || roi > +prevBest;
   if (isBest) { localStorage.setItem('salonBlindBest', roi.toFixed(2)); $('bgBest').textContent = `최고 기록 ${(roi>=0?'+':'')}${roi.toFixed(1)}%`; pushScore(); }
@@ -1876,310 +1855,87 @@ function blindFinish(early) {
     <div class="go" onclick="blindStart()">한 판 더 🎲</div>`;
   $('bgOver').classList.remove('hidden');
 }
-// ═══ 🌍 오늘의 판 — 공용 데일리 챌린지 (전원 동일 차트, 실시간 자동 진행) ═══
-const BG_TICK_MS = 2400;   // 1시뮬레이션일 = 실시간 2.4초 → 200일 완주 약 8분 (플레이어별 세션 기준, 튜닝 포인트)
-let bgMode = 'solo', bgDayKey = null, bgDailyTimer = null, bgPulseTimer = null, bgDailySubmitted = false;
-
-function dailyDayKey(d = new Date()) {
-  const kst = new Date(d.getTime() + 9 * 3600e3);
-  return kst.toISOString().slice(0, 10);   // KST 기준 YYYY-MM-DD
-}
-function seededHash(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = (Math.imul(h, 31) + str.charCodeAt(i)) >>> 0;
-  return h;
-}
-function dailyOrigin(dayKey) { return Date.parse(dayKey + 'T00:00:00+09:00'); }   // 그날 00:00 KST (시드·다음 판 카운트다운용)
-function elapsedDays() { return bg ? Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS)) : 0; }   // 누적 플레이 시간 → 진행 일수
-function dailyCandidate(dayKey, attempt) {   // 코인 전용 (주식은 stocks.json 번들에서 인라인 선택)
-  const hh = seededHash(dayKey + ':crypto:' + attempt);
-  const minEnd = Date.parse('2021-06-01');
-  const maxEnd = dailyOrigin(dayKey) - 10 * 86400e3;   // 고정 기준(Date.now() 미사용) — 하루 내내 같은 값
-  const span = Math.max(1, maxEnd - minEnd);
-  return { sym: BG_POOL[hh % BG_POOL.length], endTime: minEnd + (hh % 1000000007) % span };
-}
-function fmtHMS(ms) {
-  const s = Math.floor(ms / 1000);
-  return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s/60)%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-}
-function dailyCleanup(todayKey) {
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const k = localStorage.key(i);
-    if (!k) continue;
-    if ((k.startsWith('salonDailyState_') || k.startsWith('salonDailyDone_')) && !k.includes(todayKey)) localStorage.removeItem(k);
-  }
-}
-function dailySaveState() {
-  if (!bg || !bg.daily) return;
-  localStorage.setItem(`salonDailyState_${bgDayKey}_${bg.track}`, JSON.stringify({ cash: bg.cash, coin: bg.coin, trades: bg.trades, elapsedMs: bg.elapsedMs }));
-}
+// ═══ 블라인드 차트 — 시간 자동 진행 엔진 (재생 / 일시정지 / 속도) ═══
+const BG_TICK_MS = 2400;   // 1시뮬레이션일 = 실시간 2.4초 (속도 1×) · 200일 완주 약 8분
+const BG_SPEEDS = [1, 2, 4];
+let bgTimer = null, bgTickLast = 0, bgSpeed = 1;
 
 function bgShowSoloOverlay() {
   const stock = bgTrack === 'stock';
+  $('bgLiveRow').classList.add('hidden');
   $('bgOverBox').innerHTML = `<h4>🎰 블라인드 차트</h4><p>과거의 어느 실제 ${stock ? '미국 증시' : '코인 시장'}에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
     시작가는 100으로 환산되어 힌트가 없습니다.<br>
-    밑천 <b style="color:var(--gold)">$10,000</b> — 하루씩 넘기며 사고팔아 보세요.<br>
+    밑천 <b style="color:var(--gold)">$10,000</b> — <b>시간이 저절로 흐릅니다</b> (재생/일시정지로 조절).<br>
     200일 뒤, 정체가 공개되고 당신의 성적이 판정됩니다.</p>
     <div class="go" onclick="blindStart()">판에 앉는다 →</div>`;
   $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgOver').classList.remove('hidden');
 }
 
-let bgTrack = 'crypto';
-function bgSetMode(mode) {
-  if (bgMode === mode) return;
-  bgMode = mode;
-  document.querySelectorAll('.bgModeBtn[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
-  $('bgModeDesc').textContent = mode === 'daily'
-    ? '전원 동일 차트 · 실시간 자동 진행 — 하루에 한 번'
-    : '정체를 숨긴 과거의 실제 시장 — 살아남아 보시길';
-  $('bgSoloControls').classList.toggle('hidden', mode === 'daily');
-  $('bgSoloFinish').classList.toggle('hidden', mode === 'daily');
-  $('bgLiveRow').classList.toggle('hidden', mode !== 'daily');
-  $('bgPulsePanel').classList.toggle('hidden', mode !== 'daily');
-  $('bgDailyBoardPanel').classList.toggle('hidden', mode !== 'daily');
-  $('bgTrackRow').classList.remove('hidden');   // 트랙(코인/미국주식)은 두 모드 모두 노출
-  clearInterval(bgDailyTimer); bgDailyTimer = null;
-  stopPulsePolling();
-  if (mode === 'daily') {
-    bgResumeIfNeeded();
+// 자동 진행 시작 (blindStart → bgSetupSolo 끝에서 호출)
+function soloStart() {
+  bg.elapsedMs = 0; bg.playing = true;
+  $('bgLiveRow').classList.remove('hidden');
+  soloTickStart(); soloStatus();
+}
+function soloTickStart() {
+  clearInterval(bgTimer);
+  bgTickLast = Date.now();   // 재개 기준 — 탭 비운 동안(타이머 정지)은 누적 안 됨
+  bgTimer = setInterval(soloTick, 200);
+}
+function soloTick() {
+  if (!bg || bg.over || !bg.playing) return;
+  const now = Date.now();
+  bg.elapsedMs += (now - bgTickLast) * bgSpeed;   // 속도 배율만큼 게임 시간 가속
+  bgTickLast = now;
+  const day = Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS));
+  const target = BG_HIST - 1 + day;
+  let moved = false;
+  while (bg.idx < target) { bgAdvanceOneDay(); moved = true; }
+  if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); }
+  soloStatus();
+  if (bg.idx >= BG_TOTAL - 1) { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
+}
+function soloPauseToggle() {
+  if (!bg || bg.over) return;
+  bg.playing = !bg.playing;
+  if (bg.playing) soloTickStart(); else { clearInterval(bgTimer); bgTimer = null; }
+  soloStatus();
+}
+function soloCycleSpeed() {
+  bgSpeed = BG_SPEEDS[(BG_SPEEDS.indexOf(bgSpeed) + 1) % BG_SPEEDS.length];
+  $('bgSpeedBtn').textContent = `속도 ${bgSpeed}×`;
+}
+function soloStatus() {
+  const day = bg ? bg.idx - (BG_HIST - 1) : 0;
+  const btn = $('bgPlayBtn'), dot = $('bgLiveDot'), txt = $('bgLiveTxt');
+  if (!bg || bg.over) { btn.textContent = '⏸ 일시정지'; return; }
+  if (bg.playing) {
+    btn.textContent = '⏸ 일시정지';
+    txt.innerHTML = `▶ 진행 중 · D+${day}/${BG_PLAY}`;
+    dot.style.background = 'var(--grn)'; dot.style.boxShadow = '0 0 8px var(--grn)';
   } else {
-    if (bg) bg.over = true;
-    bg = null;
-    bgShowSoloOverlay();
+    btn.textContent = '▶ 재생';
+    txt.innerHTML = `⏸ 일시정지 · D+${day}/${BG_PLAY}`;
+    dot.style.background = 'var(--dim)'; dot.style.boxShadow = 'none';
   }
 }
-window.bgSetMode = bgSetMode;
+window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed;
 
+let bgTrack = 'crypto';
 function bgSetTrack(track) {
   if (bgTrack === track) return;
   bgTrack = track;
   document.querySelectorAll('.bgTrackBtn').forEach(b => b.classList.toggle('on', b.dataset.t === track));
-  $('pulseLbl').textContent = track === 'stock' ? '보유 중' : '코인 보유';
-  $('bgDailyBoardSub').textContent = (track === 'stock' ? '미국주식 · ' : '코인 · ') + '완주자만 · 자정(KST) 초기화';
-  clearInterval(bgDailyTimer); bgDailyTimer = null;
-  stopPulsePolling();
-  if (bgMode === 'daily') {
-    bgResumeIfNeeded();
-  } else {
-    if (bg) bg.over = true;
-    bg = null;
-    bgShowSoloOverlay();   // 나만의 판: 새 트랙 인트로로 (판에 앉는다 누르면 시작)
-  }
+  clearInterval(bgTimer); bgTimer = null;
+  if (bg) bg.over = true;
+  bg = null;
+  bgShowSoloOverlay();   // 새 트랙 인트로 (판에 앉는다 누르면 시작)
 }
 window.bgSetTrack = bgSetTrack;
 
-function bgResumeIfNeeded() {
-  if (bgMode !== 'daily') return;
-  const today = dailyDayKey();
-  if (bg && bg.daily && bg.dayKey === today && bg.track === bgTrack) {
-    if (!bg.over) { dailyTickStart(); startPulsePolling(); dailyTick(); }
-    else { loadDailyBoard(); }
-    return;
-  }
-  bg = null;
-  // 진행중/완료 기록이 있으면 이어하기(결과), 없으면 시작 버튼 인트로
-  if (localStorage.getItem(`salonDailyState_${today}_${bgTrack}`)) startDailyMode(bgTrack);
-  else bgShowDailyIntro(bgTrack);
-}
-
-function bgShowDailyIntro(track) {
-  bgDayKey = dailyDayKey();
-  loadDailyBoard();
-  $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
-  $('bgOverBox').innerHTML = `
-    <h4>🌍 오늘의 판</h4>
-    <p>오늘은 <b style="color:#fff">모두가 같은 ${track === 'stock' ? '미국 증시' : '코인'} 차트</b>에 도전합니다. 종목도 날짜도 비밀.<br>
-    밑천 <b style="color:var(--gold)">$10,000</b> · 캔들은 <b>시간에 따라 저절로</b> 흐릅니다 (약 8분).<br>
-    <span id="bgIntroCount" style="color:var(--dim)">오늘의 도전자 집계 중…</span></p>
-    <div class="go" onclick="startDailyMode('${track}')">시작한다 →</div>`;
-  $('bgOver').classList.remove('hidden');
-  loadDailyCount();
-}
-window.bgShowDailyIntro = bgShowDailyIntro;
-
-async function loadDailyCount() {
-  if (!sbc || !bgDayKey) return;
-  try {
-    const [p, r] = await Promise.all([
-      sbc.from('blind_pulse').select('*', { count: 'exact', head: true }).eq('day_key', bgDayKey).eq('track', bgTrack),
-      sbc.from('blind_daily_result').select('*', { count: 'exact', head: true }).eq('day_key', bgDayKey).eq('track', bgTrack),
-    ]);
-    const el = $('bgIntroCount');
-    if (el) el.innerHTML = `오늘 <b style="color:var(--gold)">${p.count || 0}</b>명 도전 · <b>${r.count || 0}</b>명 완주`;
-  } catch (e) {}
-}
-
-async function startDailyMode(track) {
-  track = track || bgTrack || 'crypto';
-  bgTrack = track;
-  const dayKey = dailyDayKey();
-  dailyCleanup(dayKey);
-  bgDayKey = dayKey;
-  const stateKey = `salonDailyState_${dayKey}_${track}`, doneKey = `salonDailyDone_${dayKey}_${track}`;
-  bgDailySubmitted = !!localStorage.getItem(doneKey);
-  $('bgOverBox').innerHTML = `<h4>🌍 오늘의 판</h4><p>오늘의 ${track === 'stock' ? '미국 증시' : '코인'} 판을 여는 중…</p>`;
-  $('bgOver').classList.remove('hidden');
-  const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
-
-  // 미국주식: 서버 번들(stocks.json)에서 날짜 시드로 종목·구간 결정. 코인: 브라우저에서 Binance 직접
-  for (let attempt = 0; attempt < 8; attempt++) {
-    try {
-      let kl, symName;
-      if (track === 'stock') {
-        const b = await loadStockBundle();
-        const syms = Object.keys(b).sort();   // 안정적 순서 (전원 동일)
-        const hh = seededHash(`${dayKey}:stock:${attempt}`);
-        symName = syms[hh % syms.length];
-        const minEnd = Date.parse('2019-06-01'), maxEnd = dailyOrigin(dayKey) - 30 * 86400e3;
-        const endMs = minEnd + (hh % 1000000007) % Math.max(1, maxEnd - minEnd);
-        kl = stockSlice(b[symName], endMs);
-        if (!kl) continue;
-      } else {
-        const cand = dailyCandidate(dayKey, attempt);
-        const r = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${cand.sym}&interval=1d&limit=${BG_TOTAL}&endTime=${cand.endTime}`)).json();
-        if (!Array.isArray(r) || r.length !== BG_TOTAL) continue;
-        kl = r; symName = cand.sym;
-      }
-      const base = +kl[0][4];
-      const elapsedMs = saved ? (saved.elapsedMs || 0) : 0;   // 내 세션 누적 플레이 시간 (재접속 시 복원)
-      const elapsed = Math.min(BG_PLAY, Math.floor(elapsedMs / BG_TICK_MS));
-      bg = {
-        sym: symName, dayKey, track, daily: true, elapsedMs,
-        realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
-        realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
-        norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
-        idx: BG_HIST - 1 + elapsed,
-        cash: saved ? saved.cash : 10000, coin: saved ? saved.coin : 0, trades: saved ? saved.trades : [],
-        markers: [], over: false,
-      };
-      bg.trades.forEach(t => bg.markers.push({
-        time: bg.norm[BG_HIST - 1 + t.day].time, position: t.side === 'BUY' ? 'belowBar' : 'aboveBar',
-        color: t.side === 'BUY' ? '#4ade80' : '#f87171', shape: t.side === 'BUY' ? 'arrowUp' : 'arrowDown', text: t.side[0],
-      }));
-      bgS.setData(bg.norm.slice(0, bg.idx + 1));
-      bgMASet(); bgVolSet(); bgS.setMarkers(bg.markers);
-      bgCh.timeScale().fitContent();
-      $('bgOver').classList.add('hidden');
-      $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
-      $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0, 30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
-      blindStatus();
-      loadDailyBoard(); startPulsePolling();
-      if (elapsed >= BG_PLAY) dailyReveal(); else { dailyTickStart(); pulseWrite(); }   // 시작 시 참여자로 등록
-      return;
-    } catch (e) { /* 다음 후보 시도 */ }
-  }
-  $('bgOverBox').innerHTML = `<h4>🌍 오늘의 판</h4><p>판을 열지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="startDailyMode('${track}')">재시도</div>`;
-}
-
-let bgTickLast = 0;
-function dailyTickStart() {
-  clearInterval(bgDailyTimer);
-  bgTickLast = Date.now();   // 재개 시점 — 자리를 비운 동안(타이머 정지)은 누적 안 됨 = 자동 일시정지
-  bgDailyTimer = setInterval(dailyTick, 250);
-  dailyLiveUpdate();
-}
-function dailyTick() {
-  if (!bg || !bg.daily || bg.over) return;
-  const now = Date.now();
-  bg.elapsedMs += now - bgTickLast;
-  bgTickLast = now;
-  const elapsed = elapsedDays();
-  const targetIdx = BG_HIST - 1 + elapsed;
-  let moved = false;
-  while (bg.idx < targetIdx) { bgAdvanceOneDay(); moved = true; }
-  if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); dailySaveState(); }
-  dailyLiveUpdate();
-  if (elapsed >= BG_PLAY) { clearInterval(bgDailyTimer); bgDailyTimer = null; dailyReveal(); }
-}
-function dailyLiveUpdate() {
-  const elapsed = elapsedDays();
-  if (elapsed >= BG_PLAY) {
-    const left = Math.max(0, dailyOrigin(bgDayKey) + 86400e3 - Date.now());
-    $('bgLiveTxt').innerHTML = `📴 완주 · 다음 판(자정 KST)까지 <b class="num">${fmtHMS(left)}</b>`;
-    $('bgLiveDot').style.background = 'var(--dim)'; $('bgLiveDot').style.boxShadow = 'none';
-  } else {
-    $('bgLiveTxt').innerHTML = `🔴 LIVE · D+${elapsed}/${BG_PLAY} · 시간이 흐르며 자동 진행`;
-    $('bgLiveDot').style.background = 'var(--red)'; $('bgLiveDot').style.boxShadow = '0 0 8px var(--red)';
-  }
-}
-
-function dailyReveal() {
-  if (!bg) return;
-  bg.over = true;
-  stopPulsePolling();
-  const roi = (bgTotal() / 10000 - 1) * 100;
-  const bh = (bg.norm[BG_TOTAL - 1].close / bg.norm[BG_HIST - 1].close - 1) * 100;
-  const name = bg.sym.replace('USDT', '');
-  $('bgSym').textContent = bg.track === 'stock' ? name : `${name} / USDT`;
-  const played = bg.trades.length > 0;
-  if (!bgDailySubmitted && played) {
-    if (myNick.startsWith('나 ')) setNick();
-    localStorage.setItem(`salonDailyDone_${bgDayKey}_${bg.track}`, '1');
-    bgDailySubmitted = true;
-    pushDailyScore(roi);
-  }
-  dailyLiveUpdate();
-  const beat = roi >= bh;
-  const verdicts = beat
-    ? ['존버를 이겼습니다. 오늘의 판, 당신 손이 이겼네요.', '오늘 참가자 중에서도 흔치 않은 감입니다.', '시장을 앞섰습니다 — 정마담이 눈여겨볼 솜씨.']
-    : ['오늘은 존버가 이겼습니다. 내일 판이 또 열립니다.', '판은 매일 새로 섭니다. 오늘의 몫은 여기까지.'];
-  const resultBlock = played
-    ? `<div class="big num" style="color:${roi>0?'var(--grn)':roi<0?'var(--red)':'#c6cad3'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
-       <p>같은 기간 존버: <b class="num" style="color:${bh>0?'var(--grn)':'var(--red)'}">${bh>=0?'+':''}${bh.toFixed(2)}%</b><br>${verdicts[Math.floor(Math.random()*verdicts.length)]}</p>`
-    : `<p style="color:var(--dim)">오늘은 참여하지 않으셨네요 — 내일 새 판이 열립니다.</p>`;
-  $('bgOverBox').innerHTML = `
-    <h4>🌍 오늘의 판 — 정체 공개</h4>
-    <p>오늘의 정체는 <b style="color:var(--gold);font-size:16px">${name}</b><br>
-    <span style="color:var(--dim)">${bg.realStart} ~ ${bg.realEnd} 실제 시세</span></p>
-    ${resultBlock}
-    <div class="go" onclick="$('bgOver').classList.add('hidden')">결과 확인 →</div>`;
-  $('bgOver').classList.remove('hidden');
-  loadDailyBoard();
-}
-
-async function pushDailyScore(roi) {
-  if (!sbc || !bg) return;
-  await ensureAuth(); if (!myUid) return;
-  await sbc.from('blind_daily_result').upsert({ day_key: bgDayKey, track: bg.track, user_id: myUid, nick: myNick, roi }, { onConflict: 'day_key,track,user_id' });
-  loadDailyBoard();
-}
-async function loadDailyBoard() {
-  if (!sbc || !bgDayKey) return;
-  const { data } = await sbc.from('blind_daily_result').select('*').eq('day_key', bgDayKey).eq('track', bgTrack).order('roi', { ascending: false }).limit(10);
-  const el = $('bgDailyBoard');
-  if (!data || !data.length) { el.innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 완주자가 없습니다</div>'; return; }
-  el.innerHTML = data.map((r, i) => `
-    <div class="dbRow${r.user_id === myUid ? ' me' : ''}">
-      <span class="rk${i<3?' top':''}">${['🥇','🥈','🥉'][i] || i+1}</span>
-      <span class="nk">${esc(r.nick)}</span>
-      <span class="roi num" style="color:${r.roi>=0?'var(--grn)':'var(--red)'}">${r.roi>=0?'+':''}${(+r.roi).toFixed(2)}%</span>
-    </div>`).join('');
-}
-
-async function pulseWrite() {
-  if (!sbc || !bg || !bg.daily) return;
-  await ensureAuth(); if (!myUid) return;
-  const side = bg.coin * bgPrice() > bg.cash ? 'coin' : 'cash';
-  await sbc.from('blind_pulse').upsert({ user_id: myUid, day_key: bgDayKey, track: bg.track, side, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-}
-async function pulseRead() {
-  if (!sbc || !bgDayKey || document.hidden) return;
-  const { data } = await sbc.from('blind_pulse').select('side').eq('day_key', bgDayKey).eq('track', bgTrack);
-  if (!data) return;
-  const coin = data.filter(r => r.side === 'coin').length, total = data.length;
-  const coinPct = total ? Math.round(coin / total * 100) : 50;
-  $('pulseCoinBar').style.width = coinPct + '%';
-  $('pulseCashBar').style.width = (100 - coinPct) + '%';
-  $('pulseNum').textContent = `${coinPct}% : ${100 - coinPct}%`;
-  $('pulseSub').textContent = `${total}명 집계 중`;
-}
-function startPulsePolling() { stopPulsePolling(); pulseRead(); bgPulseTimer = setInterval(pulseRead, 20000); }
-function stopPulsePolling() { clearInterval(bgPulseTimer); bgPulseTimer = null; }
-
 window.blindOpen = blindOpen; window.blindStart = blindStart;
-window.blindTrade = blindTrade; window.blindNext = blindNext; window.blindFinish = blindFinish;
-window.startDailyMode = startDailyMode;
+window.blindTrade = blindTrade; window.blindFinish = blindFinish;
 
 // ═══ ⚔️ 투기장 (롱숏 비율) ═══
 const FD = 'https://fapi.binance.com/futures/data';
