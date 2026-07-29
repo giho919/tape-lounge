@@ -1663,30 +1663,7 @@ betRender();  // 초기 렌더 (모든 정의 이후에 호출해야 함 — TDZ
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
 const BG_POOL_STOCK = ['AAPL','MSFT','GOOGL','AMZN','META','NFLX','NVDA','JPM','V','MA','DIS','KO','PEP','WMT','XOM','CVX','BA','MCD','NKE','INTC','AMD','CSCO','IBM','ADBE','CRM','PYPL','QCOM','VZ','PFE','JNJ','UNH','HD','COST'];
 const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
-// 미국주식은 CORS 미지원(Yahoo) → 프록시 폴백 체인. 오늘의 판은 세션당 1회 fetch라 프록시 불안정에 상대적으로 강함
-const BG_STOCK_PROXIES = [
-  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
-  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-];
-async function fetchStockDaily(sym, period1, period2) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&period1=${period1}&period2=${period2}`;
-  for (const mk of BG_STOCK_PROXIES) {
-    try {
-      const r = await (await fetch(mk(url))).json();
-      const res = r?.chart?.result?.[0];
-      const ts = res?.timestamp, q = res?.indicators?.quote?.[0];
-      if (!ts || !q) continue;
-      const rows = [];
-      for (let i = 0; i < ts.length; i++) {
-        if (q.open[i] == null || q.close[i] == null) continue;   // 휴장·결측일 제거
-        rows.push([ts[i]*1000, q.open[i], q.high[i], q.low[i], q.close[i], q.volume[i] || 0]);
-      }
-      if (rows.length) return rows;
-    } catch (e) { /* 다음 프록시 */ }
-  }
-  return null;
-}
+// 미국주식은 브라우저에서 Yahoo CORS 불가 → 서버가 매일 생성한 reports/blind_daily_stock.json을 읽음
 let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25;
 function bgPctSync(v) {
   v = Math.max(1, Math.min(100, Math.round(+v) || 1));
@@ -1985,24 +1962,26 @@ async function startDailyMode(track) {
   $('bgOver').classList.remove('hidden');
   const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
 
-  for (let attempt = 0; attempt < 8; attempt++) {
-    const cand = dailyCandidate(dayKey, attempt, track);
+  // 미국주식: 서버가 매일 생성한 JSON을 읽음 (무료 CORS 프록시 불안정 → 서버 경유). 코인: 브라우저에서 Binance 직접
+  const attempts = track === 'stock' ? 1 : 8;
+  for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      let kl;
-      if (cand.stock) {
-        const rows = await fetchStockDaily(cand.sym, cand.period1, cand.period2);
-        if (!rows || rows.length < BG_TOTAL) continue;
-        kl = rows.slice(-BG_TOTAL);
+      let kl, symName;
+      if (track === 'stock') {
+        const j = await (await fetch('reports/blind_daily_stock.json?t=' + dayKey)).json();
+        if (!j || !Array.isArray(j.candles) || j.candles.length < BG_TOTAL) break;
+        kl = j.candles.slice(-BG_TOTAL); symName = j.sym;
       } else {
+        const cand = dailyCandidate(dayKey, attempt, track);
         const r = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${cand.sym}&interval=1d&limit=${BG_TOTAL}&endTime=${cand.endTime}`)).json();
         if (!Array.isArray(r) || r.length !== BG_TOTAL) continue;
-        kl = r;
+        kl = r; symName = cand.sym;
       }
       const base = +kl[0][4];
       const elapsedMs = saved ? (saved.elapsedMs || 0) : 0;   // 내 세션 누적 플레이 시간 (재접속 시 복원)
       const elapsed = Math.min(BG_PLAY, Math.floor(elapsedMs / BG_TICK_MS));
       bg = {
-        sym: cand.sym, dayKey, track, daily: true, elapsedMs,
+        sym: symName, dayKey, track, daily: true, elapsedMs,
         realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
         realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
         norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
