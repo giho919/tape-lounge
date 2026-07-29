@@ -1867,7 +1867,7 @@ function blindFinish(early) {
   $('bgOver').classList.remove('hidden');
 }
 // ═══ 🌍 오늘의 판 — 공용 데일리 챌린지 (전원 동일 차트, 실시간 자동 진행) ═══
-const BG_TICK_MS = 60000;   // 1시뮬레이션일 = 실시간 60초 → 200일 완주 약 3시간20분 (튜닝 포인트, 숫자만 조정)
+const BG_TICK_MS = 2400;   // 1시뮬레이션일 = 실시간 2.4초 → 200일 완주 약 8분 (플레이어별 세션 기준, 튜닝 포인트)
 let bgMode = 'solo', bgDayKey = null, bgDailyTimer = null, bgPulseTimer = null, bgDailySubmitted = false;
 
 function dailyDayKey(d = new Date()) {
@@ -1879,10 +1879,8 @@ function seededHash(str) {
   for (let i = 0; i < str.length; i++) h = (Math.imul(h, 31) + str.charCodeAt(i)) >>> 0;
   return h;
 }
-function dailyOrigin(dayKey) { return Date.parse(dayKey + 'T00:00:00+09:00'); }   // 그날 00:00 KST
-function dailyElapsedDays(dayKey, nowMs = Date.now()) {
-  return Math.max(0, Math.min(BG_PLAY, Math.floor((nowMs - dailyOrigin(dayKey)) / BG_TICK_MS)));
-}
+function dailyOrigin(dayKey) { return Date.parse(dayKey + 'T00:00:00+09:00'); }   // 그날 00:00 KST (시드·다음 판 카운트다운용)
+function elapsedDays() { return bg ? Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS)) : 0; }   // 누적 플레이 시간 → 진행 일수
 function dailyCandidate(dayKey, attempt, track) {
   const hh = seededHash(dayKey + ':' + track + ':' + attempt);
   if (track === 'stock') {
@@ -1913,7 +1911,7 @@ function dailyCleanup(todayKey) {
 }
 function dailySaveState() {
   if (!bg || !bg.daily) return;
-  localStorage.setItem(`salonDailyState_${bgDayKey}_${bg.track}`, JSON.stringify({ cash: bg.cash, coin: bg.coin, trades: bg.trades }));
+  localStorage.setItem(`salonDailyState_${bgDayKey}_${bg.track}`, JSON.stringify({ cash: bg.cash, coin: bg.coin, trades: bg.trades, elapsedMs: bg.elapsedMs }));
 }
 
 function bgShowSoloOverlay() {
@@ -2001,9 +1999,10 @@ async function startDailyMode(track) {
         kl = r;
       }
       const base = +kl[0][4];
-      const elapsed = dailyElapsedDays(dayKey);
+      const elapsedMs = saved ? (saved.elapsedMs || 0) : 0;   // 내 세션 누적 플레이 시간 (재접속 시 복원)
+      const elapsed = Math.min(BG_PLAY, Math.floor(elapsedMs / BG_TICK_MS));
       bg = {
-        sym: cand.sym, dayKey, track, daily: true,
+        sym: cand.sym, dayKey, track, daily: true, elapsedMs,
         realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
         realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
         norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
@@ -2030,14 +2029,19 @@ async function startDailyMode(track) {
   $('bgOverBox').innerHTML = `<h4>🌍 오늘의 판</h4><p>판을 열지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="startDailyMode('${track}')">재시도</div>`;
 }
 
+let bgTickLast = 0;
 function dailyTickStart() {
   clearInterval(bgDailyTimer);
-  bgDailyTimer = setInterval(dailyTick, 1000);
+  bgTickLast = Date.now();   // 재개 시점 — 자리를 비운 동안(타이머 정지)은 누적 안 됨 = 자동 일시정지
+  bgDailyTimer = setInterval(dailyTick, 250);
   dailyLiveUpdate();
 }
 function dailyTick() {
   if (!bg || !bg.daily || bg.over) return;
-  const elapsed = dailyElapsedDays(bgDayKey);
+  const now = Date.now();
+  bg.elapsedMs += now - bgTickLast;
+  bgTickLast = now;
+  const elapsed = elapsedDays();
   const targetIdx = BG_HIST - 1 + elapsed;
   let moved = false;
   while (bg.idx < targetIdx) { bgAdvanceOneDay(); moved = true; }
@@ -2046,14 +2050,13 @@ function dailyTick() {
   if (elapsed >= BG_PLAY) { clearInterval(bgDailyTimer); bgDailyTimer = null; dailyReveal(); }
 }
 function dailyLiveUpdate() {
-  const elapsed = dailyElapsedDays(bgDayKey);
+  const elapsed = elapsedDays();
   if (elapsed >= BG_PLAY) {
     const left = Math.max(0, dailyOrigin(bgDayKey) + 86400e3 - Date.now());
-    $('bgLiveTxt').innerHTML = `📴 오늘의 판 종료 · 다음 판까지 <b class="num">${fmtHMS(left)}</b>`;
+    $('bgLiveTxt').innerHTML = `📴 완주 · 다음 판(자정 KST)까지 <b class="num">${fmtHMS(left)}</b>`;
     $('bgLiveDot').style.background = 'var(--dim)'; $('bgLiveDot').style.boxShadow = 'none';
   } else {
-    const msLeft = BG_TICK_MS - ((Date.now() - dailyOrigin(bgDayKey)) % BG_TICK_MS);
-    $('bgLiveTxt').innerHTML = `LIVE · D+${elapsed}/${BG_PLAY} · 다음 캔들까지 <b class="num">${Math.ceil(msLeft/1000)}초</b>`;
+    $('bgLiveTxt').innerHTML = `🔴 LIVE · D+${elapsed}/${BG_PLAY} · 시간이 흐르며 자동 진행`;
     $('bgLiveDot').style.background = 'var(--red)'; $('bgLiveDot').style.boxShadow = '0 0 8px var(--red)';
   }
 }
