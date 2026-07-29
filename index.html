@@ -1945,9 +1945,39 @@ function bgResumeIfNeeded() {
   if (bg && bg.daily && bg.dayKey === today && bg.track === bgTrack) {
     if (!bg.over) { dailyTickStart(); startPulsePolling(); dailyTick(); }
     else { loadDailyBoard(); }
-  } else {
-    startDailyMode(bgTrack);
+    return;
   }
+  bg = null;
+  // 진행중/완료 기록이 있으면 이어하기(결과), 없으면 시작 버튼 인트로
+  if (localStorage.getItem(`salonDailyState_${today}_${bgTrack}`)) startDailyMode(bgTrack);
+  else bgShowDailyIntro(bgTrack);
+}
+
+function bgShowDailyIntro(track) {
+  bgDayKey = dailyDayKey();
+  loadDailyBoard();
+  $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
+  $('bgOverBox').innerHTML = `
+    <h4>🌍 오늘의 판</h4>
+    <p>오늘은 <b style="color:#fff">모두가 같은 ${track === 'stock' ? '미국 증시' : '코인'} 차트</b>에 도전합니다. 종목도 날짜도 비밀.<br>
+    밑천 <b style="color:var(--gold)">$10,000</b> · 캔들은 <b>시간에 따라 저절로</b> 흐릅니다 (약 8분).<br>
+    <span id="bgIntroCount" style="color:var(--dim)">오늘의 도전자 집계 중…</span></p>
+    <div class="go" onclick="startDailyMode('${track}')">시작한다 →</div>`;
+  $('bgOver').classList.remove('hidden');
+  loadDailyCount();
+}
+window.bgShowDailyIntro = bgShowDailyIntro;
+
+async function loadDailyCount() {
+  if (!sbc || !bgDayKey) return;
+  try {
+    const [p, r] = await Promise.all([
+      sbc.from('blind_pulse').select('*', { count: 'exact', head: true }).eq('day_key', bgDayKey).eq('track', bgTrack),
+      sbc.from('blind_daily_result').select('*', { count: 'exact', head: true }).eq('day_key', bgDayKey).eq('track', bgTrack),
+    ]);
+    const el = $('bgIntroCount');
+    if (el) el.innerHTML = `오늘 <b style="color:var(--gold)">${p.count || 0}</b>명 도전 · <b>${r.count || 0}</b>명 완주`;
+  } catch (e) {}
 }
 
 async function startDailyMode(track) {
@@ -2001,7 +2031,7 @@ async function startDailyMode(track) {
       $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0, 30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
       blindStatus();
       loadDailyBoard(); startPulsePolling();
-      if (elapsed >= BG_PLAY) dailyReveal(); else dailyTickStart();
+      if (elapsed >= BG_PLAY) dailyReveal(); else { dailyTickStart(); pulseWrite(); }   // 시작 시 참여자로 등록
       return;
     } catch (e) { /* 다음 후보 시도 */ }
   }
