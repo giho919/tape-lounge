@@ -1,7 +1,7 @@
 # Tape Lounge
 
-> A lounge for reading the tape — real-time crypto metrics, living order flow, and three resident strategists.
-> 크립토 시장의 "보는 맛"을 모아둔 라운지 — 실시간 지표, 살아 움직이는 체결, 그리고 세 명의 전략가.
+> A lounge for reading the tape — real-time crypto metrics, living order flow, trading mini-games, and three resident strategists.
+> 크립토 시장의 "보는 맛"을 모아둔 라운지 — 실시간 지표, 살아 움직이는 체결, 트레이딩 미니게임, 그리고 세 명의 전략가.
 
 **Live** → https://tapelounge.com *(coming soon)* · https://giho919.github.io/tape-lounge/
 
@@ -48,6 +48,11 @@ Every **real trade** happening on Binance right now falls as a raindrop.
 - Spreading ripples = futures liquidations / 퍼지는 파문 = 선물 강제 청산
 - Bottom bar = buy/sell pressure / 하단 수급 바 = 매수·매도 압력
 
+### Order Book 📊 · 호가창
+
+Live bid/sell walls beside the rain; a market-order fill **shatters** the wall level it hits (shards fly, bigger trades break more rows).
+체결의 비 옆에 실시간 매수·매도벽. 시장가 체결이 닿는 가격대의 벽을 **부숩니다** (파편이 튀고, 큰 체결일수록 여러 줄이 깨짐).
+
 ### Full-screen reactions · 전면 연출
 
 Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flicker · spotlight — the whole screen responds when the market moves hard.
@@ -56,15 +61,30 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 ### Interactive · 참여 요소
 
 - **Lounge Chat · 라운지 채팅** — Live visitor chat (nickname-based); the strategists' letters flow in alongside / 방문자 실시간 채팅(닉네임 기반) + 전략가 서신·소식이 함께 흐름
-- **Next-Candle Prediction · 다음 캔들 예측** — Call the next BTC 1-minute candle (UP/DOWN) in advance; locked when the candle opens, judged at close / BTC 1분봉의 다음 방향을 미리 걸고 연승 도전 (봉 열릴 때 잠금 → 마감 판정)
+- **Next-Candle Prediction · 다음 캔들 예측** — Call the next BTC 1-minute candle (UP/DOWN) in advance; locked when the candle opens, judged at close. The target candle is marked right on the live chart — a colored `?` ghost at the next slot, 🔒 on the candle being judged / BTC 1분봉의 다음 방향을 미리 걸고 연승 도전 (봉 열릴 때 잠금 → 마감 판정). 예측 대상 봉이 라이브 차트에 표시됨 — 다음 자리에 색깔 `?` 유령캔들, 판정 중인 봉엔 🔒
 - **Leaderboard · 리더보드** — Self-standing ranking by best streak & record / 예측 최고 연승·전적 기반 자율 순위
+
+---
+
+## ⚔️ Arena · 투기장
+
+Long/short positioning of Binance-futures participants, visualized as a game — not a plain ratio.
+바이낸스 선물 참여자들의 롱/숏 방향을 단순 비율이 아니라 게임처럼 시각화.
+
+- **Bull vs Bear tug-of-war · 황소 vs 곰 줄다리기** — the rope knot is pulled toward whichever side is winning / 밧줄 매듭이 이기는 쪽으로 끌려감
+- **Ants vs Whales · 개미 vs 고래** — retail (global accounts) vs top-trader positions side by side; when they diverge, a contrarian verdict pops / 개미(글로벌 계정) vs 고래(상위 트레이더) 나란히 — 방향 갈리면 역발상 판정
+- **Taker pulse · 테이커 맥박** — which side is hitting the market right now, as a heartbeat / 지금 시장가로 때리는 방향을 심장 박동으로
+- Recent long-share sparkline / 최근 롱 비중 스파크라인
 
 ---
 
 ## 🎰 Blind Chart · 블라인드 차트
 
-You're dropped into a **real past crypto market** with its identity hidden — no symbol, no dates (start price indexed to 100, time axis removed). Trade a $10,000 stake day by day; after 200 days the identity is revealed and you're judged against **buy & hold over the same window**. Moving averages included.
-정체를 숨긴 **과거의 실제 코인 시장**에 던져집니다. 종목도 날짜도 비밀 (시작가 100 기준 지수화, 시간축 숨김). 밑천 $10,000으로 하루씩 넘기며 매매하고, 200일 뒤 정체가 공개되며 **같은 기간 존버 대비 성적**으로 판정받습니다. 이동평균선도 함께 표시됩니다.
+You're dropped into a **real past market** with its identity hidden — no symbol, no dates (start price indexed to 100, time axis removed). Pick a track — **🪙 crypto or 📈 US stocks** — then trade a $10,000 stake as the chart **advances by itself over time** (⏸ pause / ▶ play / speed 1×·2×·4×). After 200 days the identity is revealed and you're judged against **buy & hold over the same window**. Moving averages and volume included.
+정체를 숨긴 **과거의 실제 시장**에 던져집니다. 종목도 날짜도 비밀 (시작가 100 기준 지수화, 시간축 숨김). **🪙 코인 / 📈 미국주식** 트랙을 고른 뒤, 밑천 $10,000으로 매매하는데 캔들이 **시간에 따라 저절로 진행**됩니다 (⏸ 일시정지 / ▶ 재생 / 속도 1×·2×·4×). 200일 뒤 정체가 공개되며 **같은 기간 존버 대비 성적**으로 판정받습니다. 이동평균선·거래량도 함께 표시됩니다.
+
+> Crypto data streams live from Binance; US-stock history (100+ S&P 500 / Nasdaq-100 large caps) is served as a static bundle the server refreshes weekly.
+> 코인은 바이낸스 실시간, 미국주식(S&P500·나스닥100 대형주 100+종목)은 서버가 주 1회 갱신하는 정적 번들로 제공됩니다.
 
 ---
 
@@ -92,15 +112,16 @@ Reports are auto-generated daily and pushed to this repo's `reports/`.
 All public & free APIs, called directly from the browser.
 전부 공개·무료 API, 브라우저에서 직접 호출.
 
-- **Binance** — spot/futures WebSocket (trades, candles, liquidations, dominance index) + REST history / 현물·선물 WebSocket (체결·캔들·강제청산·도미넌스 지수) + REST 과거 캔들
+- **Binance** — spot/futures WebSocket (trades, candles, liquidations, dominance index, long/short ratios) + REST history / 현물·선물 WebSocket (체결·캔들·강제청산·도미넌스 지수·롱숏 비율) + REST 과거 캔들
 - **Upbit** — REST, KRW prices for the kimchi-premium calc / 김치 프리미엄 산출용 KRW 시세
 - **alternative.me** — Fear & Greed / 공포·탐욕 지수
 - **CoinGecko** — global dominance / 글로벌 도미넌스
+- **US stocks** — historical daily bars fetched server-side (Yahoo Finance) and served as a static bundle in `reports/stocks.json` / 미국주식 일봉은 서버가 받아(Yahoo Finance) `reports/stocks.json` 정적 번들로 제공
 
 ## Tech · 기술
 
 - Single HTML file (`index.html`); only external deps are lightweight-charts & Supabase JS via CDN / 단일 HTML 파일, 외부 의존성은 lightweight-charts·Supabase JS(CDN)뿐
-- **Supabase** — live chat & leaderboard, Row Level Security (read/insert only) / 라이브 채팅·리더보드, RLS 적용(읽기·삽입만)
+- **Supabase** — live chat & leaderboard over anonymous auth; Row Level Security so anyone can read but only edit their own row / 익명 인증 기반 라이브 채팅·리더보드, RLS로 읽기는 전체·수정은 본인 행만
 - **Hosting · 호스팅** — GitHub Pages
 
 ## Disclaimer · 면책
