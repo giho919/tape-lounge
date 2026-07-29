@@ -1835,7 +1835,7 @@ function bgAdvanceOneDay() {
   });
 }
 function blindNext(n) {
-  if (!bg || bg.over) return;
+  if (!bg || bg.over || bg.daily) return;   // 오늘의 판은 시간이 자동 진행 — 수동 넘기기 차단
   for (let i = 0; i < n && bg.idx < BG_TOTAL - 1; i++) bgAdvanceOneDay();
   bgCh.timeScale().scrollToRealTime();
   blindStatus();
@@ -1843,7 +1843,7 @@ function blindNext(n) {
 }
 
 function blindFinish(early) {
-  if (!bg || bg.over) return;
+  if (!bg || bg.over || bg.daily) return;   // 오늘의 판은 완주 시 dailyReveal이 처리
   bg.over = true;
   const roi = (bgTotal() / 10000 - 1) * 100;
   const bh = (bg.norm[bg.idx].close / bg.norm[BG_HIST - 1].close - 1) * 100;  // 같은 기간 존버
