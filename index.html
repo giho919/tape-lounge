@@ -35,9 +35,9 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .tile .s { font-size:11px; color:var(--dim); margin-top:2px; }
 .up { color:var(--grn); } .dn { color:var(--red); } .gold { color:var(--gold); }
 
-.main { display:grid; grid-template-columns:2.1fr 1fr; gap:12px; }
-.col { display:flex; flex-direction:column; gap:12px; }
-#chatPanel { flex:1 1 auto; min-height:360px; }   /* 우측 컬럼을 꽉 채워 채팅을 길게 + 리더보드를 바닥(좌측과 수평)에 고정 */
+.main { display:grid; grid-template-columns:2.1fr 1fr; gap:12px; align-items:stretch; }
+.col { display:flex; flex-direction:column; gap:12px; min-height:0; }
+#chatPanel { flex:1 1 0; min-height:0; }   /* 채팅 영역이 남는 높이를 맡아 리더보드 하단을 좌측과 수평으로 유지 */
 .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
 .panel h3 { font-size:11px; letter-spacing:3px; color:var(--gold); padding:11px 15px 9px; border-bottom:1px solid var(--line); font-weight:600; display:flex; justify-content:space-between; align-items:baseline; }
 .panel h3 small { color:var(--dim); letter-spacing:1px; font-weight:400; }
@@ -491,7 +491,7 @@ body.shake { animation:shake .5s; }
     </div>
   </div>
   <div class="panel">
-    <h3>🏆 리더보드 <small>최고 연승 · 주간</small></h3>
+    <h3>🏆 리더보드 <small>상위 10명 · 최고 연승</small></h3>
     <div id="board"></div>
     <div class="hint" style="padding:0 16px 12px;font-size:10px;color:var(--dim)">※ 닉네임 기반 자율 순위 · 내 줄을 눌러 닉네임 설정</div>
   </div>
@@ -1249,7 +1249,7 @@ function renderBoard() {
     rows = [...DEMO_BOARD, { nk: esc(myNick), bs: bet.best, w: bet.w, l: bet.l, me: true }];
   }
   rows.sort((a,b) => b.bs - a.bs || (b.w-b.l) - (a.w-a.l));
-  $('board').innerHTML = rows.slice(0, 8).map((r, i) =>
+  $('board').innerHTML = rows.slice(0, 10).map((r, i) =>
     `<div class="brow${r.me ? ' me' : ''}">
        <span class="rk${i < 3 ? ' top' : ''}">${['🥇','🥈','🥉'][i] || i+1}</span>
        <span class="nk"${r.me ? ' onclick="setNick()"' : ''}>${r.nk}</span>
@@ -1363,7 +1363,7 @@ async function loadBoard() {
   } catch(e) {}
   // 2) 폴백 — 스냅샷 없으면(초기·저트래픽) Supabase 직접
   if (!sbc) return;
-  const { data } = await sbc.from('salon_board').select('*').order('streak_best', { ascending: false }).limit(20);
+  const { data } = await sbc.from('salon_board').select('*').order('streak_best', { ascending: false }).limit(10);
   if (data && data.length) { boardCache = data; renderBoard(); }
 }
 
