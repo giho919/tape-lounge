@@ -332,6 +332,43 @@ body.shake { animation:shake .5s; }
 #bookPanel { flex:0 0 234px; position:relative; }
 .bookLgd { font-size:9.5px; color:var(--dim); padding:0 11px 7px; letter-spacing:.3px; border-bottom:1px solid var(--line); margin-bottom:4px; }
 .bookSide { display:flex; flex-direction:column; }
+
+/* ═══ 온체인 관전석 ═══ */
+.chainHero { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:14px 0; padding:18px 20px; border:1px solid var(--gold-dim); border-radius:12px; background:linear-gradient(105deg,rgba(212,175,55,.12),rgba(18,21,28,.95) 48%,rgba(34,211,238,.06)); }
+.chainKicker { font-size:10px; letter-spacing:3px; color:var(--gold); margin-bottom:5px; }
+.chainTitle { font-family:Georgia,serif; font-size:clamp(20px,2.4vw,30px); color:#f4e6b6; }
+.chainDesc { font-size:12px; color:var(--dim); margin-top:7px; line-height:1.6; }
+.chainLive { min-width:190px; text-align:right; }
+.chainLive b { display:block; font-size:18px; color:var(--cyan); font-family:Menlo,monospace; }
+.chainLive span { font-size:10px; color:var(--dim); letter-spacing:1px; }
+.chainGrid { display:grid; grid-template-columns:1.1fr .9fr; gap:12px; }
+.chainGrid .panel { min-height:250px; }
+.chainStat { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-bottom:1px solid var(--line); }
+.chainStat > div { background:var(--panel); padding:14px 15px; }
+.chainStat .l { font-size:9px; letter-spacing:1.4px; color:var(--dim); }
+.chainStat .v { margin-top:5px; font:700 17px Menlo,monospace; color:#e9edf5; }
+.chainStat .s { margin-top:4px; font-size:10px; color:var(--dim); }
+.whaleTape { padding:7px 15px 13px; display:flex; flex-direction:column; gap:2px; }
+.whaleRow { display:grid; grid-template-columns:12px 1fr auto; gap:9px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); }
+.whaleRow:last-child { border-bottom:0; }
+.whalePulse { width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 9px rgba(212,175,55,.75); }
+.whaleMain { min-width:0; }
+.whaleMain b { display:block; font:600 12px Menlo,monospace; color:#d9dde7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.whaleMain span { display:block; margin-top:3px; font-size:10px; color:var(--dim); }
+.whaleBtc { font:700 12px Menlo,monospace; color:var(--gold); }
+.flowMeter { padding:19px 16px 14px; }
+.flowSplit { height:35px; display:flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--panel2); }
+.flowBuy,.flowSell { display:flex; align-items:center; font:700 11px Menlo,monospace; transition:width .7s ease; overflow:hidden; white-space:nowrap; }
+.flowBuy { justify-content:flex-start; padding-left:10px; color:#092114; background:linear-gradient(90deg,#2fbd72,#4ade80); }
+.flowSell { justify-content:flex-end; padding-right:10px; color:#310c11; background:linear-gradient(90deg,#f87171,#c1444e); }
+.flowMeta { display:flex; justify-content:space-between; margin-top:11px; font-size:11px; color:var(--dim); }
+.thermo { padding:13px 16px; display:flex; flex-direction:column; gap:13px; }
+.thermoRow { display:grid; grid-template-columns:100px 1fr 48px; gap:10px; align-items:center; font-size:11px; color:#c6cad3; }
+.thermoBar { height:8px; overflow:hidden; border-radius:6px; background:#242a37; }
+.thermoBar i { display:block; height:100%; border-radius:inherit; transition:width .7s ease; }
+.thermoRow b { text-align:right; font:700 11px Menlo,monospace; color:#e9edf5; }
+.chainNote { padding:0 16px 14px; font-size:10px; line-height:1.55; color:var(--dim); }
+@media (max-width:720px){ .chainHero { align-items:flex-start; flex-direction:column; } .chainLive{text-align:left} .chainGrid { grid-template-columns:1fr; } .chainStat { grid-template-columns:1fr; } .thermoRow { grid-template-columns:88px 1fr 45px; } }
 #bookAsks { justify-content:flex-end; }
 .bookRow { position:relative; display:flex; justify-content:space-between; align-items:center; height:16px; padding:0 11px; font-size:10.5px; }
 .bookRow .bar { position:absolute; top:1px; bottom:1px; right:0; opacity:.20; border-radius:2px 0 0 2px; transition:width .1s linear; }
@@ -357,6 +394,7 @@ body.shake { animation:shake .5s; }
     <div class="tab on" data-tab="lounge">🥂 라운지</div>
     <div class="tab" data-tab="game">🎰 블라인드</div>
     <div class="tab" data-tab="arena">⚔️ 투기장</div>
+    <div class="tab" data-tab="chain">⛓ 온체인</div>
     <div class="tab" data-tab="chars">🎩 전략가들</div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
@@ -625,6 +663,44 @@ body.shake { animation:shake .5s; }
 </div>
 
 <!-- ═══════════ 전략가 탭 ═══════════ -->
+<div id="tab-chain" class="hidden">
+  <div class="chainHero">
+    <div>
+      <div class="chainKicker">THE LEDGER NEVER SLEEPS</div>
+      <div class="chainTitle">온체인 관전석</div>
+      <p class="chainDesc">블록체인 위에서 지금 벌어지는 큰 움직임과 거래소의 체결 압력을 한 판처럼 봅니다.</p>
+    </div>
+    <div class="chainLive"><b id="chainHeight">—</b><span>BTC BLOCK HEIGHT · LIVE</span></div>
+  </div>
+  <div class="chainGrid">
+    <div class="panel">
+      <h3>🐋 고래 레이더 <small>Bitcoin mempool · 최근 대형 전송</small></h3>
+      <div class="chainStat">
+        <div><div class="l">MEMPOOL TX</div><div class="v" id="mempoolCount">—</div><div class="s">대기 중인 거래</div></div>
+        <div><div class="l">FAST FEE</div><div class="v" id="fastFee">—</div><div class="s">sat/vB · 우선 처리</div></div>
+        <div><div class="l">MEMPOOL SIZE</div><div class="v" id="mempoolSize">—</div><div class="s">가상 바이트</div></div>
+      </div>
+      <div class="whaleTape" id="whaleTape"><div class="chainNote">체인에서 신호를 기다리는 중…</div></div>
+      <div class="chainNote">※ 큰 전송은 주소 소유자나 매매 의도를 뜻하지 않습니다. 알려진 거래소 라벨 없이 원시 체인 데이터만 표시합니다.</div>
+    </div>
+    <div class="panel">
+      <h3>🏦 거래소 플로우 <small>Binance BTCUSDT · 호가 잔량</small></h3>
+      <div class="flowMeter">
+        <div class="flowSplit"><div class="flowBuy" id="flowBid" style="width:50%">BID —</div><div class="flowSell" id="flowAsk" style="width:50%">ASK —</div></div>
+        <div class="flowMeta"><span id="flowBidLabel">매수 대기 —</span><span id="flowAskLabel">매도 대기 —</span></div>
+      </div>
+      <h3>🌡 시장 온도 <small>현물·파생·체인 혼합 지표</small></h3>
+      <div class="thermo">
+        <div class="thermoRow"><span>공포·탐욕</span><div class="thermoBar"><i id="thermoFear" style="width:0;background:var(--gold)"></i></div><b id="thermoFearText">—</b></div>
+        <div class="thermoRow"><span>펀딩 압력</span><div class="thermoBar"><i id="thermoFunding" style="width:0;background:var(--cyan)"></i></div><b id="thermoFundingText">—</b></div>
+        <div class="thermoRow"><span>체인 혼잡</span><div class="thermoBar"><i id="thermoMempool" style="width:0;background:var(--red)"></i></div><b id="thermoMempoolText">—</b></div>
+      </div>
+      <div class="chainNote">수치는 관전용 보조 지표이며, 매수·매도 신호가 아닙니다. 마지막 갱신 <span id="chainUpdated">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 전략가 탭 ═══════════ -->
 <div id="tab-chars" class="hidden">
 <div class="chars">
   <div class="char">
@@ -707,7 +783,7 @@ body.shake { animation:shake .5s; }
 
 <div class="foot">
   본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
-  · 데이터: Binance, Upbit, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.2
+  · 데이터: Binance, Upbit, mempool.space, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.3
 </div>
 </div>
 
@@ -735,9 +811,11 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
+  $('tab-chain').classList.toggle('hidden', t.dataset.tab !== 'chain');
   if (t.dataset.tab === 'game') { blindOpen(); }
   else { clearInterval(bgTimer); bgTimer = null; }   // 게임 탭 이탈 시 자동 진행 정지(일시정지)
   if (t.dataset.tab === 'arena') arenaOpen();
+  if (t.dataset.tab === 'chain') onchainOpen();
   if (t.dataset.tab === 'lounge') requestAnimationFrame(trimDeck);   // 복귀 시 실제 폭으로 덱 재정렬
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
 });
@@ -2026,6 +2104,84 @@ window.bgSetTrack = bgSetTrack;
 
 window.blindOpen = blindOpen; window.blindStart = blindStart;
 window.blindTrade = blindTrade; window.blindFinish = blindFinish;
+
+// ═══ ⛓ 온체인 관전석 ═══
+const MEMPOOL = 'https://mempool.space/api';
+let onchainStarted = false, onchainTimer = null;
+const btcText = sats => {
+  const btc = sats / 1e8;
+  return btc >= 1000 ? `${(btc / 1000).toFixed(1)}K BTC` : `${btc.toFixed(btc >= 10 ? 1 : 3)} BTC`;
+};
+function renderWhaleTape(txs) {
+  const tape = $('whaleTape');
+  tape.replaceChildren();
+  const large = txs.map(tx => ({
+    txid: tx.txid,
+    value: (tx.vout || []).reduce((sum, out) => sum + (+out.value || 0), 0),
+    fee: +tx.fee || 0,
+  })).sort((a,b) => b.value - a.value).slice(0, 5);
+  if (!large.length) {
+    const note = document.createElement('div'); note.className = 'chainNote'; note.textContent = '표시할 최근 전송이 없습니다.'; tape.append(note); return;
+  }
+  large.forEach((tx, i) => {
+    const row = document.createElement('div'); row.className = 'whaleRow';
+    const pulse = document.createElement('i'); pulse.className = 'whalePulse';
+    const main = document.createElement('div'); main.className = 'whaleMain';
+    const id = document.createElement('b'); id.textContent = `TX ${tx.txid.slice(0, 10)}…${tx.txid.slice(-6)}`;
+    const sub = document.createElement('span'); sub.textContent = `최근 mempool 전송 · 수수료 ${tx.fee.toLocaleString('ko-KR')} sats`;
+    const amount = document.createElement('div'); amount.className = 'whaleBtc'; amount.textContent = btcText(tx.value);
+    main.append(id, sub); row.append(pulse, main, amount); tape.append(row);
+  });
+}
+async function onchainRefresh() {
+  const [mempool, fees, recent, height, depth, fear, premium] = await Promise.allSettled([
+    fetch(`${MEMPOOL}/mempool`).then(r => r.json()),
+    fetch(`${MEMPOOL}/v1/fees/recommended`).then(r => r.json()),
+    fetch(`${MEMPOOL}/mempool/recent`).then(r => r.json()),
+    fetch(`${MEMPOOL}/blocks/tip/height`).then(r => r.text()),
+    fetch('https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=100').then(r => r.json()),
+    fetch('https://api.alternative.me/fng/?limit=1').then(r => r.json()),
+    fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT').then(r => r.json()),
+  ]);
+  const get = r => r.status === 'fulfilled' ? r.value : null;
+  const mp = get(mempool), fee = get(fees), txs = get(recent), h = get(height);
+  if (h) $('chainHeight').textContent = `#${String(h).trim()}`;
+  if (mp) {
+    $('mempoolCount').textContent = fmt(mp.count);
+    $('mempoolSize').textContent = mp.vsize >= 1e6 ? `${(mp.vsize / 1e6).toFixed(1)} MB` : `${(mp.vsize / 1e3).toFixed(0)} KB`;
+    const congestion = Math.min(100, Math.round((mp.vsize / 1e6) * 34));
+    $('thermoMempool').style.width = `${congestion}%`;
+    $('thermoMempoolText').textContent = `${congestion}/100`;
+  }
+  if (fee) $('fastFee').textContent = `${fee.fastestFee} sat/vB`;
+  if (Array.isArray(txs)) renderWhaleTape(txs);
+  const book = get(depth);
+  if (book?.bids && book?.asks) {
+    const total = side => side.reduce((sum, [price, qty]) => sum + (+price * +qty), 0);
+    const bid = total(book.bids), ask = total(book.asks), bidPct = bid / (bid + ask || 1) * 100;
+    $('flowBid').style.width = `${bidPct}%`; $('flowAsk').style.width = `${100 - bidPct}%`;
+    $('flowBid').textContent = `BID ${bidPct.toFixed(0)}%`; $('flowAsk').textContent = `ASK ${(100-bidPct).toFixed(0)}%`;
+    $('flowBidLabel').textContent = `매수 대기 $${(bid / 1e6).toFixed(1)}M`;
+    $('flowAskLabel').textContent = `매도 대기 $${(ask / 1e6).toFixed(1)}M`;
+  }
+  const fg = get(fear)?.data?.[0];
+  if (fg) { const v = +fg.value; $('thermoFear').style.width = `${v}%`; $('thermoFearText').textContent = `${v}`; }
+  const p = get(premium);
+  if (p) {
+    const rate = +p.lastFundingRate * 100, pressure = Math.min(100, Math.abs(rate) * 10000);
+    $('thermoFunding').style.width = `${pressure}%`;
+    $('thermoFunding').style.background = rate >= 0 ? 'var(--grn)' : 'var(--red)';
+    $('thermoFundingText').textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}%`;
+  }
+  $('chainUpdated').textContent = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+function onchainOpen() {
+  onchainRefresh();
+  if (!onchainStarted) {
+    onchainStarted = true;
+    onchainTimer = setInterval(onchainRefresh, 30000);
+  }
+}
 
 // ═══ ⚔️ 투기장 (롱숏 비율) ═══
 const FD = 'https://fapi.binance.com/futures/data';
