@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tape Lounge — 라운지</title>
-<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0/dist/umd/supabase.min.js" integrity="sha384-fPWur1rx/DE6YtXP/x0MD6dd90RgnVsz5yX/DIg7CcVAnTBZsENWuIcpvVTM39ti" crossorigin="anonymous"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 <style>
 :root {
   --bg:#0a0c10; --panel:#12151c; --panel2:#161a23; --line:#232838;
@@ -64,6 +65,11 @@ canvas { display:block; }
 #chatIn input:focus { border-color:var(--gold-dim); }
 #chatIn button { background:var(--gold-dim); border:1px solid var(--gold); border-radius:8px; color:#fff; font-size:11.5px; letter-spacing:1px; padding:0 16px; cursor:pointer; }
 #chatIn button:hover { filter:brightness(1.2); }
+.captchaGate { position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; background:rgba(3,5,9,.76); padding:20px; }
+.captchaGate .box { width:min(360px,100%); background:var(--panel); border:1px solid var(--gold-dim); border-radius:12px; padding:20px; box-shadow:0 18px 60px #000; }
+.captchaGate h4 { margin:0 0 8px; color:var(--gold); font-size:14px; letter-spacing:1px; }
+.captchaGate p { margin:0 0 14px; color:var(--dim); font-size:12px; line-height:1.6; }
+.captchaGate .err { min-height:18px; margin-top:8px; color:var(--red); font-size:11px; }
 .msg.sys { color:var(--dim); font-size:11.5px; }
 .msg.madam .who { color:#e8a0bf; } .msg.andy .who { color:var(--cyan); } .msg.justin .who { color:#a78bfa; }
 .chatlock { border-top:1px solid var(--line); padding:10px 14px; font-size:11.5px; color:var(--dim); background:var(--panel2); }
@@ -709,6 +715,14 @@ body.shake { animation:shake .5s; }
 <div id="spot"></div>
 <div id="vign"></div>
 <div id="fxBanner"></div>
+<div id="captchaGate" class="captchaGate hidden" role="dialog" aria-modal="true" aria-labelledby="captchaTitle">
+  <div class="box">
+    <h4 id="captchaTitle">잠깐, 손님 확인부터</h4>
+    <p>채팅과 기록 등록 전 자동 공격을 막기 위한 한 번의 확인입니다.</p>
+    <div id="captchaWidget"></div>
+    <div id="captchaError" class="err" aria-live="polite"></div>
+  </div>
+</div>
 <script>
 const $ = id => document.getElementById(id);
 const fmt = (n, d=0) => n.toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d});
@@ -1104,6 +1118,33 @@ function say(cls, who, body) {
   while (feed.children.length > 60) feed.removeChild(feed.firstChild);
   feed.scrollTop = feed.scrollHeight;
 }
+// 서버에서 내려오는 서신은 HTML로 해석하지 않는다. 배포 파이프라인이나 JSON이
+// 오염돼도 방문자 브라우저에서 스크립트가 실행되지 않도록 DOM 텍스트로만 렌더링한다.
+function sayLetter(cls, who, body) {
+  const safeCls = CHAT_AVA[cls] ? cls : 'sys';
+  const m = document.createElement('div');
+  m.className = 'msg ' + safeCls;
+  if (CHAT_AVA[safeCls]) {
+    const img = document.createElement('img');
+    img.className = 'ava';
+    img.src = CHAT_AVA[safeCls];
+    img.alt = '';
+    m.appendChild(img);
+  }
+  if (who) {
+    const name = document.createElement('span');
+    name.className = 'who';
+    name.textContent = who;
+    m.appendChild(name);
+  }
+  const text = document.createElement('span');
+  text.className = 'body';
+  text.textContent = String(body ?? '');
+  m.appendChild(text);
+  feed.appendChild(m);
+  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+}
 // 전략가 서신 — 서버가 매일 reports/letters.json에 갱신 (실패 시 폴백)
 const CHAR_NAME = { madam: '鄭마담', andy: 'Andy', justin: 'Prof. Justin' };
 const LETTER_FALLBACK = [
@@ -1118,7 +1159,7 @@ async function loadLetters() {
     if (r.ok) { const j = await r.json(); if (j && j.messages && j.messages.length) list = j.messages; }
   } catch(e) {}
   if (!list) list = LETTER_FALLBACK;
-  list.forEach((m, i) => setTimeout(() => say(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200));
+  list.forEach((m, i) => setTimeout(() => sayLetter(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200));
 }
 loadLetters();
 
@@ -1234,13 +1275,44 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 let sbc = null, myUid = null;
 try { sbc = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.log('supabase off', e); }
 // 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
+const TURNSTILE_SITEKEY = '0x4AAAAAAEDtJF9PJ4ZwYXIl';
+let captchaWidgetId = null, captchaPending = null;
+function waitForTurnstile() {
+  return new Promise((resolve, reject) => {
+    const until = Date.now() + 10000;
+    const check = () => window.turnstile ? resolve() :
+      Date.now() >= until ? reject(new Error('보안 인증을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.')) : setTimeout(check, 100);
+    check();
+  });
+}
+async function getCaptchaToken() {
+  if (captchaPending) return captchaPending;
+  const gate = $('captchaGate'), err = $('captchaError');
+  gate.classList.remove('hidden'); err.textContent = '';
+  captchaPending = (async () => {
+    await waitForTurnstile();
+    return new Promise((resolve, reject) => {
+      const options = {
+        sitekey: TURNSTILE_SITEKEY, theme: 'dark',
+        callback: token => { gate.classList.add('hidden'); resolve(token); },
+        'error-callback': () => { err.textContent = '보안 인증에 실패했습니다. 다시 시도해 주세요.'; reject(new Error(err.textContent)); },
+        'expired-callback': () => { err.textContent = '인증 시간이 만료되었습니다. 다시 시도해 주세요.'; },
+      };
+      if (captchaWidgetId === null) captchaWidgetId = window.turnstile.render('#captchaWidget', options);
+      else window.turnstile.reset(captchaWidgetId);
+    });
+  })();
+  try { return await captchaPending; }
+  finally { captchaPending = null; }
+}
 async function ensureAuth() {
   if (!sbc) return null;
   if (myUid) return myUid;
   try {
     const { data: { session } } = await sbc.auth.getSession();
     if (session?.user) { myUid = session.user.id; return myUid; }
-    const { data, error } = await sbc.auth.signInAnonymously();
+    const captchaToken = await getCaptchaToken();
+    const { data, error } = await sbc.auth.signInAnonymously({ options: { captchaToken } });
     if (error) { console.log('anon auth off', error.message); return null; }
     myUid = data.user?.id || null;
   } catch(e) { console.log('auth err', e); }
