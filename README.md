@@ -25,6 +25,16 @@ Read the market's *now* on a single screen.
 | **BTC Dominance · 도미넌스** | Bitcoin's share of total market cap | 전체 시총 중 비트코인 점유율 |
 | **Funding Rate · 펀딩비** | Perpetual-futures 8h funding — a gauge of futures-market heat | 무기한 선물 8시간 펀딩 — 선물 시장 과열 온도 |
 
+### Spectator casino · 관전 카지노
+
+The market plays the game; visitors watch the tension build and the result settle.
+시장이 스스로 판을 벌이고, 방문자는 긴장과 결과 확정의 순간을 관전합니다.
+
+- **Pit Boss · 핏 보스** — automatically promotes the hottest live scene among tape pressure, whale fills, liquidations, breakouts, and the coin race / 체결 압력·고래·청산·돌파·경마 중 가장 뜨거운 판을 자동으로 메인 무대에 올림
+- **Liquidation Tower · 청산 타워** — market-wide long and short liquidations stack as blocks over five-minute rounds; a severe imbalance knocks the tower down / 전 시장 롱·숏 청산이 5분간 블록으로 쌓이고 심한 불균형에서 타워 붕괴
+- **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
+- **Market Highlights · 시장 하이라이트** — major candles, breakouts, whales, tower crashes, and race winners are saved locally as replayable tickets / 장대봉·돌파·고래·타워 붕괴·경마 우승을 기기 안에 다시 볼 수 있는 전표로 보관
+
 ### Live charts (swipeable) · 라이브 차트 (넘겨보기)
 
 - **Symbols · 종목** — BTC · ETH · BTC.D (dominance / 도미넌스) · NASDAQ (QQQB, a Nasdaq-100 ETF token / 나스닥100 ETF 토큰)
@@ -66,15 +76,45 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 
 ---
 
-## ⚔️ Arena · 투기장
+## ⚔️ Futures Colosseum · 선물 콜로세움
 
-Long/short positioning of Binance-futures participants, visualized as a game — not a plain ratio.
-바이낸스 선물 참여자들의 롱/숏 방향을 단순 비율이 아니라 게임처럼 시각화.
+BTC futures data becomes a five-minute bout with a bell, a winner, reversals, and a persistent match ledger.
+BTC 선물 데이터를 5분짜리 경기로 구성해 종이 울리고 승자·역전·연승·경기 장부가 남습니다.
 
-- **Bull vs Bear tug-of-war · 황소 vs 곰 줄다리기** — the rope knot is pulled toward whichever side is winning / 밧줄 매듭이 이기는 쪽으로 끌려감
-- **Ants vs Whales · 개미 vs 고래** — retail (global accounts) vs top-trader positions side by side; when they diverge, a contrarian verdict pops / 개미(글로벌 계정) vs 고래(상위 트레이더) 나란히 — 방향 갈리면 역발상 판정
-- **Taker pulse · 테이커 맥박** — which side is hitting the market right now, as a heartbeat / 지금 시장가로 때리는 방향을 심장 박동으로
-- Recent long-share sparkline / 최근 롱 비중 스파크라인
+- **Bull vs Bear bout · 황소 vs 곰 경기** — power combines taker flow, price, retail/top-trader positioning, and live liquidations / 테이커·가격·개미/고래 포지션·실시간 청산을 전투력으로 합산
+- **Final Bell · 파이널 벨** — the last 30 seconds enter a closing phase; every round settles with a winner and streak / 마지막 30초 정산 모드, 승자와 연승 기록
+- **Trap cards · 함정 카드** — short/long squeeze, long/short trap, crowded positioning, and dead-table states from price, open interest, positioning, and liquidations / 가격·미결제약정·포지션·청산 조합으로 스퀴즈·함정·과밀·죽은 판 판정
+- **Spectator vs VIP seats · 관중석 vs VIP석** — global accounts and top traders compared side by side / 글로벌 계정과 상위 트레이더 방향 비교
+- **Reversal & match ledger · 역전과 경기 장부** — lead changes trigger a live event; the last five round results stay on the device / 주도권 역전 이벤트와 최근 5경기 기기 보관
+
+---
+
+## ⛓ Block Vault · 블록 금고
+
+Bitcoin settlement becomes a quiet underground casino floor built from public mempool.space data.
+비트코인 정산 과정을 공개 mempool.space 데이터로 구성한 조용한 지하 카지노 구역입니다.
+
+- **Next-block roulette · 다음 블록 룰렛** — fee tiers compete for seats until the next block lands / 수수료 구간별 승선 경쟁과 다음 블록 예상 시간
+- **Mempool elevator · 멤풀 엘리베이터** — waiting, lobby, VIP, and penthouse floors show how close transactions are to settlement / 대기·로비·VIP·펜트하우스 층으로 정산 우선순위 표현
+- **Whale vault · 고래 금고** — recent large mempool transfers shown without owner or exchange attribution / 소유자·거래소 추정 없이 최근 대형 전송 전시
+- **Block landing ceremony · 블록 착륙식** — a new block stops the wheel and opens a settlement ticket / 새 블록이 룰렛을 멈추고 정산 전표 공개
+- **Chain signal board · 체인 전광판** — fee surge, block drought, mempool flood, whale parade, and clear-floor events / 수수료 급등·블록 지연·멤풀 범람·고래 행렬·바닥 정리 감지
+
+---
+
+## 📣 Economic Wire · 거시 발표장
+
+Major U.S. releases become a watchable sequence: countdown, official settlement, then BTC aftershock.
+미국 주요 지표를 카운트다운 → 공식 숫자 확정 → BTC 여진으로 이어지는 관전형 발표 테이블로 구성합니다.
+
+- **Official countdown · 공식 카운트다운** — BLS, BEA, and Federal Reserve schedules rendered in KST / BLS·BEA·Fed 일정을 한국시간으로 표시
+- **Previous → actual · 이전 → 실제** — BLS actuals are confirmed only after the official series updates; no paid consensus data / BLS 공식 시계열 갱신 후에만 실제치 확정, 유료 컨센서스 미사용
+- **BTC aftershock · BTC 여진계** — 5, 15, and 60-minute BTC returns from the scheduled release minute / 발표 예정 시각 기준 BTC 5·15·60분 반응
+- **Pit Boss integration · 핏 보스 연동** — 30-minute and 5-minute warnings, settlement ticket, and market highlight / 30분·5분 전 예고와 발표 확정 전표·하이라이트
+- **Static data pipeline · 정적 데이터 파이프라인** — `econ_calendar_report.py` builds `reports/econ_calendar.json`; server cron may publish it without exposing any secret key / 스크립트가 정적 JSON을 만들며 시크릿 키 없이 자동 발행 가능
+
+Official free sources do not provide a market-consensus estimate, so the Lounge intentionally shows previous versus actual instead of scraping a commercial calendar.
+공식 무료 소스에는 시장 컨센서스가 없으므로 상업 캘린더를 긁지 않고 이전치와 실제치만 보여줍니다.
 
 ---
 
@@ -116,6 +156,8 @@ All public & free APIs, called directly from the browser.
 - **Upbit** — REST, KRW prices for the kimchi-premium calc / 김치 프리미엄 산출용 KRW 시세
 - **alternative.me** — Fear & Greed / 공포·탐욕 지수
 - **CoinGecko** — global dominance / 글로벌 도미넌스
+- **mempool.space** — Bitcoin mempool, recommended fees, projected blocks, recent transfers, and block settlement / 비트코인 멤풀·권장 수수료·예상 블록·최근 전송·블록 정산
+- **BLS · BEA · Federal Reserve** — official U.S. release schedules and available BLS actuals / 미국 공식 발표 일정과 BLS 실제치
 - **US stocks** — historical daily bars fetched server-side (Yahoo Finance) and served as a static bundle in `reports/stocks.json` / 미국주식 일봉은 서버가 받아(Yahoo Finance) `reports/stocks.json` 정적 번들로 제공
 
 ## Tech · 기술

@@ -257,6 +257,60 @@ body.shake { animation:shake .5s; }
 .gbtn.sell.solid { background:linear-gradient(160deg,#f87171,#d43f3f); border-color:transparent; color:#2a0a0a; font-weight:800; }
 .gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 
+/* ═══ 관전 카지노 ═══ */
+.spectatorFloor { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
+.pitStage { position:relative; min-height:142px; display:grid; grid-template-columns:118px 1fr 180px; align-items:center; gap:18px; padding:18px 20px; overflow:hidden;
+  border:1px solid var(--gold-dim); border-radius:14px; background:radial-gradient(circle at 7% 45%,rgba(212,175,55,.16),transparent 25%),linear-gradient(115deg,#171510,#12151c 52%,#10141c); }
+.pitStage:after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.55; background:linear-gradient(90deg,transparent 0 46%,rgba(255,255,255,.025) 50%,transparent 54% 100%); transform:translateX(-100%); animation:pitSweep 6s linear infinite; }
+@keyframes pitSweep { to { transform:translateX(100%); } }
+.pitScene { position:relative; z-index:1; width:96px; height:96px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:48px; border:1px solid var(--gold-dim); background:rgba(10,12,16,.75); box-shadow:0 0 28px rgba(212,175,55,.12); }
+.pitKicker { font-size:9.5px; letter-spacing:3px; color:var(--gold); }
+.pitTitle { margin-top:5px; font:700 clamp(19px,2.1vw,29px) Georgia,serif; color:#f4e6b6; }
+.pitCopy { margin-top:7px; font-size:12.5px; line-height:1.6; color:#bfc3cd; }
+.pitMeta { position:relative; z-index:1; text-align:right; }
+.pitTag { display:inline-block; padding:5px 10px; border:1px solid var(--gold-dim); border-radius:20px; font-size:9px; letter-spacing:1.5px; color:var(--gold); background:#0a0c10; }
+.pitClock { margin-top:9px; font:700 24px Menlo,monospace; color:#fff; }
+.pitClock small { display:block; margin-top:2px; font:400 9px sans-serif; letter-spacing:1px; color:var(--dim); }
+.pitGauge { height:4px; margin-top:10px; border-radius:3px; overflow:hidden; background:var(--line); }
+.pitGauge i { display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold)); transition:width .6s linear; }
+.spectatorGrid { display:grid; grid-template-columns:1fr 1.25fr 1fr; gap:12px; }
+.spectatorCard { min-height:288px; }
+.spectatorCard h3 small { white-space:nowrap; }
+
+.towerBody { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:14px 16px 8px; flex:1; }
+.towerSide { display:flex; flex-direction:column; min-height:202px; }
+.towerHead { display:flex; justify-content:space-between; gap:6px; font-size:10px; letter-spacing:1px; color:var(--dim); }
+.towerHead b { font:700 11px Menlo,monospace; }
+.towerSide.long .towerHead b { color:var(--red); } .towerSide.short .towerHead b { color:var(--grn); }
+.towerStack { flex:1; display:flex; flex-direction:column-reverse; align-items:center; gap:2px; padding:7px 4px 3px; border-bottom:2px solid #4b4130; overflow:hidden; }
+.liqBlock { min-height:7px; border-radius:2px; box-shadow:0 2px 5px rgba(0,0,0,.45); animation:blockDrop .35s cubic-bezier(.25,1.35,.5,1); }
+.towerSide.long .liqBlock { background:linear-gradient(90deg,#8b3037,var(--red)); } .towerSide.short .liqBlock { background:linear-gradient(90deg,#238750,var(--grn)); }
+@keyframes blockDrop { from { opacity:0; transform:translateY(-45px) rotate(4deg); } }
+.towerStack.crash { animation:towerCrash .9s ease-in forwards; transform-origin:bottom center; }
+@keyframes towerCrash { 25%{transform:rotate(-4deg)} 55%{transform:rotate(11deg) translateX(8px)} 100%{transform:rotate(28deg) translate(24px,30px);opacity:0} }
+.towerFoot { display:flex; justify-content:space-between; padding:7px 16px 13px; color:var(--dim); font-size:9.5px; letter-spacing:.4px; }
+
+.raceRows { padding:8px 13px 10px; display:flex; flex-direction:column; gap:3px; }
+.raceRow { display:grid; grid-template-columns:42px 1fr 58px; gap:8px; align-items:center; min-height:25px; transition:order .5s; }
+.raceCoin { font:700 10.5px Menlo,monospace; color:#d7dbe4; }
+.raceTrack { position:relative; height:17px; border-radius:9px; overflow:hidden; background:repeating-linear-gradient(90deg,#161a23 0 24px,#1d2230 24px 25px); border:1px solid var(--line); }
+.raceRunner { position:absolute; top:1px; left:2px; width:14px; height:13px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; color:#090b0f; background:var(--gold); transition:left .8s cubic-bezier(.35,1.15,.5,1); box-shadow:0 0 8px rgba(212,175,55,.4); }
+.raceRow.leader .raceRunner { background:#fff0a8; box-shadow:0 0 12px rgba(255,240,168,.75); }
+.racePct { text-align:right; font:700 10.5px Menlo,monospace; }
+.raceFoot { display:flex; justify-content:space-between; padding:6px 14px 12px; border-top:1px solid var(--line); font-size:9.5px; color:var(--dim); }
+
+.highlightList { padding:5px 0; overflow:auto; max-height:246px; }
+.highlightRow { display:grid; grid-template-columns:30px 1fr 18px; gap:8px; align-items:center; padding:9px 13px; border-bottom:1px solid var(--line); cursor:pointer; }
+.highlightRow:hover { background:rgba(212,175,55,.06); }
+.highlightRow:last-child { border-bottom:0; }
+.highlightIcon { font-size:18px; text-align:center; }
+.highlightMain b { display:block; font-size:11px; color:#d9dde7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.highlightMain span { display:block; margin-top:3px; font-size:9.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.highlightPlay { color:var(--gold-dim); font-size:12px; }
+.highlightEmpty { padding:30px 18px; text-align:center; color:var(--dim); font-size:11px; line-height:1.7; }
+@media (max-width:900px){ .pitStage{grid-template-columns:78px 1fr 118px}.pitScene{width:68px;height:68px;font-size:35px}.spectatorGrid{grid-template-columns:1fr 1fr}.spectatorGrid .spectatorCard:last-child{grid-column:1/-1}.highlightList{max-height:190px} }
+@media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorGrid{grid-template-columns:1fr}.spectatorGrid .spectatorCard:last-child{grid-column:auto}.spectatorCard{min-height:0} }
+
 /* ═══ 오늘의 판 (공용 데일리 챌린지) ═══ */
 .bgModeRow { display:flex; gap:6px; padding:0 15px 10px; }
 .bgModeBtn { font-size:11px; letter-spacing:.5px; padding:5px 13px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
@@ -284,47 +338,48 @@ body.shake { animation:shake .5s; }
 #bgOver .go { display:inline-block; margin-top:16px; padding:10px 34px; border:1px solid var(--gold); border-radius:8px; color:var(--gold); font-size:13px; letter-spacing:2px; cursor:pointer; }
 #bgOver .go:hover { background:var(--gold-dim); }
 
-/* ═══ 투기장 (롱숏) ═══ */
-.arenaWrap { display:flex; flex-direction:column; gap:14px; margin-top:14px; }
-.arenaMain { padding-bottom:10px; }
-#tow { display:grid; grid-template-columns:130px 1fr 130px; align-items:center; gap:10px; padding:22px 18px 26px; }
-.towSide { text-align:center; }
-.towEmoji { font-size:52px; line-height:1; filter:drop-shadow(0 4px 10px rgba(0,0,0,.5)); transition:transform .4s; }
-.towSide.bull.winning .towEmoji { animation:bullpull 1.1s ease-in-out infinite; }
-.towSide.bear.winning .towEmoji { animation:bearpull 1.1s ease-in-out infinite; }
-@keyframes bullpull { 0%,100%{transform:translateX(0) scale(1)} 50%{transform:translateX(-7px) scale(1.06)} }
-@keyframes bearpull { 0%,100%{transform:translateX(0) scale(1)} 50%{transform:translateX(7px) scale(1.06)} }
-.towSide.losing .towEmoji { opacity:.5; transform:scale(.85); }
-.towLbl { font-size:11px; letter-spacing:2px; margin-top:6px; color:var(--dim); }
-.towSide.bull .towPct { color:var(--grn); } .towSide.bear .towPct { color:var(--red); }
-.towPct { font-size:24px; font-weight:800; }
-.towField { position:relative; padding:8px 0; }
-.towRopeWrap { position:relative; height:26px; display:flex; align-items:center; }
-.towRope { height:4px; width:100%; border-radius:2px; background:repeating-linear-gradient(90deg,#7c6a3a 0 8px,#5c4e2a 8px 14px); box-shadow:0 1px 3px rgba(0,0,0,.5); }
-.towKnot { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:22px; transition:left .8s cubic-bezier(.4,1.3,.5,1); filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
-.towCenter { position:absolute; top:2px; bottom:2px; left:50%; width:2px; background:repeating-linear-gradient(180deg,var(--gold-dim) 0 4px,transparent 4px 8px); opacity:.5; }
-.towVerdict { text-align:center; margin-top:16px; font-size:13px; letter-spacing:.5px; color:#c6cad3; min-height:20px; }
-.towVerdict b.g { color:var(--grn); } .towVerdict b.r { color:var(--red); } .towVerdict b.y { color:var(--gold); }
-
-.crowdRow { display:grid; grid-template-columns:150px 1fr 96px; align-items:center; gap:12px; padding:9px 16px; }
-.crowdLbl { font-size:12.5px; color:#c6cad3; } .crowdSub { display:block; font-size:9.5px; color:var(--dim); letter-spacing:.5px; margin-top:1px; }
-.crowdBar { height:20px; border-radius:5px; overflow:hidden; display:flex; border:1px solid var(--line); }
-.crowdBar .cbL { background:linear-gradient(90deg,#3a9d5f,#4ade80); transition:width .8s cubic-bezier(.4,1.2,.5,1); }
-.crowdBar .cbR { background:linear-gradient(90deg,#f87171,#c14747); transition:width .8s cubic-bezier(.4,1.2,.5,1); }
-.crowdNum { text-align:right; font-size:12px; color:var(--dim); }
-.diverge { margin:6px 16px 14px; padding:11px 14px; border-radius:8px; background:var(--bg); border:1px solid var(--line); font-size:12.5px; line-height:1.6; color:#c6cad3; }
-.diverge.hot { border-color:var(--gold-dim); background:rgba(212,175,55,.07); }
-.diverge b.g { color:var(--grn); } .diverge b.r { color:var(--red); } .diverge b.y { color:var(--gold); }
-
-.arenaBottom { display:grid; grid-template-columns:1fr 1.4fr; gap:14px; }
-#pulse { position:relative; height:120px; display:flex; align-items:center; justify-content:center; margin-top:8px; }
-.pulseRing { position:absolute; width:80px; height:80px; border-radius:50%; border:2px solid var(--grn); opacity:.5; }
-.pulseRing.beat { animation:pulseBeat 1s ease-out; }
-@keyframes pulseBeat { 0%{transform:scale(.7);opacity:.8} 100%{transform:scale(1.9);opacity:0} }
-.pulseCore { font-size:22px; font-weight:800; z-index:1; }
-.pulseLbl { text-align:center; font-size:10.5px; color:var(--dim); padding-bottom:12px; letter-spacing:.5px; }
-#towSpark { width:100%; padding:6px 10px 12px; }
-@media (max-width:720px){ .arenaBottom { grid-template-columns:1fr; } #tow { grid-template-columns:80px 1fr 80px; } .towEmoji{font-size:38px} }
+/* ═══ 선물 콜로세움 ═══ */
+.arenaWrap { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+.arenaHero { display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; padding:17px 20px; border:1px solid var(--gold-dim); border-radius:12px; background:linear-gradient(105deg,rgba(212,175,55,.12),rgba(18,21,28,.96) 48%,rgba(248,113,113,.07)); }
+.arenaKicker { font-size:9px; letter-spacing:3px; color:var(--gold); }
+.arenaTitle { margin-top:4px; font:700 clamp(20px,2.4vw,30px) Georgia,serif; color:#f4e6b6; }
+.arenaDesc { margin-top:6px; font-size:11.5px; color:var(--dim); }
+.roundBox { display:grid; grid-template-columns:auto auto; gap:6px 18px; text-align:right; }
+.roundBox span { font-size:9px; letter-spacing:1px; color:var(--dim); }
+.roundBox b { display:block; margin-top:2px; font:700 17px Menlo,monospace; color:#fff; }
+.combatStage { position:relative; display:grid; grid-template-columns:150px 1fr 150px; gap:18px; align-items:center; padding:22px 22px 18px; min-height:245px; background:radial-gradient(circle at 12% 50%,rgba(74,222,128,.10),transparent 28%),radial-gradient(circle at 88% 50%,rgba(248,113,113,.10),transparent 28%); }
+.fighter { text-align:center; transition:transform .45s,opacity .45s; }
+.fighter.lead { transform:scale(1.08); }.fighter.trail { opacity:.58; transform:scale(.92); }
+.fighterEmoji { font-size:66px; line-height:1; filter:drop-shadow(0 6px 14px #000); }
+.fighterName { margin-top:8px; font-size:10px; letter-spacing:3px; color:var(--dim); }
+.fighterScore { margin-top:3px; font:800 28px Menlo,monospace; }
+.fighter.bull .fighterScore { color:var(--grn); }.fighter.bear .fighterScore { color:var(--red); }
+.ringCenter { display:flex; flex-direction:column; gap:10px; }
+.healthLine { display:grid; grid-template-columns:42px 1fr 42px; gap:8px; align-items:center; font-size:9px; letter-spacing:1px; color:var(--dim); }
+.healthLine span:last-child { text-align:right; }
+.healthBar { height:15px; display:flex; overflow:hidden; border:1px solid var(--line); border-radius:8px; background:var(--bg); }
+.healthBull,.healthBear { height:100%; transition:width .7s cubic-bezier(.35,1.1,.5,1); }
+.healthBull { background:linear-gradient(90deg,#257548,var(--grn)); }.healthBear { background:linear-gradient(90deg,var(--red),#842d35); }
+.roundVerdict { min-height:42px; padding:11px 12px; border:1px solid var(--line); border-radius:8px; text-align:center; font-size:12px; line-height:1.55; color:#c6cad3; background:rgba(10,12,16,.76); }
+.finalBell { text-align:center; font:700 10px Menlo,monospace; letter-spacing:2px; color:var(--gold); opacity:0; }
+.finalBell.on { opacity:1; animation:bellPulse .7s infinite; }
+@keyframes bellPulse { 50%{text-shadow:0 0 14px var(--gold);transform:scale(1.04)} }
+.combatStage.reversal { animation:arenaReversal .65s ease; }
+@keyframes arenaReversal { 30%{filter:brightness(1.8);transform:translateX(-3px)} 55%{transform:translateX(3px)} }
+.arenaCards { display:grid; grid-template-columns:1.05fr .95fr; gap:12px; }
+.trapCard { margin:14px; min-height:128px; display:flex; gap:16px; align-items:center; padding:17px; border:1px solid var(--gold-dim); border-radius:10px; background:linear-gradient(140deg,rgba(212,175,55,.11),var(--bg)); }
+.trapIcon { flex:0 0 58px; width:58px; height:78px; display:flex; align-items:center; justify-content:center; font-size:31px; border:1px solid var(--gold-dim); border-radius:9px; background:repeating-linear-gradient(45deg,#141824,#141824 6px,#10131c 6px,#10131c 12px); }
+.trapTag { font-size:9px; letter-spacing:2px; color:var(--gold); }.trapTitle { margin-top:4px; font:700 17px Georgia,serif; color:#f4e6b6; }.trapCopy { margin-top:6px; font-size:11px; line-height:1.6; color:var(--dim); }
+.crowdRow { display:grid; grid-template-columns:118px 1fr 76px; align-items:center; gap:10px; padding:9px 15px; }
+.crowdLbl { font-size:11px; color:#c6cad3; }.crowdSub { display:block; margin-top:2px; font-size:8.5px; color:var(--dim); }
+.crowdBar { height:17px; border-radius:5px; overflow:hidden; display:flex; border:1px solid var(--line); }
+.crowdBar .cbL { background:linear-gradient(90deg,#3a9d5f,#4ade80); transition:width .8s; }.crowdBar .cbR { background:linear-gradient(90deg,#f87171,#c14747); transition:width .8s; }
+.crowdNum { text-align:right; font-size:10.5px; color:var(--dim); }.diverge { margin:5px 15px 13px; padding:9px 11px; border-radius:7px; background:var(--bg); border:1px solid var(--line); font-size:11px; line-height:1.55; color:#c6cad3; }.diverge.hot { border-color:var(--gold-dim); }
+.arenaBottom { display:grid; grid-template-columns:.7fr 1fr 1fr; gap:12px; }
+#pulse { position:relative; height:106px; display:flex; align-items:center; justify-content:center; }.pulseRing { position:absolute; width:70px; height:70px; border-radius:50%; border:2px solid var(--grn); opacity:.5; }.pulseRing.beat { animation:pulseBeat 1s ease-out; }
+@keyframes pulseBeat { from{transform:scale(.7);opacity:.8} to{transform:scale(1.9);opacity:0} }.pulseCore { font-size:20px; font-weight:800; z-index:1; }.pulseLbl { text-align:center; font-size:9.5px; color:var(--dim); padding:0 10px 11px; }
+#towSpark { width:100%; padding:4px 9px 9px; }.roundLedger { padding:6px 13px 10px; }.roundRow { display:grid; grid-template-columns:38px 1fr auto; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:var(--dim); }.roundRow:last-child{border-bottom:0}.roundRow b{color:#d8dce5}.roundRow .bullWin{color:var(--grn)}.roundRow .bearWin{color:var(--red)}
+@media(max-width:760px){.arenaHero{grid-template-columns:1fr}.roundBox{text-align:left}.combatStage{grid-template-columns:76px 1fr 76px;padding:18px 10px}.fighterEmoji{font-size:42px}.fighterScore{font-size:18px}.arenaCards,.arenaBottom{grid-template-columns:1fr}.crowdRow{grid-template-columns:90px 1fr 65px}}
 
 /* ═══ 호가창 (order book) ═══ */
 .flowRow { display:flex; gap:14px; align-items:stretch; }
@@ -333,7 +388,7 @@ body.shake { animation:shake .5s; }
 .bookLgd { font-size:9.5px; color:var(--dim); padding:0 11px 7px; letter-spacing:.3px; border-bottom:1px solid var(--line); margin-bottom:4px; }
 .bookSide { display:flex; flex-direction:column; }
 
-/* ═══ 온체인 관전석 ═══ */
+/* ═══ 블록 금고 ═══ */
 .chainHero { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:14px 0; padding:18px 20px; border:1px solid var(--gold-dim); border-radius:12px; background:linear-gradient(105deg,rgba(212,175,55,.12),rgba(18,21,28,.95) 48%,rgba(34,211,238,.06)); }
 .chainKicker { font-size:10px; letter-spacing:3px; color:var(--gold); margin-bottom:5px; }
 .chainTitle { font-family:Georgia,serif; font-size:clamp(20px,2.4vw,30px); color:#f4e6b6; }
@@ -341,34 +396,65 @@ body.shake { animation:shake .5s; }
 .chainLive { min-width:190px; text-align:right; }
 .chainLive b { display:block; font-size:18px; color:var(--cyan); font-family:Menlo,monospace; }
 .chainLive span { font-size:10px; color:var(--dim); letter-spacing:1px; }
-.chainGrid { display:grid; grid-template-columns:1.1fr .9fr; gap:12px; }
-.chainGrid .panel { min-height:250px; }
+.chainGrid { display:grid; grid-template-columns:.9fr 1.1fr; gap:12px; }.chainGrid + .chainGrid { margin-top:12px; grid-template-columns:1.25fr .75fr; }
+.chainGrid .panel { min-height:260px; }
 .chainStat { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-bottom:1px solid var(--line); }
 .chainStat > div { background:var(--panel); padding:14px 15px; }
 .chainStat .l { font-size:9px; letter-spacing:1.4px; color:var(--dim); }
 .chainStat .v { margin-top:5px; font:700 17px Menlo,monospace; color:#e9edf5; }
 .chainStat .s { margin-top:4px; font-size:10px; color:var(--dim); }
-.whaleTape { padding:7px 15px 13px; display:flex; flex-direction:column; gap:2px; }
-.whaleRow { display:grid; grid-template-columns:12px 1fr auto; gap:9px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); }
-.whaleRow:last-child { border-bottom:0; }
-.whalePulse { width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 9px rgba(212,175,55,.75); }
-.whaleMain { min-width:0; }
-.whaleMain b { display:block; font:600 12px Menlo,monospace; color:#d9dde7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.whaleMain span { display:block; margin-top:3px; font-size:10px; color:var(--dim); }
-.whaleBtc { font:700 12px Menlo,monospace; color:var(--gold); }
-.flowMeter { padding:19px 16px 14px; }
-.flowSplit { height:35px; display:flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--panel2); }
-.flowBuy,.flowSell { display:flex; align-items:center; font:700 11px Menlo,monospace; transition:width .7s ease; overflow:hidden; white-space:nowrap; }
-.flowBuy { justify-content:flex-start; padding-left:10px; color:#092114; background:linear-gradient(90deg,#2fbd72,#4ade80); }
-.flowSell { justify-content:flex-end; padding-right:10px; color:#310c11; background:linear-gradient(90deg,#f87171,#c1444e); }
-.flowMeta { display:flex; justify-content:space-between; margin-top:11px; font-size:11px; color:var(--dim); }
-.thermo { padding:13px 16px; display:flex; flex-direction:column; gap:13px; }
-.thermoRow { display:grid; grid-template-columns:100px 1fr 48px; gap:10px; align-items:center; font-size:11px; color:#c6cad3; }
-.thermoBar { height:8px; overflow:hidden; border-radius:6px; background:#242a37; }
-.thermoBar i { display:block; height:100%; border-radius:inherit; transition:width .7s ease; }
-.thermoRow b { text-align:right; font:700 11px Menlo,monospace; color:#e9edf5; }
+.rouletteWrap { display:flex; align-items:center; justify-content:center; gap:20px; padding:17px; flex:1; }.rouletteWheel { position:relative; width:174px; height:174px; flex:0 0 auto; border-radius:50%; border:6px solid #292315; background:#0d1016; box-shadow:0 0 0 2px var(--gold-dim),0 10px 30px #000; }.rouletteWheel:after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(#d4af37 0 16.6%,#315f72 16.6% 33.2%,#70404a 33.2% 49.8%,#31704f 49.8% 66.4%,#67568a 66.4% 83%,#9b6a37 83%);animation:rouletteIdle 18s linear infinite}.rouletteWheel:before { content:'▼'; position:absolute; top:-20px; left:50%; transform:translateX(-50%); z-index:3; color:var(--gold); font-size:22px; }.rouletteHub { position:absolute; inset:37px; z-index:2; border:2px solid var(--gold-dim); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; background:#0d1016; }.rouletteHub b{font:700 18px Menlo,monospace;color:#fff}.rouletteHub span{font-size:8px;letter-spacing:1px;color:var(--dim)}
+@keyframes rouletteIdle{to{transform:rotate(360deg)}}.rouletteWheel.settle:after{animation:rouletteSettle 1.3s cubic-bezier(.2,.8,.2,1)}@keyframes rouletteSettle{to{transform:rotate(1080deg)}}
+.rouletteLegend { flex:1; display:flex; flex-direction:column; gap:8px; }.rouletteLegend div{display:flex;justify-content:space-between;gap:12px;font-size:10px;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:7px}.rouletteLegend b{font:700 10px Menlo,monospace;color:#d7dbe4}
+.elevator { padding:12px 15px; display:flex; flex-direction:column-reverse; gap:7px; }.eFloor { display:grid;grid-template-columns:65px 1fr 65px;gap:9px;align-items:center;min-height:42px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--bg)}.eFloor.vip{border-color:var(--gold-dim);background:rgba(212,175,55,.06)}.eFloorName{font-size:9px;letter-spacing:1px;color:var(--dim)}.eFloorBar{height:8px;border-radius:5px;background:#252a37;overflow:hidden}.eFloorBar i{display:block;height:100%;background:linear-gradient(90deg,#315f72,var(--cyan));transition:width .7s}.eFloor b{text-align:right;font:700 10px Menlo,monospace;color:#d9dde7}
+.vaultGrid { padding:13px; display:grid;grid-template-columns:repeat(3,1fr);gap:8px }.vault { min-height:92px;padding:11px;border:1px solid var(--line);border-radius:8px;background:linear-gradient(145deg,#161a23,#0d1016);position:relative;overflow:hidden}.vault:after{content:'✣';position:absolute;right:8px;bottom:3px;font-size:30px;color:#252b38}.vault.vip{border-color:var(--gold-dim);box-shadow:inset 0 0 18px rgba(212,175,55,.07)}.vaultTag{font-size:8px;letter-spacing:1.5px;color:var(--dim)}.vaultAmt{margin-top:7px;font:700 14px Menlo,monospace;color:var(--gold)}.vaultMeta{margin-top:5px;font-size:8.5px;color:var(--dim)}
+.signalBoard{padding:8px 14px 13px;display:flex;flex-direction:column;gap:7px}.chainSignal{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:7px;background:var(--bg)}.chainSignal.hot{border-color:var(--gold-dim);background:rgba(212,175,55,.06)}.chainSignal b{font-size:10.5px;color:#d9dde7}.chainSignal span{font-size:9px;color:var(--dim)}.chainSignal em{font:normal 8px Menlo,monospace;color:var(--gold)}
+.landing { position:fixed; inset:0; z-index:95; pointer-events:none; display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(2,4,8,.72);transition:opacity .25s }.landing.show{opacity:1}.landingTicket{padding:25px 34px;border:1px solid var(--gold);border-radius:12px;text-align:center;background:#10131a;box-shadow:0 0 55px rgba(212,175,55,.28);transform:scale(.86);transition:transform .35s}.landing.show .landingTicket{transform:scale(1)}.landingTicket small{font-size:9px;letter-spacing:3px;color:var(--gold)}.landingTicket b{display:block;margin-top:8px;font:700 27px Menlo,monospace;color:#fff}.landingTicket span{display:block;margin-top:7px;font-size:11px;color:var(--dim)}
 .chainNote { padding:0 16px 14px; font-size:10px; line-height:1.55; color:var(--dim); }
-@media (max-width:720px){ .chainHero { align-items:flex-start; flex-direction:column; } .chainLive{text-align:left} .chainGrid { grid-template-columns:1fr; } .chainStat { grid-template-columns:1fr; } .thermoRow { grid-template-columns:88px 1fr 45px; } }
+@media(max-width:760px){.chainHero{align-items:flex-start;flex-direction:column}.chainLive{text-align:left}.chainGrid,.chainGrid + .chainGrid{grid-template-columns:1fr}.chainStat{grid-template-columns:1fr}.rouletteWrap{flex-direction:column}.rouletteLegend{width:100%}.vaultGrid{grid-template-columns:1fr 1fr}}
+
+/* ═══ 발표장 ═══ */
+.macroWrap { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+.macroHero { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; min-height:180px; padding:24px 26px; border:1px solid #59658a; border-radius:12px; background:radial-gradient(circle at 78% 30%,rgba(34,211,238,.13),transparent 28%),linear-gradient(110deg,rgba(72,61,130,.24),rgba(18,21,28,.98) 52%,rgba(212,175,55,.08)); }
+.macroHero:after { content:'ECONOMIC WIRE'; position:absolute; right:-24px; bottom:-13px; font:800 42px Menlo,monospace; letter-spacing:-3px; color:rgba(255,255,255,.025); }
+.macroKicker { font-size:9px; letter-spacing:3px; color:var(--cyan); }
+.macroTitle { margin-top:5px; font:700 clamp(21px,2.5vw,32px) Georgia,serif; color:#eef7ff; }
+.macroDesc { margin-top:7px; max-width:650px; font-size:11.5px; line-height:1.7; color:var(--dim); }
+.macroNext { position:relative; z-index:1; min-width:270px; padding:15px 17px; border:1px solid #3f4964; border-radius:10px; background:rgba(9,12,18,.78); }
+.macroNextTop { display:flex; justify-content:space-between; gap:14px; font-size:9px; letter-spacing:1.5px; color:var(--dim); }
+.macroNextTop b { color:var(--gold); }
+.macroNextTitle { margin-top:8px; font:700 17px Georgia,serif; color:#fff; }
+.macroNextTime { margin-top:5px; font-size:10px; color:var(--dim); }
+.macroCountdown { margin-top:10px; font:800 clamp(20px,2.4vw,30px) Menlo,monospace; color:var(--cyan); letter-spacing:1px; }
+.macroGrid { display:grid; grid-template-columns:1.25fr .75fr; gap:12px; align-items:start; }
+.macroGrid .col { gap:12px; }
+.macroBoard { padding:3px 0 7px; }
+.macroDay { display:grid; grid-template-columns:88px 72px minmax(130px,1fr) 92px 110px; gap:10px; align-items:center; min-height:59px; padding:9px 15px; border-bottom:1px solid var(--line); }
+.macroDay:last-child { border-bottom:0; }
+.macroDay:hover { background:rgba(34,211,238,.035); }
+.macroWhen b { display:block; font:700 11px Menlo,monospace; color:#dbe2ed; }.macroWhen span { display:block; margin-top:3px; font-size:9px; color:var(--dim); }
+.macroBadge { justify-self:start; padding:4px 7px; border:1px solid var(--line); border-radius:5px; font:700 8px Menlo,monospace; letter-spacing:1px; color:var(--dim); }
+.macroBadge.vip { color:var(--gold); border-color:var(--gold-dim); background:rgba(212,175,55,.06); }.macroBadge.main { color:var(--cyan); border-color:#315f72; }
+.macroEvent b { display:block; font-size:11.5px; color:#dce1eb; }.macroEvent span { display:block; margin-top:4px; font-size:9px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.macroSource { text-align:right; font:700 9px Menlo,monospace; color:var(--dim); }
+.macroResult { text-align:right; font:700 10px Menlo,monospace; color:#cfd5df; }.macroResult.wait { color:var(--gold); }.macroResult.done { color:var(--grn); }
+.macroEmpty { padding:34px 18px; text-align:center; font-size:11px; line-height:1.7; color:var(--dim); }
+.settleCard { margin:14px; padding:16px; border:1px solid var(--line); border-radius:9px; background:linear-gradient(145deg,#0e1118,#151a24); }
+.settleCard.live { border-color:var(--gold-dim); box-shadow:inset 0 0 24px rgba(212,175,55,.06); }
+.settleTag { font:700 8px Menlo,monospace; letter-spacing:2px; color:var(--gold); }
+.settleTitle { margin-top:6px; font:700 16px Georgia,serif; color:#edf1f7; }
+.settleTime { margin-top:4px; font-size:9.5px; color:var(--dim); }
+.settleNums { display:grid; grid-template-columns:1fr 26px 1fr; align-items:end; gap:8px; margin-top:16px; }
+.settleNum span { display:block; font-size:8px; letter-spacing:1.2px; color:var(--dim); }.settleNum b { display:block; margin-top:4px; font:800 23px Menlo,monospace; color:#fff; }.settleArrow { padding-bottom:5px; text-align:center; color:var(--gold-dim); }
+.settleNote { margin-top:13px; padding-top:10px; border-top:1px solid var(--line); font-size:10px; line-height:1.55; color:var(--dim); }
+.shockList { padding:6px 13px 12px; display:flex; flex-direction:column; gap:7px; }
+.shockRow { display:grid; grid-template-columns:42px 1fr repeat(3,50px); gap:7px; align-items:center; padding:9px 8px; border:1px solid var(--line); border-radius:7px; background:var(--bg); }
+.shockCode { font:700 9px Menlo,monospace; color:var(--gold); }.shockName { font-size:9.5px; color:#cdd3dd; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shockMove { text-align:right; font:700 9px Menlo,monospace; }.shockMove small { display:block; margin-bottom:2px; font:400 7px Menlo,monospace; color:var(--dim); }
+.sourceLedger { padding:10px 14px 14px; display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
+.sourceChip { display:flex; justify-content:space-between; gap:8px; padding:9px; border:1px solid var(--line); border-radius:7px; font-size:9px; color:var(--dim); background:var(--bg); }.sourceChip b { color:#cfd5df; }.sourceChip span { color:var(--grn); }
+.macroRule { padding:0 15px 14px; font-size:9.5px; line-height:1.65; color:var(--dim); }
+@media(max-width:760px){.tabs{overflow-x:auto;scrollbar-width:none}.tab{flex:0 0 auto;padding:8px 13px}.macroHero{grid-template-columns:1fr}.macroNext{min-width:0}.macroGrid{grid-template-columns:1fr}.macroDay{grid-template-columns:64px 54px 1fr 62px}.macroSource{display:none}.shockRow{grid-template-columns:38px 1fr repeat(3,43px);padding:8px 5px}.sourceLedger{grid-template-columns:1fr}}
 #bookAsks { justify-content:flex-end; }
 .bookRow { position:relative; display:flex; justify-content:space-between; align-items:center; height:16px; padding:0 11px; font-size:10.5px; }
 .bookRow .bar { position:absolute; top:1px; bottom:1px; right:0; opacity:.20; border-radius:2px 0 0 2px; transition:width .1s linear; }
@@ -395,6 +481,7 @@ body.shake { animation:shake .5s; }
     <div class="tab" data-tab="game">🎰 블라인드</div>
     <div class="tab" data-tab="arena">⚔️ 투기장</div>
     <div class="tab" data-tab="chain">⛓ 온체인</div>
+    <div class="tab" data-tab="macro">📣 발표장</div>
     <div class="tab" data-tab="chars">🎩 전략가들</div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
@@ -422,6 +509,50 @@ body.shake { animation:shake .5s; }
   <div class="tile"><div class="l">BTC 도미넌스</div><div class="v num" id="dom">—</div><div class="s">시총 점유율</div></div>
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
+
+<section class="spectatorFloor" aria-label="실시간 시장 관전 카지노">
+  <div class="pitStage" id="pitStage">
+    <div class="pitScene" id="pitScene" aria-hidden="true">🎩</div>
+    <div style="position:relative;z-index:1">
+      <div class="pitKicker">PIT BOSS · LIVE TABLE DIRECTOR</div>
+      <div class="pitTitle" id="pitTitle">메인 테이블을 고르는 중</div>
+      <div class="pitCopy" id="pitCopy">시장 곳곳의 체결·청산·레이스를 훑고 있습니다.</div>
+    </div>
+    <div class="pitMeta">
+      <span class="pitTag" id="pitTag">SCANNING</span>
+      <div class="pitClock num" id="pitClock">--<small>다음 판정까지</small></div>
+      <div class="pitGauge"><i id="pitGauge"></i></div>
+    </div>
+  </div>
+
+  <div class="spectatorGrid">
+    <div class="panel spectatorCard">
+      <h3>🧱 청산 타워 <small>전 시장 · 5분 누적</small></h3>
+      <div class="towerBody">
+        <div class="towerSide long">
+          <div class="towerHead"><span>롱 청산</span><b id="towerLongTotal">$0</b></div>
+          <div class="towerStack" id="towerLong" aria-label="롱 청산 블록"></div>
+        </div>
+        <div class="towerSide short">
+          <div class="towerHead"><span>숏 청산</span><b id="towerShortTotal">$0</b></div>
+          <div class="towerStack" id="towerShort" aria-label="숏 청산 블록"></div>
+        </div>
+      </div>
+      <div class="towerFoot"><span id="towerVerdict">첫 블록을 기다리는 중</span><span class="num" id="towerClock">--:--</span></div>
+    </div>
+
+    <div class="panel spectatorCard">
+      <h3>🏁 코인 경마장 <small>8마리 · 5분 레이스</small></h3>
+      <div class="raceRows" id="raceRows"></div>
+      <div class="raceFoot"><span id="raceLeader">출발 준비</span><span>남은 시간 <b class="num" id="raceClock">--:--</b></span></div>
+    </div>
+
+    <div class="panel spectatorCard">
+      <h3>🎞 시장 하이라이트 <small>눌러서 다시 보기</small></h3>
+      <div class="highlightList" id="highlightList"></div>
+    </div>
+  </div>
+</section>
 
 
 <div class="main">
@@ -609,93 +740,110 @@ body.shake { animation:shake .5s; }
 <!-- ═══════════ 투기장 탭 ═══════════ -->
 <div id="tab-arena" class="hidden">
 <div class="arenaWrap">
-  <!-- 메인: 황소 vs 곰 줄다리기 -->
-  <div class="panel arenaMain">
-    <h3>⚔️ 황소 vs 곰 — 줄다리기 <small id="arenaSub">바이낸스 선물 시장 참여자들의 방향 베팅 · BTC</small></h3>
-    <div id="tow">
-      <div class="towSide bull">
-        <div class="towEmoji">🐂</div>
-        <div class="towLbl">LONG</div>
-        <div class="towPct num" id="towLongPct">—</div>
-      </div>
-      <div class="towField">
-        <div class="towRopeWrap"><div class="towRope" id="towRope"></div><div class="towKnot" id="towKnot">🚩</div></div>
-        <div class="towCenter"></div>
-        <div class="towVerdict" id="towVerdict">데이터 수신 중…</div>
-      </div>
-      <div class="towSide bear">
-        <div class="towEmoji">🐻</div>
-        <div class="towLbl">SHORT</div>
-        <div class="towPct num" id="towShortPct">—</div>
-      </div>
-    </div>
+  <div class="arenaHero">
+    <div><div class="arenaKicker">BTC FUTURES · FIVE MINUTE BOUT</div><div class="arenaTitle">선물 콜로세움</div><div class="arenaDesc">가격·테이커·고래 포지션·청산이 한 링에서 맞붙습니다.</div></div>
+    <div class="roundBox"><div><span>ROUND</span><b id="arenaRound">—</b></div><div><span>FINAL BELL</span><b id="arenaClock">--:--</b></div><div><span>황소 연승</span><b class="up" id="bullStreak">0</b></div><div><span>곰 연승</span><b class="dn" id="bearStreak">0</b></div></div>
   </div>
-
-  <!-- 개미 vs 고래 괴리 -->
   <div class="panel">
-    <h3>🐜 개미 vs 🐋 고래 <small>같은 시장, 다른 베팅 — 갈릴 때가 진짜다</small></h3>
-    <div class="crowdRow">
-      <div class="crowdLbl">개미 군단 <span class="crowdSub">글로벌 계정</span></div>
-      <div class="crowdBar"><div class="cbL" id="antL"></div><div class="cbR" id="antR"></div></div>
-      <div class="crowdNum num" id="antNum">—</div>
+    <h3>🥊 황소 vs 곰 <small>5분마다 종이 울리고 승자가 남는다</small></h3>
+    <div class="combatStage" id="combatStage">
+      <div class="fighter bull" id="bullFighter"><div class="fighterEmoji">🐂</div><div class="fighterName">BULL</div><div class="fighterScore" id="bullPower">50</div></div>
+      <div class="ringCenter">
+        <div class="healthLine"><span>황소</span><div class="healthBar"><i class="healthBull" id="healthBull" style="width:50%"></i><i class="healthBear" id="healthBear" style="width:50%"></i></div><span>곰</span></div>
+        <div class="roundVerdict" id="arenaVerdict">선수 입장 — 시장 데이터를 기다리는 중입니다.</div>
+        <div class="finalBell" id="finalBell">🔔 FINAL BELL · 마지막 30초</div>
+      </div>
+      <div class="fighter bear" id="bearFighter"><div class="fighterEmoji">🐻</div><div class="fighterName">BEAR</div><div class="fighterScore" id="bearPower">50</div></div>
     </div>
-    <div class="crowdRow">
-      <div class="crowdLbl">고래 부대 <span class="crowdSub">상위 트레이더 포지션</span></div>
-      <div class="crowdBar"><div class="cbL" id="whaleL"></div><div class="cbR" id="whaleR"></div></div>
-      <div class="crowdNum num" id="whaleNum">—</div>
-    </div>
-    <div class="diverge" id="diverge">—</div>
   </div>
-
-  <!-- 테이커 맥박 + 스파크라인 -->
+  <div class="arenaCards">
+    <div class="panel">
+      <h3>🃏 함정 카드 <small>가격·미결제약정·포지션 괴리 판정</small></h3>
+      <div class="trapCard"><div class="trapIcon" id="trapIcon">?</div><div><div class="trapTag" id="trapTag">READING TABLE</div><div class="trapTitle" id="trapTitle">카드를 읽는 중</div><div class="trapCopy" id="trapCopy">가격과 포지션이 엇갈리는 순간 카드가 뒤집힙니다.</div></div></div>
+    </div>
+    <div class="panel">
+      <h3>🐜 관중석 vs 🐋 VIP석 <small>같은 시장, 다른 베팅</small></h3>
+      <div class="crowdRow"><div class="crowdLbl">개미 군단<span class="crowdSub">글로벌 계정</span></div><div class="crowdBar"><div class="cbL" id="antL"></div><div class="cbR" id="antR"></div></div><div class="crowdNum num" id="antNum">—</div></div>
+      <div class="crowdRow"><div class="crowdLbl">고래 부대<span class="crowdSub">상위 트레이더</span></div><div class="crowdBar"><div class="cbL" id="whaleL"></div><div class="cbR" id="whaleR"></div></div><div class="crowdNum num" id="whaleNum">—</div></div>
+      <div class="diverge" id="diverge">양쪽 관중석을 살피는 중…</div>
+    </div>
+  </div>
   <div class="arenaBottom">
-    <div class="panel">
-      <h3>💥 테이커 맥박 <small>지금 시장가로 때리는 방향</small></h3>
-      <div id="pulse"><div class="pulseRing" id="pulseRing"></div><div class="pulseCore num" id="pulseCore">—</div></div>
-      <div class="pulseLbl" id="pulseLbl">실시간 공격 매수 vs 매도</div>
-    </div>
-    <div class="panel">
-      <h3>📈 최근 추이 <small>롱 비중 · 최근 4시간</small></h3>
-      <canvas id="towSpark" height="150"></canvas>
-    </div>
+    <div class="panel"><h3>💥 테이커 맥박 <small>시장가 공격</small></h3><div id="pulse"><div class="pulseRing" id="pulseRing"></div><div class="pulseCore num" id="pulseCore">—</div></div><div class="pulseLbl" id="pulseLbl">공격 매수 vs 매도</div></div>
+    <div class="panel"><h3>📈 군중의 기울기 <small>롱 비중 · 최근 4시간</small></h3><canvas id="towSpark" height="134"></canvas></div>
+    <div class="panel"><h3>📜 경기 장부 <small>최근 5라운드</small></h3><div class="roundLedger" id="roundLedger"></div></div>
   </div>
 </div>
 </div>
 
-<!-- ═══════════ 전략가 탭 ═══════════ -->
+<!-- ═══════════ 온체인 탭 ═══════════ -->
 <div id="tab-chain" class="hidden">
   <div class="chainHero">
     <div>
-      <div class="chainKicker">THE LEDGER NEVER SLEEPS</div>
-      <div class="chainTitle">온체인 관전석</div>
-      <p class="chainDesc">블록체인 위에서 지금 벌어지는 큰 움직임과 거래소의 체결 압력을 한 판처럼 봅니다.</p>
+      <div class="chainKicker">THE VAULT NEVER SLEEPS</div>
+      <div class="chainTitle">블록 금고</div>
+      <p class="chainDesc">다음 블록을 기다리고, 멤풀의 층을 오르며, 큰돈이 정산되는 순간을 지켜봅니다.</p>
     </div>
-    <div class="chainLive"><b id="chainHeight">—</b><span>BTC BLOCK HEIGHT · LIVE</span></div>
+    <div class="chainLive"><b id="chainHeight">—</b><span id="chainBlockAge">BTC BLOCK HEIGHT · LIVE</span></div>
   </div>
   <div class="chainGrid">
     <div class="panel">
-      <h3>🐋 고래 레이더 <small>Bitcoin mempool · 최근 대형 전송</small></h3>
-      <div class="chainStat">
-        <div><div class="l">MEMPOOL TX</div><div class="v" id="mempoolCount">—</div><div class="s">대기 중인 거래</div></div>
-        <div><div class="l">FAST FEE</div><div class="v" id="fastFee">—</div><div class="s">sat/vB · 우선 처리</div></div>
-        <div><div class="l">MEMPOOL SIZE</div><div class="v" id="mempoolSize">—</div><div class="s">가상 바이트</div></div>
-      </div>
-      <div class="whaleTape" id="whaleTape"><div class="chainNote">체인에서 신호를 기다리는 중…</div></div>
-      <div class="chainNote">※ 큰 전송은 주소 소유자나 매매 의도를 뜻하지 않습니다. 알려진 거래소 라벨 없이 원시 체인 데이터만 표시합니다.</div>
+      <h3>🎡 다음 블록 룰렛 <small>수수료 구간별 승선 경쟁</small></h3>
+      <div class="rouletteWrap"><div class="rouletteWheel" id="rouletteWheel"><div class="rouletteHub"><b id="nextBlockEta">~10m</b><span>NEXT BLOCK</span></div></div><div class="rouletteLegend" id="rouletteLegend"><div><span>룰렛 테이블 준비 중</span><b>—</b></div></div></div>
     </div>
     <div class="panel">
-      <h3>🏦 거래소 플로우 <small>Binance BTCUSDT · 호가 잔량</small></h3>
-      <div class="flowMeter">
-        <div class="flowSplit"><div class="flowBuy" id="flowBid" style="width:50%">BID —</div><div class="flowSell" id="flowAsk" style="width:50%">ASK —</div></div>
-        <div class="flowMeta"><span id="flowBidLabel">매수 대기 —</span><span id="flowAskLabel">매도 대기 —</span></div>
+      <h3>🛗 멤풀 엘리베이터 <small>수수료가 높을수록 다음 블록에 가까워진다</small></h3>
+      <div class="chainStat"><div><div class="l">MEMPOOL TX</div><div class="v" id="mempoolCount">—</div><div class="s">대기 거래</div></div><div><div class="l">FAST FEE</div><div class="v" id="fastFee">—</div><div class="s">sat/vB</div></div><div><div class="l">MEMPOOL SIZE</div><div class="v" id="mempoolSize">—</div><div class="s">가상 크기</div></div></div>
+      <div class="elevator" id="mempoolElevator"></div><div class="chainNote">마지막 갱신 <span id="chainUpdated">—</span></div>
+    </div>
+  </div>
+  <div class="chainGrid">
+    <div class="panel"><h3>🔐 고래 금고 <small>최근 멤풀 대형 전송 · 소유자 추정 없음</small></h3><div class="vaultGrid" id="whaleVault"><div class="chainNote">금고를 점검하는 중…</div></div><div class="chainNote">※ 전송 규모는 주소 소유자나 매매 의도를 뜻하지 않습니다.</div></div>
+    <div class="panel"><h3>🚨 체인 전광판 <small>실시간 이상징후</small></h3><div class="signalBoard" id="chainSignals"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════ 발표장 탭 ═══════════ -->
+<div id="tab-macro" class="hidden">
+  <div class="macroWrap">
+    <div class="macroHero">
+      <div>
+        <div class="macroKicker">OFFICIAL WIRE · KST SETTLEMENT</div>
+        <div class="macroTitle">거시 발표장</div>
+        <p class="macroDesc">미국 공식 발표 시각을 기다리고, 숫자가 찍히는 순간과 비트코인의 5·15·60분 여진을 한 장부에서 지켜봅니다.</p>
       </div>
-      <h3>🌡 시장 온도 <small>현물·파생·체인 혼합 지표</small></h3>
-      <div class="thermo">
-        <div class="thermoRow"><span>공포·탐욕</span><div class="thermoBar"><i id="thermoFear" style="width:0;background:var(--gold)"></i></div><b id="thermoFearText">—</b></div>
-        <div class="thermoRow"><span>펀딩 압력</span><div class="thermoBar"><i id="thermoFunding" style="width:0;background:var(--cyan)"></i></div><b id="thermoFundingText">—</b></div>
-        <div class="thermoRow"><span>체인 혼잡</span><div class="thermoBar"><i id="thermoMempool" style="width:0;background:var(--red)"></i></div><b id="thermoMempoolText">—</b></div>
+      <div class="macroNext">
+        <div class="macroNextTop"><span>NEXT MAIN TABLE</span><b id="macroNextGrade">—</b></div>
+        <div class="macroNextTitle" id="macroNextTitle">공식 전보를 불러오는 중</div>
+        <div class="macroNextTime" id="macroNextTime">KST · —</div>
+        <div class="macroCountdown" id="macroCountdown">--:--:--</div>
       </div>
-      <div class="chainNote">수치는 관전용 보조 지표이며, 매수·매도 신호가 아닙니다. 마지막 갱신 <span id="chainUpdated">—</span></div>
+    </div>
+    <div class="macroGrid">
+      <div class="panel">
+        <h3>🗓 발표 장부 <small>앞으로 14일 · 한국시간</small></h3>
+        <div class="macroBoard" id="macroBoard"><div class="macroEmpty">공식 일정을 불러오는 중입니다.</div></div>
+      </div>
+      <div class="col">
+        <div class="panel">
+          <h3>🔔 숫자 확정석 <small>컨센서스 없이 이전 → 실제</small></h3>
+          <div id="macroSettlement"><div class="macroEmpty">발표가 끝나면 전표가 열립니다.</div></div>
+        </div>
+        <div class="panel">
+          <h3>₿ BTC 여진계 <small>발표 시각 대비 5 · 15 · 60분</small></h3>
+          <div class="shockList" id="macroShocks"><div class="macroEmpty">최근 발표 반응을 불러오는 중입니다.</div></div>
+        </div>
+        <div class="panel">
+          <h3>🏛 공식 전보실 <small id="macroUpdated">갱신 —</small></h3>
+          <div class="sourceLedger">
+            <div class="sourceChip"><b>BLS</b><span>일정·실제치</span></div>
+            <div class="sourceChip"><b>BEA</b><span>GDP·PCE 일정</span></div>
+            <div class="sourceChip"><b>FED</b><span>FOMC 일정</span></div>
+            <div class="sourceChip"><b>BINANCE</b><span>BTC 여진</span></div>
+          </div>
+          <div class="macroRule">무료 공식 소스에 없는 시장 컨센서스는 표시하지 않습니다. 공식 실제치가 확인되기 전에는 ‘확인 대기’로 남기며, 일정은 기관 사정에 따라 변경될 수 있습니다.</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -783,7 +931,7 @@ body.shake { animation:shake .5s; }
 
 <div class="foot">
   본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
-  · 데이터: Binance, Upbit, mempool.space, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.3
+  · 데이터: Binance, Upbit, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5
 </div>
 </div>
 
@@ -791,6 +939,7 @@ body.shake { animation:shake .5s; }
 <div id="spot"></div>
 <div id="vign"></div>
 <div id="fxBanner"></div>
+<div class="landing" id="blockLanding" aria-live="polite"><div class="landingTicket"><small>BLOCK SETTLED</small><b id="landingHeight">#—</b><span id="landingMeta">새 블록이 금고에 착륙했습니다.</span></div></div>
 <div id="captchaGate" class="captchaGate hidden" role="dialog" aria-modal="true" aria-labelledby="captchaTitle">
   <div class="box">
     <h4 id="captchaTitle">잠깐, 손님 확인부터</h4>
@@ -812,10 +961,12 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
   $('tab-chain').classList.toggle('hidden', t.dataset.tab !== 'chain');
+  $('tab-macro').classList.toggle('hidden', t.dataset.tab !== 'macro');
   if (t.dataset.tab === 'game') { blindOpen(); }
   else { clearInterval(bgTimer); bgTimer = null; }   // 게임 탭 이탈 시 자동 진행 정지(일시정지)
   if (t.dataset.tab === 'arena') arenaOpen();
   if (t.dataset.tab === 'chain') onchainOpen();
+  if (t.dataset.tab === 'macro') macroOpen();
   if (t.dataset.tab === 'lounge') requestAnimationFrame(trimDeck);   // 복귀 시 실제 폭으로 덱 재정렬
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
 });
@@ -1028,7 +1179,7 @@ function handleChartK(stream, k) {
   chartOf(i).s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
   chartOf(i).vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
   maTick(i, k);
-  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; updatePredMarkers(); }
+  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; updatePredMarkers(); }
   if (i === 1) {
     $('ethPx').textContent = fmt(+k.c, 1);
     if (ethOpen) {
@@ -1181,6 +1332,11 @@ setInterval(() => {
   if (tot > 0) {
     $('pB').style.width = (buyVol/tot*100) + '%';
     $('pS').style.width = (sellVol/tot*100) + '%';
+    const bp = buyVol/tot, edge = Math.abs(bp-.5);
+    if (edge >= .12) {
+      const buy = bp > .5;
+      pitSignal('pressure', Math.min(58,34+edge*80), buy?'🐂':'🐻', 'TAPE PRESSURE', `${buy?'매수':'매도'} 체결 압력 우세`, `최근 수급의 ${(Math.max(bp,1-bp)*100).toFixed(0)}%가 ${buy?'매수':'매도'} 쪽입니다.`, buy?'#4ade80':'#f87171');
+    }
   }
 }, 500);
 
@@ -1247,12 +1403,18 @@ let pick = null;    // 접수 중 — 다음 봉에 걸릴 예측 (마감 전까
 let armed = null;   // 잠금 — 지금 진행 중인 봉의 예측 (이번 마감에 판정)
 
 // BTC 1분 라이브 차트에 예측 대상 봉 표시: 현재 봉=🔒(판정 중), 다음 봉 자리=? (내 예측 색)
-let lastBtcKt = null, predWsTime = null;
+let lastBtcKt = null, lastBtcClose = null, predWsTime = null;
 function updatePredMarkers() {
   if (!cBTC || !cBTC.s) return;
-  if (lastBtcKt === null || chartTf !== '1m') { cBTC.s.setMarkers([]); predWsTime = null; return; }
+  if (lastBtcKt === null || lastBtcClose === null || chartTf !== '1m') { cBTC.s.setMarkers([]); predWsTime = null; return; }
   const curTime = Math.floor(lastBtcKt / 1000), nextTime = curTime + 60;
-  if (predWsTime !== nextTime) { cBTC.s.update({ time: nextTime }); predWsTime = nextTime; }   // 다음 봉 빈 자리
+  if (predWsTime !== nextTime) {
+    // 마커는 연결된 봉의 high/low로 세로 위치를 잡는다. 가격 없는 whitespace는 ?를 축 중앙에 띄울 수 있어
+    // 마지막 가격의 투명 봉을 앵커로 사용한다. 실제 다음 봉이 열리면 WS update가 같은 시각을 덮어쓴다.
+    cBTC.s.update({ time: nextTime, open:lastBtcClose, high:lastBtcClose, low:lastBtcClose, close:lastBtcClose,
+      color:'rgba(0,0,0,0)', borderColor:'rgba(0,0,0,0)', wickColor:'rgba(0,0,0,0)' });
+    predWsTime = nextTime;
+  }
   const m = [];
   if (armed !== null) m.push({ time: curTime, position: armed ? 'aboveBar' : 'belowBar',
     color: armed ? '#4ade80' : '#f87171', shape: 'circle', text: armed ? '🔒▲' : '🔒▼' });
@@ -1655,6 +1817,8 @@ function onCandleClose(k) {
       fxBanner(`▼ 장대음봉<small class="num">-${bodyPct.toFixed(2)}% / 1분</small>`, '#f87171');
       say('sys','', `🔻 <b class="dn">장대음봉</b> -${bodyPct.toFixed(2)}% (1분)`);
     }
+    addHighlight(up?'🚀':'🕳', `BTC 1분 장대${up?'양봉':'음봉'}`, `${up?'+':'-'}${bodyPct.toFixed(2)}% · 평소 몸통의 ${(bodyPct/Math.max(avg,.001)).toFixed(1)}배`, up?'up':'dn');
+    pitSignal('candle', 94, up?'🚀':'🕳', 'CANDLE TABLE', `BTC 장대${up?'양봉':'음봉'} 출현`, `1분 몸통 ${up?'+':'-'}${bodyPct.toFixed(2)}% — 캔들 덱으로 카메라를 돌립니다.`, up?'#4ade80':'#f87171');
   }
   judgePrediction(c >= o, (c/o-1)*100);
   bodyHist.push(bodyPct); if (bodyHist.length > 30) bodyHist.shift();
@@ -1671,6 +1835,8 @@ function checkBreakout(px) {
     vign('rgba(212,175,55,.35)');
     fxBanner(`▲ 60분 고점 돌파<small class="num">${fmt(px,0)}</small>`, '#d4af37');
     say('sys','', `⚡ <b class="gold">60분 고점 돌파</b> <span class="num">${fmt(px,0)}</span>`);
+    addHighlight('⚡', 'BTC 60분 고점 돌파', `${fmt(px,0)}에서 직전 60분 천장을 넘었습니다.`, 'up');
+    pitSignal('breakout', 92, '⚡', 'BREAKOUT', 'BTC 60분 고점 돌파', `${fmt(px,0)} — 돌파 테이블이 열렸습니다.`, '#d4af37');
   } else if (px < lo && now > bkDnCool) {
     bkDnCool = now + 180000;
     fxBurst({up:false, count:160, colors:['248,113,113','120,20,20'], speed:13});
@@ -1678,8 +1844,186 @@ function checkBreakout(px) {
     shakeScreen();
     fxBanner(`▼ 60분 저점 붕괴<small class="num">${fmt(px,0)}</small>`, '#f87171');
     say('sys','', `🕳 <b class="dn">60분 저점 붕괴</b> <span class="num">${fmt(px,0)}</span>`);
+    addHighlight('🕳', 'BTC 60분 저점 붕괴', `${fmt(px,0)}에서 직전 60분 바닥이 깨졌습니다.`, 'dn');
+    pitSignal('breakdown', 92, '🕳', 'BREAKDOWN', 'BTC 60분 저점 붕괴', `${fmt(px,0)} — 붕괴 테이블이 열렸습니다.`, '#f87171');
   }
 }
+
+// ═══ 관전 카지노 — Pit Boss · 청산 타워 · 코인 경마장 · 하이라이트 ═══
+const moneyShort = n => n >= 1e9 ? '$' + (n/1e9).toFixed(1) + 'B' : n >= 1e6 ? '$' + (n/1e6).toFixed(1) + 'M' : n >= 1e3 ? '$' + (n/1e3).toFixed(0) + 'K' : '$' + Math.round(n);
+const mmss = ms => {
+  const s = Math.max(0, Math.ceil(ms/1000));
+  return String(s/60|0).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+};
+
+let highlights = [];
+try {
+  const saved = JSON.parse(localStorage.getItem('tapeHighlightsV1') || '[]');
+  if (Array.isArray(saved)) highlights = saved.slice(0, 8);
+} catch(e) {}
+function addHighlight(icon, title, detail, tone='gold') {
+  const now = Date.now();
+  if (highlights[0] && highlights[0].title === title && now - highlights[0].ts < 30000) return;
+  highlights.unshift({ icon:String(icon), title:String(title), detail:String(detail), tone:String(tone), ts:now });
+  highlights = highlights.slice(0, 8);
+  localStorage.setItem('tapeHighlightsV1', JSON.stringify(highlights));
+  renderHighlights();
+}
+function renderHighlights() {
+  const list = $('highlightList');
+  list.textContent = '';
+  if (!highlights.length) {
+    const empty = document.createElement('div'); empty.className = 'highlightEmpty';
+    empty.textContent = '극적인 시장 사건이 생기면 이곳에 전표가 쌓입니다.'; list.appendChild(empty); return;
+  }
+  highlights.forEach((h, i) => {
+    const row = document.createElement('div'); row.className = 'highlightRow'; row.onclick = () => replayHighlight(i);
+    const icon = document.createElement('span'); icon.className = 'highlightIcon'; icon.textContent = h.icon;
+    const main = document.createElement('div'); main.className = 'highlightMain';
+    const title = document.createElement('b'); title.textContent = h.title; title.style.color = h.tone === 'up' ? 'var(--grn)' : h.tone === 'dn' ? 'var(--red)' : '';
+    const detail = document.createElement('span'); detail.textContent = new Date(h.ts).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' · ' + h.detail;
+    const play = document.createElement('span'); play.className = 'highlightPlay'; play.textContent = '▶';
+    main.append(title, detail); row.append(icon, main, play); list.appendChild(row);
+  });
+}
+function replayHighlight(i) {
+  const h = highlights[i]; if (!h) return;
+  setPit({ key:'replay-' + h.ts, score:100, icon:h.icon, tag:'REPLAY', title:h.title, copy:h.detail, color:h.tone === 'up' ? '#4ade80' : h.tone === 'dn' ? '#f87171' : '#d4af37' }, 12000);
+  $('pitStage').animate([{transform:'scale(.99)',filter:'brightness(1.4)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:520,easing:'ease-out'});
+}
+renderHighlights();
+
+let pitCurrent = null, pitStarted = Date.now(), pitEnds = Date.now() + 45000;
+function setPit(p, duration=45000) {
+  pitCurrent = p; pitStarted = Date.now(); pitEnds = pitStarted + duration;
+  $('pitScene').textContent = p.icon;
+  $('pitTag').textContent = p.tag;
+  $('pitTitle').textContent = p.title;
+  $('pitCopy').textContent = p.copy;
+  $('pitStage').style.borderColor = p.color;
+  $('pitScene').style.borderColor = p.color;
+}
+function pitSignal(key, score, icon, tag, title, copy, color) {
+  const p = { key, score, icon, tag, title, copy, color };
+  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) setPit(p);
+}
+function selectAmbientTable() {
+  const total = buyVol + sellVol;
+  if (total > 0) {
+    const bp = buyVol / total;
+    if (Math.abs(bp-.5) > .08) {
+      const buy = bp > .5;
+      setPit({ key:'tape', score:36, icon:buy?'🐂':'🐻', tag:'TAPE FLOW', title:buy?'매수 체결이 판을 장악':'매도 체결이 판을 장악', copy:`최근 체결 흐름 ${buy?'매수':'매도'} ${(Math.max(bp,1-bp)*100).toFixed(0)}% — 체결의 비를 메인으로 올립니다.`, color:buy?'#4ade80':'#f87171' });
+      return;
+    }
+  }
+  setPit({ key:'scan', score:20, icon:'🎩', tag:'PIT BOSS', title:'다음 큰 판을 탐색 중', copy:'체결·청산·코인 레이스를 동시에 지켜보고 있습니다.', color:'#d4af37' });
+}
+selectAmbientTable();
+setInterval(() => {
+  if (Date.now() >= pitEnds) selectAmbientTable();
+  const left = Math.max(0, pitEnds-Date.now()), span = Math.max(1,pitEnds-pitStarted);
+  $('pitClock').childNodes[0].nodeValue = Math.ceil(left/1000) + '초';
+  $('pitGauge').style.width = Math.max(0, left/span*100) + '%';
+}, 500);
+
+let towerLongSum = 0, towerShortSum = 0, towerRoundEnd = (Math.floor(Date.now()/300000)+1)*300000, towerCrashed = false;
+function towerRender() {
+  $('towerLongTotal').textContent = moneyShort(towerLongSum);
+  $('towerShortTotal').textContent = moneyShort(towerShortSum);
+  if (!towerLongSum && !towerShortSum) $('towerVerdict').textContent = '첫 블록을 기다리는 중';
+  else {
+    const longWins = towerLongSum >= towerShortSum;
+    const hi = Math.max(towerLongSum,towerShortSum), lo = Math.min(towerLongSum,towerShortSum);
+    $('towerVerdict').textContent = `${longWins?'롱':'숏'} 청산 우세 · ${lo ? (hi/lo).toFixed(1)+'배' : '일방적'}`;
+  }
+}
+function towerReset() {
+  towerLongSum = 0; towerShortSum = 0; towerCrashed = false;
+  $('towerLong').textContent = ''; $('towerShort').textContent = '';
+  $('towerLong').classList.remove('crash'); $('towerShort').classList.remove('crash'); towerRender();
+}
+function towerCollapse(isLong) {
+  if (towerCrashed) return; towerCrashed = true;
+  const stack = $(isLong ? 'towerLong' : 'towerShort'); stack.classList.add('crash');
+  const total = isLong ? towerLongSum : towerShortSum;
+  addHighlight(isLong?'🩸':'⚡', `${isLong?'롱':'숏'} 청산 타워 붕괴`, `${moneyShort(total)}가 한쪽에 몰리며 탑이 무너졌습니다.`, isLong?'dn':'up');
+  pitSignal('tower-crash', 96, isLong?'🩸':'⚡', 'TOWER CRASH', `${isLong?'롱':'숏'} 청산 타워 붕괴`, `${moneyShort(total)} 규모의 블록이 한쪽으로 쏠렸습니다.`, isLong?'#f87171':'#4ade80');
+  setTimeout(towerReset, 1800);
+}
+function towerAdd(isLong, val, symbol) {
+  if (!Number.isFinite(val) || val < 1000) return;
+  if (isLong) towerLongSum += val; else towerShortSum += val;
+  const stack = $(isLong ? 'towerLong' : 'towerShort');
+  const block = document.createElement('div'); block.className = 'liqBlock';
+  block.style.width = Math.min(100, 42 + Math.log10(Math.max(1,val/1000))*20) + '%';
+  block.style.height = Math.min(22, 7 + Math.log10(Math.max(1,val/1000))*4) + 'px';
+  block.title = `${symbol} · ${moneyShort(val)}`; stack.appendChild(block);
+  while (stack.children.length > 14) stack.removeChild(stack.firstChild);
+  towerRender();
+  const own = isLong ? towerLongSum : towerShortSum, other = isLong ? towerShortSum : towerLongSum;
+  if (val >= 2000000 || (own >= 3000000 && own > Math.max(1,other)*2.5)) towerCollapse(isLong);
+}
+setInterval(() => {
+  if (Date.now() >= towerRoundEnd) { towerRoundEnd = (Math.floor(Date.now()/300000)+1)*300000; towerReset(); }
+  $('towerClock').textContent = mmss(towerRoundEnd-Date.now());
+}, 500);
+towerRender();
+
+const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
+const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
+let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
+function buildRace() {
+  const rows = $('raceRows'); rows.textContent = '';
+  RACE_COINS.forEach(sym => {
+    const row = document.createElement('div'); row.className = 'raceRow'; row.dataset.sym = sym;
+    const coin = document.createElement('span'); coin.className = 'raceCoin'; coin.textContent = sym;
+    const track = document.createElement('div'); track.className = 'raceTrack';
+    const runner = document.createElement('i'); runner.className = 'raceRunner'; runner.textContent = '●'; track.appendChild(runner);
+    const pct = document.createElement('span'); pct.className = 'racePct num'; pct.textContent = '—';
+    row.append(coin,track,pct); rows.appendChild(row);
+  });
+}
+function raceValues() {
+  return RACE_COINS.map(sym => ({sym, pct:race[sym].start && race[sym].last ? (race[sym].last/race[sym].start-1)*100 : 0})).sort((a,b)=>b.pct-a.pct);
+}
+function renderRace() {
+  const vals = raceValues(), maxAbs = Math.max(.05,...vals.map(x=>Math.abs(x.pct)));
+  vals.forEach((v, rank) => {
+    const row = document.querySelector(`.raceRow[data-sym="${v.sym}"]`); if (!row) return;
+    row.style.order = rank; row.classList.toggle('leader', rank === 0); row.querySelector('.raceRunner').style.left = (5 + (v.pct/maxAbs+1)*43) + '%';
+    const pct = row.querySelector('.racePct'); pct.textContent = (v.pct>=0?'+':'') + v.pct.toFixed(2) + '%'; pct.className = 'racePct num ' + (v.pct>=0?'up':'dn');
+  });
+  if (!Object.values(race).some(x=>x.start)) {
+    $('raceLeader').textContent = '출발 준비';
+    $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
+    return;
+  }
+  const lead = vals[0], tail = vals[vals.length-1], spread = lead.pct-tail.pct;
+  $('raceLeader').textContent = `${lead.sym} 선두 · 격차 ${spread.toFixed(2)}%p`;
+  $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
+  if (spread >= .18) pitSignal('race', Math.min(78,40+spread*25), '🏁', 'COIN DERBY', `${lead.sym} 선두 질주`, `8마리 5분 레이스에서 ${spread.toFixed(2)}%p 차이로 앞섭니다.`, '#d4af37');
+}
+function finishRace() {
+  const vals = raceValues(), winner = vals[0], spread = winner.pct-vals[vals.length-1].pct;
+  if (Object.values(race).some(x=>x.start) && spread >= .03) addHighlight('🏆', `${winner.sym} 경마장 우승`, `5분 수익률 ${(winner.pct>=0?'+':'')+winner.pct.toFixed(2)}% · 꼴찌와 ${spread.toFixed(2)}%p`, winner.pct>=0?'up':'dn');
+  Object.values(race).forEach(x => { x.start = x.last; });
+}
+buildRace(); renderRace();
+const wsRace = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
+wsRace.onmessage = ev => {
+  const list = JSON.parse(ev.data); if (!Array.isArray(list)) return;
+  list.forEach(t => {
+    if (!t.s || !t.s.endsWith('USDT')) return;
+    const sym = t.s.slice(0,-4); if (!race[sym]) return;
+    const px = +t.c; if (!Number.isFinite(px)) return;
+    if (race[sym].start === null) race[sym].start = px; race[sym].last = px;
+  });
+};
+setInterval(() => {
+  if (Date.now() >= raceRoundEnd) { finishRace(); raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000; }
+  renderRace();
+}, 1000);
 
 // ═══ 바이낸스 웹소켓 ═══
 // ═══ 호가창 (order book) — 매도벽·매수벽 + 체결 시 붕괴 ═══
@@ -1766,7 +2110,11 @@ ws.onmessage = ev => {
     bookHit(val, isBuy);
     checkBreakout(px);
     if (isBuy) buyVol += val; else sellVol += val;
-    if (val >= 500000) say('sys', '', `🐳 ${isBuy?'매수':'매도'} <b class="num ${isBuy?'up':'dn'}">$${fmt(val/1000)}K</b> — 큰손 등장`);
+    if (val >= 500000) {
+      say('sys', '', `🐳 ${isBuy?'매수':'매도'} <b class="num ${isBuy?'up':'dn'}">$${fmt(val/1000)}K</b> — 큰손 등장`);
+      pitSignal('whale', Math.min(88,70+Math.log10(val/500000)*18), '🐳', 'WHALE TABLE', `BTC 고래 ${isBuy?'매수':'매도'}`, `${moneyShort(val)} 단일 체결 — VIP 테이블을 비춥니다.`, isBuy?'#4ade80':'#f87171');
+      if (val >= 1000000) addHighlight('🐳', `BTC 고래 ${isBuy?'매수':'매도'}`, `${moneyShort(val)} 단일 시장가 체결`, isBuy?'up':'dn');
+    }
     updateKimchi();
   } else if (stream.endsWith('depth20@100ms')) {
     bookAsks = data.asks; bookBids = data.bids; renderBook();
@@ -2105,202 +2453,177 @@ window.bgSetTrack = bgSetTrack;
 window.blindOpen = blindOpen; window.blindStart = blindStart;
 window.blindTrade = blindTrade; window.blindFinish = blindFinish;
 
-// ═══ ⛓ 온체인 관전석 ═══
-const MEMPOOL = 'https://mempool.space/api';
-let onchainStarted = false, onchainTimer = null;
-const btcText = sats => {
-  const btc = sats / 1e8;
-  return btc >= 1000 ? `${(btc / 1000).toFixed(1)}K BTC` : `${btc.toFixed(btc >= 10 ? 1 : 3)} BTC`;
-};
-function renderWhaleTape(txs) {
-  const tape = $('whaleTape');
-  tape.replaceChildren();
-  const large = txs.map(tx => ({
-    txid: tx.txid,
-    value: (tx.vout || []).reduce((sum, out) => sum + (+out.value || 0), 0),
-    fee: +tx.fee || 0,
-  })).sort((a,b) => b.value - a.value).slice(0, 5);
-  if (!large.length) {
-    const note = document.createElement('div'); note.className = 'chainNote'; note.textContent = '표시할 최근 전송이 없습니다.'; tape.append(note); return;
-  }
-  large.forEach((tx, i) => {
-    const row = document.createElement('div'); row.className = 'whaleRow';
-    const pulse = document.createElement('i'); pulse.className = 'whalePulse';
-    const main = document.createElement('div'); main.className = 'whaleMain';
-    const id = document.createElement('b'); id.textContent = `TX ${tx.txid.slice(0, 10)}…${tx.txid.slice(-6)}`;
-    const sub = document.createElement('span'); sub.textContent = `최근 mempool 전송 · 수수료 ${tx.fee.toLocaleString('ko-KR')} sats`;
-    const amount = document.createElement('div'); amount.className = 'whaleBtc'; amount.textContent = btcText(tx.value);
-    main.append(id, sub); row.append(pulse, main, amount); tape.append(row);
+// ═══ 📣 거시 발표장 ═══
+let macroData = null, macroStarted = false, macroClockTimer = null, macroRefreshTimer = null;
+const macroFlags = new Set();
+const macroDate = iso => new Date(iso);
+const macroKst = (iso, withDate=true) => macroDate(iso).toLocaleString('ko-KR', {
+  timeZone:'Asia/Seoul', month:withDate?'numeric':undefined, day:withDate?'numeric':undefined,
+  weekday:withDate?'short':undefined, hour:'2-digit', minute:'2-digit', hour12:false,
+});
+const macroValue = e => e.actual === null || e.actual === undefined ? '—' : `${e.actual}${e.unit||''}`;
+const macroPrevious = e => e.previous === null || e.previous === undefined ? '—' : `${e.previous}${e.unit||''}`;
+function macroRemaining(ms) {
+  if (ms <= 0) return 'ON AIR';
+  const sec=Math.floor(ms/1000),day=Math.floor(sec/86400),hour=Math.floor(sec%86400/3600),min=Math.floor(sec%3600/60),s=sec%60;
+  return `${day?day+'D ':''}${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function macroEvents() { return Array.isArray(macroData?.events) ? macroData.events : []; }
+function macroRenderBoard() {
+  const board=$('macroBoard'),now=Date.now(),horizon=now+14*86400000;
+  let rows=macroEvents().filter(e=>+macroDate(e.scheduled_at)>=now-3600000&&+macroDate(e.scheduled_at)<=horizon);
+  if(!rows.length)rows=macroEvents().filter(e=>+macroDate(e.scheduled_at)>=now).slice(0,8);
+  board.replaceChildren();
+  if(!rows.length){const empty=document.createElement('div');empty.className='macroEmpty';empty.textContent='예정된 공식 발표가 없습니다.';board.append(empty);return;}
+  rows.forEach(e=>{
+    const row=document.createElement('div');row.className='macroDay';
+    const when=document.createElement('div');when.className='macroWhen';const wb=document.createElement('b');wb.textContent=macroKst(e.scheduled_at).split(' ').slice(0,2).join(' ');const ws=document.createElement('span');ws.textContent=macroKst(e.scheduled_at,false)+' KST';when.append(wb,ws);
+    const badge=document.createElement('span');badge.className='macroBadge '+String(e.importance||'').toLowerCase();badge.textContent=e.importance||'SIDE';
+    const event=document.createElement('div');event.className='macroEvent';const eb=document.createElement('b');eb.textContent=`${e.code} · ${e.title}`;const es=document.createElement('span');es.textContent=e.note||'공식 발표';event.append(eb,es);
+    const source=document.createElement('span');source.className='macroSource';source.textContent=e.source;
+    const result=document.createElement('span');result.className='macroResult '+(e.actual!==null?'done':e.status==='waiting'?'wait':'');result.textContent=e.actual!==null?`실제 ${macroValue(e)}`:e.status==='waiting'?'확인 대기':e.status==='observed'?'일정 종료':'예정';
+    row.append(when,badge,event,source,result);board.append(row);
   });
 }
+function macroRenderSettlement() {
+  const host=$('macroSettlement'),now=Date.now(),past=macroEvents().filter(e=>+macroDate(e.scheduled_at)<=now).sort((a,b)=>+macroDate(b.scheduled_at)-+macroDate(a.scheduled_at));
+  const event=past.find(e=>e.actual!==null)||past[0];host.replaceChildren();
+  if(!event){const empty=document.createElement('div');empty.className='macroEmpty';empty.textContent='발표가 끝나면 전표가 열립니다.';host.append(empty);return;}
+  const card=document.createElement('div');card.className='settleCard'+(event.actual!==null?' live':'');
+  const tag=document.createElement('div');tag.className='settleTag';tag.textContent=event.actual!==null?'OFFICIAL SETTLED':'OFFICIAL CHECK';
+  const title=document.createElement('div');title.className='settleTitle';title.textContent=`${event.code} · ${event.title}`;
+  const time=document.createElement('div');time.className='settleTime';time.textContent=`${macroKst(event.scheduled_at)} KST · ${event.source}`;
+  const nums=document.createElement('div');nums.className='settleNums';
+  const prev=document.createElement('div');prev.className='settleNum';const pl=document.createElement('span');pl.textContent='PREVIOUS';const pv=document.createElement('b');pv.textContent=macroPrevious(event);prev.append(pl,pv);
+  const arrow=document.createElement('div');arrow.className='settleArrow';arrow.textContent='→';
+  const actual=document.createElement('div');actual.className='settleNum';const al=document.createElement('span');al.textContent='ACTUAL';const av=document.createElement('b');av.textContent=event.actual!==null?macroValue(event):'확인 대기';av.style.fontSize=event.actual!==null?'23px':'14px';actual.append(al,av);nums.append(prev,arrow,actual);
+  const note=document.createElement('div');note.className='settleNote';note.textContent=event.actual!==null?'공식 실제치가 확인된 전표입니다. 시장 예상치는 사용하지 않습니다.':event.actual_supported?'발표 시각은 지났지만 무료 공식 실제치가 아직 확인되지 않았습니다.':'일정 종료를 기록했습니다. 이 항목은 현재 실제치 자동 확정 대상이 아닙니다.';
+  card.append(tag,title,time,nums,note);host.append(card);
+}
+function macroRenderShocks() {
+  const host=$('macroShocks');host.replaceChildren();
+  const rows=macroEvents().filter(e=>e.btc&&Object.keys(e.btc).length).sort((a,b)=>+macroDate(b.scheduled_at)-+macroDate(a.scheduled_at)).slice(0,4);
+  if(!rows.length){const empty=document.createElement('div');empty.className='macroEmpty';empty.textContent='발표가 끝나면 BTC 5·15·60분 반응이 기록됩니다.';host.append(empty);return;}
+  rows.forEach(e=>{const row=document.createElement('div');row.className='shockRow';const code=document.createElement('span');code.className='shockCode';code.textContent=e.code;const name=document.createElement('span');name.className='shockName';name.textContent=macroKst(e.scheduled_at);row.append(code,name);[['m5','5M'],['m15','15M'],['m60','60M']].forEach(([key,label])=>{const cell=document.createElement('span');cell.className='shockMove';const small=document.createElement('small');small.textContent=label;const val=e.btc[key];cell.textContent='';cell.append(small,document.createTextNode(val===undefined?'—':`${val>=0?'+':''}${val.toFixed(2)}%`));if(val!==undefined)cell.classList.add(val>=0?'up':'dn');row.append(cell);});host.append(row);});
+}
+function macroRender() {
+  macroRenderBoard();macroRenderSettlement();macroRenderShocks();macroTick();
+  if(macroData?.generated_at)$('macroUpdated').textContent=`갱신 ${macroKst(macroData.generated_at)} KST`;
+}
+function macroTick() {
+  if(!macroData)return;const now=Date.now(),next=macroEvents().find(e=>+macroDate(e.scheduled_at)>now);
+  if(next){const at=+macroDate(next.scheduled_at),left=at-now;$('macroNextGrade').textContent=next.importance;$('macroNextTitle').textContent=`${next.code} · ${next.title}`;$('macroNextTime').textContent=`${macroKst(next.scheduled_at)} KST · ${next.source}`;$('macroCountdown').textContent=macroRemaining(left);
+    if(left<=1800000){const urgent=left<=300000,key=`macro-${next.id}-${urgent?'5':'30'}`;if(!macroFlags.has(key)){macroFlags.add(key);pitSignal(key,urgent?94:82,'📣',urgent?'FIVE MINUTES':'MACRO WIRE',`${next.code} 발표 ${urgent?'5분 전':'30분 전'}`,`${next.title} 공식 전표를 기다립니다.`,urgent?'#d4af37':'#22d3ee');}}
+  }else{$('macroNextGrade').textContent='CLEAR';$('macroNextTitle').textContent='예정된 발표 없음';$('macroNextTime').textContent='공식 전보 대기';$('macroCountdown').textContent='--:--:--';}
+  macroEvents().filter(e=>e.actual!==null&&now-+macroDate(e.scheduled_at)<21600000).forEach(e=>{const key=`macro-settled-${e.id}`;if(macroFlags.has(key))return;macroFlags.add(key);addHighlight('📣',`${e.code} 실제 ${macroValue(e)}`,`이전 ${macroPrevious(e)} → 실제 ${macroValue(e)}`,'gold');pitSignal(key,96,'📣','OFFICIAL SETTLED',`${e.code} ${macroValue(e)}`,`이전 ${macroPrevious(e)}에서 실제 ${macroValue(e)}로 확정됐습니다.`,'#d4af37');});
+}
+async function macroLoad() {
+  try{const response=await fetch(`reports/econ_calendar.json?v=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);macroData=await response.json();macroRender();}
+  catch(e){const board=$('macroBoard');board.replaceChildren();const empty=document.createElement('div');empty.className='macroEmpty';empty.textContent='발표 전보를 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.';board.append(empty);$('macroNextTitle').textContent='공식 전보 연결 대기';$('macroNextTime').textContent='데이터가 복구되면 자동 갱신됩니다.';}
+}
+function macroOpen(){macroLoad();if(!macroStarted){macroStarted=true;macroClockTimer=setInterval(macroTick,1000);macroRefreshTimer=setInterval(macroLoad,300000);}}
+window.macroOpen=macroOpen;
+
+// ═══ ⛓ 블록 금고 ═══
+const MEMPOOL = 'https://mempool.space/api';
+let onchainStarted = false, onchainTimer = null, chainClockTimer = null, lastChainHeight = null, lastBlockTs = null;
+const chainEventCooldown = new Map();
+const btcText = sats => { const btc=sats/1e8; return btc>=1000?`${(btc/1000).toFixed(1)}K BTC`:`${btc.toFixed(btc>=10?1:3)} BTC`; };
+function safeChainEvent(key, icon, title, detail, tone='gold') {
+  const now=Date.now(); if ((chainEventCooldown.get(key)||0)>now) return; chainEventCooldown.set(key,now+300000);
+  addHighlight(icon,title,detail,tone); pitSignal('chain-'+key,78,icon,'BLOCK VAULT',title,detail,tone==='dn'?'#f87171':tone==='up'?'#4ade80':'#d4af37');
+}
+function renderRoulette(fee, blocks) {
+  const vals=[fee?.fastestFee,fee?.halfHourFee,fee?.hourFee,fee?.economyFee,fee?.minimumFee].filter(Number.isFinite);
+  const legend=$('rouletteLegend'); legend.replaceChildren();
+  const labels=['PENTHOUSE','VIP','LOBBY','ECONOMY','BASEMENT'];
+  (vals.length?vals:[0,0,0,0,0]).forEach((v,i)=>{const row=document.createElement('div'),a=document.createElement('span'),b=document.createElement('b');a.textContent=labels[i];b.textContent=v?`${v} sat/vB`:'—';row.append(a,b);legend.append(row);});
+  const first=Array.isArray(blocks)?blocks[0]:null;
+  if(first?.nTx){const row=document.createElement('div'),a=document.createElement('span'),b=document.createElement('b');a.textContent='NEXT BLOCK SEATS';b.textContent=fmt(first.nTx);row.append(a,b);legend.append(row);}
+}
+function renderElevator(mp, fee, blocks) {
+  const el=$('mempoolElevator'); el.replaceChildren(); const maxTx=Math.max(1,...(blocks||[]).slice(0,4).map(b=>+b.nTx||0));
+  const floors=[
+    {name:'B1 · 대기',fee:fee?.minimumFee||1,n:Math.max(0,(mp?.count||0)-(blocks||[]).slice(0,3).reduce((s,b)=>s+(+b.nTx||0),0))},
+    {name:'L · 일반',fee:fee?.economyFee||0,n:+blocks?.[2]?.nTx||0},
+    {name:'VIP · 급행',fee:fee?.hourFee||0,n:+blocks?.[1]?.nTx||0},
+    {name:'PH · 다음',fee:fee?.fastestFee||0,n:+blocks?.[0]?.nTx||0,vip:true},
+  ];
+  floors.forEach(f=>{const row=document.createElement('div');row.className='eFloor'+(f.vip?' vip':'');const name=document.createElement('span');name.className='eFloorName';name.textContent=f.name;const bar=document.createElement('div');bar.className='eFloorBar';const fill=document.createElement('i');fill.style.width=Math.min(100,f.n/maxTx*100)+'%';bar.append(fill);const val=document.createElement('b');val.textContent=`${f.fee} sat · ${fmt(f.n)}`;row.append(name,bar,val);el.append(row);});
+}
+function renderWhaleVault(txs) {
+  const vault=$('whaleVault'); vault.replaceChildren();
+  const large=(txs||[]).map(tx=>({txid:tx.txid||'',value:(tx.vout||[]).reduce((s,o)=>s+(+o.value||0),0),fee:+tx.fee||0})).sort((a,b)=>b.value-a.value).slice(0,6);
+  if(!large.length){const n=document.createElement('div');n.className='chainNote';n.textContent='열린 금고가 없습니다.';vault.append(n);return [];}
+  large.forEach((tx,i)=>{const card=document.createElement('div');card.className='vault'+(i===0?' vip':'');const tag=document.createElement('div');tag.className='vaultTag';tag.textContent=i===0?'VIP VAULT':'MEMPOOL VAULT';const amt=document.createElement('div');amt.className='vaultAmt';amt.textContent=btcText(tx.value);const meta=document.createElement('div');meta.className='vaultMeta';meta.textContent=`${tx.txid.slice(0,8)}… · fee ${fmt(tx.fee)} sats`;card.append(tag,amt,meta);vault.append(card);}); return large;
+}
+function renderChainSignals(mp,fee,blockAge,whales) {
+  const signals=[];
+  if(blockAge>1200) signals.push(['⏳','BLOCK DROUGHT',`${Math.floor(blockAge/60)}분째 새 블록 없음`,'DELAY',true,'drought']);
+  if((fee?.fastestFee||0)>=50) signals.push(['🔥','FEE SURGE',`급행 ${fee.fastestFee} sat/vB`,'HOT',true,'fee']);
+  if((mp?.vsize||0)>=20000000) signals.push(['🌊','MEMPOOL FLOOD',`${(mp.vsize/1e6).toFixed(1)} MB 대기`,'FLOOD',true,'flood']);
+  const giants=(whales||[]).filter(w=>w.value>=100e8);
+  if(giants.length>=3) signals.push(['🐋','WHALE PARADE',`100 BTC+ 전송 ${giants.length}건 포착`,'VIP',true,'whales']);
+  if((mp?.vsize||Infinity)<2000000) signals.push(['✨','CLEAR FLOOR','멤풀이 빠르게 비워진 상태','CALM',false,'clear']);
+  if(!signals.length) signals.push(['🔒','VAULT NORMAL','특이 징후 없이 정산 진행 중','STABLE',false,'normal']);
+  const board=$('chainSignals'); board.replaceChildren();
+  signals.slice(0,5).forEach(s=>{const row=document.createElement('div');row.className='chainSignal'+(s[4]?' hot':'');const icon=document.createElement('span');icon.textContent=s[0];const main=document.createElement('div');const b=document.createElement('b');b.textContent=s[1];const copy=document.createElement('span');copy.textContent=s[2];main.append(b,copy);const code=document.createElement('em');code.textContent=s[3];row.append(icon,main,code);board.append(row);if(s[4])safeChainEvent(s[5],s[0],s[1],s[2],s[5]==='drought'?'dn':'gold');});
+}
+function blockLanding(height, block) {
+  $('landingHeight').textContent='#'+height; $('landingMeta').textContent=block?`${fmt(block.tx_count||0)}건 정산 · ${Math.round(block.size/1000||0)} KB`:'새 블록이 금고에 착륙했습니다.';
+  const el=$('blockLanding');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3800);const wheel=$('rouletteWheel');wheel.classList.remove('settle');void wheel.offsetWidth;wheel.classList.add('settle');
+  addHighlight('🔔',`BLOCK #${height} 착륙`,$('landingMeta').textContent,'gold');pitSignal('block-land',90,'🔔','BLOCK SETTLED',`BLOCK #${height} 착륙`,$('landingMeta').textContent,'#d4af37');
+}
+function updateChainClock(){if(!lastBlockTs)return;const age=Math.max(0,Date.now()/1000-lastBlockTs),eta=Math.max(0,600-age);$('chainBlockAge').textContent=`마지막 블록 ${Math.floor(age/60)}분 전 · LIVE`;$('nextBlockEta').textContent=eta?`~${Math.max(1,Math.ceil(eta/60))}m`:'DUE';}
 async function onchainRefresh() {
-  const [mempool, fees, recent, height, depth, fear, premium] = await Promise.allSettled([
-    fetch(`${MEMPOOL}/mempool`).then(r => r.json()),
-    fetch(`${MEMPOOL}/v1/fees/recommended`).then(r => r.json()),
-    fetch(`${MEMPOOL}/mempool/recent`).then(r => r.json()),
-    fetch(`${MEMPOOL}/blocks/tip/height`).then(r => r.text()),
-    fetch('https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=100').then(r => r.json()),
-    fetch('https://api.alternative.me/fng/?limit=1').then(r => r.json()),
-    fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT').then(r => r.json()),
-  ]);
-  const get = r => r.status === 'fulfilled' ? r.value : null;
-  const mp = get(mempool), fee = get(fees), txs = get(recent), h = get(height);
-  if (h) $('chainHeight').textContent = `#${String(h).trim()}`;
-  if (mp) {
-    $('mempoolCount').textContent = fmt(mp.count);
-    $('mempoolSize').textContent = mp.vsize >= 1e6 ? `${(mp.vsize / 1e6).toFixed(1)} MB` : `${(mp.vsize / 1e3).toFixed(0)} KB`;
-    const congestion = Math.min(100, Math.round((mp.vsize / 1e6) * 34));
-    $('thermoMempool').style.width = `${congestion}%`;
-    $('thermoMempoolText').textContent = `${congestion}/100`;
-  }
-  if (fee) $('fastFee').textContent = `${fee.fastestFee} sat/vB`;
-  if (Array.isArray(txs)) renderWhaleTape(txs);
-  const book = get(depth);
-  if (book?.bids && book?.asks) {
-    const total = side => side.reduce((sum, [price, qty]) => sum + (+price * +qty), 0);
-    const bid = total(book.bids), ask = total(book.asks), bidPct = bid / (bid + ask || 1) * 100;
-    $('flowBid').style.width = `${bidPct}%`; $('flowAsk').style.width = `${100 - bidPct}%`;
-    $('flowBid').textContent = `BID ${bidPct.toFixed(0)}%`; $('flowAsk').textContent = `ASK ${(100-bidPct).toFixed(0)}%`;
-    $('flowBidLabel').textContent = `매수 대기 $${(bid / 1e6).toFixed(1)}M`;
-    $('flowAskLabel').textContent = `매도 대기 $${(ask / 1e6).toFixed(1)}M`;
-  }
-  const fg = get(fear)?.data?.[0];
-  if (fg) { const v = +fg.value; $('thermoFear').style.width = `${v}%`; $('thermoFearText').textContent = `${v}`; }
-  const p = get(premium);
-  if (p) {
-    const rate = +p.lastFundingRate * 100, pressure = Math.min(100, Math.abs(rate) * 10000);
-    $('thermoFunding').style.width = `${pressure}%`;
-    $('thermoFunding').style.background = rate >= 0 ? 'var(--grn)' : 'var(--red)';
-    $('thermoFundingText').textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}%`;
-  }
-  $('chainUpdated').textContent = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const all=await Promise.allSettled([
+    fetch(`${MEMPOOL}/mempool`).then(r=>r.json()),fetch(`${MEMPOOL}/v1/fees/recommended`).then(r=>r.json()),fetch(`${MEMPOOL}/mempool/recent`).then(r=>r.json()),fetch(`${MEMPOOL}/blocks/tip/height`).then(r=>r.text()),fetch(`${MEMPOOL}/v1/fees/mempool-blocks`).then(r=>r.json()),fetch(`${MEMPOOL}/v1/blocks`).then(r=>r.json()),
+  ]); const get=i=>all[i].status==='fulfilled'?all[i].value:null;
+  const mp=get(0),fee=get(1),txs=get(2),height=+(get(3)),mBlocks=get(4),blocks=get(5),latest=Array.isArray(blocks)?blocks[0]:null;
+  if(height){$('chainHeight').textContent='#'+height;if(lastChainHeight!==null&&height>lastChainHeight)blockLanding(height,latest);lastChainHeight=height;}
+  if(latest?.timestamp)lastBlockTs=latest.timestamp;
+  if(mp){$('mempoolCount').textContent=fmt(mp.count);$('mempoolSize').textContent=mp.vsize>=1e6?`${(mp.vsize/1e6).toFixed(1)} MB`:`${(mp.vsize/1e3).toFixed(0)} KB`;}
+  if(fee)$('fastFee').textContent=`${fee.fastestFee} sat/vB`;
+  renderRoulette(fee,Array.isArray(mBlocks)?mBlocks:[]);renderElevator(mp,fee,Array.isArray(mBlocks)?mBlocks:[]);const whales=renderWhaleVault(Array.isArray(txs)?txs:[]);
+  const age=lastBlockTs?Math.max(0,Date.now()/1000-lastBlockTs):0;renderChainSignals(mp,fee,age,whales);updateChainClock();$('chainUpdated').textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
-function onchainOpen() {
-  onchainRefresh();
-  if (!onchainStarted) {
-    onchainStarted = true;
-    onchainTimer = setInterval(onchainRefresh, 30000);
-  }
-}
+function onchainOpen(){onchainRefresh();if(!onchainStarted){onchainStarted=true;onchainTimer=setInterval(onchainRefresh,20000);chainClockTimer=setInterval(updateChainClock,1000);}}
 
-// ═══ ⚔️ 투기장 (롱숏 비율) ═══
-const FD = 'https://fapi.binance.com/futures/data';
-let arenaTimer = null, arenaPulseTimer = null;
-
-async function fetchRatio(path, period='5m', limit=1) {
-  try {
-    const r = await (await fetch(`${FD}/${path}?symbol=BTCUSDT&period=${period}&limit=${limit}`)).json();
-    return Array.isArray(r) ? r : null;
-  } catch(e) { return null; }
+// ═══ ⚔️ 선물 콜로세움 ═══
+const FD='https://fapi.binance.com/futures/data';
+let arenaTimer=null,arenaPulseTimer=null,arenaTickTimer=null,towSparkData=[];
+const arena={ant:50,whale:50,taker:50,oi:null,oiOpen:null,priceOpen:null,power:50,leader:null,reversalAt:0,hasData:false,roundEnd:(Math.floor(Date.now()/300000)+1)*300000};
+let arenaLedger=[],arenaStreak={bull:0,bear:0};
+try{arenaLedger=JSON.parse(localStorage.getItem('tapeArenaLedger')||'[]');arenaStreak=JSON.parse(localStorage.getItem('tapeArenaStreak')||'{"bull":0,"bear":0}');}catch(e){arenaLedger=[];arenaStreak={bull:0,bear:0};}if(!Array.isArray(arenaLedger))arenaLedger=[];if(!arenaStreak||typeof arenaStreak!=='object')arenaStreak={bull:0,bear:0};arenaStreak.bull=+arenaStreak.bull||0;arenaStreak.bear=+arenaStreak.bear||0;
+async function fetchRatio(path,period='5m',limit=1){try{const r=await(await fetch(`${FD}/${path}?symbol=BTCUSDT&period=${period}&limit=${limit}`)).json();return Array.isArray(r)?r:null;}catch(e){return null;}}
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function renderCrowd(elL,elR,elNum,longPct){$(elL).style.width=longPct+'%';$(elR).style.width=(100-longPct)+'%';$(elNum).textContent=`L ${longPct.toFixed(0)} / S ${(100-longPct).toFixed(0)}`;}
+function drawSpark(){const cv=$('towSpark');if(!cv||!towSparkData.length)return;const w=cv.width=cv.clientWidth,h=cv.height,ctx=cv.getContext('2d'),vals=towSparkData,min=Math.min(...vals,45),max=Math.max(...vals,55),X=i=>(i/(vals.length-1))*(w-16)+8,Y=v=>h-10-((v-min)/(max-min||1))*(h-24);ctx.clearRect(0,0,w,h);ctx.strokeStyle='#2a3142';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(8,Y(50));ctx.lineTo(w-8,Y(50));ctx.stroke();ctx.setLineDash([]);ctx.beginPath();vals.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));ctx.strokeStyle=vals.at(-1)>=50?'#4ade80':'#f87171';ctx.lineWidth=1.6;ctx.stroke();}
+function setTrap(icon,tag,title,copy,tone='gold'){$('trapIcon').textContent=icon;$('trapTag').textContent=tag;$('trapTitle').textContent=title;$('trapCopy').textContent=copy;$('trapIcon').style.borderColor=tone==='up'?'var(--grn)':tone==='dn'?'var(--red)':'var(--gold-dim)';}
+function updateTrap(pricePct,oiPct){
+  if(pricePct>.12&&towerShortSum>Math.max(50000,towerLongSum*1.5))return setTrap('⚡','SHORT SQUEEZE','숏 스퀴즈','가격 상승과 숏 청산이 함께 터집니다.','up');
+  if(pricePct<-.12&&towerLongSum>Math.max(50000,towerShortSum*1.5))return setTrap('🩸','LONG SQUEEZE','롱 스퀴즈','가격 하락과 롱 청산이 함께 쏟아집니다.','dn');
+  if(pricePct>.08&&oiPct>.15&&arena.whale<47)return setTrap('🪤','LONG TRAP','롱 함정 의심','가격과 미결제약정은 오르지만 VIP석은 숏입니다.','dn');
+  if(pricePct<-.08&&oiPct>.15&&arena.whale>53)return setTrap('🪤','SHORT TRAP','숏 함정 의심','가격은 밀리지만 VIP석은 롱을 유지합니다.','up');
+  if(arena.ant>60&&arena.whale>55)return setTrap('🐂','CROWDED LONG','롱 과밀','양쪽 관중석이 모두 롱으로 몰렸습니다.','dn');
+  if(arena.ant<40&&arena.whale<45)return setTrap('🐻','CROWDED SHORT','숏 과밀','양쪽 관중석이 모두 숏으로 몰렸습니다.','up');
+  if(Math.abs(pricePct)<.03&&Math.abs(arena.taker-50)<3)return setTrap('🪦','DEAD TABLE','죽은 판','가격과 공격 체결 모두 숨을 죽였습니다.');
+  setTrap('🎴','OPEN HAND','패가 열려 있다',`가격 ${pricePct>=0?'+':''}${pricePct.toFixed(2)}% · OI ${oiPct>=0?'+':''}${oiPct.toFixed(2)}%`);
 }
-
-function towVerdict(longPct) {
-  // longPct: 0~100 (롱 계정 비중)
-  const d = longPct - 50;
-  if (longPct >= 65) return `<b class="g">황소가 압도</b> — 군중이 한쪽으로 쏠렸다. 쏠린 곳이 자주 무너지는 게 이 바닥이야.`;
-  if (longPct >= 57) return `<b class="g">황소 우세</b> — 롱이 밧줄을 당기는 중.`;
-  if (longPct > 50)  return `팽팽하다. 황소가 아주 살짝 앞선다.`;
-  if (longPct > 43)  return `팽팽하다. 곰이 아주 살짝 앞선다.`;
-  if (longPct > 35)  return `<b class="r">곰 우세</b> — 숏이 밧줄을 당기는 중.`;
-  return `<b class="r">곰이 압도</b> — 비관이 극에 달했다. 다들 같은 편일 때가 제일 위험하지.`;
+function renderLedger(){const el=$('roundLedger');el.replaceChildren();if(!arenaLedger.length){const n=document.createElement('div');n.className='chainNote';n.textContent='아직 끝난 경기가 없습니다.';el.append(n);return;}arenaLedger.slice(0,5).forEach(r=>{const row=document.createElement('div');row.className='roundRow';const round=document.createElement('span');round.textContent='#'+r.round;const title=document.createElement('b');title.className=r.winner==='황소'?'bullWin':'bearWin';title.textContent=r.winner+' 승리';const score=document.createElement('span');score.textContent=r.score;row.append(round,title,score);el.append(row);});}
+function finishArenaRound(){const bull=arena.power>=50,winner=bull?'황소':'곰',margin=Math.abs(arena.power-50)*2;arenaStreak.bull=bull?arenaStreak.bull+1:0;arenaStreak.bear=bull?0:arenaStreak.bear+1;arenaLedger.unshift({round:String(Math.floor((arena.roundEnd-1)/300000)).slice(-4),winner,score:`${arena.power.toFixed(0)}:${(100-arena.power).toFixed(0)}`});arenaLedger=arenaLedger.slice(0,5);localStorage.setItem('tapeArenaLedger',JSON.stringify(arenaLedger));localStorage.setItem('tapeArenaStreak',JSON.stringify(arenaStreak));renderLedger();addHighlight(bull?'🐂':'🐻',`${winner} 라운드 승리`,`마진 ${margin.toFixed(0)} · ${bull?arenaStreak.bull:arenaStreak.bear}연승`,bull?'up':'dn');pitSignal('arena-result',84,bull?'🐂':'🐻','FINAL BELL',`${winner} 승리`,`5분 경기 ${arena.power.toFixed(0)} 대 ${(100-arena.power).toFixed(0)}로 정산됐습니다.`,bull?'#4ade80':'#f87171');fxBanner(`${bull?'🐂 황소':'🐻 곰'} 승리<small>FINAL BELL</small>`,bull?'#4ade80':'#f87171');}
+function renderArena(){
+  const pricePct=arena.priceOpen&&usd?(usd/arena.priceOpen-1)*100:0,oiPct=arena.oiOpen&&arena.oi?(arena.oi/arena.oiOpen-1)*100:0,liqTotal=towerLongSum+towerShortSum,liqBias=liqTotal?(towerShortSum-towerLongSum)/liqTotal*10:0;
+  arena.power=clamp(50+(arena.taker-50)*.42+(arena.whale-50)*.22+(arena.ant-50)*.08+clamp(pricePct*18,-12,12)+liqBias,4,96);const bear=100-arena.power,leader=arena.power>=50?'bull':'bear',margin=Math.abs(arena.power-50)*2;
+  $('bullPower').textContent=arena.power.toFixed(0);$('bearPower').textContent=bear.toFixed(0);$('healthBull').style.width=arena.power+'%';$('healthBear').style.width=bear+'%';$('bullFighter').className='fighter bull '+(leader==='bull'?'lead':'trail');$('bearFighter').className='fighter bear '+(leader==='bear'?'lead':'trail');
+  $('arenaVerdict').textContent=margin<6?'중앙에서 난타전 — 아직 누구의 판도 아닙니다.':`${leader==='bull'?'황소':'곰'}가 ${margin.toFixed(0)}포인트 앞서고 있습니다.`;
+  if(arena.leader&&arena.leader!==leader&&margin>=6&&Date.now()>arena.reversalAt){arena.reversalAt=Date.now()+20000;const st=$('combatStage');st.classList.remove('reversal');void st.offsetWidth;st.classList.add('reversal');addHighlight('🔄',`${leader==='bull'?'황소':'곰'} 역전`,`5분 경기의 주도권이 뒤집혔습니다.`,leader==='bull'?'up':'dn');pitSignal('arena-reversal',88,'🔄','LEAD CHANGE',`${leader==='bull'?'황소':'곰'} 역전`,`콜로세움의 주도권이 뒤집혔습니다.`,leader==='bull'?'#4ade80':'#f87171');}arena.leader=leader;updateTrap(pricePct,oiPct);
 }
-
-function renderTow(longPct) {
-  const shortPct = 100 - longPct;
-  $('towLongPct').textContent = longPct.toFixed(1) + '%';
-  $('towShortPct').textContent = shortPct.toFixed(1) + '%';
-  // 매듭은 이기는(강한) 쪽으로 끌려간다: 롱이 강하면 왼쪽(황소)으로
-  $('towKnot').style.left = shortPct + '%';
-  $('towVerdict').innerHTML = towVerdict(longPct);
-  const bull = document.querySelector('.towSide.bull'), bear = document.querySelector('.towSide.bear');
-  bull.classList.toggle('winning', longPct > 53); bull.classList.toggle('losing', longPct < 43);
-  bear.classList.toggle('winning', longPct < 47); bear.classList.toggle('losing', longPct > 57);
-}
-
-function renderCrowd(elL, elR, elNum, longPct) {
-  $(elL).style.width = longPct + '%';
-  $(elR).style.width = (100 - longPct) + '%';
-  $(elNum).textContent = `L ${longPct.toFixed(0)} / S ${(100-longPct).toFixed(0)}`;
-}
-
-function divergeVerdict(ant, whale) {
-  // 개미·고래 롱 비중 (%)
-  const gap = whale - ant;
-  if (ant > 55 && whale < 45)
-    return [`⚡ <b class="y">개미는 롱, 고래는 숏</b> — 드물게 방향이 갈렸다. "개미 반대편에 서라"는 오랜 속담이 떠오르는 그림.`, true];
-  if (ant < 45 && whale > 55)
-    return [`⚡ <b class="y">개미는 숏, 고래는 롱</b> — 군중이 겁먹었을 때 큰손이 줍는 전형적 괴리.`, true];
-  if (Math.abs(gap) >= 10)
-    return [`고래가 개미보다 ${gap>0?'<b class="g">더 롱</b>':'<b class="r">더 숏</b>'}으로 기울었다 (격차 ${Math.abs(gap).toFixed(0)}p). 큰손 쪽에 무게가 실린다.`, gap>=15];
-  return [`개미와 고래가 대체로 <b class="y">같은 방향</b>이야. 이럴 땐 시그널보다 추세를 봐.`, false];
-}
-
-let towSparkData = [];
-function drawSpark() {
-  const cv = $('towSpark'); if (!cv || !towSparkData.length) return;
-  const w = cv.width = cv.clientWidth, h = cv.height;
-  const ctx = cv.getContext('2d'); ctx.clearRect(0,0,w,h);
-  const vals = towSparkData, min = Math.min(...vals, 45), max = Math.max(...vals, 55);
-  const X = i => (i/(vals.length-1))*(w-16)+8, Y = v => h-10 - ((v-min)/(max-min||1))*(h-24);
-  // 50% 기준선
-  ctx.strokeStyle = '#2a3142'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(8, Y(50)); ctx.lineTo(w-8, Y(50)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.beginPath();
-  vals.forEach((v,i)=>{ const x=X(i),y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
-  ctx.strokeStyle = vals[vals.length-1]>=50 ? '#4ade80' : '#f87171'; ctx.lineWidth = 1.6; ctx.stroke();
-  const lv = vals[vals.length-1];
-  ctx.fillStyle = lv>=50?'#4ade80':'#f87171';
-  ctx.beginPath(); ctx.arc(X(vals.length-1), Y(lv), 3, 0, 7); ctx.fill();
-  ctx.font='10px sans-serif'; ctx.fillStyle='#6b7280'; ctx.textAlign='left';
-  ctx.fillText('롱 '+lv.toFixed(0)+'%', 8, 12);
-}
-
-async function arenaRefresh() {
-  const [glob, whalePos, hist] = await Promise.all([
-    fetchRatio('globalLongShortAccountRatio'),
-    fetchRatio('topLongShortPositionRatio'),
-    fetchRatio('globalLongShortAccountRatio', '5m', 48),
-  ]);
-  if (glob && glob[0]) {
-    const longPct = parseFloat(glob[0].longAccount) * 100;
-    renderTow(longPct);
-    renderCrowd('antL','antR','antNum', longPct);
-    if (whalePos && whalePos[0]) {
-      const wl = parseFloat(whalePos[0].longAccount) * 100;
-      renderCrowd('whaleL','whaleR','whaleNum', wl);
-      const [txt, hot] = divergeVerdict(longPct, wl);
-      $('diverge').innerHTML = txt; $('diverge').classList.toggle('hot', hot);
-    }
-  }
-  if (hist) { towSparkData = hist.map(d => parseFloat(d.longAccount)*100); drawSpark(); }
-}
-
-async function pulseRefresh() {
-  const t = await fetchRatio('takerlongshortRatio');
-  if (!t || !t[0]) return;
-  const buy = parseFloat(t[0].buyVol), sell = parseFloat(t[0].sellVol);
-  const buyPct = buy/(buy+sell)*100;
-  $('pulseCore').textContent = buyPct.toFixed(0) + '%';
-  $('pulseCore').style.color = buyPct>=50 ? 'var(--grn)' : 'var(--red)';
-  $('pulseLbl').innerHTML = buyPct>=50
-    ? `공격 매수 우위 — 시장가로 <b style="color:var(--grn)">사는</b> 손이 많다`
-    : `공격 매도 우위 — 시장가로 <b style="color:var(--red)">던지는</b> 손이 많다`;
-  const ring = $('pulseRing');
-  ring.style.borderColor = buyPct>=50 ? 'var(--grn)' : 'var(--red)';
-  ring.classList.remove('beat'); void ring.offsetWidth; ring.classList.add('beat');
-}
-
-let arenaStarted = false;
-function arenaOpen() {
-  arenaRefresh(); pulseRefresh();
-  if (!arenaStarted) {
-    arenaStarted = true;
-    arenaTimer = setInterval(arenaRefresh, 90000);   // 5분 갱신 데이터 → 90초 폴링
-    arenaPulseTimer = setInterval(pulseRefresh, 15000);
-    window.addEventListener('resize', drawSpark);
-  }
-}
-window.arenaOpen = arenaOpen;
+function arenaTick(){const now=Date.now();if(now>=arena.roundEnd){if(arena.hasData)finishArenaRound();arena.roundEnd=(Math.floor(now/300000)+1)*300000;arena.priceOpen=usd||null;arena.oiOpen=arena.oi;arena.leader=null;}const left=arena.roundEnd-now;$('arenaClock').textContent=mmss(left);$('arenaRound').textContent='#'+String(Math.floor((arena.roundEnd-1)/300000)).slice(-4);$('bullStreak').textContent=arenaStreak.bull;$('bearStreak').textContent=arenaStreak.bear;$('finalBell').classList.toggle('on',left<=30000);renderArena();}
+async function arenaRefresh(){const [glob,whalePos,hist,oi]=await Promise.all([fetchRatio('globalLongShortAccountRatio'),fetchRatio('topLongShortPositionRatio'),fetchRatio('globalLongShortAccountRatio','5m',48),fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT').then(r=>r.json()).catch(()=>null)]);if(glob?.[0]){arena.ant=parseFloat(glob[0].longAccount)*100;arena.hasData=true;}if(whalePos?.[0])arena.whale=parseFloat(whalePos[0].longAccount)*100;if(oi?.openInterest){arena.oi=+oi.openInterest;if(arena.oiOpen===null)arena.oiOpen=arena.oi;}renderCrowd('antL','antR','antNum',arena.ant);renderCrowd('whaleL','whaleR','whaleNum',arena.whale);const gap=arena.whale-arena.ant;$('diverge').textContent=Math.abs(gap)>=8?`VIP석이 관중석보다 ${Math.abs(gap).toFixed(0)}p 더 ${gap>0?'롱':'숏'} — 괴리 발생`:'관중석과 VIP석이 비슷한 방향입니다.';$('diverge').classList.toggle('hot',Math.abs(gap)>=8);if(hist){towSparkData=hist.map(d=>parseFloat(d.longAccount)*100);drawSpark();}}
+async function pulseRefresh(){const t=await fetchRatio('takerlongshortRatio');if(!t?.[0])return;const buy=+t[0].buyVol,sell=+t[0].sellVol;arena.taker=buy/(buy+sell)*100;arena.hasData=true;$('pulseCore').textContent=arena.taker.toFixed(0)+'%';$('pulseCore').style.color=arena.taker>=50?'var(--grn)':'var(--red)';$('pulseLbl').textContent=arena.taker>=50?'공격 매수 우위':'공격 매도 우위';const ring=$('pulseRing');ring.style.borderColor=arena.taker>=50?'var(--grn)':'var(--red)';ring.classList.remove('beat');void ring.offsetWidth;ring.classList.add('beat');}
+let arenaStarted=false;function arenaOpen(){arenaRefresh();pulseRefresh();if(arena.priceOpen===null)arena.priceOpen=usd||null;renderLedger();arenaTick();if(!arenaStarted){arenaStarted=true;arenaTimer=setInterval(arenaRefresh,30000);arenaPulseTimer=setInterval(pulseRefresh,10000);arenaTickTimer=setInterval(arenaTick,1000);window.addEventListener('resize',drawSpark);}}
+window.arenaOpen=arenaOpen;
 
 // ═══ 전략가 스타일 레이더 ═══
 function drawRadar(id, vals, color) {
@@ -2344,6 +2667,10 @@ wsl.onmessage = ev => {
   }
   const o = ldata.o;
   const val = +o.q * +o.ap, longLiq = o.S === 'SELL';
+  towerAdd(longLiq, val, o.s.replace('USDT',''));
+  if (val >= 100000) {
+    pitSignal('liquidation', Math.min(92,65+Math.log10(val/100000)*20), longLiq?'🩸':'⚡', 'LIQUIDATION', `${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산`, `${moneyShort(val)} 강제 청산 — 청산 타워가 흔들립니다.`, longLiq?'#f87171':'#4ade80');
+  }
   if (o.s !== 'BTCUSDT') {
     if (val >= 200000) say('sys','', `💥 ${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산 <b class="num ${longLiq?'dn':'up'}">$${fmt(val/1000)}K</b>`);
     return;
