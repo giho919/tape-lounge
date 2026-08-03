@@ -1299,6 +1299,7 @@ function checkTreasure(k) {
   if (treasure.high && !treasure.highOpen && +k.h >= treasure.high) openTreasure('high', k);
   if (treasure.low && !treasure.lowOpen && +k.l <= treasure.low) openTreasure('low', k);
 }
+let whaleMarkerTimer = null;
 function recordWhaleFootprint(val, isBuy, tradeTime) {
   const time = Math.floor(tradeTime/60000)*60;
   const w = whaleBuckets.get(time) || {time,buy:0,sell:0,count:0};
@@ -1307,7 +1308,10 @@ function recordWhaleFootprint(val, isBuy, tradeTime) {
   while (whaleBuckets.size > 24) whaleBuckets.delete(whaleBuckets.keys().next().value);
   $('whaleHud').textContent = `🐋 ${isBuy?'BUY':'SELL'} ${moneyShort(val)}`;
   $('whaleHud').classList.add('hot'); setTimeout(()=>$('whaleHud').classList.remove('hot'), 1400);
-  renderBtcMarkers();
+  if (!whaleMarkerTimer) whaleMarkerTimer = setTimeout(() => {
+    whaleMarkerTimer = null;
+    renderBtcMarkers();
+  }, 500);
 }
 
 async function seedAll() {
@@ -1468,15 +1472,54 @@ function alignPanels(){
 window.addEventListener('resize', alignPanels);
 requestAnimationFrame(() => requestAnimationFrame(alignPanels));
 setTimeout(alignPanels, 400);
+// 체결 폭주나 프레임 지연 때 시각 연출만 낮춘다. 원본 거래 계산은 항상 전부 처리한다.
+let effectQuality = 1, effectRateQuality = 1, effectFrameQuality = 1;
+let effectTradeCount = 0, effectRateAt = performance.now();
+let effectLastFrame = performance.now(), effectFrameAvg = 16.7, effectTuneAt = performance.now();
+function noteEffectTrade() { effectTradeCount++; }
+function sampleEffectLoad(now) {
+  const rateElapsed = now - effectRateAt;
+  if (rateElapsed >= 500) {
+    const rate = effectTradeCount * 1000 / rateElapsed;
+    effectRateQuality = rate > 120 ? .32 : rate > 70 ? .48 : rate > 35 ? .66 : rate > 18 ? .82 : 1;
+    effectTradeCount = 0; effectRateAt = now;
+  }
+  const dt = now - effectLastFrame; effectLastFrame = now;
+  if (dt > 0 && dt < 120) effectFrameAvg = effectFrameAvg * .92 + dt * .08;
+  if (now - effectTuneAt >= 500) {
+    effectFrameQuality = effectFrameAvg > 30 ? .38 : effectFrameAvg > 24 ? .56 : effectFrameAvg > 20 ? .72 : effectFrameAvg > 18 ? .86 : 1;
+    const target = Math.min(effectRateQuality, effectFrameQuality);
+    effectQuality += (target - effectQuality) * (target < effectQuality ? .45 : .12);
+    effectTuneAt = now;
+  }
+}
 const drops = [], rings = [];
 let buyVol = 0, sellVol = 0;  // 60초 수급
-function spawnDrop(valUsd, isBuy) {
+function spawnDrop(valUsd, isBuy, isWhale = valUsd >= 500000) {
+  if (document.hidden) return;
   const r = Math.max(1.5, Math.min(30, Math.pow(valUsd, 0.38) / 5));
   const half = rain.width / 2;
   const x = isBuy ? half + 10 + Math.random() * (half - 30) : 10 + Math.random() * (half - 30);
-  drops.push({ x, y: -10, vy: 2 + Math.random()*2 + r*0.12, r, side:isBuy, val:valUsd, alpha: 1 });
-  if (drops.length > 500) drops.splice(0, drops.length - 500);
+  drops.push({ x, y: -10, vy: 2 + Math.random()*2 + r*0.12, r, side:isBuy, val:valUsd, whale:isWhale, alpha: 1 });
+  const cap = Math.round(100 + 160 * effectQuality);
+  if (drops.length > cap) drops.splice(0, drops.length - cap);
 }
+const tapeVisualBucket = {buy:0, sell:0, buyMax:0, sellMax:0};
+function queueTapeVisual(val, isBuy) {
+  noteEffectTrade();
+  const side = isBuy ? 'buy' : 'sell';
+  tapeVisualBucket[side] += val;
+  tapeVisualBucket[side + 'Max'] = Math.max(tapeVisualBucket[side + 'Max'], val);
+}
+setInterval(() => {
+  const buy = tapeVisualBucket.buy, sell = tapeVisualBucket.sell;
+  const buyMax = tapeVisualBucket.buyMax, sellMax = tapeVisualBucket.sellMax;
+  tapeVisualBucket.buy = 0; tapeVisualBucket.sell = 0;
+  tapeVisualBucket.buyMax = 0; tapeVisualBucket.sellMax = 0;
+  if (document.hidden) return;
+  if (buy > 0) { spawnDrop(buy, true, buyMax >= 500000); bookHit(buy, true); }
+  if (sell > 0) { spawnDrop(sell, false, sellMax >= 500000); bookHit(sell, false); }
+}, 80);
 if (!localStorage.getItem('salonRainIntro')) $('rainIntro').classList.remove('hidden');
 function rainIntroClose() {
   $('rainIntro').classList.add('hidden');
@@ -1502,7 +1545,7 @@ window.rainIntroClose = rainIntroClose;
       rctx.beginPath(); rctx.moveTo(d.x, d.y - d.r*2.2); rctx.lineTo(d.x, d.y - d.r);
       rctx.strokeStyle = `rgba(${col},.25)`; rctx.lineWidth = d.r*.6; rctx.stroke();
     }
-    if (d.val >= 500000) { rctx.strokeStyle = 'rgba(212,175,55,.9)'; rctx.lineWidth = 2; rctx.beginPath(); rctx.arc(d.x,d.y,d.r+2,0,7); rctx.stroke(); }
+    if (d.whale) { rctx.strokeStyle = 'rgba(212,175,55,.9)'; rctx.lineWidth = 2; rctx.beginPath(); rctx.arc(d.x,d.y,d.r+2,0,7); rctx.stroke(); }
     if (d.r >= 12) {
       rctx.fillStyle = 'rgba(10,12,16,.9)'; rctx.font = `bold ${Math.max(8,d.r*.55)}px Menlo`; rctx.textAlign='center';
       rctx.fillText('$'+(d.val >= 1e6 ? (d.val/1e6).toFixed(1)+'M' : (d.val/1000|0)+'K'), d.x, d.y+3);
@@ -1905,6 +1948,8 @@ function sizeFx(){ fx.width = innerWidth; fx.height = innerHeight; }
 sizeFx(); window.addEventListener('resize', sizeFx);
 const fxP = [];
 function fxBurst({up=true, count=80, colors=['74,222,128'], gravity=0.12, speed=9}) {
+  if (document.hidden) return;
+  count = Math.max(12, Math.round(count * effectQuality));
   for (let i=0; i<count; i++) {
     fxP.push({
       x: Math.random()*fx.width,
@@ -1917,8 +1962,11 @@ function fxBurst({up=true, count=80, colors=['74,222,128'], gravity=0.12, speed=
       life: 1,
     });
   }
+  const cap = Math.round(120 + 240 * effectQuality);
+  if (fxP.length > cap) fxP.splice(0, fxP.length - cap);
 }
-(function drawFx(){
+(function drawFx(now = performance.now()){
+  sampleEffectLoad(now);
   fctx.clearRect(0,0,fx.width,fx.height);
   for (let i=fxP.length-1; i>=0; i--) {
     const p = fxP[i];
@@ -2312,10 +2360,10 @@ function renderBook() {
   $('bookSpread').textContent = '스프레드 ' + spread.toFixed(1);
 }
 function bookBreak(rowEl, usd) {
-  if (!rowEl || rowEl.style.visibility === 'hidden') return;
+  if (document.hidden || !rowEl || rowEl.style.visibility === 'hidden') return;
   rowEl.classList.remove('break'); void rowEl.offsetWidth; rowEl.classList.add('break');
   const panel = $('bookPanel'), pr = panel.getBoundingClientRect(), rect = rowEl.getBoundingClientRect();
-  const n = Math.min(12, 4 + Math.floor(usd / 40000));
+  const n = Math.max(2, Math.round(Math.min(12, 4 + Math.floor(usd / 40000)) * effectQuality));
   const isAsk = rowEl.classList.contains('ask');
   for (let i = 0; i < n; i++) {
     const s = document.createElement('div'); s.className = 'shard';
@@ -2335,7 +2383,7 @@ function bookBreak(rowEl, usd) {
 function bookHit(usd, isBuy) {
   // 시장가 매수 → 매도벽(ask) 최저가부터 / 매도 → 매수벽(bid) 최고가부터 소비
   const rows = isBuy ? [...bookAskEl.children].reverse() : [...bookBidEl.children];
-  const hitN = usd >= 250000 ? 3 : usd >= 60000 ? 2 : 1;
+  const hitN = effectQuality < .7 ? 1 : usd >= 250000 ? 3 : usd >= 60000 ? 2 : 1;
   let done = 0;
   for (const row of rows) { if (row.style.visibility === 'hidden') continue; bookBreak(row, usd); if (++done >= hitN) break; }
 }
@@ -2443,8 +2491,7 @@ ws.onmessage = ev => {
       $('liveChg').textContent = (chg>=0?'+':'') + chg.toFixed(2) + '% (24h)';
       $('liveChg').className = 'num ' + (chg>=0?'up':'dn');
     }
-    spawnDrop(val, isBuy);
-    bookHit(val, isBuy);
+    queueTapeVisual(val, isBuy);
     if (isBuy) bossAttack(val, px);
     checkBreakout(px);
     if (isBuy) buyVol += val; else sellVol += val;

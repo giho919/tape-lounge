@@ -63,6 +63,7 @@ Every **real trade** happening on Binance right now falls as a raindrop.
 - Gold ring = $500k+ whale / 금테 = $50만+ 고래
 - Spreading ripples = futures liquidations / 퍼지는 파문 = 선물 강제 청산
 - Bottom bar = buy/sell pressure / 하단 수급 바 = 매수·매도 압력
+- Adaptive FX quality batches dense fills and scales particles only under load / 체결 폭주 시 연출을 합산하고 파티클 품질만 자동 조절
 
 ### Order Book 📊 · 호가창
 
