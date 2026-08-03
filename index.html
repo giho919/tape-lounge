@@ -566,7 +566,7 @@ body.shake { animation:shake .5s; }
 
   <div class="spectatorGrid">
     <div class="panel spectatorCard">
-      <h3>🧱 청산 타워 <small>전 시장 · 5분 누적</small></h3>
+      <h3>🧱 청산 타워 <small>전 시장 · 접속 후 최대 5분</small></h3>
       <div class="towerBody">
         <div class="towerSide long">
           <div class="towerHead"><span>롱 청산</span><b id="towerLongTotal">$0</b></div>
@@ -594,7 +594,7 @@ body.shake { animation:shake .5s; }
 
   <div class="casinoDuo">
     <div class="panel jackpotCard" id="jackpotCard">
-      <h3>🎰 청산 잭팟 <small>전 시장 · 최근 15분</small></h3>
+      <h3>🎰 청산 잭팟 <small>전 시장 · 접속 후 최대 15분</small></h3>
       <div class="jackpotBody">
         <div class="jackpotTop"><div class="jackpotTotal" id="jackpotTotal">$0</div><div class="jackpotStage" id="jackpotStage">COLD</div></div>
         <div class="jackpotMeter" aria-label="청산 잭팟 충전율"><i id="jackpotFill"></i></div>
@@ -2020,11 +2020,12 @@ setInterval(() => {
   $('pitGauge').style.width = Math.max(0, left/span*100) + '%';
 }, 500);
 
+let liqStreamState = 'connecting';
 let towerLongSum = 0, towerShortSum = 0, towerRoundEnd = (Math.floor(Date.now()/300000)+1)*300000, towerCrashed = false;
 function towerRender() {
   $('towerLongTotal').textContent = moneyShort(towerLongSum);
   $('towerShortTotal').textContent = moneyShort(towerShortSum);
-  if (!towerLongSum && !towerShortSum) $('towerVerdict').textContent = '첫 블록을 기다리는 중';
+  if (!towerLongSum && !towerShortSum) $('towerVerdict').textContent = liqStreamState === 'live' ? 'LIVE · 첫 청산을 기다리는 중' : '청산 스트림 연결 중';
   else {
     const longWins = towerLongSum >= towerShortSum;
     const hi = Math.max(towerLongSum,towerShortSum), lo = Math.min(towerLongSum,towerShortSum);
@@ -2075,10 +2076,10 @@ function jackpotRender() {
   $('jackpotLong').textContent = moneyShort(t.long);
   $('jackpotShort').textContent = moneyShort(t.short);
   $('jackpotFill').style.width = pct + '%';
-  const stage = pct >= 100 ? 'JACKPOT' : pct >= 75 ? 'ARMED' : pct >= 50 ? 'HOT' : pct >= 25 ? 'WARM' : 'COLD';
+  const stage = liqStreamState !== 'live' && !t.total ? 'CONNECTING' : pct >= 100 ? 'JACKPOT' : pct >= 75 ? 'ARMED' : pct >= 50 ? 'HOT' : pct >= 25 ? 'WARM' : 'COLD';
   $('jackpotStage').textContent = stage;
   $('jackpotStage').style.color = pct >= 75 ? '#fff0a8' : 'var(--gold)';
-  $('jackpotLead').textContent = !t.total ? '청산 전표를 기다리는 중' : t.long >= t.short ? `롱 청산이 ${moneyShort(t.long-t.short)} 우세` : `숏 청산이 ${moneyShort(t.short-t.long)} 우세`;
+  $('jackpotLead').textContent = !t.total ? (liqStreamState === 'live' ? 'LIVE · 새 청산을 기다리는 중' : '청산 스트림 연결 중') : t.long >= t.short ? `롱 청산이 ${moneyShort(t.long-t.short)} 우세` : `숏 청산이 ${moneyShort(t.short-t.long)} 우세`;
   if (t.total < JACKPOT_TARGET * .45) jackpotReady = true;
 }
 function jackpotFire(t) {
@@ -2227,7 +2228,7 @@ function bookHit(usd, isBuy) {
   for (const row of rows) { if (row.style.visibility === 'hidden') continue; bookBreak(row, usd); if (++done >= hitN) break; }
 }
 
-let boss = {active:false,nextAt:0};
+let boss = {active:false,nextAt:0,lastPx:0};
 function bossAnimate(cls) {
   const card = $('bossCard'); card.classList.remove(cls); void card.offsetWidth; card.classList.add(cls);
   setTimeout(() => card.classList.remove(cls), 700);
@@ -2243,9 +2244,10 @@ function bossRender() {
 }
 function bossStart() {
   if (boss.active || Date.now() < boss.nextAt || !bookAsks.length || !usd) return;
-  const wall = bookAsks.slice(0,20).map(a => ({key:String(a[0]),price:+a[0],qty:+a[1],value:+a[0]*+a[1]})).sort((a,b)=>b.value-a.value)[0];
+  const marketFloor = Math.max(usd, bookBids.length ? +bookBids[0][0] : 0);
+  const wall = bookAsks.slice(0,20).map(a => ({key:String(a[0]),price:+a[0],qty:+a[1],value:+a[0]*+a[1]})).filter(a => a.price > marketFloor).sort((a,b)=>b.value-a.value)[0];
   if (!wall || !Number.isFinite(wall.value) || wall.value <= 0) return;
-  boss = {active:true,nextAt:0,key:wall.key,price:wall.price,maxHp:wall.value,hp:wall.value,attack:0,ends:Date.now()+60000,missingSince:0};
+  boss = {active:true,nextAt:0,key:wall.key,price:wall.price,maxHp:wall.value,hp:wall.value,attack:0,ends:Date.now()+60000,missingSince:0,lastPx:usd};
   $('bossName').textContent = 'BTC vs 매도벽';
   $('bossState').textContent = 'BATTLE';
   $('bossEmoji').textContent = '🏰';
@@ -2255,7 +2257,7 @@ function bossStart() {
 function bossFinish(result) {
   if (!boss.active) return;
   const price = boss.price, attack = boss.attack;
-  boss.active = false; boss.nextAt = Date.now() + 5000;
+  boss.active = false; boss.nextAt = Date.now() + 30000;
   $('bossClock').textContent = '00:00';
   if (result === 'defeat') {
     $('bossState').textContent = 'DEFEATED'; $('bossEmoji').textContent = '💥'; $('bossHpFill').style.width = '0%';
@@ -2272,7 +2274,6 @@ function bossFinish(result) {
 }
 function bossBookUpdate() {
   if (!boss.active) { bossStart(); return; }
-  if (usd >= boss.price) { bossFinish('defeat'); return; }
   const wall = bookAsks.find(a => String(a[0]) === boss.key);
   if (!wall) {
     if (!boss.missingSince) boss.missingSince = Date.now();
@@ -2281,6 +2282,12 @@ function bossBookUpdate() {
   }
   boss.missingSince = 0;
   boss.hp = Math.min(boss.hp, +wall[0] * +wall[1]);
+}
+function bossPriceTick(px) {
+  if (!boss.active) { bossStart(); return; }
+  const previous = boss.lastPx;
+  boss.lastPx = px;
+  if (Number.isFinite(previous) && previous < boss.price && px >= boss.price) bossFinish('defeat');
 }
 function bossAttack(val, px) {
   if (!boss.active || !Number.isFinite(val)) return;
@@ -2315,6 +2322,7 @@ ws.onmessage = ev => {
   if (stream.endsWith('aggTrade')) {
     const px = +data.p, qty = +data.q, val = px*qty, isBuy = !data.m;
     usd = px;
+    bossPriceTick(px);
     $('btcUsd').textContent = '$ ' + fmt(px, 0);
     setFlap(fmt(px, 1));
     $('livePx').style.color = isBuy ? 'var(--grn)' : 'var(--red)';
@@ -2876,16 +2884,37 @@ drawRadar('rd_madam',  [85, 70, 60, 35, 95], '#ec4899');
 drawRadar('rd_andy',   [90, 40, 55, 65, 50], '#3b82f6');
 drawRadar('rd_justin', [55, 85, 90, 75, 80], '#10b981');
 
-// 선물 청산
-const wsl = new WebSocket('wss://fstream.binance.com/stream?streams=!forceOrder@arr/btcdomusdt@kline_1m');
-wsl.onmessage = ev => {
+// 선물 청산 — Binance 현행 market 스트림, 끊김 시 자동 재연결
+let wsl, liqReconnectTimer;
+const seenLiquidations = new Set();
+function setLiqStreamState(state) {
+  liqStreamState = state;
+  towerRender(); jackpotRender();
+}
+function connectLiquidations() {
+  clearTimeout(liqReconnectTimer);
+  setLiqStreamState('connecting');
+  wsl = new WebSocket('wss://fstream.binance.com/market/stream?streams=!forceOrder@arr/btcdomusdt@kline_1m');
+  wsl.onopen = () => setLiqStreamState('live');
+  wsl.onclose = () => {
+    setLiqStreamState('connecting');
+    liqReconnectTimer = setTimeout(connectLiquidations, 3000);
+  };
+  wsl.onerror = () => wsl.close();
+  wsl.onmessage = ev => {
   const { stream: lst, data: ldata } = JSON.parse(ev.data);
   if (lst === 'btcdomusdt@kline_1m') {
     $('domPx').textContent = fmt(+ldata.k.c, 1);   // 차트 갱신은 wsChartF 담당
     return;
   }
   const o = ldata.o;
-  const val = +o.q * +o.ap, longLiq = o.S === 'SELL';
+  if (!o) return;
+  const eventKey = `${o.s}:${o.S}:${o.T}:${o.z}`;
+  if (seenLiquidations.has(eventKey)) return;
+  seenLiquidations.add(eventKey);
+  if (seenLiquidations.size > 500) seenLiquidations.delete(seenLiquidations.values().next().value);
+  const val = +(o.z || o.q) * +(o.ap || o.p), longLiq = o.S === 'SELL';
+  if (!Number.isFinite(val) || val <= 0) return;
   jackpotAdd(longLiq, val);
   towerAdd(longLiq, val, o.s.replace('USDT',''));
   if (val >= 100000) {
@@ -2901,7 +2930,9 @@ wsl.onmessage = ev => {
   flash.style.opacity = 1; setTimeout(()=>flash.style.opacity=0, 1800);
   rings.push({ x: 30+Math.random()*(rain.width-60), y: 50+Math.random()*180, r: 4, max: Math.max(40, Math.min(160, Math.sqrt(val)/7)), side: !longLiq });
   if (val >= 30000) say('sys','', `💥 ${longLiq?'롱':'숏'} 청산 <b class="num ${longLiq?'dn':'up'}">$${fmt(val/1000)}K</b>`);
-};
+  };
+}
+connectLiquidations();
 </script>
 </body>
 </html>
