@@ -2245,7 +2245,7 @@ function bossRender() {
 function bossStart() {
   if (boss.active || Date.now() < boss.nextAt || !bookAsks.length || !usd) return;
   const marketFloor = Math.max(usd, bookBids.length ? +bookBids[0][0] : 0);
-  const wall = bookAsks.slice(0,20).map(a => ({key:String(a[0]),price:+a[0],qty:+a[1],value:+a[0]*+a[1]})).filter(a => a.price > marketFloor).sort((a,b)=>b.value-a.value)[0];
+  const wall = bookAsks.slice(3,20).map(a => ({key:String(a[0]),price:+a[0],qty:+a[1],value:+a[0]*+a[1]})).filter(a => a.price >= marketFloor * 1.00015 && a.value >= 50000).sort((a,b)=>b.value-a.value)[0];
   if (!wall || !Number.isFinite(wall.value) || wall.value <= 0) return;
   boss = {active:true,nextAt:0,key:wall.key,price:wall.price,maxHp:wall.value,hp:wall.value,attack:0,ends:Date.now()+60000,missingSince:0,lastPx:usd};
   $('bossName').textContent = 'BTC vs 매도벽';
@@ -2257,7 +2257,7 @@ function bossStart() {
 function bossFinish(result) {
   if (!boss.active) return;
   const price = boss.price, attack = boss.attack;
-  boss.active = false; boss.nextAt = Date.now() + 30000;
+  boss.active = false; boss.nextAt = Date.now() + 90000;
   $('bossClock').textContent = '00:00';
   if (result === 'defeat') {
     $('bossState').textContent = 'DEFEATED'; $('bossEmoji').textContent = '💥'; $('bossHpFill').style.width = '0%';
