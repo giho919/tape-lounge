@@ -202,6 +202,11 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .chd { display:flex; gap:12px; align-items:baseline; padding:8px 14px; font-size:11px; color:var(--dim); border-bottom:1px solid var(--line); }
 .chd .sym { color:#fff; font-weight:700; letter-spacing:1px; }
 .chd .px2 { font-size:14px; color:#fff; }
+.caroPage { position:relative; }
+.chartFunHud { position:absolute; top:44px; left:11px; z-index:4; display:flex; gap:5px; pointer-events:none; }
+.chartFunHud span { padding:4px 7px; border:1px solid rgba(138,115,37,.48); border-radius:5px; background:rgba(10,12,16,.82); color:#aeb4bf; font:700 8px Menlo,monospace; letter-spacing:.4px; backdrop-filter:blur(3px); }
+.chartFunHud .hot { color:#fff0a8; border-color:var(--gold); box-shadow:0 0 12px rgba(212,175,55,.18); }
+@media(max-width:620px){.chartFunHud{top:43px;left:7px;gap:3px}.chartFunHud span{padding:3px 5px;font-size:7px}}
 #rainLegend { display:flex; gap:14px; align-items:center; padding:7px 15px; font-size:10.5px; color:var(--dim); border-bottom:1px solid var(--line); flex-wrap:wrap; }
 #rainLegend .d { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:-1px; }
 #rainIntro { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.82); backdrop-filter:blur(3px);
@@ -653,6 +658,7 @@ body.shake { animation:shake .5s; }
       </div>
       <div class="caroPage" data-p="0">
         <div class="chd"><span class="sym">BTC/USDT</span><span class="px2 num" id="livePx">—</span><span class="num" id="liveChg">—</span><span style="margin-left:auto">마감 <b class="num" id="cd">--</b></span></div>
+        <div class="chartFunHud"><span id="comboHud">COMBO —</span><span id="chestHud">🧰 CHEST SCAN</span><span id="whaleHud">🐋 ≥ $500K</span></div>
         <div id="c_btc" class="chart"></div>
       </div>
       <div class="caroPage hidden" data-p="1">
@@ -1153,6 +1159,17 @@ const predAnchor = cBTC.ch.addLineSeries({
   color: 'rgba(0,0,0,0)', lineWidth: 1, priceLineVisible: false,
   lastValueVisible: false, crosshairMarkerVisible: false,
 });
+let predCurrentMarkers = [], comboMarkers = [], treasureMarkers = [];
+const whaleBuckets = new Map();
+function renderBtcMarkers() {
+  const whales = chartTf === '1m' ? [...whaleBuckets.values()].map(w => {
+    const buy = w.buy >= w.sell, total = w.buy + w.sell;
+    return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle', text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
+  }) : [];
+  const all = [...comboMarkers, ...treasureMarkers, ...whales.slice(-12), ...predCurrentMarkers];
+  all.sort((a,b) => a.time - b.time);
+  cBTC.s.setMarkers(all);
+}
 
 // 캐러셀 (BTC / ETH / BTC.D / NASDAQ)
 let caroIdx = 0;
@@ -1198,6 +1215,79 @@ const CHART_SYMS = [
 ];
 const chartOf = i => [cBTC, cETH, cDOM, cQQQ][i];
 let chartSeed = [null, null, null, null];
+let lastBtcKt = null, lastBtcClose = null, lastBtcClosedTime = null, predWsTime = null;
+const treasure = { high:null, low:null, highLine:null, lowLine:null, highOpen:false, lowOpen:false };
+
+function closedBtcBars() {
+  const seed = chartSeed[0] || [];
+  if (!seed.length) return [];
+  const last = seed[seed.length-1];
+  const lastIsClosed = lastBtcClosedTime === last[0] || (lastBtcKt !== null && last[0] < lastBtcKt);
+  return seed.slice(0, lastIsClosed ? seed.length : -1);
+}
+function refreshComboMarkers() {
+  const bars = closedBtcBars().slice(-80), marks = [];
+  let dir = 0, streak = 0;
+  for (const k of bars) {
+    const next = +k[4] > +k[1] ? 1 : +k[4] < +k[1] ? -1 : 0;
+    if (!next) { dir = 0; streak = 0; continue; }
+    if (next === dir) streak++;
+    else {
+      if (streak >= 3) marks.push({ time:k[0]/1000, position:next>0?'belowBar':'aboveBar', color:'#d4af37', shape:'circle', text:'✂ COMBO BREAK' });
+      dir = next; streak = 1;
+    }
+    if ([3,5,8].includes(streak)) marks.push({ time:k[0]/1000, position:dir>0?'belowBar':'aboveBar', color:dir>0?'#4ade80':'#f87171', shape:'circle', text:`🔥 ${streak} COMBO` });
+  }
+  comboMarkers = marks.slice(-10);
+  $('comboHud').textContent = streak >= 2 ? `🔥 ${streak} ${dir>0?'UP':'DOWN'}` : 'COMBO —';
+  $('comboHud').classList.toggle('hot', streak >= 3);
+  renderBtcMarkers();
+}
+function clearTreasureLines() {
+  if (treasure.highLine) cBTC.s.removePriceLine(treasure.highLine);
+  if (treasure.lowLine) cBTC.s.removePriceLine(treasure.lowLine);
+  treasure.highLine = treasure.lowLine = null;
+}
+function refreshTreasureLevels() {
+  const bars = closedBtcBars().slice(-40);
+  if (bars.length < 10) return;
+  clearTreasureLines();
+  const highBar = bars.reduce((a,b) => +b[2] > +a[2] ? b : a);
+  const lowBar = bars.reduce((a,b) => +b[3] < +a[3] ? b : a);
+  treasure.high = +highBar[2]; treasure.low = +lowBar[3];
+  treasure.highOpen = treasure.lowOpen = false;
+  treasure.highLine = cBTC.s.createPriceLine({ price:treasure.high, color:'rgba(212,175,55,.65)', lineWidth:1, lineStyle:2, axisLabelVisible:true, title:'🧰 HIGH' });
+  treasure.lowLine = cBTC.s.createPriceLine({ price:treasure.low, color:'rgba(34,211,238,.55)', lineWidth:1, lineStyle:2, axisLabelVisible:true, title:'🧰 LOW' });
+  $('chestHud').textContent = `🧰 ${fmt(treasure.low,0)} ↔ ${fmt(treasure.high,0)}`;
+}
+function openTreasure(side, k) {
+  const isHigh = side === 'high', bars = closedBtcBars().slice(-30);
+  const avgVol = bars.length ? bars.reduce((s,b)=>s + +b[5],0)/bars.length : 0;
+  const volRatio = avgVol ? +k.v/avgVol : 1;
+  const rank = volRatio >= 2.5 ? '💎 DIAMOND' : volRatio >= 1.5 ? '🥇 GOLD' : '🥉 BRONZE';
+  const mark = { time:k.t/1000, position:isHigh?'belowBar':'aboveBar', color:isHigh?'#d4af37':'#22d3ee', shape:isHigh?'arrowUp':'arrowDown', text:`${rank} CHEST` };
+  treasureMarkers = [...treasureMarkers, mark].slice(-8);
+  if (isHigh) { treasure.highOpen = true; if (treasure.highLine) cBTC.s.removePriceLine(treasure.highLine); treasure.highLine = null; }
+  else { treasure.lowOpen = true; if (treasure.lowLine) cBTC.s.removePriceLine(treasure.lowLine); treasure.lowLine = null; }
+  $('chestHud').textContent = `OPEN · ${rank}`;
+  $('chestHud').classList.add('hot'); setTimeout(()=>$('chestHud').classList.remove('hot'), 1800);
+  addHighlight('🧰', `${isHigh?'고점':'저점'} 보물상자 개봉`, `${rank} · 거래량 ${volRatio.toFixed(1)}×`, isHigh?'up':'dn');
+  renderBtcMarkers();
+}
+function checkTreasure(k) {
+  if (treasure.high && !treasure.highOpen && +k.h >= treasure.high) openTreasure('high', k);
+  if (treasure.low && !treasure.lowOpen && +k.l <= treasure.low) openTreasure('low', k);
+}
+function recordWhaleFootprint(val, isBuy, tradeTime) {
+  const time = Math.floor(tradeTime/60000)*60;
+  const w = whaleBuckets.get(time) || {time,buy:0,sell:0,count:0};
+  if (isBuy) w.buy += val; else w.sell += val;
+  w.count++; whaleBuckets.set(time, w);
+  while (whaleBuckets.size > 24) whaleBuckets.delete(whaleBuckets.keys().next().value);
+  $('whaleHud').textContent = `🐋 ${isBuy?'BUY':'SELL'} ${moneyShort(val)}`;
+  $('whaleHud').classList.add('hot'); setTimeout(()=>$('whaleHud').classList.remove('hot'), 1400);
+  renderBtcMarkers();
+}
 
 async function seedAll() {
   await Promise.all(CHART_SYMS.map(async (cs, i) => {
@@ -1213,6 +1303,8 @@ async function seedAll() {
       if (i === 2 && kl.length) $('domPx').textContent = fmt(+kl[kl.length - 1][4], 1);
     } catch(e) { chartSeed[i] = null; }
   }));
+  refreshComboMarkers();
+  refreshTreasureLevels();
 }
 
 let wsChart = null, wsChartF = null;
@@ -1254,7 +1346,7 @@ function handleChartK(stream, k) {
   chartOf(i).s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
   chartOf(i).vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
   maTick(i, k);
-  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; updatePredMarkers(); }
+  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; checkTreasure(k); updatePredMarkers(); }
   if (i === 1) {
     $('ethPx').textContent = fmt(+k.c, 1);
     if (ethOpen) {
@@ -1279,6 +1371,7 @@ function handleChartK(stream, k) {
       else chartSeed[i].push([k.t, k.o, k.h, k.l, k.c, k.v]);
       if (chartSeed[i].length > 300) chartSeed[i].shift();
     }
+    if (i === 0) { lastBtcClosedTime = k.t; refreshComboMarkers(); refreshTreasureLevels(); }
     if (i === caroIdx) dealFromSeedTail(i);
   }
 }
@@ -1494,11 +1587,10 @@ let pick = null;    // 접수 중 — 다음 봉에 걸릴 예측 (마감 전까
 let armed = null;   // 잠금 — 지금 진행 중인 봉의 예측 (이번 마감에 판정)
 
 // BTC 1분 라이브 차트에 예측 대상 봉 표시: 현재 봉=🔒(판정 중), 다음 봉 자리=? (내 예측 색)
-let lastBtcKt = null, lastBtcClose = null, predWsTime = null;
 function updatePredMarkers() {
   if (!cBTC || !cBTC.s) return;
   if (lastBtcKt === null || lastBtcClose === null || chartTf !== '1m') {
-    cBTC.s.setMarkers([]); predAnchor.setMarkers([]); predAnchor.setData([]); predWsTime = null; return;
+    predCurrentMarkers = []; renderBtcMarkers(); predAnchor.setMarkers([]); predAnchor.setData([]); predWsTime = null; return;
   }
   const curTime = Math.floor(lastBtcKt / 1000), nextTime = curTime + 60;
   if (predWsTime !== nextTime) {
@@ -1513,7 +1605,7 @@ function updatePredMarkers() {
   const next = [{ time: nextTime, position: pick === false ? 'belowBar' : 'aboveBar',
     color: pick === true ? '#4ade80' : pick === false ? '#f87171' : '#8a7325', shape: 'circle',
     text: pick === null ? '?' : (pick ? '▲?' : '▼?') }];
-  cBTC.s.setMarkers(current);
+  predCurrentMarkers = current; renderBtcMarkers();
   predAnchor.setMarkers(next);
 }
 function betRender() {
@@ -2337,6 +2429,7 @@ ws.onmessage = ev => {
     checkBreakout(px);
     if (isBuy) buyVol += val; else sellVol += val;
     if (val >= 500000) {
+      recordWhaleFootprint(val, isBuy, data.T || Date.now());
       say('sys', '', `🐳 ${isBuy?'매수':'매도'} <b class="num ${isBuy?'up':'dn'}">$${fmt(val/1000)}K</b> — 큰손 등장`);
       pitSignal('whale', Math.min(88,70+Math.log10(val/500000)*18), '🐳', 'WHALE TABLE', `BTC 고래 ${isBuy?'매수':'매도'}`, `${moneyShort(val)} 단일 체결 — VIP 테이블을 비춥니다.`, isBuy?'#4ade80':'#f87171');
       if (val >= 1000000) addHighlight('🐳', `BTC 고래 ${isBuy?'매수':'매도'}`, `${moneyShort(val)} 단일 시장가 체결`, isBuy?'up':'dn');
