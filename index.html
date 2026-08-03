@@ -291,6 +291,44 @@ body.shake { animation:shake .5s; }
 @keyframes towerCrash { 25%{transform:rotate(-4deg)} 55%{transform:rotate(11deg) translateX(8px)} 100%{transform:rotate(28deg) translate(24px,30px);opacity:0} }
 .towerFoot { display:flex; justify-content:space-between; padding:7px 16px 13px; color:var(--dim); font-size:9.5px; letter-spacing:.4px; }
 
+.casinoDuo { display:grid; grid-template-columns:.9fr 1.35fr; gap:12px; }
+.jackpotCard,.bossCard { position:relative; overflow:hidden; min-height:220px; }
+.jackpotBody { padding:15px 16px 16px; }
+.jackpotTop { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+.jackpotTotal { font:800 32px Menlo,monospace; color:#f4e6b6; text-shadow:0 0 18px rgba(212,175,55,.2); }
+.jackpotStage { padding:4px 9px; border:1px solid var(--gold-dim); border-radius:16px; font:700 9px Menlo,monospace; letter-spacing:1.4px; color:var(--gold); }
+.jackpotMeter { height:13px; margin-top:13px; padding:2px; border:1px solid var(--line); border-radius:8px; background:#090b0f; overflow:hidden; }
+.jackpotMeter i { display:block; height:100%; width:0; border-radius:5px; background:linear-gradient(90deg,#6f5820,var(--gold),#fff0a8); transition:width .45s ease; box-shadow:0 0 14px rgba(212,175,55,.45); }
+.jackpotSides { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+.jackpotSide { padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:rgba(0,0,0,.17); }
+.jackpotSide span { display:block; font-size:9px; color:var(--dim); letter-spacing:.7px; }
+.jackpotSide b { display:block; margin-top:4px; font:700 13px Menlo,monospace; }
+.jackpotSide.long b { color:var(--red); }.jackpotSide.short b { color:var(--grn); }
+.jackpotFoot { margin-top:11px; display:flex; justify-content:space-between; gap:8px; font-size:9.5px; color:var(--dim); }
+.jackpotCard.fire { animation:jackpotFire 1.2s ease-out; }
+@keyframes jackpotFire { 0%,100%{filter:none} 15%{filter:brightness(2.5);box-shadow:0 0 45px rgba(212,175,55,.7)} 35%{transform:translateY(-3px)} 55%{transform:translateY(2px)} }
+
+.bossArena { display:grid; grid-template-columns:102px 1fr; gap:15px; align-items:center; padding:13px 16px 16px; }
+.bossAvatar { width:94px; height:128px; border:1px solid #6d3030; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%,rgba(248,113,113,.18),transparent 60%),#0d0f14; box-shadow:inset 0 0 24px rgba(248,113,113,.08); }
+.bossEmoji { font-size:46px; filter:drop-shadow(0 5px 8px rgba(0,0,0,.6)); }
+.bossState { margin-top:8px; font:700 8.5px Menlo,monospace; letter-spacing:1.2px; color:var(--red); text-align:center; }
+.bossKicker { font-size:9px; color:var(--dim); letter-spacing:1.5px; }
+.bossTitle { margin-top:4px; display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+.bossTitle b { font:700 17px Georgia,serif; color:#e8d9c3; }
+.bossTitle span { font:700 13px Menlo,monospace; color:var(--red); }
+.bossHpHead { display:flex; justify-content:space-between; margin-top:12px; font-size:9px; color:var(--dim); }
+.bossHp { height:14px; padding:2px; margin-top:5px; border:1px solid #4c2929; border-radius:8px; background:#08090d; overflow:hidden; }
+.bossHp i { display:block; height:100%; width:100%; border-radius:5px; background:linear-gradient(90deg,#7f1d1d,var(--red)); transition:width .35s ease; box-shadow:0 0 12px rgba(248,113,113,.4); }
+.bossStats { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:11px; }
+.bossStat { padding:7px 9px; border:1px solid var(--line); border-radius:7px; background:rgba(0,0,0,.16); }
+.bossStat span { display:block; font-size:8.5px; color:var(--dim); }.bossStat b { display:block; margin-top:3px; font:700 11px Menlo,monospace; color:#d8dce5; }
+.bossCard.hit .bossAvatar { animation:bossHit .45s ease-out; }
+.bossCard.counter .bossAvatar { animation:bossCounter .65s ease-out; }
+@keyframes bossHit { 35%{transform:translateX(7px);filter:brightness(1.8)} 70%{transform:translateX(-3px)} }
+@keyframes bossCounter { 35%{transform:scale(1.07);box-shadow:0 0 30px rgba(248,113,113,.7)} }
+@media (max-width:900px){ .casinoDuo{grid-template-columns:1fr}.bossCard{min-height:0} }
+@media (max-width:620px){ .bossArena{grid-template-columns:78px 1fr}.bossAvatar{width:72px;height:112px}.bossEmoji{font-size:38px}.jackpotTotal{font-size:26px} }
+
 .raceRows { padding:8px 13px 10px; display:flex; flex-direction:column; gap:3px; }
 .raceRow { display:grid; grid-template-columns:42px 1fr 58px; gap:8px; align-items:center; min-height:25px; transition:order .5s; }
 .raceCoin { font:700 10.5px Menlo,monospace; color:#d7dbe4; }
@@ -503,7 +541,7 @@ body.shake { animation:shake .5s; }
     <div>
       <div class="l">김치 프리미엄</div>
       <div class="v num" id="kimchi">—</div>
-      <div class="s">업비트 vs 바이낸스</div>
+      <div class="s">빗썸 vs 바이낸스</div>
     </div>
   </div>
   <div class="tile"><div class="l">공포 · 탐욕</div><div class="v num" id="fng">—</div><div class="s" id="fngW">—</div></div>
@@ -551,6 +589,38 @@ body.shake { animation:shake .5s; }
     <div class="panel spectatorCard">
       <h3>🎞 시장 하이라이트 <small>눌러서 다시 보기</small></h3>
       <div class="highlightList" id="highlightList"></div>
+    </div>
+  </div>
+
+  <div class="casinoDuo">
+    <div class="panel jackpotCard" id="jackpotCard">
+      <h3>🎰 청산 잭팟 <small>전 시장 · 최근 15분</small></h3>
+      <div class="jackpotBody">
+        <div class="jackpotTop"><div class="jackpotTotal" id="jackpotTotal">$0</div><div class="jackpotStage" id="jackpotStage">COLD</div></div>
+        <div class="jackpotMeter" aria-label="청산 잭팟 충전율"><i id="jackpotFill"></i></div>
+        <div class="jackpotSides">
+          <div class="jackpotSide long"><span>LONG WIPEOUT</span><b id="jackpotLong">$0</b></div>
+          <div class="jackpotSide short"><span>SHORT WIPEOUT</span><b id="jackpotShort">$0</b></div>
+        </div>
+        <div class="jackpotFoot"><span id="jackpotLead">청산 전표를 기다리는 중</span><span>목표 <b class="num">$5M</b></span></div>
+      </div>
+    </div>
+
+    <div class="panel bossCard" id="bossCard">
+      <h3>👾 시장 보스전 <small>BTC RAID · 실시간 매도벽</small></h3>
+      <div class="bossArena">
+        <div class="bossAvatar"><div class="bossEmoji" id="bossEmoji">🏰</div><div class="bossState" id="bossState">SEARCHING</div></div>
+        <div>
+          <div class="bossKicker">SELL WALL ENCOUNTER · 60 SECOND BOUT</div>
+          <div class="bossTitle"><b id="bossName">다음 매도벽을 수색 중</b><span id="bossPrice">—</span></div>
+          <div class="bossHpHead"><span>WALL HP</span><b class="num" id="bossHpText">—</b></div>
+          <div class="bossHp"><i id="bossHpFill"></i></div>
+          <div class="bossStats">
+            <div class="bossStat"><span>BTC ATTACK</span><b id="bossAttack">$0</b></div>
+            <div class="bossStat"><span>TIME LEFT</span><b id="bossClock">--:--</b></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1993,6 +2063,43 @@ setInterval(() => {
 }, 500);
 towerRender();
 
+const JACKPOT_WINDOW = 15 * 60 * 1000, JACKPOT_TARGET = 5000000;
+let jackpotEvents = [], jackpotReady = true;
+function jackpotTotals(now=Date.now()) {
+  jackpotEvents = jackpotEvents.filter(e => now - e.ts <= JACKPOT_WINDOW);
+  return jackpotEvents.reduce((a,e) => { a.total += e.val; e.long ? a.long += e.val : a.short += e.val; return a; }, {total:0,long:0,short:0});
+}
+function jackpotRender() {
+  const t = jackpotTotals(), pct = Math.min(100, t.total/JACKPOT_TARGET*100);
+  $('jackpotTotal').textContent = moneyShort(t.total);
+  $('jackpotLong').textContent = moneyShort(t.long);
+  $('jackpotShort').textContent = moneyShort(t.short);
+  $('jackpotFill').style.width = pct + '%';
+  const stage = pct >= 100 ? 'JACKPOT' : pct >= 75 ? 'ARMED' : pct >= 50 ? 'HOT' : pct >= 25 ? 'WARM' : 'COLD';
+  $('jackpotStage').textContent = stage;
+  $('jackpotStage').style.color = pct >= 75 ? '#fff0a8' : 'var(--gold)';
+  $('jackpotLead').textContent = !t.total ? '청산 전표를 기다리는 중' : t.long >= t.short ? `롱 청산이 ${moneyShort(t.long-t.short)} 우세` : `숏 청산이 ${moneyShort(t.short-t.long)} 우세`;
+  if (t.total < JACKPOT_TARGET * .45) jackpotReady = true;
+}
+function jackpotFire(t) {
+  jackpotReady = false;
+  const longWipeout = t.long >= t.short, tone = longWipeout ? 'dn' : 'up';
+  const card = $('jackpotCard'); card.classList.remove('fire'); void card.offsetWidth; card.classList.add('fire');
+  fxBurst({up:!longWipeout,count:180,colors:longWipeout?['248,113,113','120,20,20']:['74,222,128','212,175,55'],speed:12});
+  fxBanner(`🎰 ${longWipeout?'롱':'숏'} 청산 잭팟<small>${moneyShort(t.total)} · 15분</small>`, longWipeout?'#f87171':'#4ade80');
+  addHighlight('🎰', `${longWipeout?'롱':'숏'} 청산 잭팟`, `15분 누적 ${moneyShort(t.total)}`, tone);
+  pitSignal('liq-jackpot', 100, '🎰', 'JACKPOT', `${longWipeout?'롱':'숏'} 청산 잭팟`, `전 시장 15분 누적 ${moneyShort(t.total)} — 보스전에 특수 효과가 발동했습니다.`, longWipeout?'#f87171':'#4ade80');
+  bossJackpotBlast(longWipeout);
+}
+function jackpotAdd(longWipeout, val) {
+  if (!Number.isFinite(val) || val < 1000) return;
+  jackpotEvents.push({ts:Date.now(),val,long:longWipeout});
+  const t = jackpotTotals(); jackpotRender();
+  if (jackpotReady && t.total >= JACKPOT_TARGET) jackpotFire(t);
+}
+setInterval(jackpotRender, 1000);
+jackpotRender();
+
 const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
 const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
 let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000, raceFullRound = false;
@@ -2120,6 +2227,88 @@ function bookHit(usd, isBuy) {
   for (const row of rows) { if (row.style.visibility === 'hidden') continue; bookBreak(row, usd); if (++done >= hitN) break; }
 }
 
+let boss = {active:false,nextAt:0};
+function bossAnimate(cls) {
+  const card = $('bossCard'); card.classList.remove(cls); void card.offsetWidth; card.classList.add(cls);
+  setTimeout(() => card.classList.remove(cls), 700);
+}
+function bossRender() {
+  if (!boss.active) return;
+  const pct = Math.max(1, Math.min(100, boss.hp/boss.maxHp*100));
+  $('bossPrice').textContent = '$' + fmt(boss.price, 1);
+  $('bossHpText').textContent = moneyShort(boss.hp) + ' / ' + moneyShort(boss.maxHp);
+  $('bossHpFill').style.width = pct + '%';
+  $('bossAttack').textContent = moneyShort(boss.attack);
+  $('bossClock').textContent = mmss(boss.ends-Date.now());
+}
+function bossStart() {
+  if (boss.active || Date.now() < boss.nextAt || !bookAsks.length || !usd) return;
+  const wall = bookAsks.slice(0,20).map(a => ({key:String(a[0]),price:+a[0],qty:+a[1],value:+a[0]*+a[1]})).sort((a,b)=>b.value-a.value)[0];
+  if (!wall || !Number.isFinite(wall.value) || wall.value <= 0) return;
+  boss = {active:true,nextAt:0,key:wall.key,price:wall.price,maxHp:wall.value,hp:wall.value,attack:0,ends:Date.now()+60000,missingSince:0};
+  $('bossName').textContent = 'BTC vs 매도벽';
+  $('bossState').textContent = 'BATTLE';
+  $('bossEmoji').textContent = '🏰';
+  bossRender();
+  pitSignal('boss-start', 55, '👾', 'BOSS BATTLE', 'BTC 매도벽 공성전', `${fmt(wall.price,1)}의 ${moneyShort(wall.value)} 벽을 60초 동안 공격합니다.`, '#f87171');
+}
+function bossFinish(result) {
+  if (!boss.active) return;
+  const price = boss.price, attack = boss.attack;
+  boss.active = false; boss.nextAt = Date.now() + 5000;
+  $('bossClock').textContent = '00:00';
+  if (result === 'defeat') {
+    $('bossState').textContent = 'DEFEATED'; $('bossEmoji').textContent = '💥'; $('bossHpFill').style.width = '0%';
+    addHighlight('👾', '시장 보스 격파', `BTC ${fmt(price,1)} 매도벽 돌파 · 공격 ${moneyShort(attack)}`, 'up');
+    pitSignal('boss-defeat', 98, '💥', 'BOSS DOWN', 'BTC 매도벽 격파', `${fmt(price,1)} 벽을 돌파했습니다. 누적 공격 ${moneyShort(attack)}.`, '#4ade80');
+    fxBanner(`👾 보스 격파<small>${fmt(price,1)} SELL WALL</small>`, '#4ade80');
+  } else if (result === 'survive') {
+    $('bossState').textContent = 'SURVIVED'; $('bossEmoji').textContent = '🏰';
+    pitSignal('boss-survive', 72, '🏰', 'BOSS SURVIVED', '매도벽 방어 성공', `${fmt(price,1)} 벽이 60초를 버텼습니다.`, '#f87171');
+  } else {
+    $('bossState').textContent = 'WALL MOVED'; $('bossEmoji').textContent = '💨';
+    $('bossName').textContent = '벽 이동 · 재탐색 대기';
+  }
+}
+function bossBookUpdate() {
+  if (!boss.active) { bossStart(); return; }
+  if (usd >= boss.price) { bossFinish('defeat'); return; }
+  const wall = bookAsks.find(a => String(a[0]) === boss.key);
+  if (!wall) {
+    if (!boss.missingSince) boss.missingSince = Date.now();
+    else if (Date.now()-boss.missingSince > 1500) bossFinish('moved');
+    return;
+  }
+  boss.missingSince = 0;
+  boss.hp = Math.min(boss.hp, +wall[0] * +wall[1]);
+}
+function bossAttack(val, px) {
+  if (!boss.active || !Number.isFinite(val)) return;
+  const gap = Math.max(0, (boss.price-px)/boss.price);
+  const damage = val * (gap <= .0005 ? 1 : gap <= .002 ? .35 : .08);
+  boss.attack += damage;
+  boss.hp = Math.max(boss.maxHp*.01, boss.hp-damage);
+  if (damage >= boss.maxHp*.08) bossAnimate('hit');
+}
+function bossJackpotBlast(longWipeout) {
+  if (!boss.active) bossStart();
+  if (!boss.active) return;
+  if (longWipeout) {
+    boss.hp = Math.min(boss.maxHp, boss.hp + boss.maxHp*.25);
+    $('bossState').textContent = 'COUNTERATTACK'; bossAnimate('counter');
+  } else {
+    boss.attack += boss.maxHp*.45;
+    boss.hp = Math.max(boss.maxHp*.01, boss.hp-boss.maxHp*.45);
+    $('bossState').textContent = 'JACKPOT HIT'; bossAnimate('hit');
+  }
+  bossRender();
+}
+setInterval(() => {
+  if (!boss.active) { bossStart(); return; }
+  if (Date.now() >= boss.ends) { bossFinish('survive'); return; }
+  bossRender();
+}, 250);
+
 const ws = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@aggTrade/btcusdt@kline_1m/btcusdt@depth20@100ms');
 ws.onmessage = ev => {
   const { stream, data } = JSON.parse(ev.data);
@@ -2136,6 +2325,7 @@ ws.onmessage = ev => {
     }
     spawnDrop(val, isBuy);
     bookHit(val, isBuy);
+    if (isBuy) bossAttack(val, px);
     checkBreakout(px);
     if (isBuy) buyVol += val; else sellVol += val;
     if (val >= 500000) {
@@ -2145,7 +2335,7 @@ ws.onmessage = ev => {
     }
     updateKimchi();
   } else if (stream.endsWith('depth20@100ms')) {
-    bookAsks = data.asks; bookBids = data.bids; renderBook();
+    bookAsks = data.asks; bookBids = data.bids; renderBook(); bossBookUpdate();
   } else if (stream === 'btcusdt@kline_1m') {
     // 이펙트·베팅 판정은 항상 BTC 1분 기준 (차트 표시는 wsChart가 담당)
     if (data.k.x) onCandleClose(data.k);
@@ -2696,6 +2886,7 @@ wsl.onmessage = ev => {
   }
   const o = ldata.o;
   const val = +o.q * +o.ap, longLiq = o.S === 'SELL';
+  jackpotAdd(longLiq, val);
   towerAdd(longLiq, val, o.s.replace('USDT',''));
   if (val >= 100000) {
     pitSignal('liquidation', Math.min(92,65+Math.log10(val/100000)*20), longLiq?'🩸':'⚡', 'LIQUIDATION', `${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산`, `${moneyShort(val)} 강제 청산 — 청산 타워가 흔들립니다.`, longLiq?'#f87171':'#4ade80');

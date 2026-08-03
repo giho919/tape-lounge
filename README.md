@@ -3,7 +3,7 @@
 > A lounge for reading the tape — real-time crypto metrics, living order flow, trading mini-games, and three resident strategists.
 > 크립토 시장의 "보는 맛"을 모아둔 라운지 — 실시간 지표, 살아 움직이는 체결, 트레이딩 미니게임, 그리고 세 명의 전략가.
 
-**Live** → https://tapelounge.com *(coming soon)* · https://giho919.github.io/tape-lounge/
+**Live** → https://tapelounge.com
 
 A **single-file static site** running entirely on free public APIs in the browser (no backend; only chat & leaderboard use Supabase). The concept: a members' hideaway for people who like to *read the tape*.
 브라우저에서 무료 공개 API만으로 돌아가는 **단일 파일 정적 사이트**입니다 (백엔드 없음, 채팅·리더보드만 Supabase). "시세를 읽는" 사람들의 아지트라는 콘셉트.
@@ -20,7 +20,7 @@ Read the market's *now* on a single screen.
 | Metric | English | 한국어 |
 |--------|---------|--------|
 | **BTC / KRW·USDT** | Live won & dollar prices | 원화·달러 실시간 가격 |
-| **Kimchi Premium · 김치 프리미엄** | Analog gauge — Korean-market premium: Upbit KRW-BTC ÷ (Binance BTCUSDT × KRW-USDT) | 아날로그 게이지 — 업비트 KRW-BTC ÷ (바이낸스 BTCUSDT × KRW-USDT) |
+| **Kimchi Premium · 김치 프리미엄** | Analog gauge — Korean-market premium: Bithumb BTC/KRW ÷ (Binance BTCUSDT × Bithumb USDT/KRW) | 아날로그 게이지 — 빗썸 BTC/KRW ÷ (바이낸스 BTCUSDT × 빗썸 USDT/KRW) |
 | **Fear & Greed · 공포·탐욕** | From alternative.me (0 = extreme fear ~ 100 = extreme greed) | alternative.me (0=극단 공포 ~ 100=극단 탐욕) |
 | **BTC Dominance · 도미넌스** | Bitcoin's share of total market cap | 전체 시총 중 비트코인 점유율 |
 | **Funding Rate · 펀딩비** | Perpetual-futures 8h funding — a gauge of futures-market heat | 무기한 선물 8시간 펀딩 — 선물 시장 과열 온도 |
@@ -32,6 +32,8 @@ The market plays the game; visitors watch the tension build and the result settl
 
 - **Pit Boss · 핏 보스** — automatically promotes the hottest live scene among tape pressure, whale fills, liquidations, breakouts, and the coin race / 체결 압력·고래·청산·돌파·경마 중 가장 뜨거운 판을 자동으로 메인 무대에 올림
 - **Liquidation Tower · 청산 타워** — market-wide long and short liquidations stack as blocks over five-minute rounds; a severe imbalance knocks the tower down / 전 시장 롱·숏 청산이 5분간 블록으로 쌓이고 심한 불균형에서 타워 붕괴
+- **Liquidation Jackpot · 청산 잭팟** — a rolling 15-minute market-wide liquidation meter fires at $5M and becomes a special attack in the boss battle / 전 시장 15분 청산 누적이 $5M에 닿으면 잭팟이 발동하고 보스전 특수 공격으로 연결
+- **Market Boss Battle · 시장 보스전** — BTC attacks the largest visible sell wall for 60 seconds; only a real price cross counts as a defeat, while canceled walls leave the table / BTC가 실시간 최대 매도벽을 60초 동안 공격하며 실제 가격 돌파만 격파로 판정, 취소된 벽은 퇴장 처리
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
 - **Market Highlights · 시장 하이라이트** — major candles, breakouts, whales, tower crashes, and race winners are saved locally as replayable tickets / 장대봉·돌파·고래·타워 붕괴·경마 우승을 기기 안에 다시 볼 수 있는 전표로 보관
 
@@ -153,7 +155,7 @@ All public & free APIs, called directly from the browser.
 전부 공개·무료 API, 브라우저에서 직접 호출.
 
 - **Binance** — spot/futures WebSocket (trades, candles, liquidations, dominance index, long/short ratios) + REST history / 현물·선물 WebSocket (체결·캔들·강제청산·도미넌스 지수·롱숏 비율) + REST 과거 캔들
-- **Upbit** — REST, KRW prices for the kimchi-premium calc / 김치 프리미엄 산출용 KRW 시세
+- **Bithumb** — REST, BTC/KRW and USDT/KRW prices for the kimchi-premium calc / 김치 프리미엄 산출용 BTC·USDT 원화 시세
 - **alternative.me** — Fear & Greed / 공포·탐욕 지수
 - **CoinGecko** — global dominance / 글로벌 도미넌스
 - **mempool.space** — Bitcoin mempool, recommended fees, projected blocks, recent transfers, and block settlement / 비트코인 멤풀·권장 수수료·예상 블록·최근 전송·블록 정산
