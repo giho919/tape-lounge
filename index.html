@@ -589,7 +589,7 @@ body.shake { animation:shake .5s; }
         <div id="c_eth" class="chart"></div>
       </div>
       <div class="caroPage hidden" data-p="2">
-        <div class="chd"><span class="sym">BTC DOMINANCE</span><span class="px2 num" id="domPx">—</span><span class="num gold" id="domPct">—</span></div>
+        <div class="chd"><span class="sym">BTC.D INDEX FUTURES</span><span class="px2 num" id="domPx">—</span><span class="num gold" id="domPct">—</span></div>
         <div id="c_dom" class="chart"></div>
       </div>
       <div class="caroPage hidden" data-p="3">
@@ -813,7 +813,7 @@ body.shake { animation:shake .5s; }
         <p class="macroDesc">미국 공식 발표 시각을 기다리고, 숫자가 찍히는 순간과 비트코인의 5·15·60분 여진을 한 장부에서 지켜봅니다.</p>
       </div>
       <div class="macroNext">
-        <div class="macroNextTop"><span>NEXT MAIN TABLE</span><b id="macroNextGrade">—</b></div>
+        <div class="macroNextTop"><span>NEXT EVENT TABLE</span><b id="macroNextGrade">—</b></div>
         <div class="macroNextTitle" id="macroNextTitle">공식 전보를 불러오는 중</div>
         <div class="macroNextTime" id="macroNextTime">KST · —</div>
         <div class="macroCountdown" id="macroCountdown">--:--:--</div>
@@ -871,9 +871,7 @@ body.shake { animation:shake .5s; }
     </div>
     <div class="letters">
       <h4>최근 서신</h4>
-      <div class="letter"><div class="lt">오늘 09:05 · 아침 서신</div>비트는 잠시 내려놓고 금괴로 갈아탄 상태야. 판이 험할 땐 금이 이불이지.
-추세 돌아서면 바로 움직인다.</div>
-      <div class="letter"><div class="lt">어제 01:00 · 급전</div>판 정리했어. 12일 들고 있던 대장, 이문 남기고 나왔다. 금괴로 갈아탄다.</div>
+      <div class="letter"><div class="lt" id="madamRecentMeta">최신 장부 확인 중</div><span id="madamRecentText">鄭마담의 최근 서신을 불러오는 중입니다.</span></div>
     </div>
     <a class="rptBtn" href="reports/madam_daily.html" target="_blank">📔 오늘의 장부 열람 →</a>
   </div>
@@ -891,14 +889,13 @@ body.shake { animation:shake .5s; }
     <div class="radarWrap"><canvas id="rd_andy" width="190" height="140"></canvas></div>
     <div class="diary">
       <h4>스캔 일지</h4>
-      <div class="de"><span class="dt">어제</span><span>전장 136곳 훑어 27놈 포착. TRX 전적이 물건 — 10전 8승짜리 싸움꾼이다.</span></div>
+      <div class="de"><span class="dt">기록</span><span>전장 136곳 훑어 27놈 포착. TRX 전적이 물건 — 10전 8승짜리 싸움꾼이다.</span></div>
       <div class="de"><span class="dt">7/13</span><span>그물 유동성 하한 보강. 약세장이라 후보가 줄었지만, 그게 정상이다.</span></div>
       <div class="de"><span class="dt">평소</span><span>떨어지는 칼도 그물엔 담는다. 잡을지 말지는 네 손이 정하는 거고.</span></div>
     </div>
     <div class="letters">
       <h4>최근 전보</h4>
-      <div class="letter"><div class="lt">어제 20:00 · 스캔 전보</div>전장 136곳 훑었고 27놈이 걸렸다. TRX 전적이 물건이야 (10전 8승).
-바닥 반전조 17개 — 떨어지는 칼 잡는 건 네 몫이다.</div>
+      <div class="letter"><div class="lt" id="andyRecentMeta">최신 전보 확인 중</div><span id="andyRecentText">Andy의 최근 스캔 전보를 불러오는 중입니다.</span></div>
     </div>
     <a class="rptBtn" href="reports/andy_scan.html" target="_blank">📡 오늘의 스캔 전보 열람 →</a>
   </div>
@@ -922,7 +919,7 @@ body.shake { animation:shake .5s; }
     <span class="verdict">이달의 판정 — 진입 허용</span>
     <div class="letters">
       <h4>최근 소견서</h4>
-      <div class="letter"><div class="lt">7월 1일 · 월간 소견서</div>이달 시장 국면: "진입 허용" 판정입니다. 데이터가 말하는 바는 명확합니다 — 겨울이 끝났다고 단정할 수는 없으나, 적어도 봄을 준비할 계절이라는 것.</div>
+      <div class="letter"><div class="lt" id="justinRecentMeta">최신 소견서 확인 중</div><span id="justinRecentText">Prof. Justin의 최근 소견서를 불러오는 중입니다.</span></div>
     </div>
     <a class="rptBtn" href="reports/justin_lab.html" target="_blank">🎓 연구실 열람 →</a>
   </div>
@@ -1079,6 +1076,10 @@ function seedMA(chart, closes, times) {
   });
 }
 const cBTC = makeChart('c_btc'), cETH = makeChart('c_eth'), cDOM = makeChart('c_dom'), cQQQ = makeChart('c_qqq');
+const predAnchor = cBTC.ch.addLineSeries({
+  color: 'rgba(0,0,0,0)', lineWidth: 1, priceLineVisible: false,
+  lastValueVisible: false, crosshairMarkerVisible: false,
+});
 
 // 캐러셀 (BTC / ETH / BTC.D / NASDAQ)
 let caroIdx = 0;
@@ -1136,6 +1137,7 @@ async function seedAll() {
       chartOf(i).vol.setData(kl.map(k => ({ time: k[0]/1000, value: +k[5], color: volColor(+k[1], +k[4]) })));
       seedMA(chartOf(i), kl.map(k => +k[4]), kl.map(k => k[0]/1000));
       chartOf(i).ch.timeScale().scrollToRealTime();
+      if (i === 2 && kl.length) $('domPx').textContent = fmt(+kl[kl.length - 1][4], 1);
     } catch(e) { chartSeed[i] = null; }
   }));
 }
@@ -1188,6 +1190,7 @@ function handleChartK(stream, k) {
       $('ethChg').className = 'num ' + (chg>=0?'up':'dn');
     }
   }
+  if (i === 2) $('domPx').textContent = fmt(+k.c, 1);
   if (i === 3) {
     $('qqqPx').textContent = fmt(+k.c, 2);
     if (qqqOpen) {
@@ -1382,18 +1385,33 @@ function sayLetter(cls, who, body) {
 // 전략가 서신 — 서버가 매일 reports/letters.json에 갱신 (실패 시 폴백)
 const CHAR_NAME = { madam: '鄭마담', andy: 'Andy', justin: 'Prof. Justin' };
 const LETTER_FALLBACK = [
-  { cls:'madam', body:'판은 늘 돌아가고 있어. 자세한 소식은 장부에 적어뒀으니 열어봐.' },
-  { cls:'andy',  body:'그물은 매일 밤 걷는다. 오늘 명단은 저녁 전보에서.' },
-  { cls:'justin', body:'이달 소견서는 연구실에 걸어뒀습니다. 판단은 모형이, 결정은 사람이.' },
+  { cls:'madam', at:'최근 갱신', body:'판은 늘 돌아가고 있어. 자세한 소식은 장부에 적어뒀으니 열어봐.' },
+  { cls:'andy', at:'최근 갱신', body:'그물은 매일 밤 걷는다. 오늘 명단은 저녁 전보에서.' },
+  { cls:'justin', at:'최근 갱신', body:'이달 소견서는 연구실에 걸어뒀습니다. 판단은 모형이, 결정은 사람이.' },
 ];
+const LETTER_CARD = {
+  madam: ['madamRecentMeta', 'madamRecentText', '아침 서신'],
+  andy: ['andyRecentMeta', 'andyRecentText', '스캔 전보'],
+  justin: ['justinRecentMeta', 'justinRecentText', '월간 소견서'],
+};
 async function loadLetters() {
-  let list = null;
+  let list = null, updated = '';
   try {
     const r = await fetch('reports/letters.json?t=' + Date.now());
-    if (r.ok) { const j = await r.json(); if (j && j.messages && j.messages.length) list = j.messages; }
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.messages && j.messages.length) { list = j.messages; updated = j.updated || ''; }
+    }
   } catch(e) {}
   if (!list) list = LETTER_FALLBACK;
-  list.forEach((m, i) => setTimeout(() => sayLetter(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200));
+  list.forEach((m, i) => {
+    const card = LETTER_CARD[m.cls];
+    if (card) {
+      $(card[0]).textContent = `${m.at || updated || '최근 갱신'} · ${card[2]}`;
+      $(card[1]).textContent = String(m.body || '');
+    }
+    setTimeout(() => sayLetter(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200);
+  });
 }
 loadLetters();
 
@@ -1406,22 +1424,24 @@ let armed = null;   // 잠금 — 지금 진행 중인 봉의 예측 (이번 마
 let lastBtcKt = null, lastBtcClose = null, predWsTime = null;
 function updatePredMarkers() {
   if (!cBTC || !cBTC.s) return;
-  if (lastBtcKt === null || lastBtcClose === null || chartTf !== '1m') { cBTC.s.setMarkers([]); predWsTime = null; return; }
+  if (lastBtcKt === null || lastBtcClose === null || chartTf !== '1m') {
+    cBTC.s.setMarkers([]); predAnchor.setMarkers([]); predAnchor.setData([]); predWsTime = null; return;
+  }
   const curTime = Math.floor(lastBtcKt / 1000), nextTime = curTime + 60;
   if (predWsTime !== nextTime) {
-    // 마커는 연결된 봉의 high/low로 세로 위치를 잡는다. 가격 없는 whitespace는 ?를 축 중앙에 띄울 수 있어
-    // 마지막 가격의 투명 봉을 앵커로 사용한다. 실제 다음 봉이 열리면 WS update가 같은 시각을 덮어쓴다.
-    cBTC.s.update({ time: nextTime, open:lastBtcClose, high:lastBtcClose, low:lastBtcClose, close:lastBtcClose,
-      color:'rgba(0,0,0,0)', borderColor:'rgba(0,0,0,0)', wickColor:'rgba(0,0,0,0)' });
+    predAnchor.setData([{ time: nextTime, value: lastBtcClose }]);
     predWsTime = nextTime;
+  } else {
+    predAnchor.update({ time: nextTime, value: lastBtcClose });
   }
-  const m = [];
-  if (armed !== null) m.push({ time: curTime, position: armed ? 'aboveBar' : 'belowBar',
+  const current = [];
+  if (armed !== null) current.push({ time: curTime, position: armed ? 'aboveBar' : 'belowBar',
     color: armed ? '#4ade80' : '#f87171', shape: 'circle', text: armed ? '🔒▲' : '🔒▼' });
-  m.push({ time: nextTime, position: pick === false ? 'belowBar' : 'aboveBar',
+  const next = [{ time: nextTime, position: pick === false ? 'belowBar' : 'aboveBar',
     color: pick === true ? '#4ade80' : pick === false ? '#f87171' : '#8a7325', shape: 'circle',
-    text: pick === null ? '?' : (pick ? '▲?' : '▼?') });
-  cBTC.s.setMarkers(m);
+    text: pick === null ? '?' : (pick ? '▲?' : '▼?') }];
+  cBTC.s.setMarkers(current);
+  predAnchor.setMarkers(next);
 }
 function betRender() {
   $('stStreak').textContent = bet.streak;
@@ -1972,7 +1992,7 @@ towerRender();
 
 const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
 const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
-let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
+let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000, raceFullRound = false;
 function buildRace() {
   const rows = $('raceRows'); rows.textContent = '';
   RACE_COINS.forEach(sym => {
@@ -2021,7 +2041,12 @@ wsRace.onmessage = ev => {
   });
 };
 setInterval(() => {
-  if (Date.now() >= raceRoundEnd) { finishRace(); raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000; }
+  if (Date.now() >= raceRoundEnd) {
+    if (raceFullRound) finishRace();
+    else Object.values(race).forEach(x => { x.start = x.last; });
+    raceFullRound = true;
+    raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
+  }
   renderRace();
 }, 1000);
 
@@ -2226,13 +2251,14 @@ function blindOpen() {
 
 // kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
 function bgSetupSolo(kl, symName, track) {
-  const base = +kl[0][4];
+  const startIdx = BG_HIST - 1;
+  const base = +kl[startIdx][4];
   bg = {
     sym: symName, track,
-    realStart: new Date(+kl[0][0]).toISOString().slice(0, 10),
+    realStart: new Date(+kl[startIdx][0]).toISOString().slice(0, 10),
     realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
     norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
-    idx: BG_HIST - 1, cash: 10000, coin: 0, trades: [], markers: [], over: false,
+    idx: startIdx, cash: 10000, coin: 0, trades: [], markers: [], over: false,
   };
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
   bgMASet(); bgVolSet(); bgS.setMarkers([]);
@@ -2553,7 +2579,7 @@ function renderElevator(mp, fee, blocks) {
 }
 function renderWhaleVault(txs) {
   const vault=$('whaleVault'); vault.replaceChildren();
-  const large=(txs||[]).map(tx=>({txid:tx.txid||'',value:(tx.vout||[]).reduce((s,o)=>s+(+o.value||0),0),fee:+tx.fee||0})).sort((a,b)=>b.value-a.value).slice(0,6);
+  const large=(txs||[]).map(tx=>({txid:tx.txid||'',value:+tx.value||0,fee:+tx.fee||0})).sort((a,b)=>b.value-a.value).slice(0,6);
   if(!large.length){const n=document.createElement('div');n.className='chainNote';n.textContent='열린 금고가 없습니다.';vault.append(n);return [];}
   large.forEach((tx,i)=>{const card=document.createElement('div');card.className='vault'+(i===0?' vip':'');const tag=document.createElement('div');tag.className='vaultTag';tag.textContent=i===0?'VIP VAULT':'MEMPOOL VAULT';const amt=document.createElement('div');amt.className='vaultAmt';amt.textContent=btcText(tx.value);const meta=document.createElement('div');meta.className='vaultMeta';meta.textContent=`${tx.txid.slice(0,8)}… · fee ${fmt(tx.fee)} sats`;card.append(tag,amt,meta);vault.append(card);}); return large;
 }
@@ -2592,7 +2618,7 @@ function onchainOpen(){onchainRefresh();if(!onchainStarted){onchainStarted=true;
 // ═══ ⚔️ 선물 콜로세움 ═══
 const FD='https://fapi.binance.com/futures/data';
 let arenaTimer=null,arenaPulseTimer=null,arenaTickTimer=null,towSparkData=[];
-const arena={ant:50,whale:50,taker:50,oi:null,oiOpen:null,priceOpen:null,power:50,leader:null,reversalAt:0,hasData:false,roundEnd:(Math.floor(Date.now()/300000)+1)*300000};
+const arena={ant:50,whale:50,taker:50,oi:null,oiOpen:null,priceOpen:null,power:50,leader:null,reversalAt:0,hasData:false,fullRound:false,roundEnd:(Math.floor(Date.now()/300000)+1)*300000};
 let arenaLedger=[],arenaStreak={bull:0,bear:0};
 try{arenaLedger=JSON.parse(localStorage.getItem('tapeArenaLedger')||'[]');arenaStreak=JSON.parse(localStorage.getItem('tapeArenaStreak')||'{"bull":0,"bear":0}');}catch(e){arenaLedger=[];arenaStreak={bull:0,bear:0};}if(!Array.isArray(arenaLedger))arenaLedger=[];if(!arenaStreak||typeof arenaStreak!=='object')arenaStreak={bull:0,bear:0};arenaStreak.bull=+arenaStreak.bull||0;arenaStreak.bear=+arenaStreak.bear||0;
 async function fetchRatio(path,period='5m',limit=1){try{const r=await(await fetch(`${FD}/${path}?symbol=BTCUSDT&period=${period}&limit=${limit}`)).json();return Array.isArray(r)?r:null;}catch(e){return null;}}
@@ -2619,7 +2645,7 @@ function renderArena(){
   $('arenaVerdict').textContent=margin<6?'중앙에서 난타전 — 아직 누구의 판도 아닙니다.':`${leader==='bull'?'황소':'곰'}가 ${margin.toFixed(0)}포인트 앞서고 있습니다.`;
   if(arena.leader&&arena.leader!==leader&&margin>=6&&Date.now()>arena.reversalAt){arena.reversalAt=Date.now()+20000;const st=$('combatStage');st.classList.remove('reversal');void st.offsetWidth;st.classList.add('reversal');addHighlight('🔄',`${leader==='bull'?'황소':'곰'} 역전`,`5분 경기의 주도권이 뒤집혔습니다.`,leader==='bull'?'up':'dn');pitSignal('arena-reversal',88,'🔄','LEAD CHANGE',`${leader==='bull'?'황소':'곰'} 역전`,`콜로세움의 주도권이 뒤집혔습니다.`,leader==='bull'?'#4ade80':'#f87171');}arena.leader=leader;updateTrap(pricePct,oiPct);
 }
-function arenaTick(){const now=Date.now();if(now>=arena.roundEnd){if(arena.hasData)finishArenaRound();arena.roundEnd=(Math.floor(now/300000)+1)*300000;arena.priceOpen=usd||null;arena.oiOpen=arena.oi;arena.leader=null;}const left=arena.roundEnd-now;$('arenaClock').textContent=mmss(left);$('arenaRound').textContent='#'+String(Math.floor((arena.roundEnd-1)/300000)).slice(-4);$('bullStreak').textContent=arenaStreak.bull;$('bearStreak').textContent=arenaStreak.bear;$('finalBell').classList.toggle('on',left<=30000);renderArena();}
+function arenaTick(){const now=Date.now();if(now>=arena.roundEnd){if(arena.fullRound&&arena.hasData)finishArenaRound();arena.fullRound=true;arena.roundEnd=(Math.floor(now/300000)+1)*300000;arena.priceOpen=usd||null;arena.oiOpen=arena.oi;arena.leader=null;}const left=arena.roundEnd-now;$('arenaClock').textContent=mmss(left);$('arenaRound').textContent='#'+String(Math.floor((arena.roundEnd-1)/300000)).slice(-4);$('bullStreak').textContent=arenaStreak.bull;$('bearStreak').textContent=arenaStreak.bear;$('finalBell').classList.toggle('on',left<=30000);renderArena();}
 async function arenaRefresh(){const [glob,whalePos,hist,oi]=await Promise.all([fetchRatio('globalLongShortAccountRatio'),fetchRatio('topLongShortPositionRatio'),fetchRatio('globalLongShortAccountRatio','5m',48),fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT').then(r=>r.json()).catch(()=>null)]);if(glob?.[0]){arena.ant=parseFloat(glob[0].longAccount)*100;arena.hasData=true;}if(whalePos?.[0])arena.whale=parseFloat(whalePos[0].longAccount)*100;if(oi?.openInterest){arena.oi=+oi.openInterest;if(arena.oiOpen===null)arena.oiOpen=arena.oi;}renderCrowd('antL','antR','antNum',arena.ant);renderCrowd('whaleL','whaleR','whaleNum',arena.whale);const gap=arena.whale-arena.ant;$('diverge').textContent=Math.abs(gap)>=8?`VIP석이 관중석보다 ${Math.abs(gap).toFixed(0)}p 더 ${gap>0?'롱':'숏'} — 괴리 발생`:'관중석과 VIP석이 비슷한 방향입니다.';$('diverge').classList.toggle('hot',Math.abs(gap)>=8);if(hist){towSparkData=hist.map(d=>parseFloat(d.longAccount)*100);drawSpark();}}
 async function pulseRefresh(){const t=await fetchRatio('takerlongshortRatio');if(!t?.[0])return;const buy=+t[0].buyVol,sell=+t[0].sellVol;arena.taker=buy/(buy+sell)*100;arena.hasData=true;$('pulseCore').textContent=arena.taker.toFixed(0)+'%';$('pulseCore').style.color=arena.taker>=50?'var(--grn)':'var(--red)';$('pulseLbl').textContent=arena.taker>=50?'공격 매수 우위':'공격 매도 우위';const ring=$('pulseRing');ring.style.borderColor=arena.taker>=50?'var(--grn)':'var(--red)';ring.classList.remove('beat');void ring.offsetWidth;ring.classList.add('beat');}
 let arenaStarted=false;function arenaOpen(){arenaRefresh();pulseRefresh();if(arena.priceOpen===null)arena.priceOpen=usd||null;renderLedger();arenaTick();if(!arenaStarted){arenaStarted=true;arenaTimer=setInterval(arenaRefresh,30000);arenaPulseTimer=setInterval(pulseRefresh,10000);arenaTickTimer=setInterval(arenaTick,1000);window.addEventListener('resize',drawSpark);}}
