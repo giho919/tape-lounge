@@ -42,7 +42,8 @@ The market plays the game; visitors watch the tension build and the result settl
 - **Symbols · 종목** — BTC · ETH · BTC.D (dominance / 도미넌스) · NASDAQ (QQQB, a Nasdaq-100 ETF token / 나스닥100 ETF 토큰)
 - **Timeframes · 타임프레임** — 1m · 15m · 60m · 240m · daily · weekly · monthly / 1분·15분·60분·240분·일봉·주봉·월봉
 - **Moving averages · 이동평균선** — MA 10 · 20 · 60 · 120 · 200 (live on every chart / 전 차트 실시간)
-- **Candle Combo · 캔들 콤보** — 3·5·8 same-direction closes and combo breaks appear on the BTC chart / BTC 차트에 3·5·8연속봉과 콤보 브레이크 표시
+- **Candle Grade · 캔들 등급** — every closed BTC candle is graded in the HUD; only rare and epic candles receive chart markers / 모든 BTC 확정봉 등급은 HUD에 표시하고 레어·에픽만 차트 마커로 남김
+- **Candle Combo · 캔들 콤보** — the HUD always shows the streak, while only 5·8 combos and major breaks receive chart markers / 연속 수는 HUD에 항상 표시하되 5·8콤보와 큰 브레이크만 차트 마커로 남김
 - **Price Chests · 가격 보물상자** — rolling 40-candle high/low chests open as bronze, gold, or diamond based on breakout volume / 최근 40개 확정봉 고저점 상자가 돌파 거래량에 따라 브론즈·골드·다이아로 개봉
 - **Whale Footprints · 고래 발자국** — $500k+ BTC fills leave minute-aggregated buy/sell markers / $50만 이상 BTC 체결을 분 단위 매수·매도 발자국으로 기록
 - Countdown to candle close, split-flap price display / 봉 마감 카운트다운, split-flap 가격
