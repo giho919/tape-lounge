@@ -928,7 +928,7 @@ body.shake { animation:shake .5s; }
 
 <div class="foot">
   본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
-  · 데이터: Binance, Upbit, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5
+  · 데이터: Binance, Bithumb, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5
 </div>
 </div>
 
@@ -1001,19 +1001,21 @@ function updateKimchi() {
   el.className = 'v num ' + (kimchi >= 2 ? 'dn' : kimchi >= 0 ? 'gold' : 'up');
 }
 
-// ═══ 업비트 ═══
-async function pollUpbit() {
+// ═══ 국내 원화 시세 (브라우저 CORS 허용 공개 API) ═══
+async function pollKrwMarket() {
   try {
-    const d = await (await fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC,KRW-USDT')).json();
-    for (const t of d) {
-      if (t.market === 'KRW-BTC') krw = t.trade_price;
-      if (t.market === 'KRW-USDT') usdtKrw = t.trade_price;
-    }
+    const [btc, usdt] = await Promise.all([
+      fetch('https://api.bithumb.com/public/ticker/BTC_KRW').then(r => r.json()),
+      fetch('https://api.bithumb.com/public/ticker/USDT_KRW').then(r => r.json()),
+    ]);
+    if (btc.status !== '0000' || usdt.status !== '0000') throw new Error('KRW ticker unavailable');
+    krw = +btc.data.closing_price;
+    usdtKrw = +usdt.data.closing_price;
     $('btcKrw').textContent = '₩ ' + fmt(krw);
     updateKimchi();
   } catch(e) {}
 }
-pollUpbit(); setInterval(pollUpbit, 3000);
+pollKrwMarket(); setInterval(pollKrwMarket, 3000);
 
 // ═══ 지표 타일 ═══
 (async () => {
