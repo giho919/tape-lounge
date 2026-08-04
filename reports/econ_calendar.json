@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-04T14:07:01.808509Z",
+  "generated_at": "2026-08-04T14:17:01.750451Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -140,7 +140,8 @@
       "note": "2026-06 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {
-        "m5": 0.16
+        "m5": 0.16,
+        "m15": 0.187
       },
       "status": "observed"
     },
