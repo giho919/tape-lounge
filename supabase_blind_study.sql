@@ -198,13 +198,34 @@ declare
   v_uid uuid := (select auth.uid());
   v_host uuid;
   v_status text;
+  v_next_host uuid;
+  v_next_nick text;
 begin
-  select host_user_id, status into v_host, v_status from public.blind_rooms where id = p_room_id;
-  if v_status <> 'lobby' or not exists (
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  select host_user_id, status into v_host, v_status
+  from public.blind_rooms where id = p_room_id for update;
+  if v_status is null or not exists (
     select 1 from public.blind_room_players p where p.room_id = p_room_id and p.user_id = v_uid
   ) then raise exception 'CANNOT_LEAVE'; end if;
-  if v_host = v_uid then delete from public.blind_rooms where id = p_room_id;
-  else delete from public.blind_room_players where room_id = p_room_id and user_id = v_uid;
+
+  if v_host <> v_uid then
+    delete from public.blind_room_players where room_id = p_room_id and user_id = v_uid;
+  elsif v_status = 'lobby' then
+    delete from public.blind_rooms where id = p_room_id;
+  else
+    select p.user_id, p.nick into v_next_host, v_next_nick
+    from public.blind_room_players p
+    where p.room_id = p_room_id and p.user_id <> v_uid
+    order by p.joined_at, p.user_id
+    limit 1;
+    if v_next_host is null then
+      delete from public.blind_rooms where id = p_room_id;
+    else
+      update public.blind_rooms
+      set host_user_id = v_next_host, host_nick = v_next_nick
+      where id = p_room_id;
+      delete from public.blind_room_players where room_id = p_room_id and user_id = v_uid;
+    end if;
   end if;
 end;
 $$;
