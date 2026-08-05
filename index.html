@@ -379,6 +379,7 @@ body.shake { animation:shake .5s; }
 #bgDailyBoard .nk { flex:1; color:#c6cad3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #bgLog { max-height:200px; overflow-y:auto; padding:8px 15px 12px; font-size:11px; }
 #bgLog .tr { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
+.bgStage { position:relative; min-height:0; }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center; text-align:center; }
 #bgOver.hidden { display:none; }
@@ -414,7 +415,7 @@ body.shake { animation:shake .5s; }
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
-  #bgOver{align-items:flex-start;padding:102px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
+  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
   .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
@@ -795,14 +796,15 @@ body.shake { animation:shake .5s; }
   <div class="panel" style="position:relative">
     <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
     <div class="bgModeRow" id="bgGameModeRow">
-      <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">나만의 판</button>
-      <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">함께 보는 판</button>
+      <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">🎲 나만의 판</button>
+      <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">👥 함께 보는 판</button>
     </div>
     <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeLabel">시장 선택</span>
-      <button class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">코인</button>
-      <button class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">미국주식</button>
+      <button class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</button>
+      <button class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</button>
     </div>
+    <div class="bgStage">
     <div class="chd">
       <span class="sym" id="bgSym">❓ ??? / USDT</span>
       <span class="num" id="bgDay">—</span>
@@ -818,6 +820,7 @@ body.shake { animation:shake .5s; }
         200일 뒤, 정체가 공개되고 당신의 성적이 판정됩니다.</p>
         <div class="go" onclick="blindStart()">판에 앉는다 →</div>
       </div>
+    </div>
     </div>
   </div>
   <div class="col">
