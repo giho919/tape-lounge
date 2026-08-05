@@ -811,7 +811,7 @@ body.shake { animation:shake .5s; }
     <div id="bgChart" style="height:480px"></div>
     <div id="bgOver">
       <div class="box" id="bgOverBox">
-        <h4>🎰 블라인드 차트</h4>
+        <h4>나만의 판</h4>
         <p>과거의 어느 실제 코인 시장에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
         시작가는 100으로 환산되어 힌트가 없습니다.<br>
         밑천 <b style="color:var(--gold)">$10,000</b> — 하루씩 넘기며 사고팔아 보세요.<br>
@@ -2720,7 +2720,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
 
 async function blindStart() {
   const track = bgTrack;
-  $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>과거의 판을 뒤지는 중…</p>';
+  $('bgOverBox').innerHTML = '<h4>나만의 판</h4><p>과거의 판을 뒤지는 중…</p>';
   if (track === 'stock') {
     try {
       const b = await loadStockBundle();
@@ -2733,7 +2733,7 @@ async function blindStart() {
         if (kl.length === BG_TOTAL) { bgSetupSolo(kl, sym, 'stock'); return; }
       }
     } catch (e) { /* 아래 실패 메시지 */ }
-    $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
+    $('bgOverBox').innerHTML = '<h4>나만의 판</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
     return;
   }
   for (let t = 0; t < 8; t++) {
@@ -2747,7 +2747,7 @@ async function blindStart() {
       return;
     } catch (e) { /* 다른 종목 재시도 */ }
   }
-  $('bgOverBox').innerHTML = '<h4>🎰 블라인드 차트</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
+  $('bgOverBox').innerHTML = '<h4>나만의 판</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
 }
 
 function bgMASet() {
@@ -2866,7 +2866,7 @@ function bgShowSoloOverlay() {
   $('bgStudyPanel').classList.add('hidden'); $('bgTrackRow').classList.remove('hidden');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
   $('bgLiveRow').classList.add('hidden');
-  $('bgOverBox').innerHTML = `<h4>🎰 블라인드 차트</h4><p>과거의 어느 실제 ${stock ? '미국 증시' : '코인 시장'}에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
+  $('bgOverBox').innerHTML = `<h4>나만의 판</h4><p>과거의 어느 실제 ${stock ? '미국 증시' : '코인 시장'}에 던져집니다. <b style="color:#fff">종목도, 날짜도 비밀.</b><br>
     시작가는 100으로 환산되어 힌트가 없습니다.<br>
     밑천 <b style="color:var(--gold)">$10,000</b> — <b>시간이 저절로 흐릅니다</b> (재생/일시정지로 조절).<br>
     200일 뒤, 정체가 공개되고 당신의 성적이 판정됩니다.</p>
@@ -2975,7 +2975,7 @@ function studyHomeOverlay(message = '') {
   $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden'); $('bgLiveRow').classList.add('hidden');
   $('bgStudyPanel').querySelector('h3 small').textContent = '같은 차트 · 같은 시각';
   $('studyPanelBody').innerHTML = '<div style="font-size:10px;line-height:1.7;color:var(--dim)">그룹을 만들거나 초대 코드로 입장하세요.<br>구간 전망은 정체 공개 전까지 각자에게만 보입니다.</div>';
-  $('bgOverBox').innerHTML = `<h4>👥 함께 보는 판</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
+  $('bgOverBox').innerHTML = `<h4>함께 보는 판</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
     <div class="studyHome">
       <div class="studyAction"><b>새 그룹</b><span>선택한 ${bgTrack === 'stock' ? '미국주식' : '코인'} 시장으로 방을 엽니다.</span><button class="studyMiniBtn" style="margin-top:10px" onclick="studyCreateRoom()">방 만들기</button></div>
       <div class="studyAction"><b>코드로 입장</b><span>방장에게 받은 6자리 코드를 입력하세요.</span><div class="studyJoin"><input id="studyCodeInput" maxlength="6" value="${esc(STUDY_INVITE_CODE)}" placeholder="ABC234" oninput="this.value=this.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g,'')"><button class="studyMiniBtn" onclick="studyJoinRoom()">입장</button></div></div>
@@ -3080,7 +3080,7 @@ function studyRenderLobby() {
   const me = studyPlayers.find(p => p.user_id === myUid), isHost = studyRoom.host_user_id === myUid;
   const allReady = studyPlayers.length >= 2 && studyPlayers.every(p => p.ready);
   const rows = studyPlayers.map(p => `<div class="studyPlayer${p.ready?' ready':''}"><span>${esc(p.nick)}${p.user_id===studyRoom.host_user_id?' · 방장':''}</span><span>${p.ready?'● READY':'○ 대기'}</span></div>`).join('');
-  $('bgOverBox').innerHTML = `<h4>🃏 BLIND STUDY</h4><p>${studyRoom.track==='stock'?'미국주식':'코인'} · 200일 · 속도 1×</p><div class="studyCode">${esc(studyRoom.code)}</div>
+  $('bgOverBox').innerHTML = `<h4>함께 보는 판</h4><p>${studyRoom.track==='stock'?'미국주식':'코인'} · 200일 · 속도 1×</p><div class="studyCode">${esc(studyRoom.code)}</div>
     <div class="studyLobby">${rows}</div><div class="studyBtns">
       <button class="go invite" onclick="studyCopyInvite()">🔗 초대 링크 복사</button>
       <button class="go nick" onclick="studyChangeNick()">✎ 닉네임 변경</button>
@@ -3188,7 +3188,7 @@ async function studyPrepareRound() {
   if (bg?.studyRoomId === studyRoom.id) { if (!bg.over) studyGameReady(); return; }
   if (studyLoading) return;
   studyLoading = true;
-  $('bgOverBox').innerHTML = '<h4>🃏 BLIND TABLE</h4><p>모두에게 같은 차트를 배분하는 중…</p>';
+  $('bgOverBox').innerHTML = '<h4>함께 보는 판</h4><p>모두에게 같은 차트를 배분하는 중…</p>';
   $('bgOver').classList.remove('hidden');
   try {
     await studyWaitChart();
