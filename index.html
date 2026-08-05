@@ -356,8 +356,8 @@ body.shake { animation:shake .5s; }
 @media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorGrid{grid-template-columns:1fr}.spectatorGrid .spectatorCard:last-child{grid-column:auto}.spectatorCard{min-height:0} }
 
 /* ═══ 오늘의 판 (공용 데일리 챌린지) ═══ */
-.bgModeRow { display:flex; gap:6px; padding:0 15px 10px; }
-.bgModeBtn { font-size:11px; letter-spacing:.5px; padding:5px 13px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
+.bgModeRow { position:relative; z-index:8; display:flex; gap:6px; padding:0 15px 10px; background:var(--panel); }
+.bgModeBtn { display:inline-flex; align-items:center; justify-content:center; min-height:29px; line-height:1; font-size:11px; letter-spacing:.5px; padding:5px 13px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
 .bgModeBtn.on { color:var(--gold); border-color:var(--gold-dim); background:rgba(212,175,55,.09); }
 .bgModeBtn:hover { color:var(--gold); }
 .bgLiveRow { display:flex; align-items:center; gap:8px; padding:10px 15px 15px; font-size:12px; color:#c6cad3; }
@@ -384,16 +384,20 @@ body.shake { animation:shake .5s; }
 .studyHome { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:17px; text-align:left; }
 .studyAction { padding:14px; border:1px solid var(--line); border-radius:9px; background:#0d1016; }
 .studyAction b { display:block; font:700 12px Georgia,serif; color:#e9ddbd; }.studyAction span { display:block; margin-top:5px; font-size:9.5px; line-height:1.55; color:var(--dim); }
-.studyJoin { display:flex; gap:6px; margin-top:10px; }.studyJoin input,.studyNote { min-width:0; width:100%; border:1px solid var(--line); border-radius:6px; background:#090b10; color:#e7e9ee; font:700 12px Menlo,monospace; padding:8px 9px; outline:none; text-transform:uppercase; }.studyJoin input:focus,.studyNote:focus { border-color:var(--gold-dim); }
+.studyJoin { display:flex; gap:6px; margin-top:10px; }.studyJoin input { min-width:0; width:100%; border:1px solid var(--line); border-radius:6px; background:#090b10; color:#e7e9ee; font:700 12px Menlo,monospace; padding:8px 9px; outline:none; text-transform:uppercase; }.studyJoin input:focus { border-color:var(--gold-dim); }
 .studyMiniBtn { flex:0 0 auto; padding:8px 11px; border:1px solid var(--gold-dim); border-radius:6px; color:var(--gold); background:rgba(212,175,55,.06); cursor:pointer; font-size:10px; }
 .studyCode { margin:10px 0 4px; font:800 30px Menlo,monospace; letter-spacing:7px; color:#fff0a8; }
 .studyLobby { margin-top:14px; border-top:1px solid var(--line); text-align:left; }
 .studyPlayer { display:grid; grid-template-columns:1fr auto; gap:10px; padding:8px 3px; border-bottom:1px solid var(--line); font-size:10.5px; color:#cfd4dd; }.studyPlayer span:last-child { color:var(--dim); }.studyPlayer.ready span:last-child { color:var(--grn); }
 .studyBtns { display:flex; justify-content:center; gap:7px; flex-wrap:wrap; margin-top:13px; }.studyBtns .go { margin-top:0 !important; padding:8px 17px !important; font-size:10px !important; }
+.studyBtns .invite { border-color:#4aa9c7 !important; color:#83d7ee !important; background:rgba(74,169,199,.10) !important; }
+.studyBtns .ready { border-color:#3ba768 !important; color:#b8f7cd !important; background:rgba(59,167,104,.22) !important; }
+.studyBtns .start { border-color:var(--gold) !important; color:#151109 !important; background:var(--gold) !important; font-weight:800; }
+.studyBtns .leave { border-color:#a94b54 !important; color:#ff9aa4 !important; background:rgba(169,75,84,.10) !important; }
+.gbtn.roomLocked { opacity:.42; cursor:not-allowed; filter:saturate(.55); }
 .studyErr { min-height:16px; margin-top:9px; font-size:9.5px; color:var(--red); }
 .studyPanelBody { padding:12px 14px 14px; }.studyPanelBody .studyRoomLine { display:flex; justify-content:space-between; gap:10px; padding-bottom:9px; border-bottom:1px solid var(--line); font-size:10px; color:var(--dim); }.studyRoomLine b { color:var(--gold); font-family:Menlo,monospace; letter-spacing:1px; }
 .studyCallBtns { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:9px; }.studyCallBtns button { padding:8px 4px; border:1px solid var(--line); border-radius:6px; color:var(--dim); background:var(--bg); cursor:pointer; }.studyCallBtns button:hover { border-color:var(--gold-dim); color:#fff; }
-.studyNote { margin-top:7px; text-transform:none; font:400 10px Arial,sans-serif; }
 .studyLockState { margin-top:8px; min-height:16px; font-size:9.5px; color:var(--dim); }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
@@ -821,7 +825,7 @@ body.shake { animation:shake .5s; }
         <div class="gbtn" id="bgSpeedBtn" onclick="soloCycleSpeed()">속도 1×</div>
       </div>
       <div class="gRow" id="bgSoloFinish" style="padding-bottom:14px">
-        <div class="gbtn" onclick="blindFinish(true)">🏳 여기서 정산</div>
+        <div class="gbtn" id="bgFinishBtn" onclick="blindSettle()">🏳 여기서 정산</div>
       </div>
       <div class="bgLiveRow hidden" id="bgLiveRow">
         <span class="bgLiveDot" id="bgLiveDot"></span><span id="bgLiveTxt">—</span>
@@ -2651,6 +2655,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
     sym: symName, track,
     realStart: new Date(+kl[startIdx][0]).toISOString().slice(0, 10),
     realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
+    realDates: kl.map(k => new Date(+k[0]).toISOString().slice(0, 10)),
     norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
     idx: startIdx, cash: 10000, coin: 0, trades: [], markers: [], over: false, gameMode,
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
@@ -2661,6 +2666,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
   $('bgOver').classList.add('hidden');
   $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
+  if (gameMode === 'study') studyRestorePlayerState();
   blindStatus();
   if (gameMode === 'study') studyGameReady();
   else soloStart();   // 시간 자동 진행 시작
@@ -2754,6 +2760,7 @@ function blindTrade(action, pct) {
   bgS.setMarkers(bg.markers);
   $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
   blindStatus();
+  if (bg.gameMode === 'study') studySavePlayerState();
 }
 
 function bgAdvanceOneDay() {
@@ -2806,6 +2813,10 @@ let bgTimer = null, bgTickLast = 0, bgSpeed = 1;
 
 function bgShowSoloOverlay() {
   const stock = bgTrack === 'stock';
+  [$('bgPlayBtn'), $('bgSpeedBtn'), $('bgFinishBtn')].forEach(el => {
+    el.classList.remove('roomLocked'); el.style.pointerEvents = ''; el.setAttribute('aria-disabled', 'false');
+  });
+  $('bgFinishBtn').textContent = '🏳 여기서 정산';
   $('bgStudyPanel').classList.add('hidden'); $('bgTrackRow').classList.remove('hidden');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
   $('bgLiveRow').classList.add('hidden');
@@ -2845,13 +2856,23 @@ function soloTick() {
 }
 function soloPauseToggle() {
   if (!bg || bg.over) return;
+  if (bg.gameMode === 'study') { studyHostControl(studyRoom?.playing ? 'pause' : 'play'); return; }
   bg.playing = !bg.playing;
   if (bg.playing) soloTickStart(); else { clearInterval(bgTimer); bgTimer = null; }
   soloStatus();
 }
 function soloCycleSpeed() {
+  if (bg?.gameMode === 'study') {
+    const speed = +(studyRoom?.speed || 1);
+    studyHostControl(`speed_${BG_SPEEDS[(BG_SPEEDS.indexOf(speed) + 1) % BG_SPEEDS.length]}`);
+    return;
+  }
   bgSpeed = BG_SPEEDS[(BG_SPEEDS.indexOf(bgSpeed) + 1) % BG_SPEEDS.length];
   $('bgSpeedBtn').textContent = `속도 ${bgSpeed}×`;
+}
+function blindSettle() {
+  if (bg?.gameMode === 'study') studyHostControl('settle');
+  else blindFinish(true);
 }
 function soloStatus() {
   const day = bg ? bg.idx - (BG_HIST - 1) : 0;
@@ -2867,7 +2888,7 @@ function soloStatus() {
     dot.style.background = 'var(--dim)'; dot.style.boxShadow = 'none';
   }
 }
-window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed;
+window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed; window.blindSettle = blindSettle;
 
 let bgTrack = 'crypto';
 function bgSetTrack(track) {
@@ -2888,6 +2909,7 @@ const STUDY_CRYPTO_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','LT
 const STUDY_INVITE_CODE = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
 let studyRoom = null, studyPlayers = [], studyCalls = [], studyChannel = null;
 let studyServerOffset = 0, studyLoading = false, studyRefreshTimer = null;
+let studySaveChain = Promise.resolve();
 
 function studyFriendly(error) {
   const m = error?.message || '';
@@ -2895,7 +2917,8 @@ function studyFriendly(error) {
   if (m.includes('ROOM_FULL')) return '이 테이블은 12석이 모두 찼습니다.';
   if (m.includes('NEED_TWO_PLAYERS')) return '두 명 이상 앉아야 시작할 수 있습니다.';
   if (m.includes('NOT_ALL_READY')) return '아직 READY하지 않은 사람이 있습니다.';
-  if (m.includes('HOST_ONLY')) return '방장만 테이블을 시작할 수 있습니다.';
+  if (m.includes('HOST_ONLY')) return '방장만 이 기능을 사용할 수 있습니다.';
+  if (m.includes('CONTROL_NOT_OPEN')) return '공동 진행이 시작된 뒤에 조작할 수 있습니다.';
   if (m.includes('ROUND_NOT_OVER')) return '아직 공동 정산 시각이 되지 않았습니다.';
   if (m.includes('duplicate key')) return '이 구간의 판단은 이미 잠겼습니다.';
   return '테이블 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
@@ -3006,16 +3029,16 @@ async function studyRefresh(roomId = studyRoom?.id) {
   return true;
 }
 function studyRenderLobby() {
-  $('bgTrackRow').classList.add('hidden'); $('bgLiveRow').classList.add('hidden');
+  $('bgTrackRow').classList.remove('hidden'); $('bgLiveRow').classList.add('hidden');
   const me = studyPlayers.find(p => p.user_id === myUid), isHost = studyRoom.host_user_id === myUid;
   const allReady = studyPlayers.length >= 2 && studyPlayers.every(p => p.ready);
   const rows = studyPlayers.map(p => `<div class="studyPlayer${p.ready?' ready':''}"><span>${esc(p.nick)}${p.user_id===studyRoom.host_user_id?' · 방장':''}</span><span>${p.ready?'● READY':'○ 대기'}</span></div>`).join('');
   $('bgOverBox').innerHTML = `<h4>🃏 BLIND TABLE</h4><p>${studyRoom.track==='stock'?'미국주식':'코인'} · 200일 · 속도 1×</p><div class="studyCode">${esc(studyRoom.code)}</div>
     <div class="studyLobby">${rows}</div><div class="studyBtns">
-      <button class="go" onclick="studyCopyInvite()">초대 링크 복사</button>
-      <button class="go" onclick="studyToggleReady()">${me?.ready?'READY 취소':'READY'}</button>
-      ${isHost?`<button class="go" onclick="studyStartRoom()" style="${allReady?'':'opacity:.45'}">10초 후 시작</button>`:''}
-      <button class="go" onclick="studyLeaveRoom()">자리 비우기</button>
+      <button class="go invite" onclick="studyCopyInvite()">🔗 초대 링크 복사</button>
+      <button class="go ready" onclick="studyToggleReady()">${me?.ready?'✓ READY 취소':'✓ READY'}</button>
+      ${isHost?`<button class="go start" onclick="studyStartRoom()" style="${allReady?'':'opacity:.45'}">▶ 10초 후 시작</button>`:''}
+      <button class="go leave" onclick="studyLeaveRoom()">← 스터디 홈</button>
     </div><div class="studyErr" id="studyLobbyErr">${allReady?'전원 READY · 방장이 시작할 수 있습니다.':studyPlayers.length<2?'한 명 이상 더 기다리는 중입니다.':'READY를 기다리는 중입니다.'}</div>`;
   $('bgOver').classList.remove('hidden');
   $('studyRoomMeta').textContent = `${studyRoom.code} · LOBBY`;
@@ -3040,6 +3063,40 @@ async function studyLeaveRoom() {
   studyDisconnect(); localStorage.removeItem('tapeStudyRoom');
   studyRoom = null; studyPlayers = []; studyCalls = []; bg = null;
   studyHomeOverlay();
+}
+
+function studyRestorePlayerState() {
+  if (!bg) return;
+  const me = studyPlayers.find(p => p.user_id === myUid);
+  if (!me) return;
+  bg.cash = Number(me.cash ?? 10000);
+  bg.coin = Number(me.coin ?? 0);
+  bg.trades = Array.isArray(me.trades) ? me.trades : [];
+  bg.markers = [...bg.trades].reverse().map(t => ({
+    time: bg.norm[Math.max(BG_HIST - 1, Math.min(BG_TOTAL - 1, BG_HIST - 1 + (+t.day || 0)))].time,
+    position: t.side === 'BUY' ? 'belowBar' : 'aboveBar',
+    color: t.side === 'BUY' ? '#4ade80' : '#f87171',
+    shape: t.side === 'BUY' ? 'arrowUp' : 'arrowDown',
+    text: t.side === 'BUY' ? 'B' : 'S',
+  }));
+  bgS.setMarkers(bg.markers);
+  $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0, 30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
+}
+function studySavePlayerState() {
+  if (!sbc || !bg || !studyRoom) return;
+  const snapshot = {cash:+bg.cash.toFixed(4), coin:+bg.coin.toFixed(10), trades:bg.trades.slice(0,100)};
+  studySaveChain = studySaveChain.then(async () => {
+    const {error} = await sbc.rpc('blind_save_player_state', {
+      p_room_id:studyRoom.id, p_cash:snapshot.cash, p_coin:snapshot.coin, p_trades:snapshot.trades,
+    });
+    if (error) console.warn('study state save', error.message);
+  });
+}
+async function studyHostControl(action) {
+  if (!sbc || !studyRoom || studyRoom.host_user_id !== myUid) return;
+  const {error} = await sbc.rpc('blind_control_room', {p_room_id:studyRoom.id, p_action:action});
+  if (error) { const e=studyErrorEl(); if(e)e.textContent=studyFriendly(error); return; }
+  await studyRefresh();
 }
 
 function studyRng(seed) {
@@ -3083,11 +3140,34 @@ async function studyPrepareRound() {
 }
 function studyGameReady() {
   if (!bg || !studyRoom) return;
-  $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden'); $('bgLiveRow').classList.remove('hidden');
+  $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden'); $('bgLiveRow').classList.remove('hidden');
+  studyUpdateControls();
   clearInterval(bgTimer); bgTimer = setInterval(studyTick, 200);
   studyTick(); studyRenderPanel();
 }
 function studyNow() { return Date.now() + studyServerOffset; }
+function studyElapsedMs() {
+  if (!studyRoom) return 0;
+  let elapsed = +(studyRoom.elapsed_ms || 0);
+  if (studyRoom.playing && studyRoom.state_at) {
+    elapsed += Math.max(0, studyNow() - Date.parse(studyRoom.state_at)) * +(studyRoom.speed || 1);
+  }
+  return Math.min(BG_PLAY * BG_TICK_MS, elapsed);
+}
+function studyUpdateControls() {
+  const isHost = studyRoom?.host_user_id === myUid;
+  const started = studyRoom?.status === 'running' && studyNow() >= Date.parse(studyRoom.start_at || 0);
+  const enabled = isHost && started;
+  const play = $('bgPlayBtn'), speed = $('bgSpeedBtn'), finish = $('bgFinishBtn');
+  play.textContent = studyRoom?.playing ? '⏸ 일시정지' : '▶ 재생';
+  speed.textContent = `속도 ${studyRoom?.speed || 1}×`;
+  finish.textContent = isHost ? '🏳 여기서 정산' : '🔒 방장만 정산';
+  [play, speed, finish].forEach(el => {
+    el.classList.toggle('roomLocked', !enabled);
+    el.style.pointerEvents = enabled ? '' : 'none';
+    el.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+  });
+}
 function studyTick() {
   if (!bg || bg.over || !studyRoom?.start_at) return;
   const remain = Date.parse(studyRoom.start_at) - studyNow();
@@ -3098,14 +3178,17 @@ function studyTick() {
     return;
   }
   $('bgOver').classList.add('hidden');
-  const day = studyRoom.status === 'finished' ? BG_PLAY : Math.min(BG_PLAY, Math.floor(-remain / BG_TICK_MS));
+  const elapsed = studyElapsedMs();
+  const day = Math.min(BG_PLAY, Math.floor(elapsed / BG_TICK_MS));
   const target = BG_HIST - 1 + day;
   let moved = false;
   while (bg.idx < target) { bgAdvanceOneDay(); moved = true; }
   if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); studyRenderPanel(); }
-  $('bgLiveTxt').textContent = `● TABLE LIVE · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
-  $('bgLiveDot').style.background = 'var(--gold)'; $('bgLiveDot').style.boxShadow = '0 0 8px var(--gold)';
-  if (bg.idx >= BG_TOTAL - 1 || studyRoom.status === 'finished') { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
+  const live = studyRoom.playing && studyRoom.status === 'running';
+  $('bgLiveTxt').textContent = `${live?'● TABLE LIVE':'⏸ TABLE PAUSED'} · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
+  $('bgLiveDot').style.background = live ? 'var(--gold)' : 'var(--dim)'; $('bgLiveDot').style.boxShadow = live ? '0 0 8px var(--gold)' : 'none';
+  studyUpdateControls();
+  if (elapsed >= BG_PLAY * BG_TICK_MS || studyRoom.status === 'finished') { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
 }
 function studyRenderPanel() {
   if (!studyRoom || studyRoom.status === 'lobby') return;
@@ -3114,11 +3197,10 @@ function studyRenderPanel() {
   const mine = studyCalls.find(c => c.user_id === myUid && c.day === checkpoint);
   $('studyRoomMeta').textContent = `${studyRoom.code} · ${studyRoom.status.toUpperCase()}`;
   $('studyPanelBody').innerHTML = `<div class="studyRoomLine"><span>현재 판단 구간</span><b>D+${checkpoint} → D+${checkpoint+19}</b></div>
-    ${mine ? `<div class="studyLockState" style="color:var(--gold)">🔒 ${mine.stance.toUpperCase()} · ${esc(mine.note || '근거 미기록')}</div>` : `<div class="studyCallBtns"><button onclick="studyLockCall('bull')">▲ 강세</button><button onclick="studyLockCall('neutral')">― 중립</button><button onclick="studyLockCall('bear')">▼ 약세</button></div><input class="studyNote" id="studyNote" maxlength="80" placeholder="판단 근거 한 줄 (선택)"><div class="studyLockState">이 구간에는 한 번만 잠글 수 있습니다.</div>`}`;
+    ${mine ? `<div class="studyLockState" style="color:var(--gold)">🔒 ${mine.stance.toUpperCase()}</div>` : `<div class="studyCallBtns"><button onclick="studyLockCall('bull')">▲ 강세</button><button onclick="studyLockCall('neutral')">― 중립</button><button onclick="studyLockCall('bear')">▼ 약세</button></div><div class="studyLockState">이 구간에는 한 번만 잠글 수 있습니다.</div>`}`;
 }
 async function studyLockCall(stance) {
-  const note = ($('studyNote')?.value || '').trim().slice(0,80);
-  const { error } = await sbc.rpc('blind_lock_call', {p_room_id:studyRoom.id, p_stance:stance, p_note:note});
+  const { error } = await sbc.rpc('blind_lock_call', {p_room_id:studyRoom.id, p_stance:stance, p_note:''});
   if (error) { const s=document.querySelector('.studyLockState'); if(s)s.textContent=studyFriendly(error); return; }
   await studyRefresh();
 }
@@ -3131,22 +3213,46 @@ async function studyFinishRound(roi, bh, name) {
   await studyRefresh();
   await studyShowResults(name);
 }
+function studyOpinionMarkers() {
+  const grouped = new Map();
+  studyCalls.forEach(call => {
+    const key = `${call.day}:${call.stance}`;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(studyPlayers.find(p => p.user_id === call.user_id)?.nick || '손님');
+  });
+  const style = {
+    bull:{position:'belowBar',color:'#4ade80',shape:'arrowUp',icon:'▲'},
+    neutral:{position:'aboveBar',color:'#d4af37',shape:'circle',icon:'●'},
+    bear:{position:'aboveBar',color:'#f87171',shape:'arrowDown',icon:'▼'},
+  };
+  return [...grouped.entries()].map(([key,names]) => {
+    const [day, stance] = key.split(':'), s = style[stance];
+    const who = names.slice(0,2).join('·') + (names.length > 2 ? ` 외 ${names.length-2}` : '');
+    return {time:bg.norm[Math.min(BG_TOTAL-1, BG_HIST-1+(+day))].time, position:s.position, color:s.color, shape:s.shape, text:`${s.icon} ${names.length} · ${who}`};
+  });
+}
+function studyViewChart() {
+  $('bgOver').classList.add('hidden');
+  bgCh.timeScale().fitContent();
+}
 async function studyShowResults(name = bg?.sym?.replace('USDT','') || '—') {
   const {data:calls} = await sbc.from('blind_room_calls').select('*').eq('room_id',studyRoom.id).order('day').order('created_at');
   studyCalls = calls || studyCalls;
   const buyHold = studyPlayers.find(p => p.buy_hold != null)?.buy_hold;
   const rows = [...studyPlayers].sort((a,b) => (b.roi ?? -1e9) - (a.roi ?? -1e9)).map((p,i) => `<div class="studyResultRow"><span>${i+1}. ${esc(p.nick)}</span><b style="color:${p.roi>0?'var(--grn)':p.roi<0?'var(--red)':'#cfd4dd'}">${p.roi==null?'대기':`${p.roi>=0?'+':''}${(+p.roi).toFixed(2)}%`}</b><span>${Array.isArray(p.trades)?p.trades.length:0}회</span></div>`).join('');
-  const callRows = studyCalls.map(c => { const p=studyPlayers.find(x=>x.user_id===c.user_id); return `<div class="studyCallRow"><em>D+${c.day}</em> · <b>${esc(p?.nick||'손님')}</b> · ${esc(c.stance.toUpperCase())}${c.note?` — ${esc(c.note)}`:''}</div>`; }).join('');
-  $('bgOverBox').innerHTML = `<h4>IDENTITY REVEAL</h4><p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${esc(name)}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${bg.realEnd} 실제 시세${buyHold==null?'':` · 존버 ${buyHold>=0?'+':''}${(+buyHold).toFixed(2)}%`}</span></p>
-    <div class="studyResults">${rows}</div><div class="studyCalls">${callRows || '<div class="studyCallRow">잠긴 판단 기록이 없습니다.</div>'}</div>
-    <div class="studyBtns"><button class="go" onclick="studyLeaveRoom()">스터디 홈</button></div>`;
+  const opinions = studyOpinionMarkers();
+  bgS.setMarkers([...bg.markers, ...opinions].sort((a,b) => a.time - b.time));
+  const endDate = bg.realDates?.[bg.idx] || bg.realEnd;
+  $('bgOverBox').innerHTML = `<h4>IDENTITY REVEAL</h4><p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${esc(name)}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${endDate} 실제 시세${buyHold==null?'':` · 존버 ${buyHold>=0?'+':''}${(+buyHold).toFixed(2)}%`}</span></p>
+    <div class="studyResults">${rows}</div><div class="studyCalls"><div class="studyCallRow">💬 ${opinions.length ? `${studyCalls.length}개의 판단을 구간별로 묶어 차트에 표시했습니다.` : '잠긴 판단 기록이 없습니다.'}</div></div>
+    <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">스터디 홈</button></div>`;
   $('bgOver').classList.remove('hidden'); studyRenderPanel();
 }
 
 window.studyCreateRoom = studyCreateRoom; window.studyJoinRoom = studyJoinRoom;
 window.studyToggleReady = studyToggleReady; window.studyStartRoom = studyStartRoom;
 window.studyCopyInvite = studyCopyInvite; window.studyLeaveRoom = studyLeaveRoom;
-window.studyPrepareRound = studyPrepareRound; window.studyLockCall = studyLockCall; window.studyFinishRound = studyFinishRound;
+window.studyPrepareRound = studyPrepareRound; window.studyLockCall = studyLockCall; window.studyFinishRound = studyFinishRound; window.studyViewChart = studyViewChart;
 
 window.blindOpen = blindOpen; window.blindStart = blindStart;
 window.blindTrade = blindTrade; window.blindFinish = blindFinish;

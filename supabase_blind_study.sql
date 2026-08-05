@@ -12,6 +12,10 @@ create table if not exists public.blind_rooms (
   seed integer not null check (seed between 1 and 2147483646),
   status text not null default 'lobby' check (status in ('lobby', 'running', 'finished')),
   start_at timestamptz,
+  speed smallint not null default 1 check (speed in (1, 2, 4)),
+  playing boolean not null default false,
+  elapsed_ms bigint not null default 0 check (elapsed_ms between 0 and 480000),
+  state_at timestamptz,
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default (now() + interval '4 hours')
 );
@@ -21,6 +25,8 @@ create table if not exists public.blind_room_players (
   user_id uuid not null references auth.users(id) on delete cascade,
   nick text not null check (char_length(nick) between 1 and 10),
   ready boolean not null default false,
+  cash numeric(16,4) not null default 10000 check (cash between 0 and 1000000000),
+  coin numeric(24,10) not null default 0 check (coin between 0 and 1000000000),
   roi numeric(10,4) check (roi between -100 and 100000),
   buy_hold numeric(10,4) check (buy_hold between -100 and 100000),
   trades jsonb not null default '[]'::jsonb check (jsonb_typeof(trades) = 'array' and jsonb_array_length(trades) <= 100),
@@ -28,6 +34,27 @@ create table if not exists public.blind_room_players (
   finished_at timestamptz,
   primary key (room_id, user_id)
 );
+
+alter table public.blind_rooms add column if not exists speed smallint not null default 1;
+alter table public.blind_rooms add column if not exists playing boolean not null default false;
+alter table public.blind_rooms add column if not exists elapsed_ms bigint not null default 0;
+alter table public.blind_rooms add column if not exists state_at timestamptz;
+alter table public.blind_room_players add column if not exists cash numeric(16,4) not null default 10000;
+alter table public.blind_room_players add column if not exists coin numeric(24,10) not null default 0;
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'blind_rooms_speed_check') then
+    alter table public.blind_rooms add constraint blind_rooms_speed_check check (speed in (1, 2, 4));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'blind_rooms_elapsed_ms_check') then
+    alter table public.blind_rooms add constraint blind_rooms_elapsed_ms_check check (elapsed_ms between 0 and 480000);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'blind_room_players_cash_check') then
+    alter table public.blind_room_players add constraint blind_room_players_cash_check check (cash between 0 and 1000000000);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'blind_room_players_coin_check') then
+    alter table public.blind_room_players add constraint blind_room_players_coin_check check (coin between 0 and 1000000000);
+  end if;
+end $$;
 
 create table if not exists public.blind_room_calls (
   room_id uuid not null,
@@ -190,17 +217,22 @@ set search_path = ''
 as $$
 declare
   v_uid uuid := (select auth.uid());
-  v_start timestamptz;
+  v_room public.blind_rooms%rowtype;
+  v_elapsed bigint;
   v_day integer;
 begin
   if p_stance not in ('bull', 'neutral', 'bear') then raise exception 'INVALID_STANCE'; end if;
   if char_length(coalesce(p_note, '')) > 80 then raise exception 'INVALID_NOTE'; end if;
-  select r.start_at into v_start from public.blind_rooms r
+  select * into v_room from public.blind_rooms r
   where r.id = p_room_id and r.status = 'running';
-  if v_start is null or now() < v_start or not exists (
+  if v_room.start_at is null or now() < v_room.start_at or not exists (
     select 1 from public.blind_room_players p where p.room_id = p_room_id and p.user_id = v_uid and p.ready
   ) then raise exception 'CALL_NOT_OPEN'; end if;
-  v_day := least(180, greatest(0, (floor(extract(epoch from (now() - v_start)) / 2.4 / 20) * 20)::integer));
+  v_elapsed := least(480000::bigint, v_room.elapsed_ms + case
+    when v_room.playing and v_room.state_at is not null
+      then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
+    else 0::bigint end);
+  v_day := least(180, greatest(0, floor(v_elapsed / 2400.0 / 20) * 20)::integer);
   insert into public.blind_room_calls(room_id, user_id, day, stance, note)
   values (p_room_id, v_uid, v_day, p_stance, coalesce(trim(p_note), ''));
   return v_day;
@@ -228,8 +260,73 @@ begin
     raise exception 'NOT_ALL_READY';
   end if;
   v_start := now() + interval '10 seconds';
-  update public.blind_rooms set status = 'running', start_at = v_start where id = p_room_id;
+  update public.blind_rooms
+  set status = 'running', start_at = v_start, speed = 1, playing = true,
+      elapsed_ms = 0, state_at = v_start
+  where id = p_room_id;
   return v_start;
+end;
+$$;
+
+create or replace function private.blind_control_room(p_room_id uuid, p_action text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_room public.blind_rooms%rowtype;
+  v_elapsed bigint;
+  v_speed smallint;
+begin
+  select * into v_room from public.blind_rooms where id = p_room_id for update;
+  if v_room.id is null or v_room.host_user_id <> v_uid then raise exception 'HOST_ONLY'; end if;
+  if v_room.status <> 'running' or v_room.start_at is null or now() < v_room.start_at then raise exception 'CONTROL_NOT_OPEN'; end if;
+
+  v_elapsed := least(480000::bigint, v_room.elapsed_ms + case
+    when v_room.playing and v_room.state_at is not null
+      then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
+    else 0::bigint end);
+
+  if p_action = 'settle' then
+    update public.blind_rooms set status = 'finished', playing = false, elapsed_ms = v_elapsed, state_at = now()
+    where id = p_room_id;
+  elsif p_action = 'pause' then
+    update public.blind_rooms set playing = false, elapsed_ms = v_elapsed, state_at = now()
+    where id = p_room_id;
+  elsif p_action = 'play' then
+    update public.blind_rooms set playing = true, elapsed_ms = v_elapsed, state_at = now()
+    where id = p_room_id;
+  elsif p_action in ('speed_1', 'speed_2', 'speed_4') then
+    v_speed := right(p_action, 1)::smallint;
+    update public.blind_rooms set speed = v_speed, elapsed_ms = v_elapsed, state_at = now()
+    where id = p_room_id;
+  else
+    raise exception 'INVALID_CONTROL';
+  end if;
+end;
+$$;
+
+create or replace function private.blind_save_player_state(p_room_id uuid, p_cash numeric, p_coin numeric, p_trades jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+begin
+  if p_cash not between 0 and 1000000000 or p_coin not between 0 and 1000000000 then raise exception 'INVALID_PORTFOLIO'; end if;
+  if jsonb_typeof(p_trades) <> 'array' or jsonb_array_length(p_trades) > 100 then raise exception 'INVALID_TRADES'; end if;
+  if not exists (
+    select 1 from public.blind_rooms r join public.blind_room_players p on p.room_id = r.id
+    where r.id = p_room_id and r.status = 'running' and p.user_id = v_uid and p.ready
+  ) then raise exception 'NOT_A_MEMBER'; end if;
+
+  update public.blind_room_players
+  set cash = p_cash, coin = p_coin, trades = p_trades
+  where room_id = p_room_id and user_id = v_uid;
 end;
 $$;
 
@@ -242,19 +339,26 @@ as $$
 declare
   v_uid uuid := (select auth.uid());
   v_room public.blind_rooms%rowtype;
+  v_elapsed bigint;
 begin
-  select * into v_room from public.blind_rooms where id = p_room_id and status in ('running', 'finished');
+  select * into v_room from public.blind_rooms where id = p_room_id and status in ('running', 'finished') for update;
   if v_room.id is null or not exists (
     select 1 from public.blind_room_players p where p.room_id = p_room_id and p.user_id = v_uid
   ) then raise exception 'NOT_A_MEMBER'; end if;
-  if v_room.start_at is null or now() < v_room.start_at + interval '480 seconds' then raise exception 'ROUND_NOT_OVER'; end if;
+  v_elapsed := least(480000::bigint, v_room.elapsed_ms + case
+    when v_room.playing and v_room.state_at is not null
+      then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
+    else 0::bigint end);
+  if v_room.status <> 'finished' and v_elapsed < 480000 then raise exception 'ROUND_NOT_OVER'; end if;
   if p_roi not between -100 and 100000 or p_buy_hold not between -100 and 100000 then raise exception 'INVALID_RESULT'; end if;
   if jsonb_typeof(p_trades) <> 'array' or jsonb_array_length(p_trades) > 100 then raise exception 'INVALID_TRADES'; end if;
 
   update public.blind_room_players
   set roi = p_roi, buy_hold = p_buy_hold, trades = p_trades, finished_at = now()
   where room_id = p_room_id and user_id = v_uid;
-  update public.blind_rooms set status = 'finished' where id = p_room_id;
+  update public.blind_rooms
+  set status = 'finished', playing = false, elapsed_ms = v_elapsed, state_at = now()
+  where id = p_room_id;
 end;
 $$;
 
@@ -263,12 +367,16 @@ revoke all on function private.blind_join_room(text, text) from public;
 revoke all on function private.blind_leave_room(uuid) from public;
 revoke all on function private.blind_lock_call(uuid, text, text) from public;
 revoke all on function private.blind_start_room(uuid) from public;
+revoke all on function private.blind_control_room(uuid, text) from public;
+revoke all on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) from public;
 revoke all on function private.blind_finish_room(uuid, numeric, numeric, jsonb) from public;
 grant execute on function private.blind_create_room(text, text) to authenticated;
 grant execute on function private.blind_join_room(text, text) to authenticated;
 grant execute on function private.blind_leave_room(uuid) to authenticated;
 grant execute on function private.blind_lock_call(uuid, text, text) to authenticated;
 grant execute on function private.blind_start_room(uuid) to authenticated;
+grant execute on function private.blind_control_room(uuid, text) to authenticated;
+grant execute on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function private.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 
 create or replace function public.blind_create_room(p_track text, p_nick text)
@@ -286,6 +394,12 @@ as $$ select private.blind_lock_call(p_room_id, p_stance, p_note); $$;
 create or replace function public.blind_start_room(p_room_id uuid)
 returns timestamptz language sql security invoker set search_path = ''
 as $$ select private.blind_start_room(p_room_id); $$;
+create or replace function public.blind_control_room(p_room_id uuid, p_action text)
+returns void language sql security invoker set search_path = ''
+as $$ select private.blind_control_room(p_room_id, p_action); $$;
+create or replace function public.blind_save_player_state(p_room_id uuid, p_cash numeric, p_coin numeric, p_trades jsonb)
+returns void language sql security invoker set search_path = ''
+as $$ select private.blind_save_player_state(p_room_id, p_cash, p_coin, p_trades); $$;
 create or replace function public.blind_finish_room(p_room_id uuid, p_roi numeric, p_buy_hold numeric, p_trades jsonb)
 returns void language sql security invoker set search_path = ''
 as $$ select private.blind_finish_room(p_room_id, p_roi, p_buy_hold, p_trades); $$;
@@ -298,6 +412,8 @@ revoke all on function public.blind_join_room(text, text) from public;
 revoke all on function public.blind_leave_room(uuid) from public;
 revoke all on function public.blind_lock_call(uuid, text, text) from public;
 revoke all on function public.blind_start_room(uuid) from public;
+revoke all on function public.blind_control_room(uuid, text) from public;
+revoke all on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) from public;
 revoke all on function public.blind_finish_room(uuid, numeric, numeric, jsonb) from public;
 revoke all on function public.blind_server_time() from public;
 grant execute on function public.blind_create_room(text, text) to authenticated;
@@ -305,6 +421,8 @@ grant execute on function public.blind_join_room(text, text) to authenticated;
 grant execute on function public.blind_leave_room(uuid) to authenticated;
 grant execute on function public.blind_lock_call(uuid, text, text) to authenticated;
 grant execute on function public.blind_start_room(uuid) to authenticated;
+grant execute on function public.blind_control_room(uuid, text) to authenticated;
+grant execute on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function public.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function public.blind_server_time() to authenticated;
 

@@ -130,9 +130,10 @@ Official free sources do not provide a market-consensus estimate, so the Lounge 
 You're dropped into a **real past market** with its identity hidden — no symbol, no dates (start price indexed to 100, time axis removed). Pick a track — **🪙 crypto or 📈 US stocks** — then trade a $10,000 stake as the chart **advances by itself over time** (⏸ pause / ▶ play / speed 1×·2×·4×). After 200 days the identity is revealed and you're judged against **buy & hold over the same window**. Moving averages and volume included.
 정체를 숨긴 **과거의 실제 시장**에 던져집니다. 종목도 날짜도 비밀 (시작가 100 기준 지수화, 시간축 숨김). **🪙 코인 / 📈 미국주식** 트랙을 고른 뒤, 밑천 $10,000으로 매매하는데 캔들이 **시간에 따라 저절로 진행**됩니다 (⏸ 일시정지 / ▶ 재생 / 속도 1×·2×·4×). 200일 뒤 정체가 공개되며 **같은 기간 존버 대비 성적**으로 판정받습니다. 이동평균선·거래량도 함께 표시됩니다.
 
-- **Study Table · 스터디 테이블** — create or join with a six-character code, ready up, and start the same hidden asset at the same server-timed moment / 6자리 코드로 방 생성·참가 후 READY, 같은 숨은 종목을 서버 시각 기준으로 동시 시작
-- **Locked calls · 판단 잠금** — every 20-day segment accepts one bullish, neutral, or bearish call plus a short note; classmates' calls open only after the reveal / 20일 구간마다 강세·중립·약세와 근거를 한 번 잠그며 다른 사람의 판단은 정체 공개 후 열람
-- **Shared settlement · 공동 정산** — returns, buy-and-hold comparison, trade count, and locked theses are shown together after 200 days / 200일 뒤 수익률·존버 비교·매매 횟수·판단 기록을 함께 공개
+- **Study Table · 스터디 테이블** — create or join with a six-character code, ready up, and share a server-synchronized clock; only the host can pause, change speed, or settle / 6자리 코드로 방 생성·참가 후 READY, 서버 동기화 시계를 공유하며 일시정지·속도·정산은 방장만 제어
+- **Persistent portfolio · 장부 복원** — each player's cash, holdings, and trades are saved after every order and restored after refresh / 주문마다 개인 현금·보유량·거래 장부를 저장해 새로고침 뒤에도 그대로 복원
+- **Locked calls · 판단 잠금** — every 20-day segment accepts one bullish, neutral, or bearish call; classmates' calls are grouped into chart markers after the reveal / 20일 구간마다 강세·중립·약세를 한 번 잠그며 공개 뒤 다른 사람의 판단을 차트 마커로 묶어 표시
+- **Shared settlement · 공동 정산** — returns, buy-and-hold comparison, trade count, and the opinion chart are revealed together / 수익률·존버 비교·매매 횟수와 의견 차트를 함께 공개
 
 > Crypto data streams live from Binance; US-stock history (100+ S&P 500 / Nasdaq-100 large caps) is served as a static bundle the server refreshes weekly.
 > 코인은 바이낸스 실시간, 미국주식(S&P500·나스닥100 대형주 100+종목)은 서버가 주 1회 갱신하는 정적 번들로 제공됩니다.
