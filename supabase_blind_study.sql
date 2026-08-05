@@ -330,6 +330,29 @@ begin
 end;
 $$;
 
+create or replace function private.blind_update_nick(p_room_id uuid, p_nick text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  if char_length(trim(p_nick)) not between 1 and 10 then raise exception 'INVALID_NICK'; end if;
+
+  update public.blind_room_players
+  set nick = trim(p_nick)
+  where room_id = p_room_id and user_id = v_uid;
+  if not found then raise exception 'NOT_A_MEMBER'; end if;
+
+  update public.blind_rooms
+  set host_nick = trim(p_nick)
+  where id = p_room_id and host_user_id = v_uid;
+end;
+$$;
+
 create or replace function private.blind_finish_room(p_room_id uuid, p_roi numeric, p_buy_hold numeric, p_trades jsonb)
 returns void
 language plpgsql
@@ -369,6 +392,7 @@ revoke all on function private.blind_lock_call(uuid, text, text) from public;
 revoke all on function private.blind_start_room(uuid) from public;
 revoke all on function private.blind_control_room(uuid, text) from public;
 revoke all on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) from public;
+revoke all on function private.blind_update_nick(uuid, text) from public;
 revoke all on function private.blind_finish_room(uuid, numeric, numeric, jsonb) from public;
 grant execute on function private.blind_create_room(text, text) to authenticated;
 grant execute on function private.blind_join_room(text, text) to authenticated;
@@ -377,6 +401,7 @@ grant execute on function private.blind_lock_call(uuid, text, text) to authentic
 grant execute on function private.blind_start_room(uuid) to authenticated;
 grant execute on function private.blind_control_room(uuid, text) to authenticated;
 grant execute on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
+grant execute on function private.blind_update_nick(uuid, text) to authenticated;
 grant execute on function private.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 
 create or replace function public.blind_create_room(p_track text, p_nick text)
@@ -400,6 +425,9 @@ as $$ select private.blind_control_room(p_room_id, p_action); $$;
 create or replace function public.blind_save_player_state(p_room_id uuid, p_cash numeric, p_coin numeric, p_trades jsonb)
 returns void language sql security invoker set search_path = ''
 as $$ select private.blind_save_player_state(p_room_id, p_cash, p_coin, p_trades); $$;
+create or replace function public.blind_update_nick(p_room_id uuid, p_nick text)
+returns void language sql security invoker set search_path = ''
+as $$ select private.blind_update_nick(p_room_id, p_nick); $$;
 create or replace function public.blind_finish_room(p_room_id uuid, p_roi numeric, p_buy_hold numeric, p_trades jsonb)
 returns void language sql security invoker set search_path = ''
 as $$ select private.blind_finish_room(p_room_id, p_roi, p_buy_hold, p_trades); $$;
@@ -414,6 +442,7 @@ revoke all on function public.blind_lock_call(uuid, text, text) from public;
 revoke all on function public.blind_start_room(uuid) from public;
 revoke all on function public.blind_control_room(uuid, text) from public;
 revoke all on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) from public;
+revoke all on function public.blind_update_nick(uuid, text) from public;
 revoke all on function public.blind_finish_room(uuid, numeric, numeric, jsonb) from public;
 revoke all on function public.blind_server_time() from public;
 grant execute on function public.blind_create_room(text, text) to authenticated;
@@ -423,6 +452,7 @@ grant execute on function public.blind_lock_call(uuid, text, text) to authentica
 grant execute on function public.blind_start_room(uuid) to authenticated;
 grant execute on function public.blind_control_room(uuid, text) to authenticated;
 grant execute on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
+grant execute on function public.blind_update_nick(uuid, text) to authenticated;
 grant execute on function public.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function public.blind_server_time() to authenticated;
 

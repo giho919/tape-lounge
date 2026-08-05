@@ -356,10 +356,13 @@ body.shake { animation:shake .5s; }
 @media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorGrid{grid-template-columns:1fr}.spectatorGrid .spectatorCard:last-child{grid-column:auto}.spectatorCard{min-height:0} }
 
 /* ═══ 오늘의 판 (공용 데일리 챌린지) ═══ */
-.bgModeRow { position:relative; z-index:8; display:flex; gap:6px; padding:0 15px 10px; background:var(--panel); }
-.bgModeBtn { display:inline-flex; align-items:center; justify-content:center; min-height:29px; line-height:1; font-size:11px; letter-spacing:.5px; padding:5px 13px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
+.bgModeRow { position:relative; z-index:8; display:flex; align-items:center; gap:6px; padding:0 15px 10px; background:var(--panel); }
+.bgModeBtn { appearance:none; display:inline-flex; align-items:center; justify-content:center; min-height:30px; margin:0; line-height:1; font:600 11px/1 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; letter-spacing:.5px; padding:6px 14px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
 .bgModeBtn.on { color:var(--gold); border-color:var(--gold-dim); background:rgba(212,175,55,.09); }
 .bgModeBtn:hover { color:var(--gold); }
+.bgModeLabel { flex:0 0 auto; margin-right:2px; color:var(--dim); font-size:9px; letter-spacing:1px; }
+#bgTrackRow { padding-top:0; }
+#bgTrackRow .bgModeBtn { min-height:24px; padding:4px 10px; border-radius:6px; font-size:9.5px; font-weight:500; }
 .bgLiveRow { display:flex; align-items:center; gap:8px; padding:10px 15px 15px; font-size:12px; color:#c6cad3; }
 .bgLiveDot { width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 8px var(--red); flex:0 0 auto; animation:liveBlink 1.4s ease-in-out infinite; }
 @keyframes liveBlink { 0%,100%{opacity:1} 50%{opacity:.3} }
@@ -394,6 +397,8 @@ body.shake { animation:shake .5s; }
 .studyBtns .ready { border-color:#3ba768 !important; color:#b8f7cd !important; background:rgba(59,167,104,.22) !important; }
 .studyBtns .start { border-color:var(--gold) !important; color:#151109 !important; background:var(--gold) !important; font-weight:800; }
 .studyBtns .leave { border-color:#a94b54 !important; color:#ff9aa4 !important; background:rgba(169,75,84,.10) !important; }
+.studyBtns .nick { border-color:#7770b8 !important; color:#bbb5ff !important; background:rgba(119,112,184,.10) !important; }
+.studyNickBtn { appearance:none; margin-left:7px; padding:3px 7px; border:1px solid #7770b8; border-radius:5px; color:#bbb5ff; background:rgba(119,112,184,.10); font-size:8.5px; cursor:pointer; }
 .gbtn.roomLocked { opacity:.42; cursor:not-allowed; filter:saturate(.55); }
 .studyErr { min-height:16px; margin-top:9px; font-size:9.5px; color:var(--red); }
 .studyPanelBody { padding:12px 14px 14px; }.studyPanelBody .studyRoomLine { display:flex; justify-content:space-between; gap:10px; padding-bottom:9px; border-bottom:1px solid var(--line); font-size:10px; color:var(--dim); }.studyRoomLine b { color:var(--gold); font-family:Menlo,monospace; letter-spacing:1px; }
@@ -401,7 +406,17 @@ body.shake { animation:shake .5s; }
 .studyLockState { margin-top:8px; min-height:16px; font-size:9.5px; color:var(--dim); }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
-@media(max-width:620px){.studyHome{grid-template-columns:1fr}.studyCode{font-size:24px}.studyResultRow{grid-template-columns:1fr 62px 52px}}
+@media(max-width:760px){
+  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{display:none}.tabs{width:100%;order:3}
+  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}
+  #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
+  #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
+  #bgOver{align-items:flex-start;padding:102px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
+  .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}.studyNickBtn{margin-left:4px}
+  #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
+  #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
+}
+@media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{padding-left:10px;padding-right:10px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
 
 /* ═══ 선물 콜로세움 ═══ */
 .arenaWrap { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
@@ -772,12 +787,13 @@ body.shake { animation:shake .5s; }
   <div class="panel" style="position:relative">
     <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
     <div class="bgModeRow" id="bgGameModeRow">
-      <span class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">♠ 나만의 판</span>
-      <span class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">👥 스터디 테이블</span>
+      <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">개인 연습</button>
+      <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">그룹 스터디</button>
     </div>
     <div class="bgModeRow" id="bgTrackRow">
-      <span class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</span>
-      <span class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</span>
+      <span class="bgModeLabel">시장 선택</span>
+      <button class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">코인</button>
+      <button class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">미국주식</button>
     </div>
     <div class="chd">
       <span class="sym" id="bgSym">❓ ??? / USDT</span>
@@ -836,8 +852,8 @@ body.shake { animation:shake .5s; }
       <div id="bgLog"><div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div></div>
     </div>
     <div class="panel hidden" id="bgStudyPanel">
-      <h3>🃏 판단 잠금 <small id="studyRoomMeta">테이블 대기</small></h3>
-      <div class="studyPanelBody" id="studyPanelBody">스터디 테이블에 입장하면 활성화됩니다.</div>
+      <h3>📊 구간 전망 <small id="studyRoomMeta">그룹 대기</small></h3>
+      <div class="studyPanelBody" id="studyPanelBody">그룹 스터디에 입장하면 활성화됩니다.</div>
     </div>
   </div>
 </div>
@@ -2632,6 +2648,7 @@ function blindOpen() {
       });
       bgVol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16%에 거래량 오버레이
       bgCh.resize(el.clientWidth, el.clientHeight || 480);
+      new ResizeObserver(() => bgCh?.resize(el.clientWidth, el.clientHeight || 480)).observe(el);
     });
   }
   const best = localStorage.getItem('salonBlindBest');
@@ -2647,7 +2664,7 @@ function blindOpen() {
   else if (!bg) bgShowSoloOverlay();
 }
 
-// kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
+// kl([ts,o,h,l,c,v] 배열) → bg 세팅 (개인 연습 공용)
 function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
   const startIdx = BG_HIST - 1;
   const base = +kl[startIdx][4];
@@ -2904,7 +2921,7 @@ function bgSetTrack(track) {
 }
 window.bgSetTrack = bgSetTrack;
 
-// ═══ 블라인드 스터디 테이블 — Supabase 방 상태 + 서버 시각 동기화 ═══
+// ═══ 블라인드 그룹 스터디 — Supabase 방 상태 + 서버 시각 동기화 ═══
 const STUDY_CRYPTO_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','LTCUSDT','LINKUSDT','TRXUSDT','XLMUSDT','ETCUSDT','EOSUSDT'];
 const STUDY_INVITE_CODE = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
 let studyRoom = null, studyPlayers = [], studyCalls = [], studyChannel = null;
@@ -2914,23 +2931,24 @@ let studySaveChain = Promise.resolve();
 function studyFriendly(error) {
   const m = error?.message || '';
   if (m.includes('ROOM_NOT_FOUND')) return '열려 있는 테이블을 찾지 못했습니다.';
-  if (m.includes('ROOM_FULL')) return '이 테이블은 12석이 모두 찼습니다.';
+  if (m.includes('ROOM_FULL')) return '이 그룹은 12명이 모두 찼습니다.';
+  if (m.includes('INVALID_NICK')) return '닉네임은 1~10자로 입력해 주세요.';
   if (m.includes('NEED_TWO_PLAYERS')) return '두 명 이상 앉아야 시작할 수 있습니다.';
   if (m.includes('NOT_ALL_READY')) return '아직 READY하지 않은 사람이 있습니다.';
   if (m.includes('HOST_ONLY')) return '방장만 이 기능을 사용할 수 있습니다.';
   if (m.includes('CONTROL_NOT_OPEN')) return '공동 진행이 시작된 뒤에 조작할 수 있습니다.';
   if (m.includes('ROUND_NOT_OVER')) return '아직 공동 정산 시각이 되지 않았습니다.';
-  if (m.includes('duplicate key')) return '이 구간의 판단은 이미 잠겼습니다.';
-  return '테이블 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+  if (m.includes('duplicate key')) return '이 구간 전망은 이미 선택했습니다.';
+  return '그룹 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 }
 function studyHomeOverlay(message = '') {
   $('bgStudyPanel').classList.remove('hidden'); $('bgTrackRow').classList.remove('hidden');
   $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden'); $('bgLiveRow').classList.add('hidden');
   $('bgStudyPanel').querySelector('h3 small').textContent = '같은 차트 · 같은 시각';
-  $('studyPanelBody').innerHTML = '<div style="font-size:10px;line-height:1.7;color:var(--dim)">방을 만들거나 초대 코드로 입장하세요.<br>판단 기록은 정체 공개 전까지 각자에게만 보입니다.</div>';
-  $('bgOverBox').innerHTML = `<h4>👥 스터디 테이블</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
+  $('studyPanelBody').innerHTML = '<div style="font-size:10px;line-height:1.7;color:var(--dim)">그룹을 만들거나 초대 코드로 입장하세요.<br>구간 전망은 정체 공개 전까지 각자에게만 보입니다.</div>';
+  $('bgOverBox').innerHTML = `<h4>👥 그룹 스터디</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
     <div class="studyHome">
-      <div class="studyAction"><b>새 테이블</b><span>선택한 ${bgTrack === 'stock' ? '미국주식' : '코인'} 트랙으로 방을 엽니다.</span><button class="studyMiniBtn" style="margin-top:10px" onclick="studyCreateRoom()">방 만들기</button></div>
+      <div class="studyAction"><b>새 그룹</b><span>선택한 ${bgTrack === 'stock' ? '미국주식' : '코인'} 시장으로 방을 엽니다.</span><button class="studyMiniBtn" style="margin-top:10px" onclick="studyCreateRoom()">방 만들기</button></div>
       <div class="studyAction"><b>코드로 입장</b><span>방장에게 받은 6자리 코드를 입력하세요.</span><div class="studyJoin"><input id="studyCodeInput" maxlength="6" value="${esc(STUDY_INVITE_CODE)}" placeholder="ABC234" oninput="this.value=this.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g,'')"><button class="studyMiniBtn" onclick="studyJoinRoom()">입장</button></div></div>
     </div><div class="studyErr" id="studyHomeErr">${esc(message)}</div>`;
   $('bgOver').classList.remove('hidden');
@@ -2951,7 +2969,7 @@ function bgSetMode(mode) {
 window.bgSetMode = bgSetMode;
 
 function studyOpen() {
-  $('bgModeDesc').textContent = '같은 종목 · 같은 출발 · 판단은 공개 때까지 잠금';
+  $('bgModeDesc').textContent = '같은 종목 · 같은 출발 · 구간 전망은 공개 때까지 비공개';
   $('bgStudyPanel').classList.remove('hidden'); $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden');
   const saved = localStorage.getItem('tapeStudyRoom');
   if (studyRoom) { studySubscribe(); studyRefresh(); }
@@ -3033,12 +3051,13 @@ function studyRenderLobby() {
   const me = studyPlayers.find(p => p.user_id === myUid), isHost = studyRoom.host_user_id === myUid;
   const allReady = studyPlayers.length >= 2 && studyPlayers.every(p => p.ready);
   const rows = studyPlayers.map(p => `<div class="studyPlayer${p.ready?' ready':''}"><span>${esc(p.nick)}${p.user_id===studyRoom.host_user_id?' · 방장':''}</span><span>${p.ready?'● READY':'○ 대기'}</span></div>`).join('');
-  $('bgOverBox').innerHTML = `<h4>🃏 BLIND TABLE</h4><p>${studyRoom.track==='stock'?'미국주식':'코인'} · 200일 · 속도 1×</p><div class="studyCode">${esc(studyRoom.code)}</div>
+  $('bgOverBox').innerHTML = `<h4>🃏 BLIND STUDY</h4><p>${studyRoom.track==='stock'?'미국주식':'코인'} · 200일 · 속도 1×</p><div class="studyCode">${esc(studyRoom.code)}</div>
     <div class="studyLobby">${rows}</div><div class="studyBtns">
       <button class="go invite" onclick="studyCopyInvite()">🔗 초대 링크 복사</button>
+      <button class="go nick" onclick="studyChangeNick()">✎ 닉네임 변경</button>
       <button class="go ready" onclick="studyToggleReady()">${me?.ready?'✓ READY 취소':'✓ READY'}</button>
       ${isHost?`<button class="go start" onclick="studyStartRoom()" style="${allReady?'':'opacity:.45'}">▶ 10초 후 시작</button>`:''}
-      <button class="go leave" onclick="studyLeaveRoom()">← 스터디 홈</button>
+      <button class="go leave" onclick="studyLeaveRoom()">← 그룹 홈</button>
     </div><div class="studyErr" id="studyLobbyErr">${allReady?'전원 READY · 방장이 시작할 수 있습니다.':studyPlayers.length<2?'한 명 이상 더 기다리는 중입니다.':'READY를 기다리는 중입니다.'}</div>`;
   $('bgOver').classList.remove('hidden');
   $('studyRoomMeta').textContent = `${studyRoom.code} · LOBBY`;
@@ -3057,6 +3076,18 @@ async function studyCopyInvite() {
   const url = `${location.origin}${location.pathname}?room=${studyRoom.code}`;
   try { await navigator.clipboard.writeText(url); const e=studyErrorEl(); if(e)e.textContent='초대 링크를 복사했습니다.'; }
   catch(e) { const out=studyErrorEl(); if(out)out.textContent=`초대 코드: ${studyRoom.code}`; }
+}
+async function studyChangeNick() {
+  if (!sbc || !studyRoom) return;
+  const current = studyPlayers.find(p => p.user_id === myUid)?.nick || myNick;
+  const input = prompt('그룹에서 사용할 닉네임 (최대 10자)', current);
+  if (!input || !input.trim()) return;
+  const next = input.trim().slice(0,10);
+  const {error} = await sbc.rpc('blind_update_nick', {p_room_id:studyRoom.id, p_nick:next});
+  if (error) { alert(studyFriendly(error)); return; }
+  myNick = next; localStorage.setItem('salonNick', myNick);
+  renderBoard(); pushScore(); loadBoard();
+  await studyRefresh();
 }
 async function studyLeaveRoom() {
   if (studyRoom?.status === 'lobby' && sbc) await sbc.rpc('blind_leave_room', {p_room_id:studyRoom.id});
@@ -3185,7 +3216,7 @@ function studyTick() {
   while (bg.idx < target) { bgAdvanceOneDay(); moved = true; }
   if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); studyRenderPanel(); }
   const live = studyRoom.playing && studyRoom.status === 'running';
-  $('bgLiveTxt').textContent = `${live?'● TABLE LIVE':'⏸ TABLE PAUSED'} · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
+  $('bgLiveTxt').textContent = `${live?'● GROUP LIVE':'⏸ GROUP PAUSED'} · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
   $('bgLiveDot').style.background = live ? 'var(--gold)' : 'var(--dim)'; $('bgLiveDot').style.boxShadow = live ? '0 0 8px var(--gold)' : 'none';
   studyUpdateControls();
   if (elapsed >= BG_PLAY * BG_TICK_MS || studyRoom.status === 'finished') { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
@@ -3196,8 +3227,8 @@ function studyRenderPanel() {
   const checkpoint = Math.min(180, Math.floor(day / 20) * 20);
   const mine = studyCalls.find(c => c.user_id === myUid && c.day === checkpoint);
   $('studyRoomMeta').textContent = `${studyRoom.code} · ${studyRoom.status.toUpperCase()}`;
-  $('studyPanelBody').innerHTML = `<div class="studyRoomLine"><span>현재 판단 구간</span><b>D+${checkpoint} → D+${checkpoint+19}</b></div>
-    ${mine ? `<div class="studyLockState" style="color:var(--gold)">🔒 ${mine.stance.toUpperCase()}</div>` : `<div class="studyCallBtns"><button onclick="studyLockCall('bull')">▲ 강세</button><button onclick="studyLockCall('neutral')">― 중립</button><button onclick="studyLockCall('bear')">▼ 약세</button></div><div class="studyLockState">이 구간에는 한 번만 잠글 수 있습니다.</div>`}`;
+  $('studyPanelBody').innerHTML = `<div class="studyRoomLine"><span>현재 전망 구간 <button class="studyNickBtn" onclick="studyChangeNick()">닉네임 변경</button></span><b>D+${checkpoint} → D+${checkpoint+19}</b></div>
+    ${mine ? `<div class="studyLockState" style="color:var(--gold)">✓ ${mine.stance.toUpperCase()}</div>` : `<div class="studyCallBtns"><button onclick="studyLockCall('bull')">▲ 강세</button><button onclick="studyLockCall('neutral')">― 중립</button><button onclick="studyLockCall('bear')">▼ 약세</button></div><div class="studyLockState">이 구간에서는 한 번만 선택할 수 있습니다.</div>`}`;
 }
 async function studyLockCall(stance) {
   const { error } = await sbc.rpc('blind_lock_call', {p_room_id:studyRoom.id, p_stance:stance, p_note:''});
@@ -3244,14 +3275,14 @@ async function studyShowResults(name = bg?.sym?.replace('USDT','') || '—') {
   bgS.setMarkers([...bg.markers, ...opinions].sort((a,b) => a.time - b.time));
   const endDate = bg.realDates?.[bg.idx] || bg.realEnd;
   $('bgOverBox').innerHTML = `<h4>IDENTITY REVEAL</h4><p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${esc(name)}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${endDate} 실제 시세${buyHold==null?'':` · 존버 ${buyHold>=0?'+':''}${(+buyHold).toFixed(2)}%`}</span></p>
-    <div class="studyResults">${rows}</div><div class="studyCalls"><div class="studyCallRow">💬 ${opinions.length ? `${studyCalls.length}개의 판단을 구간별로 묶어 차트에 표시했습니다.` : '잠긴 판단 기록이 없습니다.'}</div></div>
-    <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">스터디 홈</button></div>`;
+    <div class="studyResults">${rows}</div><div class="studyCalls"><div class="studyCallRow">💬 ${opinions.length ? `${studyCalls.length}개의 시장 전망을 구간별로 묶어 차트에 표시했습니다.` : '선택한 시장 전망이 없습니다.'}</div></div>
+    <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">그룹 홈</button></div>`;
   $('bgOver').classList.remove('hidden'); studyRenderPanel();
 }
 
 window.studyCreateRoom = studyCreateRoom; window.studyJoinRoom = studyJoinRoom;
 window.studyToggleReady = studyToggleReady; window.studyStartRoom = studyStartRoom;
-window.studyCopyInvite = studyCopyInvite; window.studyLeaveRoom = studyLeaveRoom;
+window.studyCopyInvite = studyCopyInvite; window.studyChangeNick = studyChangeNick; window.studyLeaveRoom = studyLeaveRoom;
 window.studyPrepareRound = studyPrepareRound; window.studyLockCall = studyLockCall; window.studyFinishRound = studyFinishRound; window.studyViewChart = studyViewChart;
 
 window.blindOpen = blindOpen; window.blindStart = blindStart;
