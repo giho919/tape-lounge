@@ -29,11 +29,15 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--grn); margin-right:5px; animation:blink 2s infinite; }
 @keyframes blink { 50% { opacity:.3; } }
 
-.strip { display:grid; grid-template-columns:1.3fr 1.6fr repeat(3,1fr); gap:10px; padding:14px 0; }
+.strip { display:grid; grid-template-columns:1.15fr 1.35fr 1.35fr repeat(4,1fr); gap:9px; padding:14px 0; }
 .tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 15px; }
 .tile .l { font-size:10px; letter-spacing:2px; color:var(--dim); }
 .tile .v { font-size:clamp(14px,1.4vw,20px); margin-top:4px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tile .s { font-size:11px; color:var(--dim); margin-top:2px; }
+.gaugeTile { display:flex; gap:8px; align-items:center; padding:8px 10px; }
+.gaugeTile canvas { flex:0 0 112px; width:112px; height:auto; }
+.gaugeTile .v { font-size:17px; }
+@media(max-width:1100px){.strip{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .up { color:var(--grn); } .dn { color:var(--red); } .gold { color:var(--gold); }
 
 .main { display:grid; grid-template-columns:2.1fr 1fr; gap:12px; align-items:stretch; }
@@ -398,7 +402,6 @@ body.shake { animation:shake .5s; }
 .studyBtns .start { border-color:var(--gold) !important; color:#151109 !important; background:var(--gold) !important; font-weight:800; }
 .studyBtns .leave { border-color:#a94b54 !important; color:#ff9aa4 !important; background:rgba(169,75,84,.10) !important; }
 .studyBtns .nick { border-color:#7770b8 !important; color:#bbb5ff !important; background:rgba(119,112,184,.10) !important; }
-.studyNickBtn { appearance:none; margin-left:7px; padding:3px 7px; border:1px solid #7770b8; border-radius:5px; color:#bbb5ff; background:rgba(119,112,184,.10); font-size:8.5px; cursor:pointer; }
 .gbtn.roomLocked { opacity:.42; cursor:not-allowed; filter:saturate(.55); }
 .studyErr { min-height:16px; margin-top:9px; font-size:9.5px; color:var(--red); }
 .studyPanelBody { padding:12px 14px 14px; }.studyPanelBody .studyRoomLine { display:flex; justify-content:space-between; gap:10px; padding-bottom:9px; border-bottom:1px solid var(--line); font-size:10px; color:var(--dim); }.studyRoomLine b { color:var(--gold); font-family:Menlo,monospace; letter-spacing:1px; }
@@ -408,11 +411,11 @@ body.shake { animation:shake .5s; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
   .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{display:none}.tabs{width:100%;order:3}
-  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}
+  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
   #bgOver{align-items:flex-start;padding:102px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
-  .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}.studyNickBtn{margin-left:4px}
+  .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
 }
@@ -462,9 +465,9 @@ body.shake { animation:shake .5s; }
 @media(max-width:760px){.arenaHero{grid-template-columns:1fr}.roundBox{text-align:left}.combatStage{grid-template-columns:76px 1fr 76px;padding:18px 10px}.fighterEmoji{font-size:42px}.fighterScore{font-size:18px}.arenaCards,.arenaBottom{grid-template-columns:1fr}.crowdRow{grid-template-columns:90px 1fr 65px}}
 
 /* ═══ 호가창 (order book) ═══ */
-.flowRow { display:flex; gap:14px; align-items:stretch; }
-.flowRow #rainWrap { flex:1; min-width:0; }
-#bookPanel { flex:0 0 234px; position:relative; }
+.flowRow { display:grid; grid-template-columns:1fr; gap:12px; }
+.flowRow #rainWrap { min-width:0; }
+#bookPanel { position:relative; width:100%; }
 .bookLgd { font-size:9.5px; color:var(--dim); padding:0 11px 7px; letter-spacing:.3px; border-bottom:1px solid var(--line); margin-bottom:4px; }
 .bookSide { display:flex; flex-direction:column; }
 
@@ -573,11 +576,11 @@ body.shake { animation:shake .5s; }
 <div id="tab-lounge">
 <div class="strip">
   <div class="tile">
-    <div class="l">BTC / KRW · USDT</div>
-    <div class="v num" id="btcKrw">—</div>
-    <div class="s num" id="btcUsd">—</div>
+    <div class="l">BTC / USDT</div>
+    <div class="v num" id="btcUsd">—</div>
+    <div class="s num" id="btcKrw">—</div>
   </div>
-  <div class="tile" style="display:flex;gap:14px;align-items:center">
+  <div class="tile gaugeTile">
     <canvas id="gauge" width="150" height="86"></canvas>
     <div>
       <div class="l">김치 프리미엄</div>
@@ -585,7 +588,12 @@ body.shake { animation:shake .5s; }
       <div class="s">빗썸 vs 바이낸스</div>
     </div>
   </div>
-  <div class="tile"><div class="l">공포 · 탐욕</div><div class="v num" id="fng">—</div><div class="s" id="fngW">—</div></div>
+  <div class="tile gaugeTile">
+    <canvas id="fngGauge" width="150" height="86"></canvas>
+    <div><div class="l">공포 · 탐욕</div><div class="v num" id="fng">—</div><div class="s" id="fngW">—</div></div>
+  </div>
+  <div class="tile"><div class="l">USD / KRW</div><div class="v num" id="usdKrw">—</div><div class="s" id="usdKrwAt">일일 기준환율</div></div>
+  <div class="tile"><div class="l">USDT / KRW</div><div class="v num" id="usdtKrwPx">—</div><div class="s">빗썸 실시간</div></div>
   <div class="tile"><div class="l">BTC 도미넌스</div><div class="v num" id="dom">—</div><div class="s">시총 점유율</div></div>
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
@@ -787,8 +795,8 @@ body.shake { animation:shake .5s; }
   <div class="panel" style="position:relative">
     <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
     <div class="bgModeRow" id="bgGameModeRow">
-      <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">개인 연습</button>
-      <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">그룹 스터디</button>
+      <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">나만의 판</button>
+      <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">함께 보는 판</button>
     </div>
     <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeLabel">시장 선택</span>
@@ -853,7 +861,7 @@ body.shake { animation:shake .5s; }
     </div>
     <div class="panel hidden" id="bgStudyPanel">
       <h3>📊 구간 전망 <small id="studyRoomMeta">그룹 대기</small></h3>
-      <div class="studyPanelBody" id="studyPanelBody">그룹 스터디에 입장하면 활성화됩니다.</div>
+      <div class="studyPanelBody" id="studyPanelBody">함께 보는 판에 입장하면 활성화됩니다.</div>
     </div>
   </div>
 </div>
@@ -1050,7 +1058,7 @@ body.shake { animation:shake .5s; }
 
 <div class="foot">
   본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
-  · 데이터: Binance, Bithumb, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5
+  · 데이터: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5
 </div>
 </div>
 
@@ -1097,25 +1105,32 @@ let usd = 0, krw = 0, usdtKrw = 1380, kimchi = null;
 
 // ═══ 김프 게이지 ═══
 const gctx = $('gauge').getContext('2d');
+const fngCtx = $('fngGauge').getContext('2d');
 let needleNow = 0, needleTarget = 0;
-(function drawGauge() {
-  needleNow += (needleTarget - needleNow) * 0.08;
-  const c = gctx, W = 150, H = 86, cx = W/2, cy = H-8, r = 62;
+let fngNeedleNow = 50, fngNeedleTarget = 50;
+function drawArcGauge(c, value, min, max, ticks, colors) {
+  const W = 150, H = 86, cx = W/2, cy = H-8, r = 62;
   c.clearRect(0,0,W,H);
   const grad = c.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0,'#22d3ee'); grad.addColorStop(.35,'#4ade80'); grad.addColorStop(.7,'#d4af37'); grad.addColorStop(1,'#f87171');
+  colors.forEach(([at,color]) => grad.addColorStop(at,color));
   c.beginPath(); c.arc(cx,cy,r,Math.PI,2*Math.PI); c.strokeStyle=grad; c.lineWidth=7; c.stroke();
   c.fillStyle='#6b7280'; c.font='8px Menlo'; c.textAlign='center';
-  [[-2,'-2'],[0,'0'],[2,'2'],[4,'4'],[6,'6'],[8,'8']].forEach(([v,t])=>{
-    const ang = Math.PI * (1 + (v+2)/10);
+  ticks.forEach(([v,t]) => {
+    const ang = Math.PI * (1 + (v-min)/(max-min));
     c.fillText(t, cx + Math.cos(ang)*(r+11), cy + Math.sin(ang)*(r+11)+3);
   });
-  const ang = Math.PI * (1 + Math.max(-2, Math.min(8, needleNow) + 2)/10);
-  c.beginPath(); c.moveTo(cx,cy);
-  c.lineTo(cx + Math.cos(ang)*(r-6), cy + Math.sin(ang)*(r-6));
+  const safe = Math.max(min, Math.min(max, value));
+  const ang = Math.PI * (1 + (safe-min)/(max-min));
+  c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx + Math.cos(ang)*(r-6), cy + Math.sin(ang)*(r-6));
   c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
   c.beginPath(); c.arc(cx,cy,4,0,7); c.fillStyle='#d4af37'; c.fill();
-  requestAnimationFrame(drawGauge);
+}
+(function drawGauges() {
+  needleNow += (needleTarget - needleNow) * 0.08;
+  fngNeedleNow += (fngNeedleTarget - fngNeedleNow) * 0.08;
+  drawArcGauge(gctx, needleNow, -2, 8, [[-2,'-2'],[0,'0'],[2,'2'],[4,'4'],[6,'6'],[8,'8']], [[0,'#22d3ee'],[.35,'#4ade80'],[.7,'#d4af37'],[1,'#f87171']]);
+  drawArcGauge(fngCtx, fngNeedleNow, 0, 100, [[0,'0'],[25,'25'],[50,'50'],[75,'75'],[100,'100']], [[0,'#f87171'],[.48,'#d4af37'],[1,'#4ade80']]);
+  requestAnimationFrame(drawGauges);
 })();
 function updateKimchi() {
   if (!usd || !krw || !usdtKrw) return;
@@ -1137,16 +1152,30 @@ async function pollKrwMarket() {
     krw = +btc.data.closing_price;
     usdtKrw = +usdt.data.closing_price;
     $('btcKrw').textContent = '₩ ' + fmt(krw);
+    $('usdtKrwPx').textContent = '₩ ' + fmt(usdtKrw);
     updateKimchi();
   } catch(e) {}
 }
 pollKrwMarket(); setInterval(pollKrwMarket, 3000);
+
+async function pollUsdKrw() {
+  try {
+    const r = await fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=KRW');
+    if (!r.ok) throw new Error('USD/KRW unavailable');
+    const data = await r.json(), rate = +data.rates?.KRW;
+    if (!Number.isFinite(rate)) throw new Error('USD/KRW invalid');
+    $('usdKrw').textContent = '₩ ' + fmt(rate, 2);
+    $('usdKrwAt').textContent = `${data.date} · 일일 기준`;
+  } catch(e) {}
+}
+pollUsdKrw(); setInterval(pollUsdKrw, 60 * 60 * 1000);
 
 // ═══ 지표 타일 ═══
 (async () => {
   try {
     const f = await (await fetch('https://api.alternative.me/fng/?limit=1')).json();
     const v = +f.data[0].value;
+    fngNeedleTarget = v;
     $('fng').textContent = v;
     $('fng').className = 'v num ' + (v<45?'dn':v>55?'up':'gold');
     $('fngW').textContent = v<25?'극단적 공포':v<45?'공포':v<55?'중립':v<75?'탐욕':'극단적 탐욕';
@@ -2664,7 +2693,7 @@ function blindOpen() {
   else if (!bg) bgShowSoloOverlay();
 }
 
-// kl([ts,o,h,l,c,v] 배열) → bg 세팅 (개인 연습 공용)
+// kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
 function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
   const startIdx = BG_HIST - 1;
   const base = +kl[startIdx][4];
@@ -2921,7 +2950,7 @@ function bgSetTrack(track) {
 }
 window.bgSetTrack = bgSetTrack;
 
-// ═══ 블라인드 그룹 스터디 — Supabase 방 상태 + 서버 시각 동기화 ═══
+// ═══ 블라인드 함께 보는 판 — Supabase 방 상태 + 서버 시각 동기화 ═══
 const STUDY_CRYPTO_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','LTCUSDT','LINKUSDT','TRXUSDT','XLMUSDT','ETCUSDT','EOSUSDT'];
 const STUDY_INVITE_CODE = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0, 6);
 let studyRoom = null, studyPlayers = [], studyCalls = [], studyChannel = null;
@@ -2946,7 +2975,7 @@ function studyHomeOverlay(message = '') {
   $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden'); $('bgLiveRow').classList.add('hidden');
   $('bgStudyPanel').querySelector('h3 small').textContent = '같은 차트 · 같은 시각';
   $('studyPanelBody').innerHTML = '<div style="font-size:10px;line-height:1.7;color:var(--dim)">그룹을 만들거나 초대 코드로 입장하세요.<br>구간 전망은 정체 공개 전까지 각자에게만 보입니다.</div>';
-  $('bgOverBox').innerHTML = `<h4>👥 그룹 스터디</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
+  $('bgOverBox').innerHTML = `<h4>👥 함께 보는 판</h4><p>같은 숨은 종목을 같은 속도로 읽습니다.<br>READY가 모이면 10초 뒤 동시에 출발합니다.</p>
     <div class="studyHome">
       <div class="studyAction"><b>새 그룹</b><span>선택한 ${bgTrack === 'stock' ? '미국주식' : '코인'} 시장으로 방을 엽니다.</span><button class="studyMiniBtn" style="margin-top:10px" onclick="studyCreateRoom()">방 만들기</button></div>
       <div class="studyAction"><b>코드로 입장</b><span>방장에게 받은 6자리 코드를 입력하세요.</span><div class="studyJoin"><input id="studyCodeInput" maxlength="6" value="${esc(STUDY_INVITE_CODE)}" placeholder="ABC234" oninput="this.value=this.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g,'')"><button class="studyMiniBtn" onclick="studyJoinRoom()">입장</button></div></div>
@@ -3057,7 +3086,7 @@ function studyRenderLobby() {
       <button class="go nick" onclick="studyChangeNick()">✎ 닉네임 변경</button>
       <button class="go ready" onclick="studyToggleReady()">${me?.ready?'✓ READY 취소':'✓ READY'}</button>
       ${isHost?`<button class="go start" onclick="studyStartRoom()" style="${allReady?'':'opacity:.45'}">▶ 10초 후 시작</button>`:''}
-      <button class="go leave" onclick="studyLeaveRoom()">← 그룹 홈</button>
+      <button class="go leave" onclick="studyLeaveRoom()">← 방 선택</button>
     </div><div class="studyErr" id="studyLobbyErr">${allReady?'전원 READY · 방장이 시작할 수 있습니다.':studyPlayers.length<2?'한 명 이상 더 기다리는 중입니다.':'READY를 기다리는 중입니다.'}</div>`;
   $('bgOver').classList.remove('hidden');
   $('studyRoomMeta').textContent = `${studyRoom.code} · LOBBY`;
@@ -3227,7 +3256,7 @@ function studyRenderPanel() {
   const checkpoint = Math.min(180, Math.floor(day / 20) * 20);
   const mine = studyCalls.find(c => c.user_id === myUid && c.day === checkpoint);
   $('studyRoomMeta').textContent = `${studyRoom.code} · ${studyRoom.status.toUpperCase()}`;
-  $('studyPanelBody').innerHTML = `<div class="studyRoomLine"><span>현재 전망 구간 <button class="studyNickBtn" onclick="studyChangeNick()">닉네임 변경</button></span><b>D+${checkpoint} → D+${checkpoint+19}</b></div>
+  $('studyPanelBody').innerHTML = `<div class="studyRoomLine"><span>현재 전망 구간</span><b>D+${checkpoint} → D+${checkpoint+19}</b></div>
     ${mine ? `<div class="studyLockState" style="color:var(--gold)">✓ ${mine.stance.toUpperCase()}</div>` : `<div class="studyCallBtns"><button onclick="studyLockCall('bull')">▲ 강세</button><button onclick="studyLockCall('neutral')">― 중립</button><button onclick="studyLockCall('bear')">▼ 약세</button></div><div class="studyLockState">이 구간에서는 한 번만 선택할 수 있습니다.</div>`}`;
 }
 async function studyLockCall(stance) {
@@ -3276,7 +3305,7 @@ async function studyShowResults(name = bg?.sym?.replace('USDT','') || '—') {
   const endDate = bg.realDates?.[bg.idx] || bg.realEnd;
   $('bgOverBox').innerHTML = `<h4>IDENTITY REVEAL</h4><p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${esc(name)}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${endDate} 실제 시세${buyHold==null?'':` · 존버 ${buyHold>=0?'+':''}${(+buyHold).toFixed(2)}%`}</span></p>
     <div class="studyResults">${rows}</div><div class="studyCalls"><div class="studyCallRow">💬 ${opinions.length ? `${studyCalls.length}개의 시장 전망을 구간별로 묶어 차트에 표시했습니다.` : '선택한 시장 전망이 없습니다.'}</div></div>
-    <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">그룹 홈</button></div>`;
+    <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">방 선택</button></div>`;
   $('bgOver').classList.remove('hidden'); studyRenderPanel();
 }
 
