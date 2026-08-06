@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T13:32:01.774965Z",
+  "generated_at": "2026-08-06T18:02:01.640420Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "aa38ccc728c32ed5",
-      "source": "FED",
-      "code": "FOMC",
-      "title": "FOMC 금리결정",
-      "importance": "VIP",
-      "scheduled_at": "2026-07-29T18:00:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "정책성명·기자회견",
-      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-      "btc": {
-        "m5": 0.24,
-        "m15": 0.103,
-        "m60": 0.36
-      },
-      "status": "observed"
-    },
     {
       "id": "336b051a700ed972",
       "source": "BEA",
