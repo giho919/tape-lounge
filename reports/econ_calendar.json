@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T13:32:01.290952Z",
+  "generated_at": "2026-08-12T14:02:02.118906Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "17564f32efe7d268",
-      "source": "BLS",
-      "code": "JOLTS",
-      "title": "JOLTS 구인",
-      "importance": "MAIN",
-      "scheduled_at": "2026-08-04T14:00:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "2026-06 관측 · 공식 일정 스냅샷",
-      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
-      "btc": {
-        "m5": 0.16,
-        "m15": 0.187,
-        "m60": 0.698
-      },
-      "status": "observed"
-    },
     {
       "id": "7eaf574e664b9c08",
       "source": "BLS",
