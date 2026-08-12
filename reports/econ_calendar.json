@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-12T21:07:01.643069Z",
+  "generated_at": "2026-08-12T21:12:01.533794Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -53,18 +53,18 @@
       "title": "소비자물가지수",
       "importance": "VIP",
       "scheduled_at": "2026-08-12T12:30:00Z",
-      "previous": null,
-      "actual": null,
+      "previous": "3.7",
+      "actual": "3.5",
       "actual_supported": true,
       "unit": "%",
-      "note": "2026-07 관측 · 공식 일정 스냅샷",
+      "note": "2026-07 관측 · 2026-07 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {
         "m5": -0.238,
         "m15": -0.488,
         "m60": -0.702
       },
-      "status": "waiting"
+      "status": "released"
     },
     {
       "id": "d91a0b4f450474dc",
