@@ -830,24 +830,24 @@ body.shake { animation:shake .5s; }
       <h3>💼 내 판돈</h3>
       <div id="bgStat">
         <div class="r"><div class="l2">현금</div><div class="v2 num" id="bgCash">$10,000</div></div>
-        <div class="r"><div class="l2">보유 수량</div><div class="v2 num" id="bgCoin">0</div></div>
+        <div class="r"><div class="l2">포지션</div><div class="v2 num" id="bgCoin">없음</div></div>
         <div class="r"><div class="l2">총자산</div><div class="v2 num" id="bgTot">$10,000</div></div>
         <div class="r"><div class="l2">수익률</div><div class="v2 num" id="bgRoi">+0.00%</div></div>
       </div>
       <div class="ordBox">
-        <div class="ordHead"><span>주문 비율</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="1" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
+        <div class="ordHead"><span>주문 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="0" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
         <div class="ordSlider">
           <div class="ordFill" id="bgPctFill" style="width:25%"></div>
-          <input type="range" id="bgPctSlider" min="1" max="100" value="25" oninput="bgPctSync(this.value)">
+          <input type="range" id="bgPctSlider" min="0" max="100" value="25" oninput="bgPctSync(this.value)">
         </div>
         <div class="ordTicks">
-          <span onclick="bgPctSync(25)">25</span><span onclick="bgPctSync(50)">50</span>
+          <span onclick="bgPctSync(0)">0</span><span onclick="bgPctSync(25)">25</span><span onclick="bgPctSync(50)">50</span>
           <span onclick="bgPctSync(75)">75</span><span onclick="bgPctSync(100)">100</span>
         </div>
       </div>
       <div class="gRow">
-        <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">매수 25%</div>
-        <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">매도 25%</div>
+        <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">롱 25%</div>
+        <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">숏 25%</div>
       </div>
       <div class="gRow" id="bgPlayRow">
         <div class="gbtn next" id="bgPlayBtn" onclick="soloPauseToggle()">⏸ 일시정지</div>
@@ -1845,7 +1845,7 @@ window.setNick = setNick;
 const SUPA_URL = 'https://mmvhyzajmfkilldxxazs.supabase.co';
 const SUPA_KEY = 'sb_publishable_S5ohCvizmH8zI-H1wvRupA_aHTG4YOH';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let sbc = null, myUid = null;
+let sbc = null, myUid = null, authPending = null;
 try { sbc = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.log('supabase off', e); }
 // 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
 const TURNSTILE_SITEKEY = '0x4AAAAAAEDtJF9PJ4ZwYXIl';
@@ -1881,15 +1881,20 @@ async function getCaptchaToken() {
 async function ensureAuth() {
   if (!sbc) return null;
   if (myUid) return myUid;
-  try {
-    const { data: { session } } = await sbc.auth.getSession();
-    if (session?.user) { myUid = session.user.id; return myUid; }
-    const captchaToken = await getCaptchaToken();
-    const { data, error } = await sbc.auth.signInAnonymously({ options: { captchaToken } });
-    if (error) { console.log('anon auth off', error.message); return null; }
-    myUid = data.user?.id || null;
-  } catch(e) { console.log('auth err', e); }
-  return myUid;
+  if (authPending) return authPending;
+  authPending = (async () => {
+    try {
+      const { data: { session } } = await sbc.auth.getSession();
+      if (session?.user) { myUid = session.user.id; return myUid; }
+      const captchaToken = await getCaptchaToken();
+      const { data, error } = await sbc.auth.signInAnonymously({ options: { captchaToken } });
+      if (error) { console.log('anon auth off', error.message); return null; }
+      myUid = data.user?.id || null;
+    } catch(e) { console.log('auth err', e); }
+    return myUid;
+  })();
+  try { return await authPending; }
+  finally { authPending = null; }
 }
 
 function nickColor(n) {
@@ -2646,14 +2651,16 @@ function stockSlice(arr, endMs) {
   if (endIdx < BG_TOTAL - 1) return null;
   return arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
 }
+const BG_FEE_RATE = 0.001;
+const BG_MAX_LEVERAGE = 1;
 let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25, bgMode = 'solo';
 function bgPctSync(v) {
-  v = Math.max(1, Math.min(100, Math.round(+v) || 1));
+  v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
   $('bgPctSlider').value = v; $('bgPctNum').value = v;
   $('bgPctFill').style.width = v + '%';
-  $('bgBuyCustom').textContent = `매수 ${v}%`;
-  $('bgSellCustom').textContent = `매도 ${v}%`;
+  $('bgBuyCustom').textContent = `롱 ${v}%`;
+  $('bgSellCustom').textContent = `숏 ${v}%`;
 }
 window.bgPctSync = bgPctSync;
 
@@ -2774,14 +2781,15 @@ function bgVolSet() {
   })));
 }
 function bgPrice() { return bg.norm[bg.idx].close; }
-function bgTotal() { return bg.cash + bg.coin * bgPrice(); }
+function bgTotal() { return Math.max(0, bg.cash + bg.coin * bgPrice()); }
 
 function blindStatus() {
   const day = bg.idx - (BG_HIST - 1);
   $('bgDay').textContent = `D+${day} / ${BG_PLAY}`;
   $('bgPx').textContent = bgPrice().toFixed(2);
   $('bgCash').textContent = '$' + fmt(bg.cash);
-  $('bgCoin').textContent = bg.coin.toFixed(4);
+  const pos = Math.abs(bg.coin) < 1e-10 ? 0 : bg.coin;
+  $('bgCoin').textContent = pos > 0 ? `LONG ${pos.toFixed(4)}` : pos < 0 ? `SHORT ${Math.abs(pos).toFixed(4)}` : '없음';
   $('bgTot').textContent = '$' + fmt(bgTotal());
   const roi = (bgTotal() / 10000 - 1) * 100;
   const el = $('bgRoi');
@@ -2790,24 +2798,50 @@ function blindStatus() {
 }
 
 function renderTradeRow(t) {
-  return `<div class="tr"><span>D+${t.day} <b style="color:${t.side==='BUY'?'var(--grn)':'var(--red)'}">${t.side}</b></span><span class="num">@${t.px.toFixed(2)} · $${fmt(t.amt)}</span></div>`;
+  const label = t.intent || (t.side === 'BUY' ? 'LONG' : 'SHORT');
+  const fee = Number(t.fee || 0);
+  return `<div class="tr"><span>D+${t.day} <b style="color:${t.side==='BUY'?'var(--grn)':'var(--red)'}">${label}</b></span><span class="num">@${t.px.toFixed(2)} · $${fmt(t.amt)} · fee $${fmt(fee)}</span></div>`;
 }
 function blindTrade(action, pct) {
   if (!bg || bg.over) return;
-  const px = bgPrice(), day = bg.idx - (BG_HIST - 1);
+  pct = Math.max(0, Math.min(1, Number(pct) || 0));
+  if (!pct) return;
+  const px = bgPrice(), day = bg.idx - (BG_HIST - 1), before = bg.coin;
+  const equity = bgTotal();
+  if (equity <= 0) return;
+  let qty = 0, notional = 0, intent = '';
   if (action === 'buy') {
-    const spend = bg.cash * pct;
-    if (spend < 1) return;
-    bg.coin += spend / px; bg.cash -= spend;
-    bg.trades.unshift({ day, side: 'BUY', px, amt: spend });
+    if (before < 0) {
+      notional = Math.min(Math.abs(before) * px * pct, bg.cash / (1 + BG_FEE_RATE));
+      intent = 'COVER';
+    } else {
+      notional = (bg.cash / (1 + BG_FEE_RATE)) * pct;
+      intent = 'LONG';
+    }
+    if (notional < 1) return;
+    qty = notional / px;
+    const fee = notional * BG_FEE_RATE;
+    bg.coin += qty; bg.cash -= notional + fee;
+    bg.trades.unshift({ day, side: 'BUY', intent, px, amt: notional, fee });
     bg.markers.push({ time: bg.norm[bg.idx].time, position: 'belowBar', color: '#4ade80', shape: 'arrowUp', text: 'B' });
   } else {
-    const qty = bg.coin * pct;
-    if (qty * px < 1) return;
-    bg.cash += qty * px; bg.coin -= qty;
-    bg.trades.unshift({ day, side: 'SELL', px, amt: qty * px });
+    if (before > 0) {
+      qty = before * pct;
+      notional = qty * px;
+      intent = 'CLOSE';
+    } else {
+      const used = Math.abs(before) * px;
+      notional = Math.max(0, (equity * BG_MAX_LEVERAGE - used) / (1 + BG_FEE_RATE)) * pct;
+      qty = notional / px;
+      intent = 'SHORT';
+    }
+    if (notional < 1) return;
+    const fee = notional * BG_FEE_RATE;
+    bg.cash += notional - fee; bg.coin -= qty;
+    bg.trades.unshift({ day, side: 'SELL', intent, px, amt: notional, fee });
     bg.markers.push({ time: bg.norm[bg.idx].time, position: 'aboveBar', color: '#f87171', shape: 'arrowDown', text: 'S' });
   }
+  if (Math.abs(bg.coin) < 1e-10) bg.coin = 0;
   bgS.setMarkers(bg.markers);
   $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
   blindStatus();
@@ -3021,7 +3055,7 @@ async function studyCreateRoom() {
   await ensureAuth(); if (!myUid) { if (errEl) errEl.textContent = '손님 확인이 필요합니다.'; return; }
   const { data, error } = await sbc.rpc('blind_create_room', { p_track:bgTrack, p_nick:myNick });
   if (error) { if (errEl) errEl.textContent = studyFriendly(error); return; }
-  await studyConnect(data);
+  await studyConnectOrCleanup(data);
 }
 async function studyJoinRoom() {
   if (!sbc || !studyRequireNick()) return;
@@ -3032,7 +3066,16 @@ async function studyJoinRoom() {
   await ensureAuth(); if (!myUid) { if (errEl) errEl.textContent = '손님 확인이 필요합니다.'; return; }
   const { data, error } = await sbc.rpc('blind_join_room', { p_code:code, p_nick:myNick });
   if (error) { if (errEl) errEl.textContent = studyFriendly(error); return; }
-  await studyConnect(data);
+  await studyConnectOrCleanup(data);
+}
+async function studyConnectOrCleanup(roomId) {
+  if (await studyConnect(roomId)) return true;
+  if (sbc && myUid) {
+    const {error} = await sbc.rpc('blind_leave_room', {p_room_id:roomId});
+    if (error) console.warn('study join cleanup', error.message);
+  }
+  localStorage.removeItem('tapeStudyRoom');
+  return false;
 }
 async function studyClockSync() {
   const before = Date.now();
@@ -3041,12 +3084,13 @@ async function studyClockSync() {
   if (data) studyServerOffset = Date.parse(data) - (before + after) / 2;
 }
 async function studyConnect(roomId) {
-  await ensureAuth(); if (!myUid) return;
+  await ensureAuth(); if (!myUid) return false;
   localStorage.setItem('tapeStudyRoom', roomId);
   await studyClockSync();
   const ok = await studyRefresh(roomId);
-  if (!ok) { localStorage.removeItem('tapeStudyRoom'); studyRoom = null; studyHomeOverlay('테이블이 만료됐거나 입장 권한이 없습니다.'); return; }
+  if (!ok) { localStorage.removeItem('tapeStudyRoom'); studyRoom = null; studyHomeOverlay('테이블 연결에 실패했습니다. 입장 기록을 정리했으니 다시 시도해 주세요.'); return false; }
   studySubscribe();
+  return true;
 }
 function studyDisconnect() {
   clearTimeout(studyRefreshTimer);

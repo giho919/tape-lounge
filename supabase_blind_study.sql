@@ -26,7 +26,7 @@ create table if not exists public.blind_room_players (
   nick text not null check (char_length(nick) between 1 and 10),
   ready boolean not null default false,
   cash numeric(16,4) not null default 10000 check (cash between 0 and 1000000000),
-  coin numeric(24,10) not null default 0 check (coin between 0 and 1000000000),
+  coin numeric(24,10) not null default 0 check (coin between -1000000000 and 1000000000),
   roi numeric(10,4) check (roi between -100 and 100000),
   buy_hold numeric(10,4) check (buy_hold between -100 and 100000),
   trades jsonb not null default '[]'::jsonb check (jsonb_typeof(trades) = 'array' and jsonb_array_length(trades) <= 100),
@@ -51,9 +51,8 @@ do $$ begin
   if not exists (select 1 from pg_constraint where conname = 'blind_room_players_cash_check') then
     alter table public.blind_room_players add constraint blind_room_players_cash_check check (cash between 0 and 1000000000);
   end if;
-  if not exists (select 1 from pg_constraint where conname = 'blind_room_players_coin_check') then
-    alter table public.blind_room_players add constraint blind_room_players_coin_check check (coin between 0 and 1000000000);
-  end if;
+  alter table public.blind_room_players drop constraint if exists blind_room_players_coin_check;
+  alter table public.blind_room_players add constraint blind_room_players_coin_check check (coin between -1000000000 and 1000000000);
 end $$;
 
 create table if not exists public.blind_room_calls (
@@ -338,7 +337,7 @@ as $$
 declare
   v_uid uuid := (select auth.uid());
 begin
-  if p_cash not between 0 and 1000000000 or p_coin not between 0 and 1000000000 then raise exception 'INVALID_PORTFOLIO'; end if;
+  if p_cash not between 0 and 1000000000 or p_coin not between -1000000000 and 1000000000 then raise exception 'INVALID_PORTFOLIO'; end if;
   if jsonb_typeof(p_trades) <> 'array' or jsonb_array_length(p_trades) > 100 then raise exception 'INVALID_TRADES'; end if;
   if not exists (
     select 1 from public.blind_rooms r join public.blind_room_players p on p.room_id = r.id
