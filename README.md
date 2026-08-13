@@ -107,6 +107,9 @@ Bitcoin settlement becomes a quiet underground casino floor built from public me
 - **Whale vault · 고래 금고** — recent large mempool transfers shown without owner or exchange attribution / 소유자·거래소 추정 없이 최근 대형 전송 전시
 - **Block landing ceremony · 블록 착륙식** — a new block stops the wheel and opens a settlement ticket / 새 블록이 룰렛을 멈추고 정산 전표 공개
 - **Chain signal board · 체인 전광판** — fee surge, block drought, mempool flood, whale parade, and clear-floor events / 수수료 급등·블록 지연·멤풀 범람·고래 행렬·바닥 정리 감지
+- **Daily data desk · 일일 데이터 데스크** — a plain-language balance reading across network activity, exchange flows, valuation, and mining/security / 네트워크 활동·거래소 수급·가치·채굴/보안 네 축을 쉬운 말로 종합 판독
+- **Twelve-metric ledger · 12개 지표 장부** — MVRV, implied realized price, active addresses, transactions, exchange netflow/reserves, hash rate, fees, issuance, supply, balance addresses, blocks, and one-year price context / MVRV·실현가격 추정·활성주소·거래·거래소 순유입/보유량·해시레이트·수수료·발행량·공급량·잔액주소·블록·1년 가격 문맥
+- **Interpretation guardrails · 해석 안전장치** — each metric explains what it means, what it does not mean, and which time horizon it belongs to / 각 지표의 의미·한계·시간축을 함께 설명
 
 ---
 
@@ -172,6 +175,7 @@ All public & free APIs, called directly from the browser.
 - **alternative.me** — Fear & Greed / 공포·탐욕 지수
 - **CoinGecko** — global dominance / 글로벌 도미넌스
 - **mempool.space** — Bitcoin mempool, recommended fees, projected blocks, recent transfers, and block settlement / 비트코인 멤풀·권장 수수료·예상 블록·최근 전송·블록 정산
+- **Coin Metrics Community API** — daily Bitcoin network, valuation, exchange-flow, supply, and mining metrics, normalized by `scripts/onchain_report.py` into `reports/onchain.json` / BTC 네트워크·가치·거래소 수급·공급·채굴 일일 지표를 정적 JSON으로 정규화
 - **BLS · BEA · Federal Reserve** — official U.S. release schedules and available BLS actuals / 미국 공식 발표 일정과 BLS 실제치
 - **US stocks** — historical daily bars fetched server-side (Yahoo Finance) and served as a static bundle in `reports/stocks.json` / 미국주식 일봉은 서버가 받아(Yahoo Finance) `reports/stocks.json` 정적 번들로 제공
 

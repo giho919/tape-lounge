@@ -497,7 +497,15 @@ body.shake { animation:shake .5s; }
 .signalBoard{padding:8px 14px 13px;display:flex;flex-direction:column;gap:7px}.chainSignal{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:7px;background:var(--bg)}.chainSignal.hot{border-color:var(--gold-dim);background:rgba(212,175,55,.06)}.chainSignal b{font-size:10.5px;color:#d9dde7}.chainSignal span{font-size:9px;color:var(--dim)}.chainSignal em{font:normal 8px Menlo,monospace;color:var(--gold)}
 .landing { position:fixed; inset:0; z-index:95; pointer-events:none; display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(2,4,8,.72);transition:opacity .25s }.landing.show{opacity:1}.landingTicket{padding:25px 34px;border:1px solid var(--gold);border-radius:12px;text-align:center;background:#10131a;box-shadow:0 0 55px rgba(212,175,55,.28);transform:scale(.86);transition:transform .35s}.landing.show .landingTicket{transform:scale(1)}.landingTicket small{font-size:9px;letter-spacing:3px;color:var(--gold)}.landingTicket b{display:block;margin-top:8px;font:700 27px Menlo,monospace;color:#fff}.landingTicket span{display:block;margin-top:7px;font-size:11px;color:var(--dim)}
 .chainNote { padding:0 16px 14px; font-size:10px; line-height:1.55; color:var(--dim); }
-@media(max-width:760px){.chainHero{align-items:flex-start;flex-direction:column}.chainLive{text-align:left}.chainGrid,.chainGrid + .chainGrid{grid-template-columns:1fr}.chainStat{grid-template-columns:1fr}.rouletteWrap{flex-direction:column}.rouletteLegend{width:100%}.vaultGrid{grid-template-columns:1fr 1fr}}
+.chainSectionLabel{display:flex;align-items:center;gap:10px;margin:18px 2px 9px;font:700 9px Menlo,monospace;letter-spacing:2.5px;color:var(--gold)}.chainSectionLabel:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent)}
+.chainDesk{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr);gap:12px}.chainThesis{position:relative;overflow:hidden;min-height:248px;padding:22px;border:1px solid #46506b;border-radius:12px;background:radial-gradient(circle at 86% 18%,rgba(34,211,238,.12),transparent 28%),linear-gradient(145deg,#171c27,#0d1017 70%)}.chainThesis:after{content:'DATA DESK';position:absolute;right:-8px;bottom:-11px;font:800 34px Menlo,monospace;color:rgba(255,255,255,.025)}
+.chainDeskTop{display:flex;align-items:center;justify-content:space-between;gap:16px}.chainDeskTag{font:700 8px Menlo,monospace;letter-spacing:2px;color:var(--cyan)}.chainScore{--score:50;width:84px;height:84px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--cyan) calc(var(--score)*1%),#252b38 0)}.chainScore:before{content:'';grid-area:1/1;width:70px;height:70px;border-radius:50%;background:#10141d}.chainScore b,.chainScore span{position:relative;grid-area:1/1;z-index:1;text-align:center}.chainScore b{margin-top:-9px;font:800 21px Menlo,monospace;color:#fff}.chainScore span{margin-top:26px;font:700 7px Menlo,monospace;letter-spacing:1px;color:var(--dim)}
+.chainVerdict{margin-top:16px;font:700 clamp(20px,2.2vw,28px) Georgia,serif;color:#eef4ff}.chainVerdictSub{margin-top:8px;font-size:11px;line-height:1.72;color:#aab2c2}.chainChecklist{margin-top:16px;display:flex;flex-direction:column;gap:7px}.chainCheck{display:grid;grid-template-columns:8px 72px 1fr;gap:8px;align-items:start;font-size:9.5px;line-height:1.5;color:var(--dim)}.chainCheck i{width:7px;height:7px;margin-top:4px;border-radius:50%;background:var(--gold)}.chainCheck i.up{background:var(--grn)}.chainCheck i.dn{background:var(--red)}.chainCheck b{color:#dce2ec}
+.chainPillars{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.chainPillar{min-height:118px;padding:15px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.chainPillar.up{border-color:rgba(74,222,128,.34)}.chainPillar.dn{border-color:rgba(248,113,113,.34)}.chainPillarTop{display:flex;justify-content:space-between;gap:10px}.chainPillarTop span{font-size:10.5px;color:#dfe4ed}.chainPillarTop b{font:700 8px Menlo,monospace;color:var(--gold)}.chainPillarValue{margin-top:10px;font:800 18px Menlo,monospace;color:#fff}.chainPillarCopy{margin-top:7px;font-size:9.5px;line-height:1.6;color:var(--dim)}
+.chainMetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}.chainMetric{min-height:108px;padding:13px 14px;background:var(--panel)}.chainMetricLabel{font-size:8.5px;letter-spacing:1px;color:var(--dim)}.chainMetricValue{margin-top:7px;font:700 16px Menlo,monospace;color:#edf1f7}.chainMetricDelta{margin-top:5px;font:700 8.5px Menlo,monospace;color:var(--dim)}.chainMetricDelta.up{color:var(--grn)}.chainMetricDelta.dn{color:var(--red)}.chainMetricHint{margin-top:7px;font-size:8.5px;line-height:1.45;color:#747d8e}
+.chainGuide{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.chainGuideList{padding:5px 15px 13px}.chainGuide details{border-bottom:1px solid var(--line);padding:10px 0}.chainGuide summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;font-size:10.5px;color:#dce2ec}.chainGuide summary:after{content:'+';font:700 13px Menlo,monospace;color:var(--gold)}.chainGuide details[open] summary:after{content:'−'}.chainGuide details p{margin-top:8px;font-size:9.5px;line-height:1.65;color:var(--dim)}
+.chainCaveat{padding:16px;display:flex;flex-direction:column;gap:10px}.chainCaveatItem{padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}.chainCaveatItem b{display:block;font-size:10px;color:#dce1ea}.chainCaveatItem span{display:block;margin-top:5px;font-size:9px;line-height:1.55;color:var(--dim)}.chainDataStamp{padding:10px 15px 13px;border-top:1px solid var(--line);font-size:8.5px;line-height:1.5;color:var(--dim)}.chainDataStamp b{color:var(--cyan)}
+@media(max-width:900px){.chainMetrics{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.chainHero{align-items:flex-start;flex-direction:column}.chainLive{text-align:left}.chainDesk,.chainGuide{grid-template-columns:1fr}.chainPillars{grid-template-columns:1fr 1fr}.chainMetrics{grid-template-columns:repeat(2,1fr)}.chainGrid,.chainGrid + .chainGrid{grid-template-columns:1fr}.chainStat{grid-template-columns:1fr}.rouletteWrap{flex-direction:column}.rouletteLegend{width:100%}.vaultGrid{grid-template-columns:1fr 1fr}}@media(max-width:420px){.chainPillars{grid-template-columns:1fr}.chainMetric{padding:12px 10px}.chainThesis{padding:18px}}
 
 /* ═══ 발표장 ═══ */
 .macroWrap { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
@@ -921,6 +929,41 @@ body.shake { animation:shake .5s; }
     </div>
     <div class="chainLive"><b id="chainHeight">—</b><span id="chainBlockAge">BTC BLOCK HEIGHT · LIVE</span></div>
   </div>
+  <div class="chainSectionLabel">DAILY DATA DESK · 해석 중심 온체인 리포트</div>
+  <div class="chainDesk">
+    <div class="chainThesis">
+      <div class="chainDeskTop"><div><div class="chainDeskTag">BTC ON-CHAIN BALANCE</div><div class="chainVerdict" id="chainVerdict">장부를 펼치는 중</div></div><div class="chainScore" id="chainScore"><b id="chainScoreNum">—</b><span>BALANCE</span></div></div>
+      <p class="chainVerdictSub" id="chainVerdictSub">활동·거래소 수급·가치·채굴 네 축을 함께 읽습니다. 하나의 숫자로 매수·매도를 단정하지 않습니다.</p>
+      <div class="chainChecklist" id="chainChecklist"><div class="chainCheck"><i></i><b>데이터 대기</b><span>일일 스냅샷을 불러오고 있습니다.</span></div></div>
+    </div>
+    <div class="chainPillars" id="chainPillars">
+      <div class="chainPillar"><div class="chainPillarTop"><span>👥 네트워크 활동</span><b>LOADING</b></div><div class="chainPillarCopy">실제 사용 흔적을 확인하는 중…</div></div>
+      <div class="chainPillar"><div class="chainPillarTop"><span>🏦 거래소 수급</span><b>LOADING</b></div><div class="chainPillarCopy">유입과 유출의 균형을 확인하는 중…</div></div>
+      <div class="chainPillar"><div class="chainPillarTop"><span>⚖️ 가치 구간</span><b>LOADING</b></div><div class="chainPillarCopy">시장가와 실현가치의 거리를 확인하는 중…</div></div>
+      <div class="chainPillar"><div class="chainPillarTop"><span>⛏ 채굴·보안</span><b>LOADING</b></div><div class="chainPillarCopy">해시레이트와 채굴 수익 구성을 확인하는 중…</div></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h3>📚 온체인 장부 <small>최근 일일 값 · 7일/30일 기준 비교</small></h3>
+    <div class="chainMetrics" id="chainMetrics"><div class="chainMetric"><div class="chainMetricLabel">DATA FEED</div><div class="chainMetricValue">—</div><div class="chainMetricHint">스냅샷 연결 중</div></div></div>
+    <div class="chainDataStamp" id="chainDataStamp"><b>Coin Metrics Community</b> 일일 데이터 연결 대기 · 값마다 집계 시차가 다를 수 있습니다.</div>
+  </div>
+  <div class="chainGuide">
+    <div class="panel chainGuideList">
+      <h3>🧭 숫자 읽는 법 <small>눌러서 쉬운 설명 보기</small></h3>
+      <details open><summary>MVRV · 시장가와 전체 원가의 거리</summary><p>MVRV 1은 시장 전체의 평가가치와 실현가치가 비슷하다는 뜻입니다. 1 아래는 평균적으로 손실권, 높을수록 이익권 물량이 많다는 뜻이지만 특정 숫자만으로 고점·저점을 확정할 수는 없습니다.</p></details>
+      <details><summary>거래소 순유입 · 팔 수 있는 곳으로 이동했나</summary><p>유입−유출이 양수면 거래소로 들어온 BTC가 더 많고, 음수면 바깥으로 나간 BTC가 더 많습니다. 입금은 잠재 매도 유동성일 뿐 실제 매도를 뜻하지 않습니다.</p></details>
+      <details><summary>활성 주소·거래 수 · 사람이 실제로 쓰는가</summary><p>가격과 함께 활동이 늘면 참여가 넓어지는 신호일 수 있습니다. 주소 하나가 사람 한 명은 아니며 배치 거래와 주소 재사용의 영향도 받습니다.</p></details>
+      <details><summary>해시레이트 · 네트워크의 체력</summary><p>채굴자가 투입하는 연산 능력의 추정치입니다. 장기 상승은 보안과 채굴 투자 확대를 뜻하지만 가격 방향을 바로 예측하지는 못합니다.</p></details>
+      <details><summary>수수료 비중 · 블록 공간 수요</summary><p>신규 발행량과 수수료 중 수수료가 차지하는 비중입니다. 높으면 블록 공간 경쟁이 강하다는 뜻이지만 일시적 이벤트로 급등할 수 있습니다.</p></details>
+    </div>
+    <div class="panel"><h3>⚠️ 해석의 안전장치 <small>ON-CHAIN ≠ 정답지</small></h3><div class="chainCaveat">
+      <div class="chainCaveatItem"><b>방향보다 조건을 읽습니다</b><span>온체인은 시장이 움직일 조건과 참여 상태를 보여줍니다. 단기 시점은 파생·거시·유동성이 좌우할 수 있습니다.</span></div>
+      <div class="chainCaveatItem"><b>서로 다른 시간축을 섞지 않습니다</b><span>멤풀은 초·분 단위, 거래소 흐름과 MVRV는 일 단위입니다.</span></div>
+      <div class="chainCaveatItem"><b>분류 데이터에는 오차가 있습니다</b><span>거래소 지표는 알려진 주소 분류에 의존하며 내부 이동으로 수정될 수 있습니다.</span></div>
+    </div></div>
+  </div>
+  <div class="chainSectionLabel">LIVE FLOOR · 지금 블록 공간에서 벌어지는 일</div>
   <div class="chainGrid">
     <div class="panel">
       <h3>🎡 다음 블록 룰렛 <small>수수료 구간별 승선 경쟁</small></h3>
@@ -3454,6 +3497,70 @@ const MEMPOOL = 'https://mempool.space/api';
 let onchainStarted = false, onchainTimer = null, chainClockTimer = null, lastChainHeight = null, lastBlockTs = null;
 const chainEventCooldown = new Map();
 const btcText = sats => { const btc=sats/1e8; return btc>=1000?`${(btc/1000).toFixed(1)}K BTC`:`${btc.toFixed(btc>=10?1:3)} BTC`; };
+let chainReport = null, chainReportPending = null;
+const chainNum = v => Number.isFinite(+v) ? +v : null;
+const chainClamp = (v,a,b) => Math.max(a,Math.min(b,v));
+function chainRows(data){ return Array.isArray(data?.history) ? data.history.filter(r=>r&&r.date) : []; }
+function chainLatest(rows,key){ for(let i=rows.length-1;i>=0;i--){const v=chainNum(rows[i][key]);if(v!==null)return v;}return null; }
+function chainAvg(rows,key,n){ const vals=rows.slice(-n).map(r=>chainNum(r[key])).filter(v=>v!==null); return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null; }
+function chainSum(rows,key,n){ return rows.slice(-n).reduce((s,r)=>s+(chainNum(r[key])||0),0); }
+function chainPct(value,base){ return value!==null&&base ? (value/base-1)*100 : null; }
+function chainSigned(v,d=1,suffix='%'){ return v===null?'—':`${v>=0?'+':''}${v.toFixed(d)}${suffix}`; }
+function chainCompact(v,d=1){ if(v===null)return '—'; const a=Math.abs(v); if(a>=1e12)return (v/1e12).toFixed(d)+'T';if(a>=1e9)return (v/1e9).toFixed(d)+'B';if(a>=1e6)return (v/1e6).toFixed(d)+'M';if(a>=1e3)return (v/1e3).toFixed(d)+'K';return v.toFixed(d); }
+function chainMoney(v){ if(v===null)return '—'; return '$'+chainCompact(v,v>=1e6?1:0); }
+function chainTone(v,dead=1){ return Math.abs(v)<dead?'':v>0?'up':'dn'; }
+function chainMake(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
+function chainPillar(host,{icon,title,state,value,copy,tone}){const card=chainMake('div','chainPillar '+(tone||''));const top=chainMake('div','chainPillarTop');top.append(chainMake('span','',icon+' '+title),chainMake('b','',state));card.append(top,chainMake('div','chainPillarValue',value),chainMake('div','chainPillarCopy',copy));host.append(card);}
+function chainMetric(host,{label,value,delta,hint,tone}){const card=chainMake('div','chainMetric');card.append(chainMake('div','chainMetricLabel',label),chainMake('div','chainMetricValue',value),chainMake('div','chainMetricDelta '+(tone||''),delta),chainMake('div','chainMetricHint',hint));host.append(card);}
+function renderChainReport(data){
+  const rows=chainRows(data); if(!rows.length)throw new Error('empty on-chain report');
+  const price=chainLatest(rows,'price'),mvrv=chainLatest(rows,'mvrv'),active=chainLatest(rows,'active_addresses'),tx=chainLatest(rows,'transactions'),hash=chainLatest(rows,'hash_rate'),fees=chainLatest(rows,'fees_btc'),issuance=chainLatest(rows,'issuance_btc'),blocks=chainLatest(rows,'blocks'),addresses=chainLatest(rows,'addresses_with_balance'),exchange=chainLatest(rows,'exchange_balance_btc'),supply=chainLatest(rows,'supply_btc'),roi1y=chainLatest(rows,'roi_1y');
+  const active30=chainAvg(rows,'active_addresses',30),tx30=chainAvg(rows,'transactions',30),hash30=chainAvg(rows,'hash_rate',30),exchange30=chainAvg(rows,'exchange_balance_btc',30);
+  const activeD=chainPct(active,active30),txD=chainPct(tx,tx30),hashD=chainPct(hash,hash30),exchangeD=chainPct(exchange,exchange30);
+  const net7=chainSum(rows,'exchange_inflow_btc',7)-chainSum(rows,'exchange_outflow_btc',7);
+  const realized=price&&mvrv?price/mvrv:null,feeShare=fees!==null&&issuance!==null&&fees+issuance?fees/(fees+issuance)*100:null,reservePct=exchange&&supply?exchange/supply*100:null,inflation=issuance&&supply?issuance*365/supply*100:null;
+  const activityScore=chainClamp(50+(activeD||0)*1.6+(txD||0)*.6,15,85);
+  const flowScore=chainClamp(50-net7/120,15,85);
+  const valueScore=mvrv===null?50:mvrv<1?58:mvrv<1.5?72:mvrv<2?62:mvrv<2.5?44:28;
+  const minerScore=chainClamp(50+(hashD||0)*1.4+(feeShare||0)*.5,15,85);
+  const score=Math.round((activityScore+flowScore+valueScore+minerScore)/4);
+  const verdict=score>=65?'축적과 네트워크 체력이 우세':score>=55?'건설적이지만 확인이 필요':score>=45?'신호가 엇갈린 중립 구간':score>=35?'수요 둔화에 주의할 구간':'방어적 조건이 우세';
+  $('chainScore').style.setProperty('--score',score);$('chainScoreNum').textContent=score;$('chainVerdict').textContent=verdict;
+  $('chainVerdictSub').textContent=score>=55?'거래소 수급과 가치 구간은 우호적이지만, 단기 방향은 활동 증가가 이어지는지 확인해야 합니다.':'한쪽 신호만 강하게 믿기보다 활동·수급·가치·채굴의 엇갈림이 해소되는지 보는 편이 좋습니다.';
+  const checks=[
+    [activeD>=0?'up':'dn','활동',`활성 주소가 30일 평균보다 ${chainSigned(activeD)} ${activeD>=0?'많습니다.':'적습니다.'}`],
+    [net7<=0?'up':'dn','거래소',`7일 순${net7<=0?'유출':'유입'} ${chainCompact(Math.abs(net7),1)} BTC · ${net7<=0?'즉시 팔 수 있는 물량 감소 쪽':'잠재 매도 유동성 증가 쪽'}입니다.`],
+    [mvrv>2.4?'dn':mvrv>=1?'up':'','가치',`MVRV ${mvrv?.toFixed(2)??'—'} · 평균 원가 추정치는 ${chainMoney(realized)}입니다.`],
+    [hashD>=0?'up':'dn','채굴',`해시레이트가 30일 평균보다 ${chainSigned(hashD)}입니다.`]
+  ];
+  const checklist=$('chainChecklist');checklist.replaceChildren();checks.forEach(c=>{const row=chainMake('div','chainCheck');row.append(chainMake('i',c[0]),chainMake('b','',c[1]),chainMake('span','',c[2]));checklist.append(row);});
+  const pillars=$('chainPillars');pillars.replaceChildren();
+  chainPillar(pillars,{icon:'👥',title:'네트워크 활동',state:activityScore>=58?'EXPANDING':activityScore<42?'COOLING':'STEADY',value:`${chainCompact(active,0)} active`,copy:`거래 ${chainCompact(tx,0)}건 · 활성 주소는 30일 평균 대비 ${chainSigned(activeD)}. 사용자 수가 아니라 사용 흔적으로 읽습니다.`,tone:chainTone(activityScore-50,8)});
+  chainPillar(pillars,{icon:'🏦',title:'거래소 수급',state:net7<0?'NET OUTFLOW':net7>0?'NET INFLOW':'BALANCED',value:`${net7>=0?'+':''}${chainCompact(net7,1)} BTC / 7D`,copy:`거래소 보유량 ${chainCompact(exchange,1)} BTC(${reservePct?.toFixed(1)??'—'}%). 입금은 매도 가능성이지 매도 확정이 아닙니다.`,tone:net7<0?'up':net7>0?'dn':''});
+  chainPillar(pillars,{icon:'⚖️',title:'가치 구간',state:mvrv<1?'UNDERWATER':mvrv<2?'BALANCED':mvrv<2.5?'PROFIT HEAVY':'HEATED',value:`MVRV ${mvrv?.toFixed(2)??'—'}`,copy:`현재가 ${chainMoney(price)} · 실현가격 추정 ${chainMoney(realized)}. 이익권 물량의 크기이지 매도 시점표는 아닙니다.`,tone:mvrv>2.4?'dn':mvrv>=1&&mvrv<2?'up':''});
+  chainPillar(pillars,{icon:'⛏',title:'채굴·보안',state:hashD>=3?'STRENGTHENING':hashD<=-3?'SOFTENING':'STABLE',value:`${chainCompact(hash/1e6,1)} EH/s`,copy:`30일 평균 대비 ${chainSigned(hashD)} · 채굴 수익 중 수수료 비중 ${feeShare?.toFixed(1)??'—'}%. 장기 체력 지표입니다.`,tone:chainTone(hashD,3)});
+  const metrics=$('chainMetrics');metrics.replaceChildren();
+  [
+    {label:'MVRV',value:mvrv?.toFixed(2)??'—',delta:`실현가격 ${chainMoney(realized)}`,hint:'시장가 ÷ 실현가치',tone:mvrv>2.4?'dn':mvrv>=1?'up':''},
+    {label:'ACTIVE ADDRESSES',value:chainCompact(active,0),delta:`vs 30D ${chainSigned(activeD)}`,hint:'하루 동안 활동한 주소',tone:chainTone(activeD,3)},
+    {label:'TRANSACTIONS',value:chainCompact(tx,0),delta:`vs 30D ${chainSigned(txD)}`,hint:'확정된 일일 거래 수',tone:chainTone(txD,3)},
+    {label:'EXCHANGE NETFLOW · 7D',value:`${net7>=0?'+':''}${chainCompact(net7,1)} BTC`,delta:net7<=0?'순유출 · 공급 감소 쪽':'순유입 · 매도 가능 물량 쪽',hint:'유입 합계 − 유출 합계',tone:net7<0?'up':net7>0?'dn':''},
+    {label:'EXCHANGE RESERVE',value:`${chainCompact(exchange,1)} BTC`,delta:`vs 30D ${chainSigned(exchangeD)}`,hint:`유통량의 ${reservePct?.toFixed(1)??'—'}%`,tone:exchangeD<0?'up':exchangeD>0?'dn':''},
+    {label:'HASH RATE',value:`${chainCompact(hash/1e6,1)} EH/s`,delta:`vs 30D ${chainSigned(hashD)}`,hint:'채굴 연산력 추정',tone:chainTone(hashD,3)},
+    {label:'NETWORK FEES',value:`${fees?.toFixed(2)??'—'} BTC`,delta:`채굴수익 중 ${feeShare?.toFixed(1)??'—'}%`,hint:'하루 총수수료',tone:''},
+    {label:'NEW ISSUANCE',value:`${issuance?.toFixed(1)??'—'} BTC`,delta:`연율 ${inflation?.toFixed(2)??'—'}%`,hint:'하루 신규 발행량',tone:''},
+    {label:'ADDRESSES WITH BALANCE',value:chainCompact(addresses,1),delta:'잔액 0 초과',hint:'주소 수 ≠ 사용자 수',tone:''},
+    {label:'BLOCKS / DAY',value:blocks?.toFixed(0)??'—',delta:`평균 간격 ${blocks?((1440/blocks).toFixed(1)+'분'):'—'}`,hint:'목표는 약 10분/블록',tone:''},
+    {label:'BTC SUPPLY',value:`${chainCompact(supply,2)} BTC`,delta:`신규 ${issuance?.toFixed(1)??'—'} BTC/day`,hint:'현재 발행된 공급량',tone:''},
+    {label:'PRICE RETURN · 1Y',value:chainSigned(roi1y,1),delta:`현물가 ${chainMoney(price)}`,hint:'온체인 해석의 가격 문맥',tone:chainTone(roi1y,5)}
+  ].forEach(m=>chainMetric(metrics,m));
+  const asOf=data.as_of||rows.at(-1).date,generated=data.generated_at?new Date(data.generated_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'—';
+  $('chainDataStamp').innerHTML=`<b>Coin Metrics Community</b> · 기준일 ${esc(asOf)} UTC · 생성 ${esc(generated)} KST · 일일 지표는 확정·수정 시차가 서로 다를 수 있습니다. BALANCE ${score}는 투자 추천이 아닌 설명용 합성값입니다.`;
+}
+async function loadChainReport(){
+  if(chainReport){renderChainReport(chainReport);return;}if(chainReportPending)return chainReportPending;
+  chainReportPending=(async()=>{try{const r=await fetch('reports/onchain.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);chainReport=await r.json();renderChainReport(chainReport);}catch(e){$('chainVerdict').textContent='일일 장부 연결 대기';$('chainVerdictSub').textContent='실시간 멤풀은 정상 작동합니다. 일일 온체인 스냅샷은 다음 갱신 때 다시 연결합니다.';$('chainDataStamp').textContent='일일 온체인 데이터를 불러오지 못했습니다. LIVE FLOOR와는 독립된 데이터입니다.';}finally{chainReportPending=null;}})();return chainReportPending;
+}
 function safeChainEvent(key, icon, title, detail, tone='gold') {
   const now=Date.now(); if ((chainEventCooldown.get(key)||0)>now) return; chainEventCooldown.set(key,now+300000);
   addHighlight(icon,title,detail,tone); pitSignal('chain-'+key,78,icon,'BLOCK VAULT',title,detail,tone==='dn'?'#f87171':tone==='up'?'#4ade80':'#d4af37');
@@ -3512,7 +3619,7 @@ async function onchainRefresh() {
   renderRoulette(fee,Array.isArray(mBlocks)?mBlocks:[]);renderElevator(mp,fee,Array.isArray(mBlocks)?mBlocks:[]);const whales=renderWhaleVault(Array.isArray(txs)?txs:[]);
   const age=lastBlockTs?Math.max(0,Date.now()/1000-lastBlockTs):0;renderChainSignals(mp,fee,age,whales);updateChainClock();$('chainUpdated').textContent=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
-function onchainOpen(){onchainRefresh();if(!onchainStarted){onchainStarted=true;onchainTimer=setInterval(onchainRefresh,20000);chainClockTimer=setInterval(updateChainClock,1000);}}
+function onchainOpen(){loadChainReport();onchainRefresh();if(!onchainStarted){onchainStarted=true;onchainTimer=setInterval(onchainRefresh,20000);chainClockTimer=setInterval(updateChainClock,1000);}}
 
 // ═══ ⚔️ 선물 콜로세움 ═══
 const FD='https://fapi.binance.com/futures/data';
