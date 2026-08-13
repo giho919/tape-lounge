@@ -596,7 +596,7 @@ body.shake { animation:shake .5s; }
     <div>
       <div class="l">김치 프리미엄</div>
       <div class="v num" id="kimchi">—</div>
-      <div class="s">빗썸 vs 바이낸스</div>
+      <div class="s">빗썸 vs 바이낸스 · USD/KRW 기준</div>
     </div>
   </div>
   <div class="tile gaugeTile">
@@ -604,7 +604,7 @@ body.shake { animation:shake .5s; }
     <div><div class="l">공포 · 탐욕</div><div class="v num" id="fng">—</div><div class="s" id="fngW">—</div></div>
   </div>
   <div class="tile"><div class="l">USD / KRW</div><div class="v num" id="usdKrw">—</div><div class="s" id="usdKrwAt">일일 기준환율</div></div>
-  <div class="tile"><div class="l">USDT / KRW</div><div class="v num" id="usdtKrwPx">—</div><div class="s">빗썸 실시간</div></div>
+  <div class="tile"><div class="l">USDT / KRW</div><div class="v num" id="usdtKrwPx">—</div><div class="s num" id="usdtKrwBasis">달러 대비 —</div></div>
   <div class="tile"><div class="l">BTC 도미넌스</div><div class="v num" id="dom">—</div><div class="s">시총 점유율</div></div>
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
@@ -1149,7 +1149,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
 });
 
-let usd = 0, krw = 0, usdtKrw = 1380, kimchi = null;
+let usd = 0, krw = 0, usdKrw = 0, usdtKrw = 0, kimchi = null;
 
 // ═══ 김프 게이지 ═══
 const gctx = $('gauge').getContext('2d');
@@ -1181,12 +1181,20 @@ function drawArcGauge(c, value, min, max, ticks, colors) {
   requestAnimationFrame(drawGauges);
 })();
 function updateKimchi() {
-  if (!usd || !krw || !usdtKrw) return;
-  kimchi = (krw / (usd * usdtKrw) - 1) * 100;
+  if (!usd || !krw || !usdKrw) return;
+  // 김프는 원화 BTC와 달러 환산 글로벌 BTC를 비교한다.
+  // 국내 USDT 가격을 쓰면 테더 자체의 프리미엄/역프가 상쇄되어 왜곡된다.
+  kimchi = (krw / (usd * usdKrw) - 1) * 100;
   needleTarget = kimchi;
   const el = $('kimchi');
   el.textContent = (kimchi>=0?'+':'') + kimchi.toFixed(2) + '%';
   el.className = 'v num ' + (kimchi >= 2 ? 'dn' : kimchi >= 0 ? 'gold' : 'up');
+  if (usdtKrw) {
+    const basis = (usdtKrw / usdKrw - 1) * 100;
+    const basisEl = $('usdtKrwBasis');
+    basisEl.textContent = `달러 대비 ${basis>=0?'+':''}${basis.toFixed(2)}%`;
+    basisEl.className = 's num ' + (basis >= 1 ? 'dn' : basis >= 0 ? 'gold' : 'up');
+  }
 }
 
 // ═══ 국내 원화 시세 (브라우저 CORS 허용 공개 API) ═══
@@ -1212,8 +1220,10 @@ async function pollUsdKrw() {
     if (!r.ok) throw new Error('USD/KRW unavailable');
     const data = await r.json(), rate = +data.rates?.KRW;
     if (!Number.isFinite(rate)) throw new Error('USD/KRW invalid');
-    $('usdKrw').textContent = '₩ ' + fmt(rate, 2);
+    usdKrw = rate;
+    $('usdKrw').textContent = '₩ ' + fmt(usdKrw, 2);
     $('usdKrwAt').textContent = `${data.date} · 일일 기준`;
+    updateKimchi();
   } catch(e) {}
 }
 pollUsdKrw(); setInterval(pollUsdKrw, 60 * 60 * 1000);

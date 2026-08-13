@@ -20,7 +20,7 @@ Read the market's *now* on a single screen.
 | Metric | English | 한국어 |
 |--------|---------|--------|
 | **BTC / USDT·KRW** | Live dollar price with the won price as a secondary quote | 달러 실시간 가격을 메인으로, 원화 가격을 보조로 표시 |
-| **Kimchi Premium · 김치 프리미엄** | Analog gauge — Korean-market premium: Bithumb BTC/KRW ÷ (Binance BTCUSDT × Bithumb USDT/KRW) | 아날로그 게이지 — 빗썸 BTC/KRW ÷ (바이낸스 BTCUSDT × 빗썸 USDT/KRW) |
+| **Kimchi Premium · 김치 프리미엄** | Analog gauge — Korean-market premium: Bithumb BTC/KRW ÷ (Binance BTCUSDT × daily USD/KRW reference rate); the separate USDT tile shows its basis versus USD/KRW | 아날로그 게이지 — 빗썸 BTC/KRW ÷ (바이낸스 BTCUSDT × 일일 USD/KRW 기준환율), USDT 타일에는 달러 대비 테더 프리미엄을 별도 표시 |
 | **Fear & Greed · 공포·탐욕** | Analog gauge from alternative.me (0 = extreme fear ~ 100 = extreme greed) | alternative.me 지수를 아날로그 게이지로 표시 (0=극단 공포 ~ 100=극단 탐욕) |
 | **USD/KRW · USDT/KRW** | Daily reference exchange rate and live Bithumb tether price | 일일 기준환율과 빗썸 실시간 테더 원화 가격 |
 | **BTC Dominance · 도미넌스** | Bitcoin's share of total market cap | 전체 시총 중 비트코인 점유율 |
