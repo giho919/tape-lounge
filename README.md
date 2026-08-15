@@ -33,10 +33,14 @@ The market plays the game; visitors watch the tension build and the result settl
 
 - **Pit Boss · 핏 보스** — automatically promotes the hottest live scene among tape pressure, whale fills, liquidations, breakouts, and the coin race / 체결 압력·고래·청산·돌파·경마 중 가장 뜨거운 판을 자동으로 메인 무대에 올림
 - **Liquidation Tower · 청산 타워** — market-wide long and short liquidations stack as blocks over five-minute rounds; a severe imbalance knocks the tower down / 전 시장 롱·숏 청산이 5분간 블록으로 쌓이고 심한 불균형에서 타워 붕괴
-- **Liquidation Jackpot · 청산 잭팟** — a rolling 15-minute market-wide liquidation meter fires at $5M and becomes a special attack in the boss battle / 전 시장 15분 청산 누적이 $5M에 닿으면 잭팟이 발동하고 보스전 특수 공격으로 연결
-- **Market Boss Battle · 시장 보스전** — BTC attacks the largest visible sell wall for 60 seconds; only a real price cross counts as a defeat, while canceled walls leave the table / BTC가 실시간 최대 매도벽을 60초 동안 공격하며 실제 가격 돌파만 격파로 판정, 취소된 벽은 퇴장 처리
+- **Liquidation Jackpot · 청산 잭팟** — a rolling 15-minute market-wide liquidation meter fires at $5M with a full-screen payout / 전 시장 15분 청산 누적이 $5M에 닿으면 전면 연출과 함께 잭팟 발동
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
 - **Market Highlights · 시장 하이라이트** — major candles, breakouts, whales, tower crashes, and race winners are saved locally as replayable tickets / 장대봉·돌파·고래·타워 붕괴·경마 우승을 기기 안에 다시 볼 수 있는 전표로 보관
+
+### Candle Deck 🃏 · 캔들 덱
+
+Each closed candle is dealt as a card; body size sets its rarity (common → uncommon → rare → **epic / big candle**). It sits on the casino floor beside the jackpot, follows your selected chart & timeframe (shown as a badge in its header), and keeps a `?` card in the next slot.
+마감된 캔들이 한 장씩 카드로 딜립니다. 몸통 크기에 따라 등급이 갈립니다 (일반 → 언커먼 → 레어 → **에픽/장대봉**). 관전 카지노의 잭팟 옆에 자리하며, 선택한 차트·타임프레임을 따라가고(헤더에 배지로 표시) 맨 오른쪽 `?` 카드가 다음 봉 자리를 지킵니다.
 
 ### Live charts (swipeable) · 라이브 차트 (넘겨보기)
 
@@ -48,11 +52,6 @@ The market plays the game; visitors watch the tension build and the result settl
 - **Price Chests · 가격 보물상자** — rolling 40-candle high/low chests open as bronze, gold, or diamond based on breakout volume / 최근 40개 확정봉 고저점 상자가 돌파 거래량에 따라 브론즈·골드·다이아로 개봉
 - **Whale Footprints · 고래 발자국** — $500k+ BTC fills leave minute-aggregated buy/sell markers / $50만 이상 BTC 체결을 분 단위 매수·매도 발자국으로 기록
 - Countdown to candle close, split-flap price display / 봉 마감 카운트다운, split-flap 가격
-
-### Candle Deck 🃏 · 캔들 덱
-
-Each closed candle is dealt as a card; body size sets its rarity (common → uncommon → rare → **epic / big candle**). The deck follows your selected chart & timeframe, with a `?` card holding the next slot.
-마감된 캔들이 한 장씩 카드로 딜립니다. 몸통 크기에 따라 등급이 갈립니다 (일반 → 언커먼 → 레어 → **에픽/장대봉**). 선택한 차트·타임프레임을 따라가며, 맨 오른쪽 `?` 카드가 다음 봉 자리를 지킵니다.
 
 ### Rain of Fills 🌧 · 체결의 비
 
