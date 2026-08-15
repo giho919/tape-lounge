@@ -66,6 +66,19 @@ create table if not exists public.blind_room_calls (
   foreign key (room_id, user_id) references public.blind_room_players(room_id, user_id) on delete cascade
 );
 
+-- 함께 보는 판의 정답과 가격 경로. private 스키마에 두어 브라우저가 seed·정체를
+-- 직접 읽지 못하게 하고, 검증된 Edge Function만 내부 RPC로 접근합니다.
+create table if not exists private.blind_round_data (
+  room_id uuid primary key references public.blind_rooms(id) on delete cascade,
+  symbol text not null check (char_length(symbol) between 1 and 16),
+  real_start date not null,
+  real_end date not null,
+  candles jsonb not null check (jsonb_typeof(candles) = 'array' and jsonb_array_length(candles) = 460),
+  created_at timestamptz not null default now()
+);
+alter table private.blind_round_data enable row level security;
+revoke all on private.blind_round_data from public, anon, authenticated;
+
 create index if not exists blind_rooms_status_expires_idx on public.blind_rooms(status, expires_at);
 create index if not exists blind_rooms_host_user_idx on public.blind_rooms(host_user_id);
 create index if not exists blind_room_players_user_idx on public.blind_room_players(user_id);
@@ -119,7 +132,9 @@ using (
 );
 
 revoke all on public.blind_rooms, public.blind_room_players, public.blind_room_calls from anon, authenticated;
-grant select on public.blind_rooms, public.blind_room_players, public.blind_room_calls to authenticated;
+grant select (id, code, host_user_id, host_nick, track, status, start_at, speed, playing, elapsed_ms, state_at, created_at, expires_at)
+on public.blind_rooms to authenticated;
+grant select on public.blind_room_players, public.blind_room_calls to authenticated;
 grant update (ready) on public.blind_room_players to authenticated;
 
 create or replace function private.blind_create_room(p_track text, p_nick text)
@@ -140,6 +155,12 @@ begin
   if char_length(trim(p_nick)) not between 1 and 10 then raise exception 'INVALID_NICK'; end if;
 
   delete from public.blind_rooms where expires_at < now() - interval '1 day';
+  if exists (select 1 from public.blind_rooms where host_user_id = v_uid and created_at > now() - interval '30 seconds') then
+    raise exception 'CREATE_COOLDOWN';
+  end if;
+  if (select count(*) from public.blind_rooms where host_user_id = v_uid and status <> 'finished' and expires_at > now()) >= 3 then
+    raise exception 'ACTIVE_ROOM_LIMIT';
+  end if;
   loop
     v_code := '';
     for i in 1..6 loop
@@ -176,7 +197,7 @@ begin
   select r.id into v_room
   from public.blind_rooms r
   where r.code = upper(trim(p_code)) and r.status = 'lobby' and r.expires_at > now()
-  limit 1;
+  limit 1 for update;
   if v_room is null then raise exception 'ROOM_NOT_FOUND'; end if;
   if (select count(*) from public.blind_room_players p where p.room_id = v_room) >= 12 then raise exception 'ROOM_FULL'; end if;
 
@@ -420,9 +441,7 @@ grant execute on function private.blind_leave_room(uuid) to authenticated;
 grant execute on function private.blind_lock_call(uuid, text, text) to authenticated;
 grant execute on function private.blind_start_room(uuid) to authenticated;
 grant execute on function private.blind_control_room(uuid, text) to authenticated;
-grant execute on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function private.blind_update_nick(uuid, text) to authenticated;
-grant execute on function private.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 
 create or replace function public.blind_create_room(p_track text, p_nick text)
 returns uuid language sql security invoker set search_path = ''
@@ -471,10 +490,197 @@ grant execute on function public.blind_leave_room(uuid) to authenticated;
 grant execute on function public.blind_lock_call(uuid, text, text) to authenticated;
 grant execute on function public.blind_start_room(uuid) to authenticated;
 grant execute on function public.blind_control_room(uuid, text) to authenticated;
-grant execute on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function public.blind_update_nick(uuid, text) to authenticated;
-grant execute on function public.blind_finish_room(uuid, numeric, numeric, jsonb) to authenticated;
 grant execute on function public.blind_server_time() to authenticated;
+
+-- 구형 클라이언트 계산값 저장 경로는 닫습니다. 결과는 아래 내부 RPC에서 재계산합니다.
+revoke all on function private.blind_save_player_state(uuid, numeric, numeric, jsonb) from authenticated;
+revoke all on function private.blind_finish_room(uuid, numeric, numeric, jsonb) from authenticated;
+revoke all on function public.blind_save_player_state(uuid, numeric, numeric, jsonb) from authenticated;
+revoke all on function public.blind_finish_room(uuid, numeric, numeric, jsonb) from authenticated;
+
+create or replace function public.blind_round_get_internal(p_room_id uuid, p_user_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_room public.blind_rooms%rowtype;
+  v_round private.blind_round_data%rowtype;
+begin
+  select * into v_room from public.blind_rooms where id = p_room_id;
+  if v_room.id is null or not exists (
+    select 1 from public.blind_room_players where room_id = p_room_id and user_id = p_user_id
+  ) then raise exception 'NOT_A_MEMBER'; end if;
+  select * into v_round from private.blind_round_data where room_id = p_room_id;
+  return jsonb_build_object(
+    'track', v_room.track, 'seed', v_room.seed, 'status', v_room.status,
+    'round', case when v_round.room_id is null then null else jsonb_build_object(
+      'symbol', v_round.symbol, 'real_start', v_round.real_start,
+      'real_end', v_round.real_end, 'candles', v_round.candles
+    ) end
+  );
+end;
+$$;
+
+create or replace function public.blind_round_store_internal(
+  p_room_id uuid, p_user_id uuid, p_symbol text, p_real_start date, p_real_end date, p_candles jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_round private.blind_round_data%rowtype;
+begin
+  perform 1 from public.blind_rooms where id = p_room_id for update;
+  if not exists (
+    select 1 from public.blind_room_players where room_id = p_room_id and user_id = p_user_id
+  ) then raise exception 'NOT_A_MEMBER'; end if;
+  if char_length(p_symbol) not between 1 and 16
+     or p_real_end < p_real_start
+     or jsonb_typeof(p_candles) <> 'array'
+     or jsonb_array_length(p_candles) <> 460 then raise exception 'INVALID_ROUND'; end if;
+  insert into private.blind_round_data(room_id, symbol, real_start, real_end, candles)
+  values (p_room_id, upper(p_symbol), p_real_start, p_real_end, p_candles)
+  on conflict (room_id) do nothing;
+  select * into v_round from private.blind_round_data where room_id = p_room_id;
+  return jsonb_build_object('symbol',v_round.symbol,'real_start',v_round.real_start,'real_end',v_round.real_end,'candles',v_round.candles);
+end;
+$$;
+
+create or replace function public.blind_apply_trade_internal(
+  p_room_id uuid, p_user_id uuid, p_action text, p_pct numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_room public.blind_rooms%rowtype;
+  v_player public.blind_room_players%rowtype;
+  v_round private.blind_round_data%rowtype;
+  v_elapsed bigint;
+  v_day integer;
+  v_px numeric;
+  v_equity numeric;
+  v_notional numeric := 0;
+  v_qty numeric := 0;
+  v_fee numeric := 0;
+  v_intent text;
+  v_trade jsonb;
+begin
+  if p_action not in ('buy','sell') or p_pct <= 0 or p_pct > 1 then raise exception 'INVALID_ORDER'; end if;
+  select * into v_room from public.blind_rooms where id = p_room_id for update;
+  select * into v_player from public.blind_room_players
+    where room_id = p_room_id and user_id = p_user_id for update;
+  select * into v_round from private.blind_round_data where room_id = p_room_id;
+  if v_room.status <> 'running' or v_player.user_id is null or not v_player.ready or v_round.room_id is null
+     or v_room.start_at is null or now() < v_room.start_at then raise exception 'ORDER_NOT_OPEN'; end if;
+  v_elapsed := least(480000::bigint, v_room.elapsed_ms + case
+    when v_room.playing and v_room.state_at is not null
+      then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
+    else 0::bigint end);
+  v_day := least(200, greatest(0, floor(v_elapsed / 2400.0)::integer));
+  v_px := (v_round.candles -> (259 + v_day) ->> 4)::numeric;
+  v_equity := greatest(0::numeric, v_player.cash + v_player.coin * v_px);
+
+  if p_action = 'buy' then
+    if v_player.coin < 0 then
+      v_notional := least(abs(v_player.coin) * v_px * p_pct, v_player.cash / 1.001);
+      v_intent := 'COVER';
+    else
+      v_notional := (v_player.cash / 1.001) * p_pct;
+      v_intent := 'LONG';
+    end if;
+    if v_notional >= 1 then
+      v_qty := v_notional / v_px; v_fee := v_notional * 0.001;
+      v_player.coin := v_player.coin + v_qty;
+      v_player.cash := v_player.cash - v_notional - v_fee;
+    end if;
+  else
+    if v_player.coin > 0 then
+      v_qty := v_player.coin * p_pct; v_notional := v_qty * v_px; v_intent := 'CLOSE';
+    else
+      v_notional := greatest(0::numeric, (v_equity - abs(v_player.coin) * v_px) / 1.001) * p_pct;
+      v_qty := case when v_px > 0 then v_notional / v_px else 0 end; v_intent := 'SHORT';
+    end if;
+    if v_notional >= 1 then
+      v_fee := v_notional * 0.001;
+      v_player.cash := v_player.cash + v_notional - v_fee;
+      v_player.coin := v_player.coin - v_qty;
+    end if;
+  end if;
+
+  if v_notional < 1 then
+    return jsonb_build_object('cash',v_player.cash,'coin',v_player.coin,'trades',v_player.trades);
+  end if;
+  if abs(v_player.coin) < 0.0000000001 then v_player.coin := 0; end if;
+  v_trade := jsonb_build_object('day',v_day,'side',case when p_action='buy' then 'BUY' else 'SELL' end,
+    'intent',v_intent,'px',round(v_px,8),'amt',round(v_notional,4),'fee',round(v_fee,4));
+  v_player.trades := jsonb_build_array(v_trade) || coalesce((
+    select jsonb_agg(x order by n)
+    from jsonb_array_elements(v_player.trades) with ordinality a(x,n)
+    where n <= 99
+  ),'[]'::jsonb);
+  update public.blind_room_players set cash=round(v_player.cash,4), coin=round(v_player.coin,10), trades=v_player.trades
+  where room_id=p_room_id and user_id=p_user_id;
+  return jsonb_build_object('cash',round(v_player.cash,4),'coin',round(v_player.coin,10),'trades',v_player.trades);
+end;
+$$;
+
+create or replace function public.blind_finish_player_internal(p_room_id uuid, p_user_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_room public.blind_rooms%rowtype;
+  v_player public.blind_room_players%rowtype;
+  v_round private.blind_round_data%rowtype;
+  v_elapsed bigint;
+  v_day integer;
+  v_px numeric;
+  v_start_px numeric;
+  v_roi numeric;
+  v_bh numeric;
+begin
+  select * into v_room from public.blind_rooms where id=p_room_id for update;
+  select * into v_player from public.blind_room_players where room_id=p_room_id and user_id=p_user_id for update;
+  select * into v_round from private.blind_round_data where room_id=p_room_id;
+  if v_room.id is null or v_player.user_id is null or v_round.room_id is null then raise exception 'NOT_A_MEMBER'; end if;
+  v_elapsed := least(480000::bigint, v_room.elapsed_ms + case
+    when v_room.playing and v_room.state_at is not null
+      then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
+    else 0::bigint end);
+  if v_room.status <> 'finished' and v_elapsed < 480000 then raise exception 'ROUND_NOT_OVER'; end if;
+  v_day := least(200, greatest(0, floor(v_elapsed / 2400.0)::integer));
+  v_px := (v_round.candles -> (259 + v_day) ->> 4)::numeric;
+  v_start_px := (v_round.candles -> 259 ->> 4)::numeric;
+  v_roi := round((greatest(0::numeric,v_player.cash+v_player.coin*v_px)/10000-1)*100,4);
+  v_bh := round((v_px/v_start_px-1)*100,4);
+  update public.blind_room_players set roi=v_roi,buy_hold=v_bh,finished_at=coalesce(finished_at,now())
+    where room_id=p_room_id and user_id=p_user_id;
+  if v_room.status <> 'finished' then
+    update public.blind_rooms set status='finished',playing=false,elapsed_ms=v_elapsed,state_at=now() where id=p_room_id;
+  end if;
+  return jsonb_build_object('cash',v_player.cash,'coin',v_player.coin,'trades',v_player.trades,
+    'roi',v_roi,'buy_hold',v_bh,'symbol',v_round.symbol,'real_start',v_round.real_start,'real_end',v_round.real_end);
+end;
+$$;
+
+revoke all on function public.blind_round_get_internal(uuid,uuid) from public, anon, authenticated;
+revoke all on function public.blind_round_store_internal(uuid,uuid,text,date,date,jsonb) from public, anon, authenticated;
+revoke all on function public.blind_apply_trade_internal(uuid,uuid,text,numeric) from public, anon, authenticated;
+revoke all on function public.blind_finish_player_internal(uuid,uuid) from public, anon, authenticated;
+grant execute on function public.blind_round_get_internal(uuid,uuid) to service_role;
+grant execute on function public.blind_round_store_internal(uuid,uuid,text,date,date,jsonb) to service_role;
+grant execute on function public.blind_apply_trade_internal(uuid,uuid,text,numeric) to service_role;
+grant execute on function public.blind_finish_player_internal(uuid,uuid) to service_role;
 
 do $$
 begin

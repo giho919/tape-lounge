@@ -40,6 +40,7 @@ with check ((select auth.uid()) = user_id);
 create or replace function public.board_monotonic()
 returns trigger
 language plpgsql
+set search_path = ''
 as $function$
 begin
   new.streak_best := greatest(new.streak_best, old.streak_best);
@@ -51,3 +52,10 @@ drop trigger if exists board_monotonic_trg on public.salon_board;
 create trigger board_monotonic_trg
 before update on public.salon_board
 for each row execute function public.board_monotonic();
+
+-- 기능이 제거됐으므로 데이터는 보존하되 Data API에서는 완전히 닫습니다.
+drop policy if exists board_read on public.salon_board;
+drop policy if exists board_insert on public.salon_board;
+drop policy if exists board_update on public.salon_board;
+revoke all on public.salon_board from anon, authenticated;
+revoke all on function public.board_monotonic() from public, anon, authenticated;

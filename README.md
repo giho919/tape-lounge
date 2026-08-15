@@ -132,7 +132,7 @@ You're dropped into a **real past market** with its identity hidden — no symbo
 정체를 숨긴 **과거의 실제 시장**에 던져집니다. 종목도 날짜도 비밀 (시작가 100 기준 지수화, 시간축 숨김). **🪙 코인 / 📈 미국주식** 트랙을 고른 뒤, 밑천 $10,000으로 매매하는데 캔들이 **시간에 따라 저절로 진행**됩니다 (⏸ 일시정지 / ▶ 재생 / 속도 1×·2×·4×). 200일 뒤 정체가 공개되며 **같은 기간 존버 대비 성적**으로 판정받습니다. 이동평균선·거래량도 함께 표시됩니다.
 
 - **Shared Table · 함께 보는 판** — create or join with a six-character code, change your room nickname in the lobby, ready up, and share a server-synchronized clock; players may leave mid-round, with host control handed to the earliest remaining player / 6자리 코드로 방 생성·참가 후 READY와 서버 동기화 시계를 공유하며, 중간 퇴장 시 방장은 남은 사람 중 먼저 입장한 참가자에게 자동 승계
-- **Persistent portfolio · 장부 복원** — each player's cash, holdings, and trades are saved after every order and restored after refresh / 주문마다 개인 현금·보유량·거래 장부를 저장해 새로고침 뒤에도 그대로 복원
+- **Server-verified portfolio · 서버 판정 장부** — the hidden round is assigned by a JWT-protected Edge Function; every shared-table order and final return is recalculated server-side and restored after refresh / JWT 보호 Edge Function이 숨은 판을 배정하고, 함께 보는 판의 주문·최종 수익률을 서버에서 다시 계산해 새로고침 뒤에도 복원
 - **Segment outlook · 구간 전망** — every 20-day segment accepts one bullish, neutral, or bearish outlook; classmates' choices are grouped into chart markers after the reveal / 20일 구간마다 강세·중립·약세 전망을 한 번 선택하며 공개 뒤 다른 사람의 선택을 차트 마커로 묶어 표시
 - **Shared settlement · 공동 정산** — returns, buy-and-hold comparison, trade count, and the opinion chart are revealed together / 수익률·존버 비교·매매 횟수와 의견 차트를 함께 공개
 - **Mobile layout · 모바일 화면** — the blind chart, controls, lobby, and shared panels collapse into a single-column touch layout on small screens / 작은 화면에서는 블라인드 차트·주문·로비·공용 패널을 한 열 터치 레이아웃으로 재배치
@@ -179,7 +179,8 @@ All public & free APIs, called directly from the browser.
 ## Tech · 기술
 
 - Single HTML file (`index.html`); only external deps are lightweight-charts & Supabase JS via CDN / 단일 HTML 파일, 외부 의존성은 lightweight-charts·Supabase JS(CDN)뿐
-- **Supabase** — live chat and synchronized blind-study rooms over anonymous auth; room membership and row ownership are enforced with RLS / 익명 인증 기반 채팅·블라인드 스터디방, RLS로 방 멤버십과 본인 기록 권한 적용
+- **Supabase** — live chat and synchronized blind-study rooms over anonymous auth; RLS limits room rows, while a JWT-protected Edge Function keeps round seeds private and verifies shared-table trades / 익명 인증 기반 채팅·블라인드 스터디방, RLS로 방 행을 제한하고 JWT 보호 Edge Function이 정답 seed를 숨긴 채 공동 주문을 검증
+- **Database hardening · DB 보안** — public grants are least-privilege, internal settlement RPCs are service-role only, room creation is rate-limited, and joins lock the room row before enforcing the 12-seat cap / 공개 권한 최소화, 내부 정산 RPC service-role 전용, 방 생성 제한, 12석 입장 원자적 검증
 - **Hosting · 호스팅** — GitHub Pages
 
 ## Disclaimer · 면책

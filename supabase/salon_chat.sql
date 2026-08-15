@@ -15,12 +15,14 @@ alter table public.salon_chat enable row level security;
 drop policy if exists chat_read on public.salon_chat;
 create policy chat_read on public.salon_chat
 for select
+to anon, authenticated
 using (true);
 
 -- 쓰기는 본인 user_id로만 — 익명 세션은 auth.uid()가 null이라 통과하지 못함
 drop policy if exists chat_write on public.salon_chat;
 create policy chat_write on public.salon_chat
 for insert
+to authenticated
 with check ((select auth.uid()) = user_id);
 
 -- update/delete 정책 없음 → RLS 기본 거부
@@ -64,14 +66,11 @@ begin
 end $$;
 
 
--- ─────────────────────────────────────────────────────────────
--- 선택: 권한 조이기
---
--- 이 테이블은 Supabase 기본 grant(anon/authenticated에 TRUNCATE·TRIGGER 포함)를
--- 그대로 쓰고 있습니다. blind_rooms.sql처럼 필요한 것만 남기려면 아래를 실행하세요.
--- PostgREST가 TRUNCATE를 노출하지는 않지만, 최소 권한 원칙에는 어긋납니다.
---
--- revoke all on public.salon_chat from anon, authenticated;
--- grant select on public.salon_chat to anon, authenticated;
--- grant insert (nick, body, user_id) on public.salon_chat to authenticated;
--- ─────────────────────────────────────────────────────────────
+revoke all on public.salon_chat from anon, authenticated;
+grant select on public.salon_chat to anon, authenticated;
+grant insert (nick, body, user_id) on public.salon_chat to authenticated;
+revoke all on sequence public.salon_chat_id_seq from anon, authenticated;
+grant usage on sequence public.salon_chat_id_seq to authenticated;
+
+-- 트리거 함수는 테이블 트리거만 실행하며 Data API RPC로 직접 호출할 이유가 없습니다.
+revoke all on function public.limit_salon_chat_rate() from public, anon, authenticated;
