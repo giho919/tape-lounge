@@ -301,7 +301,7 @@ body.shake { animation:shake .5s; }
 @keyframes towerCrash { 25%{transform:rotate(-4deg)} 55%{transform:rotate(11deg) translateX(8px)} 100%{transform:rotate(28deg) translate(24px,30px);opacity:0} }
 .towerFoot { display:flex; justify-content:space-between; padding:7px 16px 13px; color:var(--dim); font-size:9.5px; letter-spacing:.4px; }
 
-.casinoDuo { display:grid; grid-template-columns:.9fr 1.35fr; gap:12px; }
+.casinoDuo { display:grid; grid-template-columns:calc((100% - 24px)/3.25) 1fr; gap:12px; }   /* 1열 폭을 청산 타워(.spectatorGrid 1fr)와 일치 */
 .jackpotCard,#deckPanel { position:relative; overflow:hidden; min-height:220px; }
 .jackpotBody { padding:15px 16px 16px; }
 .jackpotTop { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
