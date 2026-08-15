@@ -3190,7 +3190,6 @@ window.macroOpen=macroOpen;
 // ═══ ⛓ 블록 금고 ═══
 const MEMPOOL = 'https://mempool.space/api';
 let onchainStarted = false, onchainTimer = null, chainClockTimer = null, lastChainHeight = null, lastBlockTs = null;
-const chainEventCooldown = new Map();
 const btcText = sats => { const btc=sats/1e8; return btc>=1000?`${(btc/1000).toFixed(1)}K BTC`:`${btc.toFixed(btc>=10?1:3)} BTC`; };
 let chainReport = null, chainReportPending = null;
 const chainNum = v => Number.isFinite(+v) ? +v : null;
@@ -3256,10 +3255,6 @@ async function loadChainReport(){
   if(chainReport){renderChainReport(chainReport);return;}if(chainReportPending)return chainReportPending;
   chainReportPending=(async()=>{try{const r=await fetch('reports/onchain.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);chainReport=await r.json();renderChainReport(chainReport);}catch(e){$('chainVerdict').textContent='일일 장부 연결 대기';$('chainVerdictSub').textContent='실시간 멤풀은 정상 작동합니다. 일일 온체인 스냅샷은 다음 갱신 때 다시 연결합니다.';$('chainDataStamp').textContent='일일 온체인 데이터를 불러오지 못했습니다. LIVE FLOOR와는 독립된 데이터입니다.';}finally{chainReportPending=null;}})();return chainReportPending;
 }
-function safeChainEvent(key, icon, title, detail, tone='gold') {
-  const now=Date.now(); if ((chainEventCooldown.get(key)||0)>now) return; chainEventCooldown.set(key,now+300000);
-  addHighlight(icon,title,detail,tone); pitSignal('chain-'+key,78,icon,'BLOCK VAULT',title,detail,tone==='dn'?'#f87171':tone==='up'?'#4ade80':'#d4af37');
-}
 function renderRoulette(fee, blocks) {
   const vals=[fee?.fastestFee,fee?.halfHourFee,fee?.hourFee,fee?.economyFee,fee?.minimumFee].filter(Number.isFinite);
   const legend=$('rouletteLegend'); legend.replaceChildren();
@@ -3286,20 +3281,19 @@ function renderWhaleVault(txs) {
 }
 function renderChainSignals(mp,fee,blockAge,whales) {
   const signals=[];
-  if(blockAge>1200) signals.push(['⏳','BLOCK DROUGHT',`${Math.floor(blockAge/60)}분째 새 블록 없음`,'DELAY',true,'drought']);
-  if((fee?.fastestFee||0)>=50) signals.push(['🔥','FEE SURGE',`급행 ${fee.fastestFee} sat/vB`,'HOT',true,'fee']);
-  if((mp?.vsize||0)>=20000000) signals.push(['🌊','MEMPOOL FLOOD',`${(mp.vsize/1e6).toFixed(1)} MB 대기`,'FLOOD',true,'flood']);
+  if(blockAge>1200) signals.push(['⏳','BLOCK DROUGHT',`${Math.floor(blockAge/60)}분째 새 블록 없음`,'DELAY',true]);
+  if((fee?.fastestFee||0)>=50) signals.push(['🔥','FEE SURGE',`급행 ${fee.fastestFee} sat/vB`,'HOT',true]);
+  if((mp?.vsize||0)>=20000000) signals.push(['🌊','MEMPOOL FLOOD',`${(mp.vsize/1e6).toFixed(1)} MB 대기`,'FLOOD',true]);
   const giants=(whales||[]).filter(w=>w.value>=100e8);
-  if(giants.length>=3) signals.push(['🐋','WHALE PARADE',`100 BTC+ 전송 ${giants.length}건 포착`,'VIP',true,'whales']);
-  if((mp?.vsize||Infinity)<2000000) signals.push(['✨','CLEAR FLOOR','멤풀이 빠르게 비워진 상태','CALM',false,'clear']);
-  if(!signals.length) signals.push(['🔒','VAULT NORMAL','특이 징후 없이 정산 진행 중','STABLE',false,'normal']);
+  if(giants.length>=3) signals.push(['🐋','WHALE PARADE',`100 BTC+ 전송 ${giants.length}건 포착`,'VIP',true]);
+  if((mp?.vsize||Infinity)<2000000) signals.push(['✨','CLEAR FLOOR','멤풀이 빠르게 비워진 상태','CALM',false]);
+  if(!signals.length) signals.push(['🔒','VAULT NORMAL','특이 징후 없이 정산 진행 중','STABLE',false]);
   const board=$('chainSignals'); board.replaceChildren();
-  signals.slice(0,5).forEach(s=>{const row=document.createElement('div');row.className='chainSignal'+(s[4]?' hot':'');const icon=document.createElement('span');icon.textContent=s[0];const main=document.createElement('div');const b=document.createElement('b');b.textContent=s[1];const copy=document.createElement('span');copy.textContent=s[2];main.append(b,copy);const code=document.createElement('em');code.textContent=s[3];row.append(icon,main,code);board.append(row);if(s[4])safeChainEvent(s[5],s[0],s[1],s[2],s[5]==='drought'?'dn':'gold');});
+  signals.slice(0,5).forEach(s=>{const row=document.createElement('div');row.className='chainSignal'+(s[4]?' hot':'');const icon=document.createElement('span');icon.textContent=s[0];const main=document.createElement('div');const b=document.createElement('b');b.textContent=s[1];const copy=document.createElement('span');copy.textContent=s[2];main.append(b,copy);const code=document.createElement('em');code.textContent=s[3];row.append(icon,main,code);board.append(row);});
 }
 function blockLanding(height, block) {
   $('landingHeight').textContent='#'+height; $('landingMeta').textContent=block?`${fmt(block.tx_count||0)}건 정산 · ${Math.round(block.size/1000||0)} KB`:'새 블록이 금고에 착륙했습니다.';
   const el=$('blockLanding');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3800);const wheel=$('rouletteWheel');wheel.classList.remove('settle');void wheel.offsetWidth;wheel.classList.add('settle');
-  addHighlight('🔔',`BLOCK #${height} 착륙`,$('landingMeta').textContent,'gold');pitSignal('block-land',90,'🔔','BLOCK SETTLED',`BLOCK #${height} 착륙`,$('landingMeta').textContent,'#d4af37');
 }
 function updateChainClock(){if(!lastBlockTs)return;const age=Math.max(0,Date.now()/1000-lastBlockTs),eta=Math.max(0,600-age);$('chainBlockAge').textContent=`마지막 블록 ${Math.floor(age/60)}분 전 · LIVE`;$('nextBlockEta').textContent=eta?`~${Math.max(1,Math.ceil(eta/60))}m`:'DUE';}
 async function onchainRefresh() {
