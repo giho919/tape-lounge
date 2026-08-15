@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T22:22:01.822077Z",
+  "generated_at": "2026-08-15T12:32:01.745583Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "7eaf574e664b9c08",
-      "source": "BLS",
-      "code": "JOBS",
-      "title": "고용보고서",
-      "importance": "VIP",
-      "scheduled_at": "2026-08-07T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": true,
-      "unit": "K",
-      "note": "2026-07 관측 · 공식 일정 스냅샷",
-      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
-      "btc": {
-        "m5": -0.192,
-        "m15": 0.048,
-        "m60": 0.052
-      },
-      "status": "waiting"
-    },
     {
       "id": "ac13bc981f2aecdf",
       "source": "BLS",
