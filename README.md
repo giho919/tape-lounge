@@ -5,8 +5,8 @@
 
 **Live** → https://tapelounge.com
 
-A **single-file static site** running entirely on free public APIs in the browser (no backend; only chat & leaderboard use Supabase). The concept: a members' hideaway for people who like to *read the tape*.
-브라우저에서 무료 공개 API만으로 돌아가는 **단일 파일 정적 사이트**입니다 (백엔드 없음, 채팅·리더보드만 Supabase). "시세를 읽는" 사람들의 아지트라는 콘셉트.
+A **single-file static site** running entirely on free public APIs in the browser (no backend; only chat and blind-study rooms use Supabase). The concept: a members' hideaway for people who like to *read the tape*.
+브라우저에서 무료 공개 API만으로 돌아가는 **단일 파일 정적 사이트**입니다 (백엔드 없음, 채팅·블라인드 스터디방만 Supabase). "시세를 읽는" 사람들의 아지트라는 콘셉트.
 
 ---
 
@@ -78,8 +78,6 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 ### Interactive · 참여 요소
 
 - **Lounge Chat · 라운지 채팅** — Live visitor chat (nickname-based); the strategists' letters flow in alongside / 방문자 실시간 채팅(닉네임 기반) + 전략가 서신·소식이 함께 흐름
-- **Next-Candle Prediction · 다음 캔들 예측** — Call the next BTC 1-minute candle (UP/DOWN) in advance; locked when the candle opens, judged at close. The target candle is marked right on the live chart — a colored `?` ghost at the next slot, 🔒 on the candle being judged / BTC 1분봉의 다음 방향을 미리 걸고 연승 도전 (봉 열릴 때 잠금 → 마감 판정). 예측 대상 봉이 라이브 차트에 표시됨 — 다음 자리에 색깔 `?` 유령캔들, 판정 중인 봉엔 🔒
-- **Leaderboard · 리더보드** — Self-standing ranking by best streak & record / 예측 최고 연승·전적 기반 자율 순위
 
 ---
 
@@ -181,7 +179,7 @@ All public & free APIs, called directly from the browser.
 ## Tech · 기술
 
 - Single HTML file (`index.html`); only external deps are lightweight-charts & Supabase JS via CDN / 단일 HTML 파일, 외부 의존성은 lightweight-charts·Supabase JS(CDN)뿐
-- **Supabase** — live chat, leaderboard, and synchronized blind-study rooms over anonymous auth; room membership and row ownership are enforced with RLS / 익명 인증 기반 채팅·리더보드·블라인드 스터디방, RLS로 방 멤버십과 본인 기록 권한 적용
+- **Supabase** — live chat and synchronized blind-study rooms over anonymous auth; room membership and row ownership are enforced with RLS / 익명 인증 기반 채팅·블라인드 스터디방, RLS로 방 멤버십과 본인 기록 권한 적용
 - **Hosting · 호스팅** — GitHub Pages
 
 ## Disclaimer · 면책
