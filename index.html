@@ -432,8 +432,7 @@ body.shake { animation:shake .5s; }
 @media(max-width:760px){.arenaHero{grid-template-columns:1fr}.roundBox{text-align:left}.combatStage{grid-template-columns:76px 1fr 76px;padding:18px 10px}.fighterEmoji{font-size:42px}.fighterScore{font-size:18px}.arenaCards,.arenaBottom{grid-template-columns:1fr}.crowdRow{grid-template-columns:90px 1fr 65px}}
 
 /* ═══ 호가창 (order book) ═══ */
-.flowRow { display:grid; grid-template-columns:1fr 340px; gap:12px; margin-top:12px; }
-@media(max-width:900px){ .flowRow { grid-template-columns:1fr 280px; } }
+.flowRow { display:grid; grid-template-columns:1fr calc((100% - 12px)/3.1); gap:12px; margin-top:12px; }   /* 2열 폭을 채팅(.main 우측 1fr)과 일치 */
 @media(max-width:760px){ .flowRow { grid-template-columns:1fr; } }
 .flowRow #rainWrap { min-width:0; }
 #bookPanel { position:relative; width:100%; }
