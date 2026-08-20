@@ -655,7 +655,7 @@ body.shake { animation:shake .5s; }
       <div class="sessionCard"><span>EUROPE</span><b>—</b><small>집계 중</small></div>
       <div class="sessionCard"><span>US</span><b>—</b><small>집계 중</small></div>
     </div>
-    <div class="sessionFoot"><span id="sessionCopy">오늘의 5분봉 장부를 읽고 있습니다.</span><span>한국시간 0시 기준</span></div>
+    <div class="sessionFoot"><span id="sessionCopy">오늘의 5분봉 장부를 읽고 있습니다.</span><span>한국시간 기준 · 진행 중 세션 포함</span></div>
   </div>
 
   <div class="spectatorGrid">
@@ -3646,11 +3646,22 @@ function disconnectLiquidations() {
 let sessionBars = [], sessionTimer = null, sessionFetching = false;
 function sessionDayStart(){ const d = new Date(Date.now()+9*3600000);
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - 9*3600000; }
+// US 세션(22~08 KST)은 자정을 넘기므로 전날 22시부터 받아야 세션이 온전해진다
+function sessionFetchStart(){ return sessionDayStart() - 2*3600000; }
 function sessionNameOf(ts){ const h = new Date(ts+9*3600000).getUTCHours();
   return h>=8 && h<16 ? 'ASIA' : h>=16 && h<22 ? 'EUROPE' : 'US'; }
 function renderSessions() {
+  // 라벨이 같아도 다른 날의 세션일 수 있다 (US는 22~08로 자정을 넘김).
+  // 연속 구간으로 쪼갠 뒤 각 세션의 '가장 최근 구간'만 집계한다.
+  const runs = [];
+  sessionBars.forEach(b => {
+    const name = sessionNameOf(b.t);
+    const last = runs[runs.length - 1];
+    if (last && last.name === name) last.bars.push(b);
+    else runs.push({ name, bars: [b] });
+  });
   const groups = {ASIA:[], EUROPE:[], US:[]};
-  sessionBars.forEach(b => groups[sessionNameOf(b.t)].push(b));
+  runs.forEach(r => { groups[r.name] = r.bars; });   // 뒤쪽 구간이 앞쪽을 덮어씀
   const stats = Object.entries(groups).map(([name, a]) => {
     if (!a.length) return { name, a, ret:null, range:null, score:-1 };
     const open = a[0].o, close = a.at(-1).c;
@@ -3681,7 +3692,7 @@ async function fetchSessions() {
   if (sessionFetching) return;
   sessionFetching = true;
   try {
-    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionDayStart()}&limit=288`);
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionFetchStart()}&limit=312`);
     const k = await r.json();
     if (Array.isArray(k)) {
       sessionBars = k.map(x => ({ t:+x[0], o:+x[1], h:+x[2], l:+x[3], c:+x[4] }));
