@@ -100,6 +100,20 @@ BANNED = re.compile(
 )
 # 상황을 그대로 복창하는 문장은 캐릭터가 없다
 ECHO = re.compile(r"BTC 1분봉|60분 (고점|저점)|5분 수익률|단일 체결|누적 청산|강제 청산이 들어온")
+# 모델이 지시문을 그대로 뱉는 경우
+LEAK = re.compile(r"이미 나온|완전히 다른 얘기|한마디만|규칙:|말투 예시|방금 이런 일|캐릭터")
+
+
+def too_similar(line: str, seen: list[str]) -> bool:
+    """글자 겹침이 큰 near-duplicate 제거."""
+    a = set(line.replace(" ", ""))
+    for s_ in seen:
+        b = set(s_.replace(" ", ""))
+        if not a or not b:
+            continue
+        if len(a & b) / len(a | b) >= 0.5:
+            return True
+    return False
 
 
 def repeats(line: str) -> bool:
@@ -164,7 +178,9 @@ def clean(raw: str, polite: bool) -> str | None:
     line = re.sub(r"\s+", " ", line)
     if not 6 <= len(line) <= 45:
         return None
-    if BANNED.search(line) or ECHO.search(line):
+    if BANNED.search(line) or ECHO.search(line) or LEAK.search(line):
+        return None
+    if line.startswith("-") or ":" in line[:12]:
         return None
     if repeats(line) or not style_ok(line, polite):
         return None
@@ -183,7 +199,7 @@ def build() -> dict:
                 if len(got) >= LINES_PER_SLOT:
                     break
                 line = ask(who, scene, got)
-                if line and line not in got:
+                if line and line not in got and not too_similar(line, got):
                     got.append(line)
             print(f"  {key:14s} {who:7s} {len(got)}문장")
             if got:
