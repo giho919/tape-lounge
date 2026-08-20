@@ -101,19 +101,6 @@ The desk uses progressive disclosure across **Structure / Derivatives / Order Fl
 
 ---
 
-## ⚔️ Futures Colosseum · 선물 콜로세움
-
-BTC futures data becomes a five-minute bout with a bell, a winner, reversals, and a persistent match ledger.
-BTC 선물 데이터를 5분짜리 경기로 구성해 종이 울리고 승자·역전·연승·경기 장부가 남습니다.
-
-- **Bull vs Bear bout · 황소 vs 곰 경기** — power combines taker flow, price, retail/top-trader positioning, and live liquidations / 테이커·가격·개미/고래 포지션·실시간 청산을 전투력으로 합산
-- **Final Bell · 파이널 벨** — the last 30 seconds enter a closing phase; every round settles with a winner and streak / 마지막 30초 정산 모드, 승자와 연승 기록
-- **Trap cards · 함정 카드** — short/long squeeze, long/short trap, crowded positioning, and dead-table states from price, open interest, positioning, and liquidations / 가격·미결제약정·포지션·청산 조합으로 스퀴즈·함정·과밀·죽은 판 판정
-- **Spectator vs VIP seats · 관중석 vs VIP석** — global accounts and top traders compared side by side / 글로벌 계정과 상위 트레이더 방향 비교
-- **Reversal & match ledger · 역전과 경기 장부** — lead changes trigger a live event; the last five round results stay on the device / 주도권 역전 이벤트와 최근 5경기 기기 보관
-
----
-
 ## ⛓ Block Vault · 블록 금고
 
 Bitcoin settlement becomes a quiet underground casino floor built from public mempool.space data.
