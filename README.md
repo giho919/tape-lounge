@@ -100,6 +100,25 @@ The showroom opens its own spot/futures streams only while visible and closes th
 
 ---
 
+## 📊 Market Intelligence Desk · 프로 트레이딩 데스크
+
+A professional, read-only workflow for cross-checking market structure, derivatives positioning, real order flow, and volatility risk. Every section uses the same **Binance BTCUSDT perpetual** market so price and open-interest context are not mixed across spot and futures.
+시장 구조·파생 포지셔닝·실제 주문 흐름·변동성 리스크를 순서대로 교차 확인하는 전문 관찰 화면입니다. 가격과 미결제약정의 기준이 어긋나지 않도록 전 영역을 **Binance BTCUSDT 무기한 선물**로 통일했습니다.
+
+- **Multi-timeframe structure · 멀티 타임프레임 구조** — confirmed 15m, 1h, 4h, and daily candles; EMA 20/50/200 alignment, Wilder RSI 14, ATR 14, and 20-bar range position / 15분·1시간·4시간·일봉 확정봉의 EMA 정렬, Wilder RSI·ATR, 20봉 내 가격 위치
+- **Key-level map · 핵심 가격대 지도** — previous UTC-day high/low/close, Monday 00:00 UTC weekly open, quote-volume/base-volume UTC daily VWAP, and 4h swing levels, with both percentage and 1h-ATR distance / 전일 고저·종가, 주간 시가, UTC 일간 VWAP, 4시간 스윙을 현재가 대비 %와 1시간 ATR 거리로 표시
+- **Derivatives positioning · 파생 포지셔닝** — latest funding, mark-index premium, current OI and 5m/1h OI change, global-account long/short position, and taker flow / 최근 펀딩, 마크-인덱스 프리미엄, OI 및 변화율, 전체 계정 롱숏과 테이커 흐름
+- **Price × OI quadrant · 가격 × OI 4분면** — labels expansion or deleveraging without claiming that one side definitively opened a position / 가격과 OI 조합을 포지션 확대·디레버리징으로 해석하되 신규 롱·숏으로 단정하지 않음
+- **60-minute anchored CVD · 60분 앵커 CVD** — REST one-minute backfill (`2 × taker-buy quote volume − total quote volume`) continued by real-time futures aggregate trades / 1분봉 백필 후 선물 실시간 체결을 이어 붙인 USDT 명목 누적 델타
+- **Visible liquidity · 보이는 유동성** — top-20 order-book imbalance, spread in USDT and basis points, and only walls that persist for at least three seconds and exceed three times the local median / 상위 20호가 불균형·스프레드와 3초 이상 유지되고 주변 중앙값의 3배를 넘는 잔량벽만 표시
+- **Volatility & risk · 변동성·리스크** — ADR20 utilization, 4h ATR-percentile regime, mark-based ±1/1.5/2 ATR reference distances, and conditional scenario checklists / ADR20 사용률, 4시간 ATR 백분위, 마크가격 기준 ATR 참고 거리, 조건부 시나리오 체크리스트
+- **Scenario guardrails · 시나리오 안전장치** — Trigger / Context / Confirmation / Invalidation are shown as conditions, with `NO SETUP` when evidence conflicts; no confidence percentage or direct buy/sell instruction / 조건이 충돌하면 `NO SETUP`, 예측 확률·직접 매수매도 지시 없음
+
+The desk uses progressive disclosure across **Structure / Derivatives / Order Flow / Risk**. Its REST data is cached, failed requests back off, live trades are compressed into one-second buckets, and the two official futures market/order-book streams plus the single one-second renderer exist only while the desk is visible.
+화면은 **시장 구조 / 파생 포지셔닝 / 주문 흐름 / 변동성·리스크**로 나눴습니다. REST 캐시와 실패 백오프, 체결 1초 버킷 합산을 적용하고 공식 선물 시장·호가 회선과 1초 렌더러는 데스크를 보는 동안에만 작동합니다.
+
+---
+
 ## ⚔️ Futures Colosseum · 선물 콜로세움
 
 BTC futures data becomes a five-minute bout with a bell, a winner, reversals, and a persistent match ledger.

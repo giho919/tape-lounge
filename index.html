@@ -612,6 +612,85 @@ body.shake { animation:shake .5s; }
 .storyEmpty { padding:30px 0; color:var(--dim); text-align:center; font-size:11px; line-height:1.7; }
 @media(max-width:760px){.watchWrap{margin-top:10px}.watchHero{grid-template-columns:1fr;padding:22px 19px;gap:18px}.watchLive{text-align:left}.watchGrid{grid-template-columns:1fr}.watchCard.full{grid-column:auto}.watchDirector{grid-template-columns:52px 1fr;padding:16px}.watchDirectorIcon{width:50px;height:50px;border-radius:16px;font-size:26px}.watchDirectorClock{grid-column:1/-1;text-align:left}.rouletteState{grid-template-columns:104px 1fr}.marketWheel{width:104px;height:104px}.marketWheel:after{inset:28px}.sessionGrid{grid-template-columns:1fr}.dominoStage{grid-template-columns:1fr}.watchCard{min-height:0;padding:17px}.watchNav{top:0}.whaleTable{gap:7px}.whaleChip{width:27px;height:27px}.storyRow{grid-template-columns:43px 22px 1fr}}
 @media(prefers-reduced-motion:reduce){.domino,.marketWheel{animation:none;transition:none}}
+
+/* ═══ 마켓 인텔리전스 데스크 ═══ */
+.deskWrap { max-width:1280px; margin:14px auto 0; }
+.deskHero { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; align-items:end; gap:30px; padding:26px 28px; border:1px solid #2d3949; border-radius:18px; background:radial-gradient(circle at 84% 0,rgba(34,211,238,.10),transparent 38%),linear-gradient(145deg,#151b24,#0f131a); }
+.deskHero:after { content:''; position:absolute; right:-70px; bottom:-135px; width:330px; height:210px; border:1px solid rgba(34,211,238,.13); border-radius:50%; transform:rotate(-14deg); pointer-events:none; }
+.deskKicker { color:var(--cyan); font:700 9px Menlo,monospace; letter-spacing:2.6px; }
+.deskTitle { margin-top:7px; color:#f4f7fb; font:700 clamp(25px,3vw,38px) Georgia,serif; }
+.deskLead { max-width:700px; margin-top:8px; color:#8e98a8; font-size:12px; line-height:1.7; }
+.deskTape { position:relative; z-index:1; min-width:190px; text-align:right; }
+.deskTape b { display:block; color:#fff; font:800 25px Menlo,monospace; }
+.deskTape span { display:block; margin-top:6px; color:var(--dim); font:700 9px Menlo,monospace; letter-spacing:1px; }
+.deskTape i { display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50%; background:var(--gold-dim); box-shadow:0 0 9px currentColor; }
+.deskTape i.on { background:var(--grn); }
+.deskNav { position:sticky; top:0; z-index:22; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; width:min(610px,100%); margin:14px auto; padding:4px; border:1px solid var(--line); border-radius:13px; background:rgba(10,12,16,.95); backdrop-filter:blur(14px); }
+.deskNav button { border:0; border-radius:9px; padding:9px 13px; background:transparent; color:var(--dim); font-size:11px; font-weight:800; cursor:pointer; }
+.deskNav button.on { color:#fff; background:#25303c; box-shadow:0 1px 8px rgba(0,0,0,.28); }
+.deskView.hidden { display:none; }
+.deskGrid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:12px; }
+.deskCard { grid-column:span 6; overflow:hidden; border:1px solid var(--line); border-radius:15px; background:linear-gradient(150deg,#151a23,#0f1319); }
+.deskCard.full { grid-column:1/-1; }
+.deskCard.wide { grid-column:span 7; }
+.deskCard.narrow { grid-column:span 5; }
+.deskCardHead { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:16px 18px 12px; border-bottom:1px solid var(--line); }
+.deskCardTitle { color:#edf1f6; font-size:14px; font-weight:800; }
+.deskCardSub { margin-top:4px; color:var(--dim); font-size:9.5px; line-height:1.5; }
+.deskPill { flex:0 0 auto; padding:5px 8px; border:1px solid #334052; border-radius:20px; color:#9eabbc; background:#111720; font:700 8.5px Menlo,monospace; letter-spacing:.5px; }
+.deskPill.up { border-color:rgba(74,222,128,.35); color:var(--grn); }
+.deskPill.dn { border-color:rgba(248,113,113,.35); color:var(--red); }
+.deskPill.gold { border-color:rgba(212,175,55,.35); color:var(--gold); }
+.deskBody { padding:15px 18px 18px; }
+.deskStats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.deskStat { padding:13px 12px; border:1px solid #202837; border-radius:11px; background:#0c1016; }
+.deskStat span { display:block; color:var(--dim); font-size:8.5px; letter-spacing:.7px; }
+.deskStat b { display:block; margin-top:7px; overflow:hidden; color:#f3f5f7; font:800 17px Menlo,monospace; text-overflow:ellipsis; white-space:nowrap; }
+.deskStat small { display:block; margin-top:5px; color:#7f8999; font-size:8.5px; line-height:1.4; }
+.deskTableWrap { overflow-x:auto; scrollbar-width:thin; }
+.deskTable { min-width:790px; width:100%; border-collapse:collapse; }
+.deskTable th { padding:9px 10px; color:#6f7b8c; font:700 8px Menlo,monospace; letter-spacing:.8px; text-align:right; white-space:nowrap; }
+.deskTable th:first-child,.deskTable th:nth-child(2),.deskTable td:first-child,.deskTable td:nth-child(2) { text-align:left; }
+.deskTable td { padding:11px 10px; border-top:1px solid #202735; color:#c6ccd6; font:700 10px Menlo,monospace; text-align:right; white-space:nowrap; }
+.deskTable td:first-child { color:#fff; font-size:11px; }
+.deskTrend { display:inline-block; min-width:72px; padding:4px 7px; border-radius:5px; color:#9da7b6; background:#222936; font:700 8.5px sans-serif; text-align:center; }
+.deskTrend.up { color:#a7f3c2; background:rgba(74,222,128,.12); }.deskTrend.dn { color:#fecaca; background:rgba(248,113,113,.12); }.deskTrend.mid { color:#f4d889; background:rgba(212,175,55,.10); }
+.deskLevels { display:flex; flex-direction:column; }
+.deskLevel { display:grid; grid-template-columns:1fr auto 118px; gap:12px; align-items:center; padding:10px 1px; border-bottom:1px solid #202735; }
+.deskLevel:last-child { border-bottom:0; }
+.deskLevel span { color:#aab2bf; font-size:10px; }.deskLevel b { color:#fff; font:700 11px Menlo,monospace; }.deskLevel em { color:var(--dim); font:700 9px Menlo,monospace; font-style:normal; text-align:right; }
+.deskLevel.above em { color:#f6a0a0; }.deskLevel.below em { color:#8de4af; }
+.deskMeter { height:7px; overflow:hidden; border-radius:8px; background:#252c39; }
+.deskMeter i { display:block; width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#1d7a50,var(--cyan),var(--gold)); transition:width .35s; }
+.deskMeter.red i { background:linear-gradient(90deg,#7c2933,var(--red)); }
+.deskNote { margin-top:11px; color:#8993a3; font-size:10px; line-height:1.65; }
+.deskContext { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; }
+.deskContextScore { display:grid; place-items:center; width:74px; height:74px; border:1px solid #354255; border-radius:20px; color:#fff; background:#0c1118; font:800 22px Menlo,monospace; }
+.deskContextText b { display:block; color:#eef2f6; font-size:14px; }.deskContextText p { margin-top:7px; color:#929baa; font-size:10.5px; line-height:1.65; }
+.deskRatioList { display:flex; flex-direction:column; gap:14px; }
+.deskRatioHead { display:flex; justify-content:space-between; gap:12px; color:#aeb6c2; font-size:10px; }.deskRatioHead b { color:#fff; font:700 10px Menlo,monospace; }
+.deskRatioTrack { display:flex; height:7px; margin-top:7px; overflow:hidden; border-radius:7px; background:#242b37; }.deskRatioTrack i:first-child { background:var(--grn); }.deskRatioTrack i:last-child { background:var(--red); }
+.deskDiagnosis { padding:15px; border:1px solid #2a3444; border-radius:12px; background:#0c1118; }
+.deskDiagnosisTag { color:var(--cyan); font:700 8px Menlo,monospace; letter-spacing:1.5px; }.deskDiagnosis b { display:block; margin-top:6px; color:#f4f7fa; font-size:16px; }.deskDiagnosis p { margin-top:7px; color:#8d97a7; font-size:10px; line-height:1.6; }
+.deskSpark { height:130px; margin-top:13px; padding:8px 2px 0; }
+.deskSpark svg { width:100%; height:100%; overflow:visible; }
+.deskSparkLine { fill:none; stroke:var(--cyan); stroke-width:2; vector-effect:non-scaling-stroke; }
+.deskSparkBase { stroke:#334052; stroke-width:1; stroke-dasharray:3 4; vector-effect:non-scaling-stroke; }
+.deskFlowLead { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; }
+.deskFlowSide { padding:15px 10px; border-radius:12px; background:#0c1117; text-align:center; }.deskFlowSide b { display:block; font:800 23px Menlo,monospace; }.deskFlowSide span { display:block; margin-top:5px; color:var(--dim); font-size:8px; letter-spacing:1px; }.deskFlowSide.buy b { color:var(--grn); }.deskFlowSide.sell b { color:var(--red); }
+.deskFlowVs { color:#667284; font:800 9px Menlo,monospace; }
+.deskWalls { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:13px; }
+.deskWall { padding:13px; border:1px solid #222b39; border-radius:11px; background:#0c1117; }.deskWall span { color:var(--dim); font-size:8.5px; letter-spacing:.7px; }.deskWall b { display:block; margin-top:7px; color:#fff; font:800 14px Menlo,monospace; }.deskWall small { display:block; margin-top:4px; color:#8691a1; font-size:8.5px; }
+.deskCvdMeta { display:flex; justify-content:space-between; gap:12px; color:var(--dim); font:700 8.5px Menlo,monospace; }
+.deskScenarioList { display:flex; flex-direction:column; gap:9px; }
+.deskScenario { display:grid; grid-template-columns:1fr auto; gap:12px; padding:13px; border:1px solid #232c3a; border-radius:11px; background:#0c1117; }
+.deskScenario b { color:#e9edf2; font-size:11px; }.deskScenario p { margin-top:5px; color:#858f9e; font-size:9.5px; line-height:1.55; }.deskScenario span { align-self:center; min-width:42px; color:var(--gold); font:800 11px Menlo,monospace; text-align:right; }
+.deskRiskBands { display:flex; flex-direction:column; gap:9px; }
+.deskRiskBand { display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; padding:11px 12px; border:1px solid #222a37; border-radius:10px; background:#0c1117; }.deskRiskBand span { color:var(--cyan); font:700 9px Menlo,monospace; }.deskRiskBand b { color:#e7ebf0; font:700 11px Menlo,monospace; }.deskRiskBand em { color:var(--dim); font:700 9px Menlo,monospace; font-style:normal; }
+.deskFootnote { margin:12px 2px 0; color:#697486; font-size:9px; line-height:1.65; text-align:center; }
+@media(max-width:1320px) and (min-width:761px){.tab{padding-left:13px;padding-right:13px;letter-spacing:1px}.brand{font-size:19px;letter-spacing:4px}.tabs{overflow-x:auto;scrollbar-width:none}}
+@media(max-width:760px){.deskWrap{margin-top:10px}.deskHero{grid-template-columns:1fr;padding:21px 18px;gap:17px}.deskTape{text-align:left}.deskNav{top:0}.deskNav button{padding:9px 5px;font-size:10px}.deskGrid{grid-template-columns:1fr}.deskCard,.deskCard.wide,.deskCard.narrow,.deskCard.full{grid-column:auto}.deskStats{grid-template-columns:1fr 1fr}.deskCardHead{padding:14px 15px 11px}.deskBody{padding:14px 15px 16px}.deskContext{grid-template-columns:58px 1fr}.deskContextScore{width:58px;height:58px;border-radius:16px;font-size:17px}.deskWalls{grid-template-columns:1fr}.deskFootnote{text-align:left}}
+@media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
 </head>
 <body>
@@ -622,6 +701,7 @@ body.shake { animation:shake .5s; }
   <div class="tabs">
     <div class="tab on" data-tab="lounge">🥂 라운지</div>
     <div class="tab" data-tab="watch">👁 관전실</div>
+    <div class="tab" data-tab="desk">📊 데스크</div>
     <div class="tab" data-tab="game">🎰 블라인드</div>
     <div class="tab" data-tab="arena">⚔️ 투기장</div>
     <div class="tab" data-tab="chain">⛓ 온체인</div>
@@ -855,6 +935,106 @@ body.shake { animation:shake .5s; }
         <section class="watchCard full"><div class="watchCardTop"><div><div class="watchCardTitle">오늘의 시장 서사</div><div class="watchCardSub">중요한 장면만 시간순으로 남깁니다</div></div><span class="watchBadge" id="storyBadge">0 SCENES</span></div><div class="storyList" id="storyList"><div class="storyEmpty">관전실이 오늘의 첫 장면을 기다리고 있습니다.</div></div></section>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
+<div id="tab-desk" class="hidden">
+  <div class="deskWrap">
+    <div class="deskHero">
+      <div><div class="deskKicker">MARKET INTELLIGENCE · BTCUSDT PERPETUAL</div><div class="deskTitle">프로 트레이딩 데스크</div><p class="deskLead">추세 정렬, 주요 가격대, 파생 포지셔닝과 실제 주문 흐름을 서로 교차 확인합니다. 한 지표의 방향보다 여러 조건의 합류를 우선합니다.</p></div>
+      <div class="deskTape"><b id="deskPrice">—</b><span><i id="deskDot"></i><span id="deskStatus" style="display:inline">탭을 열면 연결</span></span></div>
+    </div>
+
+    <div class="deskNav" role="tablist" aria-label="마켓 인텔리전스 화면">
+      <button class="on" data-desk-view="structure" onclick="deskView('structure')">시장 구조</button>
+      <button data-desk-view="derivatives" onclick="deskView('derivatives')">파생 포지셔닝</button>
+      <button data-desk-view="flow" onclick="deskView('flow')">주문 흐름</button>
+      <button data-desk-view="risk" onclick="deskView('risk')">변동성·리스크</button>
+    </div>
+
+    <div class="deskView" data-desk-panel="structure">
+      <div class="deskGrid">
+        <section class="deskCard full">
+          <div class="deskCardHead"><div><div class="deskCardTitle">멀티 타임프레임 구조</div><div class="deskCardSub">BTCUSDT PERP · 확정봉 · EMA 20·50·200, Wilder RSI 14, ATR 14</div></div><span class="deskPill" id="deskMtfBadge">SCANNING</span></div>
+          <div class="deskBody deskTableWrap"><table class="deskTable"><thead><tr><th>주기</th><th>구조</th><th>현재가</th><th>EMA 20</th><th>EMA 50</th><th>EMA 200</th><th>RSI 14</th><th>ATR 14</th><th>20봉 위치</th></tr></thead><tbody id="deskMtfBody"><tr><td colspan="9">시장 구조를 불러오는 중입니다.</td></tr></tbody></table></div>
+        </section>
+
+        <section class="deskCard wide">
+          <div class="deskCardHead"><div><div class="deskCardTitle">핵심 가격대 지도</div><div class="deskCardSub">BTCUSDT PERP · 전일 레벨, 월요일 00:00 UTC 시가, UTC 일간 VWAP</div></div><span class="deskPill" id="deskLevelBadge">LEVEL MAP</span></div>
+          <div class="deskBody"><div class="deskLevels" id="deskLevels"><div class="deskNote">가격대를 계산하고 있습니다.</div></div><div class="deskNote">현재가와의 거리가 가까운 순서입니다. 가격대 돌파 여부는 봉 마감과 거래량으로 추가 확인해야 합니다.</div></div>
+        </section>
+
+        <section class="deskCard narrow">
+          <div class="deskCardHead"><div><div class="deskCardTitle">오늘의 변동폭 예산</div><div class="deskCardSub">현재 일중 고저폭 ÷ 최근 20일 평균 고저폭</div></div><span class="deskPill" id="deskRangeBadge">ADR 20</span></div>
+          <div class="deskBody"><div class="deskStats"><div class="deskStat"><span>오늘 사용</span><b id="deskRangeUse">—</b><small id="deskRangePx">일중 범위</small></div><div class="deskStat"><span>ADR 20</span><b id="deskAdr">—</b><small>평균 일중 변동폭</small></div></div><div class="deskMeter" style="margin-top:15px"><i id="deskRangeFill"></i></div><div class="deskNote" id="deskRangeCopy">최근 일봉을 읽고 있습니다.</div></div>
+        </section>
+
+        <section class="deskCard full">
+          <div class="deskCardHead"><div><div class="deskCardTitle">구조 합류도</div><div class="deskCardSub">시간축 정렬과 VWAP 위치를 하나의 맥락으로 요약</div></div><span class="deskPill" id="deskContextBadge">CONFLUENCE</span></div>
+          <div class="deskBody"><div class="deskContext"><div class="deskContextScore" id="deskContextScore">—</div><div class="deskContextText"><b id="deskContextTitle">시장 맥락을 조립하는 중</b><p id="deskContextCopy">짧은 주기와 긴 주기가 같은 방향인지 확인하고 있습니다.</p></div></div></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="deskView hidden" data-desk-panel="derivatives">
+      <div class="deskGrid">
+        <section class="deskCard full">
+          <div class="deskCardHead"><div><div class="deskCardTitle">무기한 선물 상태</div><div class="deskCardSub">Binance USDⓈ-M · 펀딩, 현물 대비 베이시스, 미결제약정 변화</div></div><span class="deskPill" id="deskDerivAt">60S CACHE</span></div>
+          <div class="deskBody"><div class="deskStats"><div class="deskStat"><span>최근 펀딩비</span><b id="deskFunding">—</b><small id="deskFundingNext">다음 정산 —</small></div><div class="deskStat"><span>MARK-INDEX PREMIUM</span><b id="deskBasis">—</b><small>퍼펫 마크가격 괴리</small></div><div class="deskStat"><span>OPEN INTEREST</span><b id="deskOi">—</b><small id="deskOiNotional">명목가치 —</small></div><div class="deskStat"><span>OI 변화</span><b id="deskOi1h">—</b><small id="deskOi5m">5분 —</small></div></div></div>
+        </section>
+
+        <section class="deskCard wide">
+          <div class="deskCardHead"><div><div class="deskCardTitle">포지셔닝 교차 확인</div><div class="deskCardSub">전체 계정의 현재·1시간 평균과 테이커 매수·매도</div></div><span class="deskPill" id="deskCrowdBadge">POSITIONING</span></div>
+          <div class="deskBody"><div class="deskRatioList"><div><div class="deskRatioHead"><span>전체 계정 LONG / SHORT</span><b id="deskGlobalRatio">—</b></div><div class="deskRatioTrack"><i id="deskGlobalLong" style="width:50%"></i><i id="deskGlobalShort" style="width:50%"></i></div></div><div><div class="deskRatioHead"><span>전체 계정 · 1시간 평균</span><b id="deskTopRatio">—</b></div><div class="deskRatioTrack"><i id="deskTopLong" style="width:50%"></i><i id="deskTopShort" style="width:50%"></i></div></div><div><div class="deskRatioHead"><span>5분 테이커 거래량</span><b id="deskTakerRatio">—</b></div><div class="deskRatioTrack"><i id="deskTakerBuy" style="width:50%"></i><i id="deskTakerSell" style="width:50%"></i></div></div></div><div class="deskNote" id="deskCrowdCopy">계정 포지션과 실제 공격 체결이 같은 방향으로 과밀한지 확인합니다.</div></div>
+        </section>
+
+        <section class="deskCard narrow">
+          <div class="deskCardHead"><div><div class="deskCardTitle">가격 × OI 진단</div><div class="deskCardSub">최근 1시간 변화의 4분면 해석</div></div><span class="deskPill" id="deskOiBadge">HEURISTIC</span></div>
+          <div class="deskBody"><div class="deskDiagnosis"><div class="deskDiagnosisTag">PRICE / OPEN INTEREST</div><b id="deskOiTitle">변화를 확인하는 중</b><p id="deskOiCopy">가격과 미결제약정의 방향을 함께 읽고 있습니다.</p></div><div class="deskSpark"><svg id="deskOiSvg" viewBox="0 0 400 100" preserveAspectRatio="none" aria-label="미결제약정 최근 1시간"><line class="deskSparkBase" x1="0" y1="50" x2="400" y2="50"></line><polyline class="deskSparkLine" id="deskOiLine" points=""></polyline></svg></div></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="deskView hidden" data-desk-panel="flow">
+      <div class="deskGrid">
+        <section class="deskCard full">
+          <div class="deskCardHead"><div><div class="deskCardTitle">실시간 주문 흐름</div><div class="deskCardSub">BTCUSDT PERP 공격 체결과 Top 20 visible liquidity</div></div><span class="deskPill" id="deskFlowBadge">LIVE TAPE</span></div>
+          <div class="deskBody"><div class="deskStats"><div class="deskStat"><span>60분 ANCHORED CVD</span><b id="deskCvd">—</b><small>공격 매수액 − 공격 매도액</small></div><div class="deskStat"><span>60초 매수 비중</span><b id="deskBuyShare">—</b><small id="deskFlowNotional">체결액 —</small></div><div class="deskStat"><span>호가 불균형</span><b id="deskBookImbalance">—</b><small>상위 20호가 명목잔량</small></div><div class="deskStat"><span>공격 체결 불균형</span><b id="deskIntensity">—</b><small id="deskTradesSec">초당 —건</small></div></div></div>
+        </section>
+
+        <section class="deskCard wide">
+          <div class="deskCardHead"><div><div class="deskCardTitle">누적 체결 델타</div><div class="deskCardSub">최근 60분 USDT 명목 체결 · 1분 백필 + 실시간 1초 버킷</div></div><span class="deskPill" id="deskCvdBadge">60M ANCHOR</span></div>
+          <div class="deskBody"><div class="deskCvdMeta"><span id="deskCvdStart">START $0</span><span id="deskCvdNow">NOW $0</span></div><div class="deskSpark"><svg id="deskCvdSvg" viewBox="0 0 600 120" preserveAspectRatio="none" aria-label="누적 체결 델타"><line class="deskSparkBase" x1="0" y1="60" x2="600" y2="60"></line><polyline class="deskSparkLine" id="deskCvdLine" points=""></polyline></svg></div><div class="deskNote" id="deskCvdCopy">공격 매수와 공격 매도의 누적 차이를 관찰합니다.</div></div>
+        </section>
+
+        <section class="deskCard narrow">
+          <div class="deskCardHead"><div><div class="deskCardTitle">체결·호가 균형</div><div class="deskCardSub">15초 체결 방향과 가장 큰 잔량벽</div></div><span class="deskPill" id="deskSpread">SPREAD —</span></div>
+          <div class="deskBody"><div class="deskFlowLead"><div class="deskFlowSide buy"><b id="deskFlowBuy">50</b><span>BUY / 15S</span></div><div class="deskFlowVs">VS</div><div class="deskFlowSide sell"><b id="deskFlowSell">50</b><span>SELL / 15S</span></div></div><div class="deskWalls"><div class="deskWall"><span>가장 큰 BID WALL</span><b id="deskBidWall">—</b><small id="deskBidWallMeta">잔량 대기</small></div><div class="deskWall"><span>가장 큰 ASK WALL</span><b id="deskAskWall">—</b><small id="deskAskWallMeta">잔량 대기</small></div></div><div class="deskNote" id="deskWhaleCopy">$25만 이상 단일 체결을 함께 감시합니다.</div></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="deskView hidden" data-desk-panel="risk">
+      <div class="deskGrid">
+        <section class="deskCard full">
+          <div class="deskCardHead"><div><div class="deskCardTitle">변동성 레짐</div><div class="deskCardSub">4시간 ATR 백분위, 1시간 ATR, 일중 변동폭 소진율을 함께 확인</div></div><span class="deskPill" id="deskVolBadge">VOLATILITY</span></div>
+          <div class="deskBody"><div class="deskStats"><div class="deskStat"><span>4H ATR 백분위</span><b id="deskVolPct">—</b><small id="deskVolRegime">레짐 계산 중</small></div><div class="deskStat"><span>1H ATR 14</span><b id="deskAtr1h">—</b><small id="deskAtr1hUsd">가격 거리 —</small></div><div class="deskStat"><span>일중 범위 소진</span><b id="deskRiskRange">—</b><small>ADR 20 대비</small></div><div class="deskStat"><span>다음 펀딩</span><b id="deskRiskFunding">—</b><small id="deskRiskFundingAt">정산 시각 —</small></div></div></div>
+        </section>
+
+        <section class="deskCard wide">
+          <div class="deskCardHead"><div><div class="deskCardTitle">조건부 시장 시나리오</div><div class="deskCardSub">Trigger · Context · Confirmation · Invalidation 체크리스트이며 매매 지시가 아닙니다</div></div><span class="deskPill" id="deskScenarioBadge">NO SETUP</span></div>
+          <div class="deskBody"><div class="deskScenarioList" id="deskScenarios"><div class="deskNote">시나리오 조건을 계산하고 있습니다.</div></div></div>
+        </section>
+
+        <section class="deskCard narrow">
+          <div class="deskCardHead"><div><div class="deskCardTitle">ATR 기준 변동 거리</div><div class="deskCardSub">현재 1시간 ATR을 가격 거리로 환산한 시장 참고선</div></div><span class="deskPill">REFERENCE</span></div>
+          <div class="deskBody"><div class="deskRiskBands" id="deskRiskBands"><div class="deskRiskBand"><span>1.0 ATR</span><b>—</b><em>—</em></div><div class="deskRiskBand"><span>1.5 ATR</span><b>—</b><em>—</em></div><div class="deskRiskBand"><span>2.0 ATR</span><b>—</b><em>—</em></div></div><div class="deskNote">손절·포지션 크기 권고가 아니라, 현재 시장이 흔히 소화하는 변동 거리의 참고치입니다.</div></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="deskFootnote">Binance 공개 현물·USDⓈ-M 데이터 · 지연·오류 가능 · 합류도와 4분면 진단은 시장 관찰용 휴리스틱이며 투자 권유가 아닙니다.</div>
   </div>
 </div>
 
@@ -1194,6 +1374,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   t.classList.add('on');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
   $('tab-watch').classList.toggle('hidden', t.dataset.tab !== 'watch');
+  $('tab-desk').classList.toggle('hidden', t.dataset.tab !== 'desk');
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
@@ -3638,7 +3819,7 @@ function connectLiquidations() {
     setLiqStreamState('connecting');
     if (tabLive('lounge')) liqReconnectTimer = setTimeout(connectLiquidations, 3000);
   };
-  wsl.onerror = () => wsl.close();
+  wsl.onerror = () => wsl?.close();
   wsl.onmessage = ev => {
   if (!tabLive('lounge')) return;
   const { stream: lst, data: ldata } = JSON.parse(ev.data);
@@ -3884,6 +4065,243 @@ function watchClose() {
   if(watchWsSpot){watchWsSpot.onmessage=null;watchWsSpot.onclose=null;try{watchWsSpot.close();}catch(e){}}if(watchWsLiq){watchWsLiq.onmessage=null;watchWsLiq.onclose=null;try{watchWsLiq.close();}catch(e){}}watchWsSpot=watchWsLiq=null;watchLiqConnected=false;$('watchDot').classList.remove('on');$('watchStatus').textContent='탭을 열면 연결';
 }
 
+// ═══ 📊 마켓 인텔리전스 데스크 ═══
+const DESK_FUT='https://fapi.binance.com',DESK_MARKET=DESK_FUT+'/fapi/v1',DESK_FDATA=DESK_FUT+'/futures/data';
+const DESK_STRUCTURE_TTL=120000,DESK_DERIV_TTL=60000;
+let deskActiveView='structure',deskRuntimeOn=false,deskWsMarket=null,deskWsBook=null,deskTimer=null,deskMarketRetry=null,deskBookRetry=null,deskGeneration=0,deskStructurePending=false,deskDerivPending=false,deskStructureNext=0,deskDerivNext=0;
+const deskControllers=new Set();
+const deskState={price:null,tfs:{},daily:[],weekly:[],session:[],cvdSeed:[],structureAt:0,derivAt:0,premium:null,oi:null,oiHist:[],globalHist:[],takerHist:[],bids:[],asks:[],buckets:[],lastWhale:null,marketConnected:false,bookConnected:false,wallTrack:{bid:null,ask:null}};
+
+function deskView(name){
+  deskActiveView=name;
+  document.querySelectorAll('[data-desk-view]').forEach(b=>b.classList.toggle('on',b.dataset.deskView===name));
+  document.querySelectorAll('[data-desk-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.deskPanel!==name));
+  deskRenderActive();
+}
+function deskNum(n,d=2){return Number.isFinite(n)?fmt(n,d):'—';}
+function deskPct(n,d=2){return Number.isFinite(n)?`${n>=0?'+':''}${n.toFixed(d)}%`:'—';}
+function deskSignedMoney(n){return Number.isFinite(n)?`${n>=0?'+':'−'}${moneyShort(Math.abs(n))}`:'—';}
+function deskTone(el,tone){if(!el)return;el.className='deskPill'+(tone?' '+tone:'');}
+function deskMapBars(rows){return Array.isArray(rows)?rows.map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],end:+k[6],qv:+k[7],tbq:+k[10]})).filter(k=>Number.isFinite(k.c)):[];}
+async function deskJson(url,signal){const r=await fetch(url,{signal,credentials:'omit'});if(!r.ok){const e=new Error(`HTTP ${r.status}`),retry=+(r.headers.get('Retry-After')||0);e.retryAfter=retry>0?retry*1000:0;throw e;}const d=await r.json();if(d&&Number.isFinite(+d.code)&&+d.code<0)throw new Error(d.msg||'Binance API error');return d;}
+function deskAbortController(){const c=new AbortController();deskControllers.add(c);return c;}
+
+function deskEMA(values,n){
+  if(values.length<n)return null;let e=values.slice(0,n).reduce((a,c)=>a+c,0)/n,k=2/(n+1);
+  for(let i=n;i<values.length;i++)e=values[i]*k+e*(1-k);return e;
+}
+function deskRSI(values,n=14){
+  if(values.length<=n)return null;let gain=0,loss=0;
+  for(let i=1;i<=n;i++){const d=values[i]-values[i-1];if(d>0)gain+=d;else loss-=d;}
+  gain/=n;loss/=n;
+  for(let i=n+1;i<values.length;i++){const d=values[i]-values[i-1];gain=(gain*(n-1)+Math.max(0,d))/n;loss=(loss*(n-1)+Math.max(0,-d))/n;}
+  if(!loss)return 100;return 100-100/(1+gain/loss);
+}
+function deskATR(bars,n=14){
+  if(bars.length<=n)return null;const tr=[];
+  for(let i=1;i<bars.length;i++)tr.push(Math.max(bars[i].h-bars[i].l,Math.abs(bars[i].h-bars[i-1].c),Math.abs(bars[i].l-bars[i-1].c)));
+  let a=tr.slice(0,n).reduce((x,y)=>x+y,0)/n;for(let i=n;i<tr.length;i++)a=(a*(n-1)+tr[i])/n;return a;
+}
+function deskATRSeries(bars,n=14){
+  if(bars.length<=n)return[];const tr=[];
+  for(let i=1;i<bars.length;i++)tr.push(Math.max(bars[i].h-bars[i].l,Math.abs(bars[i].h-bars[i-1].c),Math.abs(bars[i].l-bars[i-1].c)));
+  let a=tr.slice(0,n).reduce((x,y)=>x+y,0)/n,out=[a/bars[n].c*100];
+  for(let i=n;i<tr.length;i++){a=(a*(n-1)+tr[i])/n;out.push(a/bars[i+1].c*100);}return out;
+}
+function deskAnalyze(tf){
+  const bars=(deskState.tfs[tf]||[]).slice(0,-1),closes=bars.map(x=>x.c),last=bars.at(-1);if(!last)return null;
+  const e20=deskEMA(closes,20),e50=deskEMA(closes,50),e200=deskEMA(closes,200),rsi=deskRSI(closes),atr=deskATR(bars);
+  if(![e20,e50,e200,rsi,atr].every(Number.isFinite))return null;
+  const score=Number(last.c>e20)+Number(e20>e50)+Number(e50>e200)+Number(rsi>=50),bull=last.c>e20&&e20>e50&&e50>e200,bear=last.c<e20&&e20<e50&&e50<e200;
+  const meta=bull?['상승 정렬','up']:bear?['하락 정렬','dn']:['혼조','mid'];
+  const range=bars.slice(-20),hi=Math.max(...range.map(x=>x.h)),lo=Math.min(...range.map(x=>x.l)),pos=hi>lo?(last.c-lo)/(hi-lo)*100:50;
+  return{tf,last,e20,e50,e200,rsi,atr,atrPct:atr/last.c*100,score,label:meta[0],tone:meta[1],pos};
+}
+function deskSessionVwap(){const a=deskState.session;if(!a.length)return null;const base=a.reduce((s,x)=>s+x.v,0),quote=a.reduce((s,x)=>s+x.qv,0);return base?quote/base:null;}
+function deskVolPercentile(){const s=deskATRSeries((deskState.tfs['4h']||[]).slice(0,-1)).slice(-181);if(!s.length)return null;const v=s.at(-1);return s.filter(x=>x<=v).length/s.length*100;}
+function deskStructureScore(){
+  const weights={"15m":1,"1h":2,"4h":3,"1d":3};let total=0,w=0;
+  Object.entries(weights).forEach(([tf,weight])=>{const a=deskAnalyze(tf);if(a){total+=a.score/4*100*weight;w+=weight;}});
+  if(!w)return null;let score=total/w,vwap=deskSessionVwap(),px=deskState.price||deskState.tfs['5m']?.at(-1)?.c;if(Number.isFinite(vwap)&&Number.isFinite(px))score+=px>=vwap?4:-4;return Math.max(0,Math.min(100,score));
+}
+
+async function deskFetchStructure(){
+  if(deskStructurePending||!deskRuntimeOn)return;deskStructurePending=true;const gen=deskGeneration,c=deskAbortController();
+  try{
+    const dayStart=Math.floor(Date.now()/86400000)*86400000,tfs=['5m','15m','1h','4h','1d'];
+    const all=await Promise.all([
+      ...tfs.map(tf=>deskJson(`${DESK_MARKET}/klines?symbol=BTCUSDT&interval=${tf}&limit=${tf==='5m'?220:499}`,c.signal)),
+      deskJson(`${DESK_MARKET}/klines?symbol=BTCUSDT&interval=1w&limit=3`,c.signal),
+      deskJson(`${DESK_MARKET}/klines?symbol=BTCUSDT&interval=5m&startTime=${dayStart}&limit=288`,c.signal),
+      deskJson(`${DESK_MARKET}/klines?symbol=BTCUSDT&interval=1m&limit=61`,c.signal)
+    ]);
+    if(gen!==deskGeneration||!deskRuntimeOn)return;
+    tfs.forEach((tf,i)=>deskState.tfs[tf]=deskMapBars(all[i]));deskState.daily=deskState.tfs['1d'];deskState.weekly=deskMapBars(all[5]);deskState.session=deskMapBars(all[6]);
+    deskState.cvdSeed=deskMapBars(all[7]).slice(0,-1).map(x=>({ts:x.t,end:x.end,delta:2*x.tbq-x.qv})).filter(x=>Number.isFinite(x.delta));
+    deskState.price=deskState.price||deskState.tfs['5m']?.at(-1)?.c||null;deskState.structureAt=Date.now();deskStructureNext=deskState.structureAt+DESK_STRUCTURE_TTL;deskRenderActive();
+  }catch(e){if(e.name!=='AbortError'){deskStructureNext=Date.now()+(e.retryAfter||15000);if(tabLive('desk'))$('deskStatus').textContent='구조 데이터 지연 · 재시도';}}
+  finally{deskControllers.delete(c);deskStructurePending=false;}
+}
+async function deskFetchDerivatives(){
+  if(deskDerivPending||!deskRuntimeOn)return;deskDerivPending=true;const gen=deskGeneration,c=deskAbortController();
+  try{
+    const all=await Promise.all([
+      deskJson(`${DESK_FUT}/fapi/v1/premiumIndex?symbol=BTCUSDT`,c.signal),
+      deskJson(`${DESK_FUT}/fapi/v1/openInterest?symbol=BTCUSDT`,c.signal),
+      deskJson(`${DESK_FDATA}/openInterestHist?symbol=BTCUSDT&period=5m&limit=13`,c.signal),
+      deskJson(`${DESK_FDATA}/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=13`,c.signal),
+      deskJson(`${DESK_FDATA}/takerlongshortRatio?symbol=BTCUSDT&period=5m&limit=13`,c.signal)
+    ]);
+    if(gen!==deskGeneration||!deskRuntimeOn)return;
+    deskState.premium=all[0];deskState.oi=all[1];deskState.oiHist=Array.isArray(all[2])?all[2]:[];deskState.globalHist=Array.isArray(all[3])?all[3]:[];deskState.takerHist=Array.isArray(all[4])?all[4]:[];deskState.derivAt=Date.now();deskDerivNext=deskState.derivAt+DESK_DERIV_TTL;deskRenderActive();
+  }catch(e){if(e.name!=='AbortError'){deskDerivNext=Date.now()+(e.retryAfter||15000);if(tabLive('desk'))$('deskDerivAt').textContent='데이터 재시도';}}
+  finally{deskControllers.delete(c);deskDerivPending=false;}
+}
+
+function deskRenderMtf(){
+  const body=$('deskMtfBody');if(!body)return;body.replaceChildren();let up=0,dn=0,ready=0;
+  [['15m','15분'],['1h','1시간'],['4h','4시간'],['1d','일봉']].forEach(([tf,label])=>{
+    const a=deskAnalyze(tf),tr=document.createElement('tr');
+    if(!a){const td=document.createElement('td');td.colSpan=9;td.textContent=`${label} 지표를 계산하는 중입니다.`;tr.append(td);body.append(tr);return;}
+    ready++;if(a.tone==='up')up++;if(a.tone==='dn')dn++;
+    const vals=[label,a.label,'$ '+deskNum(a.last.c,0),'$ '+deskNum(a.e20,0),'$ '+deskNum(a.e50,0),'$ '+deskNum(a.e200,0),a.rsi.toFixed(1),a.atrPct.toFixed(2)+'%',a.pos.toFixed(0)+'%'];
+    vals.forEach((v,i)=>{const td=document.createElement('td');if(i===1){const b=document.createElement('span');b.className='deskTrend '+a.tone;b.textContent=v;td.append(b);}else td.textContent=v;tr.append(td);});body.append(tr);
+  });
+  const badge=$('deskMtfBadge');if(ready<4){badge.textContent='SCANNING';deskTone(badge,'');}else if(up>=3){badge.textContent=`${up}/4 UP`;deskTone(badge,'up');}else if(dn>=3){badge.textContent=`${dn}/4 DOWN`;deskTone(badge,'dn');}else{badge.textContent='MIXED';deskTone(badge,'gold');}
+}
+function deskLevelData(){
+  const px=deskState.price||deskState.tfs['5m']?.at(-1)?.c,day=deskState.daily,week=deskState.weekly,four=deskState.tfs['4h']||[];if(!Number.isFinite(px)||day.length<2)return[];
+  const prev=day.at(-2),swing=four.slice(-21,-1),vwap=deskSessionVwap(),out=[['전일 고가 · PDH',prev.h],['전일 저가 · PDL',prev.l],['전일 종가 · PDC',prev.c],['주간 시가 · W OPEN',week.at(-1)?.o],['UTC 일간 VWAP',vwap]];
+  if(swing.length){out.push(['4H 20봉 고점',Math.max(...swing.map(x=>x.h))],['4H 20봉 저점',Math.min(...swing.map(x=>x.l))]);}
+  return out.filter(x=>Number.isFinite(x[1])).map(([name,price])=>({name,price,dist:(price/px-1)*100})).sort((a,b)=>Math.abs(a.dist)-Math.abs(b.dist));
+}
+function deskRenderLevels(){
+  const el=$('deskLevels'),levels=deskLevelData();if(!el)return;el.replaceChildren();
+  if(!levels.length){const n=document.createElement('div');n.className='deskNote';n.textContent='가격대를 계산하고 있습니다.';el.append(n);return;}
+  const atrPct=deskAnalyze('1h')?.atrPct;
+  levels.forEach(x=>{const row=document.createElement('div');row.className='deskLevel '+(x.dist>=0?'above':'below');const name=document.createElement('span');name.textContent=x.name;const price=document.createElement('b');price.textContent='$ '+deskNum(x.price,0);const dist=document.createElement('em');dist.textContent=`${x.dist>=0?'위':'아래'} ${Math.abs(x.dist).toFixed(2)}%${Number.isFinite(atrPct)?` · ${(Math.abs(x.dist)/atrPct).toFixed(1)} ATR`:''}`;row.append(name,price,dist);el.append(row);});
+  const nearest=levels[0],badge=$('deskLevelBadge');badge.textContent=`NEAR ${Math.abs(nearest.dist).toFixed(2)}%`;deskTone(badge,Math.abs(nearest.dist)<=.25?'gold':'');
+}
+function deskRangeData(){
+  const a=deskState.daily;if(a.length<22)return null;const current=a.at(-1),ranges=[];for(let i=a.length-21;i<=a.length-2;i++)ranges.push((a[i].h-a[i].l)/a[i-1].c*100);const adrPct=ranges.reduce((s,x)=>s+x,0)/ranges.length,currentPct=(current.h-current.l)/a.at(-2).c*100,used=adrPct?currentPct/adrPct*100:0;return{current,adrPct,currentPct,used};
+}
+function deskRenderRange(){
+  const r=deskRangeData();if(!r)return;$('deskRangeUse').textContent=r.used.toFixed(0)+'%';$('deskRangePx').textContent=`오늘 $${fmt(r.current.h-r.current.l,0)} 사용`;$('deskAdr').textContent=r.adrPct.toFixed(2)+'%';$('deskRangeFill').style.width=Math.min(100,r.used)+'%';
+  const badge=$('deskRangeBadge');badge.textContent=r.used>=120?'RANGE EXPANDED':r.used>=80?'RANGE ACTIVE':'ADR 20';deskTone(badge,r.used>=120?'dn':r.used>=80?'gold':'');
+  $('deskRangeCopy').textContent=r.used>=120?'최근 20일 평균 일중 범위를 크게 넘어섰습니다. 변동성 확대와 추격 리스크를 함께 감안할 구간입니다.':r.used>=80?'평균 일중 범위에 근접했습니다. 사용률은 상한선이나 남은 변동 여력을 뜻하지 않습니다.':`현재 일중 범위는 ADR20의 ${r.used.toFixed(0)}%입니다. ADR은 방향 신호나 하루 변동의 상한선이 아닙니다.`;
+}
+function deskRenderContext(){
+  const score=deskStructureScore();if(!Number.isFinite(score))return;const a1=deskAnalyze('1h'),a4=deskAnalyze('4h'),vwap=deskSessionVwap(),px=deskState.price||0,above=Number.isFinite(vwap)&&px>=vwap;
+  $('deskContextScore').textContent=Math.round(score);let title,copy,badge,tone;
+  if(score>=75){title='상승 구조가 여러 시간축에서 합류';badge='BULLISH ALIGN';tone='up';}
+  else if(score>=58){title='상승 우위지만 시간축 확인이 필요';badge='UP BIAS';tone='up';}
+  else if(score<=25){title='하락 구조가 여러 시간축에서 합류';badge='BEARISH ALIGN';tone='dn';}
+  else if(score<=42){title='하락 우위지만 시간축 확인이 필요';badge='DOWN BIAS';tone='dn';}
+  else{title='시간축이 엇갈리는 중립 구조';badge='MIXED';tone='gold';}
+  copy=`1시간 ${a1?.label||'계산 중'} · 4시간 ${a4?.label||'계산 중'} · 현재가는 UTC 세션 VWAP ${above?'위':'아래'}입니다. 점수는 방향 예측 확률이 아니라 조건 합류도입니다.`;
+  $('deskContextTitle').textContent=title;$('deskContextCopy').textContent=copy;$('deskContextBadge').textContent=badge;deskTone($('deskContextBadge'),tone);$('deskContextScore').style.color=tone==='up'?'var(--grn)':tone==='dn'?'var(--red)':'var(--gold)';
+}
+function deskRenderStructure(){deskRenderMtf();deskRenderLevels();deskRenderRange();deskRenderContext();}
+
+function deskOiChanges(){
+  const h=deskState.oiHist;if(h.length<2)return{m5:null,h1:null,vals:[]};const vals=h.map(x=>+x.sumOpenInterest).filter(Number.isFinite),last=vals.at(-1);return{m5:vals.length>1?(last/vals.at(-2)-1)*100:null,h1:vals.length>=13?(last/vals.at(-13)-1)*100:(last/vals[0]-1)*100,vals};
+}
+function deskPrice1h(){const a=(deskState.tfs['5m']||[]).slice(0,-1);return a.length>=13?(a.at(-1).c/a.at(-13).c-1)*100:null;}
+function deskSetRatio(longId,shortId,numId,longPct){
+  if(!Number.isFinite(longPct))return;const v=Math.max(0,Math.min(100,longPct));$(longId).style.width=v+'%';$(shortId).style.width=(100-v)+'%';$(numId).textContent=`L ${v.toFixed(1)} / S ${(100-v).toFixed(1)}`;
+}
+function deskLinePoints(vals,w,h){
+  if(vals.length<2)return'';const min=Math.min(...vals),max=Math.max(...vals),span=max-min||1;return vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-6-(v-min)/span*(h-12)).toFixed(1)}`).join(' ');
+}
+function deskRenderDerivatives(){
+  const p=deskState.premium,oi=deskState.oi,ch=deskOiChanges(),global=deskState.globalHist,taker=deskState.takerHist;if(!p&&!oi)return;
+  const funding=+p?.lastFundingRate*100,basis=p?(+p.markPrice/+p.indexPrice-1)*100:null,oiQty=+oi?.openInterest,mark=+p?.markPrice,oiValue=oiQty*mark;
+  $('deskFunding').textContent=deskPct(funding,4);$('deskFunding').className=funding>=.01?'dn':funding<=-.01?'up':'';$('deskFundingNext').textContent=p?.nextFundingTime?`다음 ${new Date(+p.nextFundingTime).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}`:'다음 정산 —';
+  $('deskBasis').textContent=deskPct(basis,3);$('deskOi').textContent=Number.isFinite(oiQty)?fmt(oiQty,0)+' BTC':'—';$('deskOiNotional').textContent=Number.isFinite(oiValue)?`명목 ${moneyShort(oiValue)}`:'명목가치 —';$('deskOi1h').textContent=deskPct(ch.h1,2);$('deskOi5m').textContent=`5분 ${deskPct(ch.m5,2)}`;
+  const longs=global.map(x=>+x.longAccount*100).filter(Number.isFinite),gNow=longs.at(-1),gAvg=longs.length?longs.reduce((a,c)=>a+c,0)/longs.length:null,tLast=taker.at(-1),buy=+tLast?.buyVol,sell=+tLast?.sellVol,tBuy=buy+sell?buy/(buy+sell)*100:null;
+  deskSetRatio('deskGlobalLong','deskGlobalShort','deskGlobalRatio',gNow);deskSetRatio('deskTopLong','deskTopShort','deskTopRatio',gAvg);deskSetRatio('deskTakerBuy','deskTakerSell','deskTakerRatio',tBuy);
+  const crowd=$('deskCrowdBadge');if(Number.isFinite(gNow)&&Number.isFinite(tBuy)&&Math.abs(gNow-50)>=8&&Math.sign(gNow-50)===Math.sign(tBuy-50)){crowd.textContent='CROWDED';deskTone(crowd,'dn');$('deskCrowdCopy').textContent='계정 포지션과 공격 체결이 같은 방향으로 강하게 몰렸습니다. 지속 신호가 아니라 과밀 리스크로도 읽어야 합니다.';}else if(Number.isFinite(gNow)&&Number.isFinite(tBuy)&&Math.sign(gNow-50)!==Math.sign(tBuy-50)&&Math.abs(tBuy-50)>=4){crowd.textContent='DIVERGENCE';deskTone(crowd,'gold');$('deskCrowdCopy').textContent='보유 포지션과 최근 공격 체결의 방향이 엇갈립니다. 포지션 전환인지 단기 방어인지 추가 확인이 필요합니다.';}else{crowd.textContent='BALANCED';deskTone(crowd,'');$('deskCrowdCopy').textContent='계정 포지션과 최근 공격 체결 사이에 뚜렷한 과밀이나 괴리가 없습니다.';}
+  const pc=deskPrice1h(),oc=ch.h1;let title='큰 방향 변화 없음',copy=`가격 ${deskPct(pc,2)} · OI ${deskPct(oc,2)}. 임계값 안의 혼조 구간입니다.`,tone='';
+  if(Number.isFinite(pc)&&Number.isFinite(oc)){if(pc>.10&&oc>.25){title='상승 + 포지션 확대';copy='가격과 OI가 함께 증가했습니다. 어느 한쪽의 신규 진입으로 단정하지 않고 체결 방향을 추가 확인합니다.';tone='up';}else if(pc<-.10&&oc>.25){title='하락 + 포지션 확대';copy='가격 하락과 OI 증가가 동반됩니다. 방향성 포지션이 확대되는 구간으로 실제 테이커 흐름을 함께 봅니다.';tone='dn';}else if(pc>.10&&oc<-.25){title='상승 + 디레버리징';copy='가격은 오르지만 OI가 감소합니다. 신규 수요보다 기존 포지션 정리의 영향일 수 있습니다.';tone='gold';}else if(pc<-.10&&oc<-.25){title='하락 + 디레버리징';copy='가격과 OI가 함께 감소합니다. 신규 포지션보다 기존 레버리지 축소의 영향일 수 있습니다.';tone='dn';}}
+  $('deskOiTitle').textContent=title;$('deskOiCopy').textContent=`${copy} · 가격 ${deskPct(pc,2)} / OI ${deskPct(oc,2)}`;$('deskOiBadge').textContent=tone?title.replace(' 가능','').toUpperCase():'HEURISTIC';deskTone($('deskOiBadge'),tone);
+  $('deskOiLine').setAttribute('points',deskLinePoints(ch.vals,400,100));$('deskOiLine').style.stroke=ch.h1>=0?'var(--grn)':'var(--red)';$('deskDerivAt').textContent=deskState.derivAt?new Date(deskState.derivAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'60S CACHE';
+}
+
+function deskPruneBuckets(now=Date.now()){
+  const cut=now-600000;while(deskState.buckets.length&&deskState.buckets[0].ts<cut)deskState.buckets.shift();
+}
+function deskVisibleWall(levels,side,now){
+  if(!levels.length){deskState.wallTrack[side]=null;return null;}const rows=levels.map(x=>({px:+x[0],val:(+x[0])*(+x[1])})).filter(x=>Number.isFinite(x.val)),sorted=rows.map(x=>x.val).sort((a,b)=>a-b),median=sorted[Math.floor(sorted.length/2)]||0,candidate=rows.reduce((m,x)=>x.val>m.val?x:m,{px:null,val:-1});
+  if(!Number.isFinite(candidate.px)||candidate.val<Math.max(100000,median*3)){deskState.wallTrack[side]=null;return null;}let track=deskState.wallTrack[side];if(!track||track.px!==candidate.px){track={px:candidate.px,since:now};deskState.wallTrack[side]=track;}track.val=candidate.val;track.median=median;track.ready=now-track.since>=3000;return track;
+}
+function deskFlowStats(now=Date.now()){
+  deskPruneBuckets(now);const buckets=deskState.buckets;
+  const sum=(ms)=>buckets.filter(b=>b.ts>=now-ms).reduce((a,b)=>{a.buy+=b.buy;a.sell+=b.sell;a.count+=b.count;a.whales+=b.whales;return a;},{buy:0,sell:0,count:0,whales:0});
+  const s15=sum(15000),s60=sum(60000),recentRate=s15.count/15,total60=s60.buy+s60.sell,aggImb=total60?(s60.buy-s60.sell)/total60*100:null;
+  const bid=deskState.bids.reduce((s,x)=>s+(+x[0])*(+x[1]),0),ask=deskState.asks.reduce((s,x)=>s+(+x[0])*(+x[1]),0),imb=bid+ask?(bid-ask)/(bid+ask)*100:null,bestBid=+deskState.bids[0]?.[0],bestAsk=+deskState.asks[0]?.[0],mid=bestBid&&bestAsk?(bestBid+bestAsk)/2:null,spread=mid?(bestAsk-bestBid)/mid*10000:null;
+  return{s15,s60,aggImb,recentRate,bid,ask,imb,spread,spreadUsd:bestBid&&bestAsk?bestAsk-bestBid:null,bidWall:deskVisibleWall(deskState.bids,'bid',now),askWall:deskVisibleWall(deskState.asks,'ask',now)};
+}
+function deskCvdSeries(){let c=0,vals=[];deskState.cvdSeed.forEach(x=>{c+=x.delta;vals.push({ts:x.ts,v:c});});const seedEnd=deskState.cvdSeed.at(-1)?.end||0;deskState.buckets.filter(b=>b.ts>seedEnd).forEach(b=>{c+=b.buy-b.sell;vals.push({ts:b.ts,v:c});});return{vals:vals.map(x=>x.v),delta:vals.at(-1)?.v||0};}
+function deskSparkWithZero(vals,w,h){if(vals.length<2)return{points:'',zero:h/2};const min=Math.min(0,...vals),max=Math.max(0,...vals),span=max-min||1,y=v=>h-6-(v-min)/span*(h-12);return{points:vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${y(v).toFixed(1)}`).join(' '),zero:y(0)};}
+function deskRenderFlow(){
+  const s=deskFlowStats(),total60=s.s60.buy+s.s60.sell,buy60=total60?s.s60.buy/total60*100:null,total15=s.s15.buy+s.s15.sell,buy15=total15?s.s15.buy/total15*100:50,series=deskCvdSeries(),plot=deskSparkWithZero(series.vals,600,120);
+  $('deskCvd').textContent=deskSignedMoney(series.delta);$('deskCvd').className=series.delta>=0?'up':'dn';$('deskBuyShare').textContent=Number.isFinite(buy60)?buy60.toFixed(1)+'%':'—';$('deskFlowNotional').textContent=total60?`60초 ${moneyShort(total60)}`:'체결 집계 중';$('deskBookImbalance').textContent=Number.isFinite(s.imb)?`${s.imb>=0?'BID +':'ASK '}${Math.abs(s.imb).toFixed(1)}%`:'—';$('deskIntensity').textContent=Number.isFinite(s.aggImb)?deskPct(s.aggImb,1):'—';$('deskTradesSec').textContent=`초당 ${s.recentRate.toFixed(1)}건`;
+  $('deskFlowBuy').textContent=buy15.toFixed(0);$('deskFlowSell').textContent=(100-buy15).toFixed(0);$('deskSpread').textContent=Number.isFinite(s.spread)?`SPREAD $${s.spreadUsd.toFixed(2)} · ${s.spread.toFixed(2)} bp`:'SPREAD —';
+  const px=deskState.price||1,showWall=(wall,priceId,metaId,side)=>{if(!wall){$(priceId).textContent='—';$(metaId).textContent='뚜렷한 벽 없음';return;}if(!wall.ready){$(priceId).textContent='$ '+fmt(wall.px,0);$(metaId).textContent='3초 지속 여부 검증 중';return;}$(priceId).textContent='$ '+fmt(wall.px,0);$(metaId).textContent=`${moneyShort(wall.val)} · mid ${Math.abs((wall.px/px-1)*10000).toFixed(1)} bp · ${side}`;};showWall(s.bidWall,'deskBidWall','deskBidWallMeta','VISIBLE BID');showWall(s.askWall,'deskAskWall','deskAskWallMeta','VISIBLE ASK');
+  $('deskCvdLine').setAttribute('points',plot.points);const base=$('deskCvdSvg').querySelector('.deskSparkBase');base.setAttribute('y1',plot.zero);base.setAttribute('y2',plot.zero);$('deskCvdLine').style.stroke=series.delta>=0?'var(--grn)':'var(--red)';$('deskCvdStart').textContent='60M ANCHOR $0';$('deskCvdNow').textContent=`NOW ${deskSignedMoney(series.delta)}`;
+  const aligned=Number.isFinite(s.imb)&&Math.sign(buy60-50)===Math.sign(s.imb);$('deskCvdCopy').textContent=!Number.isFinite(buy60)?'실시간 체결 버킷을 채우고 있습니다.':aligned?`60초 체결과 상위 호가가 모두 ${buy60>=50?'매수':'매도'} 쪽으로 합류합니다.`:`60초 체결은 ${buy60>=50?'매수':'매도'} 우위지만 호가 잔량은 반대여서 괴리가 있습니다.`;
+  const w=deskState.lastWhale;$('deskWhaleCopy').textContent=w&&Date.now()-w.ts<300000?`최근 고래: ${w.buy?'공격 매수':'공격 매도'} ${moneyShort(w.val)} · ${Math.round((Date.now()-w.ts)/1000)}초 전`:'$25만 이상 단일 체결을 함께 감시합니다.';
+  $('deskCvdBadge').textContent=series.delta>=0?'BUY DELTA':'SELL DELTA';deskTone($('deskCvdBadge'),series.delta>=0?'up':'dn');const connected=deskState.marketConnected&&deskState.bookConnected;$('deskFlowBadge').textContent=connected?'LIVE TAPE':'CONNECTING';deskTone($('deskFlowBadge'),connected?'up':'');
+}
+
+function deskRenderRisk(){
+  const a1=deskAnalyze('1h'),vol=deskVolPercentile(),range=deskRangeData(),p=deskState.premium,ch=deskOiChanges(),flow=deskFlowStats(),global=deskState.globalHist.map(x=>+x.longAccount*100).filter(Number.isFinite),g=global.at(-1),t=deskState.takerHist.at(-1),tb=+t?.buyVol,ts=+t?.sellVol,taker=tb+ts?tb/(tb+ts)*100:null;
+  if(Number.isFinite(vol)){$('deskVolPct').textContent=vol.toFixed(0)+'%';const regime=vol>=90?'극고변동':vol>=70?'고변동':vol<=25?'저변동·압축':'보통 변동';$('deskVolRegime').textContent=regime;$('deskVolBadge').textContent=regime.toUpperCase();deskTone($('deskVolBadge'),vol>=90?'dn':vol<=25?'gold':'');}
+  if(a1){$('deskAtr1h').textContent=a1.atrPct.toFixed(2)+'%';$('deskAtr1hUsd').textContent=`가격 거리 $${fmt(a1.atr,0)}`;}
+  if(range){$('deskRiskRange').textContent=range.used.toFixed(0)+'%';}
+  const funding=+p?.lastFundingRate*100;$('deskRiskFunding').textContent=deskPct(funding,4);$('deskRiskFundingAt').textContent=p?.nextFundingTime?new Date(+p.nextFundingTime).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'정산 시각 —';
+  const px=+p?.markPrice||deskState.price||a1?.last.c,bands=$('deskRiskBands');if(a1&&Number.isFinite(px)){bands.replaceChildren();[1,1.5,2].forEach(m=>{const row=document.createElement('div');row.className='deskRiskBand';const tag=document.createElement('span');tag.textContent=m.toFixed(1)+' ATR';const b=document.createElement('b');b.textContent=`$${fmt(px-a1.atr*m,0)} — $${fmt(px+a1.atr*m,0)}`;const e=document.createElement('em');e.textContent=`±${(a1.atr/px*100*m).toFixed(2)}%`;row.append(tag,b,e);bands.append(row);});}
+  const a4=deskAnalyze('4h'),a15=deskAnalyze('15m'),vwap=deskSessionVwap(),price=deskState.price||0,weekOpen=deskState.weekly.at(-1)?.o,prev=deskState.daily.at(-2),cvd=deskCvdSeries().delta,confirmUp=[cvd>0,ch.h1>0,taker>=52].filter(Boolean).length>=2,confirmDn=[cvd<0,ch.h1<0,taker<=48].filter(Boolean).length>=2;
+  const scenarios=[
+    {title:'PDH 상방 돌파 감시',checks:[a15?.last.c>prev?.h,a1?.tone==='up'&&a4?.tone==='up'&&price>vwap&&price>weekOpen,confirmUp,price>prev?.h],copy:'Trigger PDH 확정봉 돌파 · Context 1H/4H+VWAP · Confirmation CVD/OI/taker · Invalidation PDH 복귀'},
+    {title:'PDL 하방 이탈 감시',checks:[a15?.last.c<prev?.l,a1?.tone==='dn'&&a4?.tone==='dn'&&price<vwap&&price<weekOpen,confirmDn,price<prev?.l],copy:'Trigger PDL 확정봉 이탈 · Context 1H/4H+VWAP · Confirmation CVD/OI/taker · Invalidation PDL 복귀'},
+    {title:'압축 후 변동성 확대 감시',checks:[vol<=35,Math.abs(ch.h1||0)>=.30,Math.abs(flow.aggImb||0)>=8,(range?.used||0)<120],copy:'Trigger 저변동 · Context ADR 미과열 · Confirmation OI+공격 체결 · Invalidation 압축 지속'},
+    {title:'포지션 과밀 되돌림 위험',checks:[Math.abs((g??50)-50)>=8,Math.abs(funding)>=.01,Number.isFinite(taker)&&Math.sign(g-50)!==Math.sign(taker-50),Math.abs(deskPrice1h()||0)>=.10],copy:'Trigger 계정 쏠림 · Context 펀딩 · Confirmation 반대 테이커 · Invalidation 가격 추세 지속'}
+  ];
+  const el=$('deskScenarios');el.replaceChildren();let best=0;scenarios.forEach(s=>{const count=s.checks.filter(Boolean).length;best=Math.max(best,count);const row=document.createElement('div');row.className='deskScenario';const main=document.createElement('div');const b=document.createElement('b');b.textContent=s.title;const p=document.createElement('p');p.textContent=s.copy;const score=document.createElement('span');score.textContent=`${count}/4`;main.append(b,p);row.append(main,score);el.append(row);});$('deskScenarioBadge').textContent=best===4?'SETUP 4/4':best===3?'WATCH 3/4':'NO SETUP';deskTone($('deskScenarioBadge'),best>=3?'gold':'');
+}
+function deskRenderActive(){
+  const px=deskState.price||deskState.tfs['5m']?.at(-1)?.c;if(Number.isFinite(px))$('deskPrice').textContent='$ '+fmt(px,0);
+  if(deskActiveView==='structure')deskRenderStructure();else if(deskActiveView==='derivatives')deskRenderDerivatives();else if(deskActiveView==='flow')deskRenderFlow();else if(deskActiveView==='risk')deskRenderRisk();
+}
+function deskConnected(){return deskState.marketConnected&&deskState.bookConnected;}
+function deskSyncConnectionUi(){const on=deskConnected();$('deskDot').classList.toggle('on',on);$('deskStatus').textContent=on?'BTCUSDT PERP 실시간':'시장·호가 회선 연결 중';}
+function deskConnectMarket(){
+  if(!tabLive('desk')||deskWsMarket)return;clearTimeout(deskMarketRetry);$('deskStatus').textContent='퍼펫 체결 회선 연결 중';
+  deskWsMarket=new WebSocket('wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade');
+  deskWsMarket.onopen=()=>{deskState.marketConnected=true;deskSyncConnectionUi();};
+  deskWsMarket.onclose=()=>{deskWsMarket=null;deskState.marketConnected=false;deskSyncConnectionUi();if(tabLive('desk'))deskMarketRetry=setTimeout(deskConnectMarket,1800);};deskWsMarket.onerror=()=>deskWsMarket?.close();
+  deskWsMarket.onmessage=ev=>{if(!tabLive('desk'))return;try{const d=JSON.parse(ev.data)?.data;if(!d)return;const ts=d.T||Date.now(),val=(+d.p)*(+d.q),buy=!d.m,sec=Math.floor(ts/1000)*1000;deskState.price=+d.p;let b=deskState.buckets.at(-1);if(!b||b.ts!==sec){b={ts:sec,buy:0,sell:0,count:0,whales:0};deskState.buckets.push(b);}b[buy?'buy':'sell']+=val;b.count++;if(val>=250000){b.whales++;deskState.lastWhale={ts,val,buy};}}catch(e){}};
+}
+function deskConnectBook(){
+  if(!tabLive('desk')||deskWsBook)return;clearTimeout(deskBookRetry);
+  deskWsBook=new WebSocket('wss://fstream.binance.com/public/stream?streams=btcusdt@depth20@500ms');
+  deskWsBook.onopen=()=>{deskState.bookConnected=true;deskSyncConnectionUi();};
+  deskWsBook.onclose=()=>{deskWsBook=null;deskState.bookConnected=false;deskSyncConnectionUi();if(tabLive('desk'))deskBookRetry=setTimeout(deskConnectBook,2200);};deskWsBook.onerror=()=>deskWsBook?.close();
+  deskWsBook.onmessage=ev=>{if(!tabLive('desk'))return;try{const d=JSON.parse(ev.data)?.data;if(!d)return;deskState.bids=d.b||d.bids||[];deskState.asks=d.a||d.asks||[];}catch(e){}};
+}
+function deskTick(){
+  if(!tabLive('desk'))return;const now=Date.now();deskPruneBuckets(now);if(now>=deskStructureNext)deskFetchStructure();if(now>=deskDerivNext)deskFetchDerivatives();deskRenderActive();
+  if(deskConnected())$('deskStatus').textContent=`PERP 실시간 · ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+}
+function deskOpen(){
+  if(!tabLive('desk'))return;if(!deskRuntimeOn){deskRuntimeOn=true;deskGeneration++;deskState.buckets=[];deskState.bids=[];deskState.asks=[];deskState.lastWhale=null;deskState.wallTrack={bid:null,ask:null};deskConnectMarket();deskConnectBook();const now=Date.now();if(now-deskState.structureAt>=DESK_STRUCTURE_TTL)deskStructureNext=0;if(now-deskState.derivAt>=DESK_DERIV_TTL)deskDerivNext=0;if(now>=deskStructureNext)deskFetchStructure();if(now>=deskDerivNext)deskFetchDerivatives();deskTimer=setInterval(deskTick,1000);}deskRenderActive();
+}
+function deskClose(){
+  if(!deskRuntimeOn)return;deskRuntimeOn=false;deskGeneration++;clearInterval(deskTimer);clearTimeout(deskMarketRetry);clearTimeout(deskBookRetry);deskTimer=deskMarketRetry=deskBookRetry=null;deskControllers.forEach(c=>c.abort());deskControllers.clear();
+  [deskWsMarket,deskWsBook].forEach(ws=>{if(!ws)return;ws.onmessage=null;ws.onclose=null;try{ws.close();}catch(e){}});deskWsMarket=deskWsBook=null;deskState.marketConnected=deskState.bookConnected=false;deskState.buckets=[];deskState.bids=[];deskState.asks=[];deskState.wallTrack={bid:null,ask:null};$('deskDot').classList.remove('on');$('deskStatus').textContent='탭을 열면 연결';
+}
+
 // ═══ 실행 수명주기 — 보이는 탭만 갱신 ═══
 let loungeRuntimeOn = false;
 function startLoungeRuntime() {
@@ -3908,6 +4326,7 @@ function stopLoungeRuntime() {
 function syncRuntimeState() {
   if (tabLive('lounge')) startLoungeRuntime(); else stopLoungeRuntime();
   if (tabLive('watch')) watchOpen(); else watchClose();
+  if (tabLive('desk')) deskOpen(); else deskClose();
   if (tabLive('arena')) arenaOpen(); else arenaClose();
   if (tabLive('chain')) onchainOpen(); else onchainClose();
   if (tabLive('macro')) macroOpen(); else macroClose();
