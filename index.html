@@ -1892,6 +1892,59 @@ async function loadLetters() {
 }
 loadLetters();
 
+// ═══ 전략가 시장 반응 — 판이 움직이면 각자 성격대로 한마디 ═══
+// pitSignal이 고른 '지금 가장 큰 장면'에만 반응한다. 방문자 발언과 구분되도록
+// 캐릭터 아바타·이름을 그대로 달고 나간다.
+const STRAT_REACT = {
+  candle: { who:'madam', lines:[
+    '이런 봉이 나오면 판이 스스로 말을 하는 거야. 굳이 보태지 않아.',
+    '몸통이 굵다. 다음 봉이 이걸 지켜주는지가 진짜야.',
+    '급하게 따라붙는 손이 제일 먼저 털려. 한 봉 더 보고 가자.' ]},
+  breakout: { who:'madam', lines:[
+    '천장을 넘었군. 국면이 열렸는지는 마감이 알려줄 거야.',
+    '돌파는 쉬워. 지켜내는 게 어렵지.',
+    '추세와 국면, 두 관문이 다 열려야 나는 움직여.' ]},
+  breakdown: { who:'madam', lines:[
+    '바닥이 깨졌어. 이럴 땐 아무것도 안 하는 것도 매매다.',
+    '떨어지는 칼에 손대지 마라. 오래된 말이지만 늘 맞아.',
+    '판이 험하군. 금괴나 안고 기다린다.' ]},
+  race: { who:'andy', lines:[
+    '알트 쪽으로 온기가 도는군. 그물 걷을 시간이 앞당겨지겠어.',
+    '선두가 바뀌는 게 보인다. 매일 밤 스캔에 이런 놈들이 걸린다.',
+    '누가 달리는지는 보여줄 수 있다. 고르는 건 언제나 너다.' ]},
+  whale: { who:'andy', lines:[
+    '덩치 큰 손이 지나갔다. 한 번은 흔적, 세 번이면 방향이다.',
+    '이런 체결 하나로 결론 내지는 마라. 흐름을 봐야지.',
+    '큰 손이 움직였다. 뒤따를지는 네가 정해라.' ]},
+  pressure: { who:'andy', lines:[
+    '체결이 한쪽으로 쏠린다. 스캐너에 표시해 두마.',
+    '수급이 기운다. 오래 가는지는 내일 전보에서 확인하자.' ]},
+  'tower-crash': { who:'justin', lines:[
+    '한쪽 청산이 몰렸습니다. 과열이 정리되는 국면으로 읽힙니다.',
+    '레버리지가 씻겨나갔습니다. 구조가 가벼워졌는지는 지켜봐야 합니다.',
+    '이런 구간의 되돌림은 방향 신호로 보기 어렵습니다.' ]},
+  'liq-jackpot': { who:'justin', lines:[
+    '누적 청산이 임계에 닿았습니다. 모형은 변동성 확대 구간으로 분류합니다.',
+    '판단은 모형이 하고, 결정은 사람이 합니다. 무리하지 마십시오.',
+    '이 규모의 청산 뒤에는 통계적으로 되돌림이 잦습니다. 확률일 뿐입니다.' ]},
+  liquidation: { who:'justin', lines:[
+    '청산이 들어왔습니다. 한 건으로 국면을 바꾸지는 않습니다.',
+    '표본이 쌓여야 의미가 생깁니다. 기록해 두겠습니다.' ]},
+};
+let stratLastAt = 0;                       // 전체 쿨다운
+const stratWhoAt = {}, stratLastLine = {}; // 캐릭터별 쿨다운 · 직전 문장
+function stratReact(key) {
+  const e = STRAT_REACT[key];
+  if (!e || !tabLive('lounge')) return;
+  const now = Date.now();
+  if (now - stratLastAt < 70000) return;              // 채팅 도배 방지
+  if (now - (stratWhoAt[e.who] || 0) < 240000) return; // 같은 인물 4분에 한 번
+  const pool = e.lines.filter(l => l !== stratLastLine[e.who]);
+  const line = pool[Math.floor(Math.random() * pool.length)] || e.lines[0];
+  stratLastAt = now; stratWhoAt[e.who] = now; stratLastLine[e.who] = line;
+  setTimeout(() => sayLetter(e.who, CHAR_NAME[e.who] || '', line), 1500 + Math.random() * 2500);
+}
+
 // ═══ 닉네임 (채팅·블라인드 방에서 공용) ═══
 let myNick = localStorage.getItem('salonNick') || '나 (닉네임 설정)';
 function renderNick() { $('nickBtn').textContent = myNick.startsWith('나 ') ? '닉네임 설정' : myNick; }
@@ -2270,7 +2323,7 @@ function setPit(p, duration=45000) {
 }
 function pitSignal(key, score, icon, tag, title, copy, color) {
   const p = { key, score, icon, tag, title, copy, color };
-  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) setPit(p);
+  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) { setPit(p); stratReact(key); }
 }
 function selectAmbientTable() {
   const total = buyVol + sellVol;

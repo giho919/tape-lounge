@@ -79,6 +79,7 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 ### Interactive · 참여 요소
 
 - **Lounge Chat · 라운지 채팅** — Live visitor chat (nickname-based); the strategists' letters flow in alongside / 방문자 실시간 채팅(닉네임 기반) + 전략가 서신·소식이 함께 흐름
+- **Strategist reactions · 전략가 반응** — when the pit boss promotes a scene, the strategist whose beat it is says one line in character; visibly attributed, never posing as a visitor, rate-limited to one line per 70s and one per strategist per 4min / 핏 보스가 장면을 올릴 때 담당 전략가가 성격대로 한마디, 방문자인 척하지 않고 이름·아바타를 달고 나가며 전체 70초·인물별 4분 간격 제한
 
 ---
 
