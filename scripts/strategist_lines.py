@@ -125,6 +125,10 @@ def repeats(line: str) -> bool:
     return False
 
 
+# 반말 명령형(-라/-아라/-어라/-거라)은 대부분 행동 지시로 읽힌다
+IMPERATIVE = re.compile(r"(으|아|어|거|지)?라[.!?]?$")
+
+
 def style_ok(line: str, polite: bool) -> bool:
     """존댓말 캐릭터와 반말 캐릭터가 섞이지 않게."""
     ends_polite = bool(re.search(r"(습니다|입니다|니다|세요|시죠|십시오|합니다)[.!?]?$", line))
@@ -183,6 +187,8 @@ def clean(raw: str, polite: bool) -> str | None:
     if line.startswith("-") or ":" in line[:12]:
         return None
     if repeats(line) or not style_ok(line, polite):
+        return None
+    if not polite and IMPERATIVE.search(line):
         return None
     if re.search(r"[#\U0001F300-\U0001FAFF]", line):
         return None
