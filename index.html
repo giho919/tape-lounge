@@ -539,6 +539,79 @@ body.shake { animation:shake .5s; }
 .bookRow.break .bar { animation:barPunch .5s; }
 @keyframes barPunch { 0%{filter:brightness(2.4)} 100%{filter:brightness(1)} }
 .shard { position:absolute; width:4px; height:4px; border-radius:1px; pointer-events:none; z-index:6; }
+
+/* ═══ 관전실 — 참여 없는 시장 쇼 ═══ */
+.watchWrap { max-width:1180px; margin:14px auto 0; }
+.watchHero { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; align-items:end; gap:28px; padding:28px 30px; border:1px solid #293043; border-radius:22px; background:radial-gradient(circle at 85% 10%,rgba(212,175,55,.12),transparent 38%),linear-gradient(145deg,#171b25,#10131a); }
+.watchHero:after { content:''; position:absolute; inset:auto -8% -70% 45%; height:220px; border-radius:50%; background:rgba(212,175,55,.055); filter:blur(26px); pointer-events:none; }
+.watchEyebrow { color:var(--gold); font:700 9px Menlo,monospace; letter-spacing:2.6px; }
+.watchTitle { margin-top:8px; color:#f8f4e8; font:700 clamp(25px,3.2vw,42px) Georgia,serif; letter-spacing:-.5px; }
+.watchLead { margin-top:9px; max-width:630px; color:#9299a9; font-size:12.5px; line-height:1.7; }
+.watchLive { position:relative; z-index:1; min-width:156px; text-align:right; }
+.watchLive b { display:block; color:#fff; font:700 25px Menlo,monospace; }
+.watchLive span { display:block; margin-top:6px; color:var(--dim); font-size:9px; letter-spacing:1.5px; }
+.watchLive i { display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50%; background:var(--gold-dim); box-shadow:0 0 10px currentColor; }
+.watchLive i.on { background:var(--grn); }
+.watchNav { position:sticky; top:0; z-index:20; display:grid; grid-template-columns:repeat(3,1fr); gap:4px; width:min(430px,100%); margin:14px auto; padding:4px; border:1px solid var(--line); border-radius:13px; background:rgba(10,12,16,.94); backdrop-filter:blur(14px); }
+.watchNav button { border:0; border-radius:9px; padding:9px 12px; background:transparent; color:var(--dim); font-size:11px; font-weight:700; cursor:pointer; }
+.watchNav button.on { color:#fff; background:#252b38; box-shadow:0 1px 8px rgba(0,0,0,.28); }
+.watchView.hidden { display:none; }
+.watchGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.watchCard { position:relative; overflow:hidden; min-height:230px; padding:20px; border:1px solid var(--line); border-radius:18px; background:linear-gradient(150deg,#151923,#10131a); }
+.watchCard.full { grid-column:1/-1; }
+.watchCardTop { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+.watchCardTitle { color:#f2f3f5; font-size:15px; font-weight:800; }
+.watchCardSub { margin-top:5px; color:var(--dim); font-size:10px; line-height:1.5; }
+.watchBadge { flex:0 0 auto; padding:5px 8px; border-radius:20px; color:var(--gold); background:rgba(212,175,55,.09); font:700 9px Menlo,monospace; letter-spacing:.5px; }
+.watchBig { margin-top:22px; color:#fff; font:800 clamp(25px,3vw,38px) Menlo,monospace; letter-spacing:-1.5px; }
+.watchHint { margin-top:7px; color:#9299a9; font-size:11px; line-height:1.6; }
+.watchDirector { display:grid; grid-template-columns:72px 1fr auto; gap:18px; align-items:center; min-height:154px; margin-bottom:12px; padding:20px 22px; border:1px solid #353b4c; border-radius:18px; background:#151923; transition:border-color .3s,background .3s; }
+.watchDirectorIcon { display:grid; place-items:center; width:68px; height:68px; border-radius:22px; background:#0d1016; font-size:34px; }
+.watchDirectorTag { color:var(--gold); font:700 9px Menlo,monospace; letter-spacing:2px; }
+.watchDirectorTitle { margin-top:6px; color:#fff; font-size:18px; font-weight:800; }
+.watchDirectorCopy { margin-top:5px; color:#9299a9; font-size:11.5px; line-height:1.55; }
+.watchDirectorClock { min-width:72px; text-align:right; color:var(--dim); font:700 11px Menlo,monospace; }
+.showdownTrack { position:relative; height:9px; margin-top:20px; overflow:hidden; border-radius:9px; background:#272d3a; }
+.showdownTrack i { position:absolute; inset:0 auto 0 0; width:0; border-radius:inherit; background:linear-gradient(90deg,var(--gold-dim),var(--gold)); transition:width .5s; }
+.showdownSides { display:flex; justify-content:space-between; margin-top:8px; color:var(--dim); font:700 9px Menlo,monospace; }
+.tugStage { display:grid; grid-template-columns:1fr 52px 1fr; align-items:center; gap:10px; margin-top:25px; }
+.tugSide { padding:16px 12px; border-radius:14px; text-align:center; background:#0d1117; }
+.tugSide b { display:block; font:800 28px Menlo,monospace; }
+.tugSide span { display:block; margin-top:4px; color:var(--dim); font-size:9px; letter-spacing:1px; }
+.tugSide.bull b { color:var(--grn); }.tugSide.bear b { color:var(--red); }
+.tugRope { position:relative; height:5px; border-radius:5px; background:linear-gradient(90deg,var(--grn),#555 49%,#555 51%,var(--red)); }
+.tugRope i { position:absolute; top:50%; left:50%; width:13px; height:13px; border:3px solid #fff; border-radius:50%; background:#111; transform:translate(-50%,-50%); transition:left .45s cubic-bezier(.2,.8,.2,1); }
+.whaleTable { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+.whaleSeat { min-height:122px; padding:13px; border-radius:14px; background:#0d1117; }
+.whaleSeatHead { display:flex; justify-content:space-between; color:var(--dim); font-size:9px; letter-spacing:1px; }
+.whaleSeatHead b { color:#d9dde7; font:700 10px Menlo,monospace; }
+.whaleChips { display:flex; flex-wrap:wrap-reverse; align-content:flex-start; gap:5px; min-height:66px; margin-top:12px; }
+.whaleChip { display:grid; place-items:center; width:31px; height:31px; border:3px dashed rgba(255,255,255,.28); border-radius:50%; color:#fff; font:700 7px Menlo,monospace; background:#244d34; }
+.whaleSeat.sell .whaleChip { background:#5a2b32; }
+.rouletteState { display:grid; grid-template-columns:128px 1fr; gap:20px; align-items:center; margin-top:18px; }
+.marketWheel { position:relative; width:128px; height:128px; border:8px solid #202634; border-radius:50%; background:conic-gradient(#2d6a4f 0 60deg,#5a2330 60deg 120deg,#795c19 120deg 180deg,#24496a 180deg 240deg,#573c75 240deg 300deg,#303642 300deg); transition:transform 1s cubic-bezier(.2,.8,.2,1); }
+.marketWheel:before { content:'▼'; position:absolute; top:-19px; left:50%; z-index:2; color:#fff0a8; transform:translateX(-50%); }
+.marketWheel:after { content:''; position:absolute; inset:34px; border:1px solid #596072; border-radius:50%; background:#11151c; box-shadow:0 0 18px #000; }
+.roadGrid { display:grid; grid-auto-flow:column; grid-template-rows:repeat(6,22px); grid-auto-columns:22px; gap:5px; min-height:160px; margin-top:20px; overflow-x:auto; padding:3px 2px 8px; }
+.roadDot { display:grid; place-items:center; width:22px; height:22px; border:2px solid currentColor; border-radius:50%; font:700 7px Menlo,monospace; }
+.roadDot.up { color:var(--red); background:rgba(248,113,113,.08); }.roadDot.dn { color:#60a5fa; background:rgba(96,165,250,.08); }.roadDot.flat { color:var(--gold); }
+.dominoStage { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
+.dominoLane { min-height:128px; padding:14px; border-radius:14px; background:#0d1117; }
+.dominoLaneHead { display:flex; justify-content:space-between; color:var(--dim); font-size:9px; }.dominoLaneHead b { color:#e5e7eb; }
+.dominoBlocks { display:flex; align-items:flex-end; gap:5px; min-height:72px; margin-top:10px; overflow:hidden; }
+.domino { flex:0 0 14px; height:48px; border:1px solid rgba(255,255,255,.22); border-radius:3px; background:#873744; transform-origin:bottom; animation:dominoIn .35s ease-out; }
+.domino.short { background:#28734a; }
+@keyframes dominoIn { from { opacity:0; transform:translateY(-10px) rotate(-12deg); } }
+.sessionGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; }
+.sessionCard { padding:16px; border-radius:14px; background:#0d1117; }
+.sessionCard.winner { outline:1px solid var(--gold-dim); background:linear-gradient(145deg,rgba(212,175,55,.08),#0d1117); }
+.sessionCard span { color:var(--dim); font-size:9px; letter-spacing:1px; }.sessionCard b { display:block; margin-top:9px; color:#fff; font:800 22px Menlo,monospace; }.sessionCard small { display:block; margin-top:6px; color:#858c9b; font-size:9px; }
+.storyList { margin-top:16px; }
+.storyRow { display:grid; grid-template-columns:48px 26px 1fr; gap:9px; align-items:start; padding:11px 0; border-top:1px solid var(--line); }
+.storyRow time { color:var(--dim); font:700 9px Menlo,monospace; }.storyRow i { font-style:normal; text-align:center; }.storyRow p { color:#c4c8d0; font-size:11px; line-height:1.5; }
+.storyEmpty { padding:30px 0; color:var(--dim); text-align:center; font-size:11px; line-height:1.7; }
+@media(max-width:760px){.watchWrap{margin-top:10px}.watchHero{grid-template-columns:1fr;padding:22px 19px;gap:18px}.watchLive{text-align:left}.watchGrid{grid-template-columns:1fr}.watchCard.full{grid-column:auto}.watchDirector{grid-template-columns:52px 1fr;padding:16px}.watchDirectorIcon{width:50px;height:50px;border-radius:16px;font-size:26px}.watchDirectorClock{grid-column:1/-1;text-align:left}.rouletteState{grid-template-columns:104px 1fr}.marketWheel{width:104px;height:104px}.marketWheel:after{inset:28px}.sessionGrid{grid-template-columns:1fr}.dominoStage{grid-template-columns:1fr}.watchCard{min-height:0;padding:17px}.watchNav{top:0}.whaleTable{gap:7px}.whaleChip{width:27px;height:27px}.storyRow{grid-template-columns:43px 22px 1fr}}
+@media(prefers-reduced-motion:reduce){.domino,.marketWheel{animation:none;transition:none}}
 </style>
 </head>
 <body>
@@ -548,6 +621,7 @@ body.shake { animation:shake .5s; }
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
   <div class="tabs">
     <div class="tab on" data-tab="lounge">🥂 라운지</div>
+    <div class="tab" data-tab="watch">👁 관전실</div>
     <div class="tab" data-tab="game">🎰 블라인드</div>
     <div class="tab" data-tab="arena">⚔️ 투기장</div>
     <div class="tab" data-tab="chain">⛓ 온체인</div>
@@ -738,6 +812,49 @@ body.shake { animation:shake .5s; }
     <div id="bookMid"><span id="bookMidPx" class="num">—</span><span id="bookSpread" class="num"></span></div>
     <div id="bookBids" class="bookSide"></div>
   </div>
+  </div>
+</div>
+
+<!-- ═══════════ 관전실 탭 ═══════════ -->
+<div id="tab-watch" class="hidden">
+  <div class="watchWrap">
+    <div class="watchHero">
+      <div><div class="watchEyebrow">MARKET SHOW · NO BETS, JUST TAPE</div><div class="watchTitle">시장이 스스로 벌이는 판</div><p class="watchLead">참여 버튼 없이 체결·호가·청산·캔들만 지켜봅니다. 가장 큰 사건 하나만 중앙 무대에 올라옵니다.</p></div>
+      <div class="watchLive"><b id="watchPrice">—</b><span><i id="watchDot"></i><span id="watchStatus" style="display:inline">연결 대기</span></span></div>
+    </div>
+    <div class="watchNav" role="tablist" aria-label="관전실 화면">
+      <button class="on" data-watch-view="now" onclick="watchView('now')">지금</button>
+      <button data-watch-view="flow" onclick="watchView('flow')">흐름</button>
+      <button data-watch-view="record" onclick="watchView('record')">기록</button>
+    </div>
+
+    <div class="watchView" data-watch-panel="now">
+      <div class="watchDirector" id="watchDirector">
+        <div class="watchDirectorIcon" id="watchDirectorIcon">🎩</div>
+        <div><div class="watchDirectorTag" id="watchDirectorTag">SHOW DIRECTOR</div><div class="watchDirectorTitle" id="watchDirectorTitle">시장의 첫 장면을 기다리는 중</div><div class="watchDirectorCopy" id="watchDirectorCopy">동시에 사건이 생겨도 가장 중요한 하나만 보여드립니다.</div></div>
+        <div class="watchDirectorClock" id="watchDirectorClock">SCANNING</div>
+      </div>
+      <div class="watchGrid">
+        <section class="watchCard"><div class="watchCardTop"><div><div class="watchCardTitle">봉 마감 쇼다운</div><div class="watchCardSub">BTC 1분봉 · 종가가 잠기는 순간</div></div><span class="watchBadge" id="showdownGrade">READING</span></div><div class="watchBig" id="showdownMove">—</div><div class="watchHint" id="showdownCopy">새 봉을 기다리고 있습니다.</div><div class="showdownTrack"><i id="showdownFill"></i></div><div class="showdownSides"><span>OPEN <b id="showdownOpen">—</b></span><span>CLOSE IN <b id="showdownClock">--</b></span></div></section>
+        <section class="watchCard"><div class="watchCardTop"><div><div class="watchCardTitle">호가 줄다리기</div><div class="watchCardSub">잔량 40% + 실제 체결 60%</div></div><span class="watchBadge" id="tugBadge">CENTER</span></div><div class="tugStage"><div class="tugSide bull"><b id="tugBull">50</b><span>BULL</span></div><div class="tugRope"><i id="tugKnot"></i></div><div class="tugSide bear"><b id="tugBear">50</b><span>BEAR</span></div></div><div class="watchHint" id="tugCopy">양쪽이 중앙선을 두고 힘을 모으는 중입니다.</div></section>
+        <section class="watchCard"><div class="watchCardTop"><div><div class="watchCardTitle">고래 테이블</div><div class="watchCardSub">BTC $25만+ 단일 체결 · 최근 5분</div></div><span class="watchBadge" id="whaleTableBadge">VIP 대기</span></div><div class="whaleTable"><div class="whaleSeat"><div class="whaleSeatHead"><span>BUY TABLE</span><b id="whaleBuyTotal">$0</b></div><div class="whaleChips" id="whaleBuyChips"></div></div><div class="whaleSeat sell"><div class="whaleSeatHead"><span>SELL TABLE</span><b id="whaleSellTotal">$0</b></div><div class="whaleChips" id="whaleSellChips"></div></div></div><div class="watchHint" id="whaleTableCopy">VIP 손님의 첫 칩을 기다리고 있습니다.</div></section>
+        <section class="watchCard"><div class="watchCardTop"><div><div class="watchCardTitle">변동성 룰렛</div><div class="watchCardSub">무작위가 아닌 실제 시장 상태</div></div><span class="watchBadge" id="rouletteBadge">CALM</span></div><div class="rouletteState"><div class="marketWheel" id="marketWheel"></div><div><div class="watchBig" id="rouletteName" style="margin-top:0">CALM</div><div class="watchHint" id="rouletteCopy">시장 호흡을 읽는 중입니다.</div></div></div></section>
+      </div>
+    </div>
+
+    <div class="watchView hidden" data-watch-panel="flow">
+      <div class="watchGrid">
+        <section class="watchCard full"><div class="watchCardTop"><div><div class="watchCardTitle">시장 바카라 로드</div><div class="watchCardSub">상승 빨강 · 하락 파랑 · 도지 금색 · 최근 1분봉</div></div><span class="watchBadge" id="roadBadge">ROAD OPEN</span></div><div class="roadGrid" id="roadGrid"></div><div class="watchHint" id="roadCopy">캔들 장부를 펼치는 중입니다.</div></section>
+        <section class="watchCard full"><div class="watchCardTop"><div><div class="watchCardTitle">청산 도미노</div><div class="watchCardSub">10초 안에 같은 방향 청산이 이어지면 체인</div></div><span class="watchBadge" id="dominoBadge">LIVE 대기</span></div><div class="dominoStage"><div class="dominoLane"><div class="dominoLaneHead"><span>LONG LIQUIDATED</span><b id="dominoLongTotal">$0</b></div><div class="dominoBlocks" id="dominoLong"></div></div><div class="dominoLane"><div class="dominoLaneHead"><span>SHORT LIQUIDATED</span><b id="dominoShortTotal">$0</b></div><div class="dominoBlocks" id="dominoShort"></div></div></div><div class="watchHint" id="dominoCopy">첫 청산 전표를 기다리고 있습니다.</div></section>
+      </div>
+    </div>
+
+    <div class="watchView hidden" data-watch-panel="record">
+      <div class="watchGrid">
+        <section class="watchCard full"><div class="watchCardTop"><div><div class="watchCardTitle">세션 챔피언십</div><div class="watchCardSub">아시아 · 유럽 · 미국장, 오늘 가장 거친 세션</div></div><span class="watchBadge" id="sessionBadge">TODAY</span></div><div class="sessionGrid" id="sessionGrid"><div class="sessionCard"><span>ASIA</span><b>—</b><small>집계 중</small></div><div class="sessionCard"><span>EUROPE</span><b>—</b><small>집계 중</small></div><div class="sessionCard"><span>US</span><b>—</b><small>집계 중</small></div></div><div class="watchHint" id="sessionCopy">오늘의 5분봉 장부를 읽고 있습니다.</div></section>
+        <section class="watchCard full"><div class="watchCardTop"><div><div class="watchCardTitle">오늘의 시장 서사</div><div class="watchCardSub">중요한 장면만 시간순으로 남깁니다</div></div><span class="watchBadge" id="storyBadge">0 SCENES</span></div><div class="storyList" id="storyList"><div class="storyEmpty">관전실이 오늘의 첫 장면을 기다리고 있습니다.</div></div></section>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1076,6 +1193,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
   t.classList.add('on');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
+  $('tab-watch').classList.toggle('hidden', t.dataset.tab !== 'watch');
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-arena').classList.toggle('hidden', t.dataset.tab !== 'arena');
@@ -3559,6 +3677,213 @@ function disconnectLiquidations() {
   wsl = null; setLiqStreamState('connecting');
 }
 
+// ═══ 관전실 — 참여 없는 시장 쇼 ═══
+const WATCH_WHALE_MIN = 250000, WATCH_TRADE_WINDOW = 30000, WATCH_LIQ_WINDOW = 15*60*1000;
+let watchRuntimeOn = false, watchWsSpot = null, watchWsLiq = null, watchTimer = null, watchLiqConnected = false;
+let watchSpotRetry = null, watchLiqRetry = null, watchSeedAt = 0, watchWheelTurns = 0;
+let watchDirectorCurrent = null, watchDirectorUntil = 0, watchLastRender = 0;
+const watchState = {
+  price:0, bars:[], current:null, trades:[], whales:[], liquidations:[], asks:[], bids:[],
+  dirtyWhales:true, dirtyDomino:true, roadDirty:true, sessionBars:[], roulette:'CALM',
+  liqChain:{side:null,count:0,total:0,last:0}, tugLeader:'center', tugSignalAt:0,
+  prevBook:null, fakeWallAt:0, seenLiq:new Set()
+};
+
+function watchView(name) {
+  document.querySelectorAll('[data-watch-view]').forEach(b => b.classList.toggle('on', b.dataset.watchView === name));
+  document.querySelectorAll('[data-watch-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.watchPanel !== name));
+}
+
+const watchStoryKey = () => {
+  const d = new Date(Date.now()+9*3600000);
+  return `tapeWatchStory:${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+};
+let watchStories = [];
+try { const s=JSON.parse(localStorage.getItem(watchStoryKey())||'[]'); if(Array.isArray(s))watchStories=s.slice(0,24); } catch(e) {}
+function watchAddStory(icon, text, key='') {
+  const now=Date.now(), recent=watchStories[0];
+  if (recent && ((key && recent.key===key && now-recent.ts<120000) || recent.text===text)) return;
+  watchStories.unshift({ts:now,icon:String(icon),text:String(text),key:String(key)});
+  watchStories=watchStories.slice(0,24);
+  try { localStorage.setItem(watchStoryKey(),JSON.stringify(watchStories)); } catch(e) {}
+  watchRenderStory();
+}
+function watchRenderStory() {
+  const list=$('storyList'); if(!list)return;
+  list.textContent=''; $('storyBadge').textContent=`${watchStories.length} SCENES`;
+  if(!watchStories.length){const e=document.createElement('div');e.className='storyEmpty';e.textContent='관전실이 오늘의 첫 장면을 기다리고 있습니다.';list.appendChild(e);return;}
+  watchStories.slice(0,12).forEach(s=>{
+    const row=document.createElement('div');row.className='storyRow';
+    const time=document.createElement('time');time.textContent=new Date(s.ts).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
+    const icon=document.createElement('i');icon.textContent=s.icon;
+    const p=document.createElement('p');p.textContent=s.text;
+    row.append(time,icon,p);list.appendChild(row);
+  });
+}
+
+function watchSetDirector(p, seconds=16) {
+  watchDirectorCurrent=p; watchDirectorUntil=Date.now()+seconds*1000;
+  $('watchDirectorIcon').textContent=p.icon; $('watchDirectorTag').textContent=p.tag;
+  $('watchDirectorTitle').textContent=p.title; $('watchDirectorCopy').textContent=p.copy;
+  $('watchDirector').style.borderColor=p.color; $('watchDirector').style.background=`linear-gradient(145deg,${p.color}12,#151923 42%)`;
+}
+function watchSignal(key, score, icon, tag, title, copy, color, story=true) {
+  const p={key,score,icon,tag,title,copy,color};
+  if(!watchDirectorCurrent || Date.now()>=watchDirectorUntil || score>=watchDirectorCurrent.score+10) watchSetDirector(p, score>=90?22:16);
+  if(story) watchAddStory(icon,title,key);
+}
+function watchAmbientDirector() {
+  const score=watchTugScore(), r=watchState.roulette;
+  const bull=score>=50, edge=Math.abs(score-50);
+  watchSetDirector({key:'ambient',score:20,icon:r==='CALM'?'🎩':r==='PANIC'?'🚨':'🎡',tag:`${r} · LIVE`,title:edge>=7?`${bull?'황소':'곰'}가 중앙선을 당기는 중`:'다음 큰 장면을 탐색 중',copy:edge>=7?`호가와 실제 체결을 합친 힘이 ${bull?'매수':'매도'} 쪽 ${Math.max(score,100-score).toFixed(0)}입니다.`:'캔들·체결·호가·청산을 동시에 읽고 있습니다.',color:bull?'#4ade80':'#f87171'},12);
+}
+
+function watchRenderRoad() {
+  watchState.roadDirty=false; const grid=$('roadGrid'); if(!grid)return; grid.textContent='';
+  const bars=watchState.bars.slice(-48); let streak=0,last=0;
+  bars.forEach(b=>{const dir=b.c>b.o?1:b.c<b.o?-1:0;const d=document.createElement('span');d.className='roadDot '+(dir>0?'up':dir<0?'dn':'flat');d.textContent=dir>0?'B':dir<0?'P':'T';d.title=`${new Date(b.t).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})} · ${dir>0?'상승':dir<0?'하락':'도지'}`;grid.appendChild(d);});
+  for(let i=bars.length-1;i>=0;i--){const dir=bars[i].c>bars[i].o?1:bars[i].c<bars[i].o?-1:0;if(!dir)break;if(!last)last=dir;if(dir!==last)break;streak++;}
+  $('roadBadge').textContent=streak>=5?`${streak} 장줄`:streak>=2?`${streak} 연속`:'ROAD OPEN';
+  $('roadCopy').textContent=!bars.length?'캔들 장부를 펼치는 중입니다.':streak>=5?`${last>0?'상승':'하락'} ${streak}연속 장줄이 이어지고 있습니다.`:streak>=2?`${last>0?'상승':'하락'} 흐름이 ${streak}개 이어졌습니다.`:'짧은 흐름이 교차하는 중입니다.';
+}
+
+function watchAvgBody() {
+  const a=watchState.bars.slice(-30); return a.length?a.reduce((s,b)=>s+Math.abs(b.c-b.o)/b.o*100,0)/a.length:.05;
+}
+function watchRenderShowdown(now=Date.now()) {
+  const k=watchState.current;if(!k)return;
+  const move=(k.c/k.o-1)*100, body=Math.abs(move), grade=candleGrade(body,watchAvgBody());
+  const left=Math.max(0,(k.t+60000-now)/1000), progress=Math.max(0,Math.min(100,(now-k.t)/600));
+  $('showdownMove').textContent=`${move>=0?'+':''}${move.toFixed(3)}%`; $('showdownMove').className='watchBig '+(move>=0?'up':'dn');
+  $('showdownGrade').textContent=grade.label; $('showdownOpen').textContent=fmt(k.o,0); $('showdownClock').textContent=Math.ceil(left)+'초'; $('showdownFill').style.width=progress+'%';
+  $('showdownFill').style.background=move>=0?'linear-gradient(90deg,#1f6d43,var(--grn))':'linear-gradient(90deg,#702a34,var(--red))';
+  $('showdownCopy').textContent=left<=10?`마지막 ${Math.ceil(left)}초 · ${move>=0?'양봉':'음봉'}으로 잠기려 합니다.`:`현재 ${move>=0?'황소':'곰'} 우세 · ${grade.label} 등급 진행 중`;
+}
+function watchSettleCandle(k) {
+  const move=(k.c/k.o-1)*100, grade=candleGrade(Math.abs(move),watchAvgBody());
+  const dir=move>0?'양봉':move<0?'음봉':'도지';
+  watchSignal(`candle-${k.t}`,grade.tier==='epic'?94:grade.tier==='rare'?82:54,move>=0?'🔴':'🔵','CANDLE LOCKED',`${grade.label} ${dir} 마감`,`${move>=0?'+':''}${move.toFixed(3)}%로 1분봉이 잠겼습니다.`,move>=0?'#4ade80':'#f87171',grade.tier==='rare'||grade.tier==='epic');
+  watchState.roadDirty=true;
+}
+
+function watchTradeTotals(windowMs=WATCH_TRADE_WINDOW) {
+  const cut=Date.now()-windowMs;watchState.trades=watchState.trades.filter(t=>t.ts>=cut);
+  return watchState.trades.reduce((a,t)=>{a[t.buy?'buy':'sell']+=t.val;return a;},{buy:0,sell:0});
+}
+function watchTugScore() {
+  const t=watchTradeTotals(), trade=t.buy+t.sell?t.buy/(t.buy+t.sell):.5;
+  const bid=watchState.bids.reduce((s,x)=>s+(+x[0])*(+x[1]),0), ask=watchState.asks.reduce((s,x)=>s+(+x[0])*(+x[1]),0), book=bid+ask?bid/(bid+ask):.5;
+  return Math.max(0,Math.min(100,(trade*.6+book*.4)*100));
+}
+function watchRenderTug() {
+  const score=watchTugScore(), bull=Math.round(score), bear=100-bull;
+  $('tugBull').textContent=bull;$('tugBear').textContent=bear;$('tugKnot').style.left=score+'%';
+  const side=score>=58?'bull':score<=42?'bear':'center';$('tugBadge').textContent=side==='center'?'CENTER':side==='bull'?'BULL PUSH':'BEAR PUSH';
+  $('tugCopy').textContent=side==='center'?'양쪽이 중앙선을 두고 힘을 모으는 중입니다.':`${side==='bull'?'매수':'매도'} 체결과 호가가 중앙선을 ${Math.abs(score-50).toFixed(0)}칸 밀었습니다.`;
+  if(side!=='center'&&side!==watchState.tugLeader&&Date.now()>watchState.tugSignalAt){watchState.tugSignalAt=Date.now()+30000;watchSignal(`tug-${side}`,72,side==='bull'?'🐂':'🐻','LINE PUSH',`${side==='bull'?'황소':'곰'}가 중앙선 돌파`,`${side==='bull'?'매수':'매도'} 힘 ${Math.max(score,100-score).toFixed(0)}로 줄을 당겼습니다.`,side==='bull'?'#4ade80':'#f87171');}watchState.tugLeader=side;
+}
+
+function watchAddWhale(val,buy,ts) {
+  watchState.whales.push({val,buy,ts}); watchState.dirtyWhales=true;
+  if(val>=500000)watchSignal(`whale-${Math.floor(ts/30000)}`,val>=1500000?93:78,'🐳','VIP ARRIVAL',`BTC ${buy?'매수':'매도'} 고래 입장`,`${moneyShort(val)} 단일 체결이 ${buy?'BUY':'SELL'} 테이블에 놓였습니다.`,buy?'#4ade80':'#f87171');
+}
+function watchRenderWhales() {
+  watchState.dirtyWhales=false;const cut=Date.now()-300000;watchState.whales=watchState.whales.filter(x=>x.ts>=cut);
+  const sides=[['whaleBuyChips',true,'whaleBuyTotal'],['whaleSellChips',false,'whaleSellTotal']];
+  sides.forEach(([id,buy,totalId])=>{const list=watchState.whales.filter(x=>x.buy===buy),el=$(id);el.textContent='';list.slice(-10).forEach(x=>{const c=document.createElement('span');c.className='whaleChip';c.textContent=x.val>=1e6?(x.val/1e6).toFixed(1)+'M':Math.round(x.val/1000)+'K';c.title=moneyShort(x.val);el.appendChild(c);});$(totalId).textContent=moneyShort(list.reduce((s,x)=>s+x.val,0));});
+  const buy=watchState.whales.filter(x=>x.buy).reduce((s,x)=>s+x.val,0),sell=watchState.whales.filter(x=>!x.buy).reduce((s,x)=>s+x.val,0),total=buy+sell;
+  $('whaleTableBadge').textContent=!total?'VIP 대기':buy>=sell?'BUY 장악':'SELL 장악';$('whaleTableCopy').textContent=!total?'VIP 손님의 첫 칩을 기다리고 있습니다.':`${buy>=sell?'매수':'매도'} 고래가 ${moneyShort(Math.abs(buy-sell))} 더 많은 칩을 올렸습니다.`;
+}
+
+const WATCH_ROULETTE_COPY={CALM:'변동성과 체결이 모두 낮은 평온한 판입니다.',TREND:'같은 방향의 캔들이 흐름을 만들고 있습니다.',BREAKOUT:'최근 가격 범위의 바깥으로 밀고 나왔습니다.',SQUEEZE:'움직임이 눌리며 다음 확장을 준비하고 있습니다.',PANIC:'변동성과 한쪽 체결이 동시에 폭발했습니다.',REVERSAL:'이어지던 방향이 반대로 꺾였습니다.'};
+function watchVolatilityState() {
+  const b=watchState.bars.slice(-31),k=watchState.current;if(b.length<12||!k)return'CALM';
+  const rets=b.slice(1).map((x,i)=>Math.abs(x.c/b[i].c-1)*100),avg=rets.reduce((a,c)=>a+c,0)/rets.length,short=rets.slice(-5).reduce((a,c)=>a+c,0)/Math.min(5,rets.length);
+  const prev=b.slice(-21,-1), hi=Math.max(...prev.map(x=>x.h)),lo=Math.min(...prev.map(x=>x.l)),dirs=b.slice(-6).map(x=>Math.sign(x.c-x.o));
+  const tt=watchTradeTotals(),pressure=tt.buy+tt.sell?Math.max(tt.buy,tt.sell)/(tt.buy+tt.sell):.5;
+  if(short>avg*2.3&&pressure>.68)return'PANIC';if(k.c>hi||k.c<lo)return'BREAKOUT';
+  if(dirs.length>=4&&dirs.slice(-4,-1).every(x=>x===dirs[dirs.length-4]&&x!==0)&&dirs.at(-1)===-dirs[dirs.length-4])return'REVERSAL';
+  if(short<avg*.5)return'SQUEEZE';if(Math.abs(dirs.reduce((a,c)=>a+c,0))>=4)return'TREND';return'CALM';
+}
+function watchRenderRoulette() {
+  const next=watchVolatilityState(), states=['CALM','TREND','BREAKOUT','SQUEEZE','PANIC','REVERSAL'],idx=states.indexOf(next);
+  if(next!==watchState.roulette){watchState.roulette=next;watchWheelTurns++;$('marketWheel').style.transform=`rotate(${watchWheelTurns*360+idx*60}deg)`;const score={CALM:30,TREND:58,BREAKOUT:88,SQUEEZE:64,PANIC:94,REVERSAL:82}[next];watchSignal(`regime-${next}`,score,next==='PANIC'?'🚨':'🎡','VOLATILITY ROULETTE',`룰렛이 ${next}에 멈췄습니다`,WATCH_ROULETTE_COPY[next],next==='PANIC'?'#f87171':'#d4af37',next!=='CALM');}
+  $('rouletteBadge').textContent=next;$('rouletteName').textContent=next;$('rouletteCopy').textContent=WATCH_ROULETTE_COPY[next];
+}
+
+function watchAddLiquidation(side,val,ts,symbol) {
+  const c=watchState.liqChain, opposite=c.side&&c.side!==side&&c.count>=3;
+  if(c.side===side&&ts-c.last<=10000){c.count++;c.total+=val;}else{c.side=side;c.count=1;c.total=val;}c.last=ts;
+  watchState.liquidations.push({side,val,ts,symbol});watchState.dirtyDomino=true;
+  if(opposite)watchSignal(`chain-break-${Math.floor(ts/10000)}`,90,'✂','CHAIN BREAK',`${side==='long'?'롱':'숏'} 청산이 도미노를 끊었습니다`,`${moneyShort(val)} 반대 방향 청산이 체인을 뒤집었습니다.`,side==='long'?'#f87171':'#4ade80');
+  else if(c.count===3||c.count===5||c.count===8)watchSignal(`liq-chain-${side}-${c.count}`,Math.min(98,76+c.count*3),'🁢',`CHAIN ×${c.count}`,`${side==='long'?'롱':'숏'} 청산 도미노 ×${c.count}`,`10초 안에 ${moneyShort(c.total)}가 연속 청산됐습니다.`,side==='long'?'#f87171':'#4ade80');
+}
+function watchRenderDomino() {
+  watchState.dirtyDomino=false;const cut=Date.now()-WATCH_LIQ_WINDOW;watchState.liquidations=watchState.liquidations.filter(x=>x.ts>=cut);
+  for(const side of ['long','short']){const list=watchState.liquidations.filter(x=>x.side===side),el=$(side==='long'?'dominoLong':'dominoShort');el.textContent='';list.slice(-16).forEach(x=>{const d=document.createElement('i');d.className='domino '+(side==='short'?'short':'');d.style.height=Math.min(68,28+Math.log10(Math.max(1,x.val/1000))*10)+'px';d.title=`${x.symbol} · ${moneyShort(x.val)}`;el.appendChild(d);});$(side==='long'?'dominoLongTotal':'dominoShortTotal').textContent=moneyShort(list.reduce((s,x)=>s+x.val,0));}
+  const c=watchState.liqChain;$('dominoBadge').textContent=!watchLiqConnected?'연결 중':c.count>=2&&Date.now()-c.last<=10000?`CHAIN ×${c.count}`:'LIVE 대기';$('dominoCopy').textContent=!watchLiqConnected?'전 시장 청산 회선을 연결하고 있습니다.':!watchState.liquidations.length?'첫 청산 전표를 기다리고 있습니다.':c.count>=2&&Date.now()-c.last<=10000?`${c.side==='long'?'롱':'숏'} 청산 ${c.count}연속 · ${moneyShort(c.total)}`:'도미노가 흩어져 다음 체인을 기다립니다.';
+}
+
+function watchKstDayStart(){const d=new Date(Date.now()+9*3600000);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-9*3600000;}
+function watchSessionName(ts){const h=new Date(ts+9*3600000).getUTCHours();return h>=8&&h<16?'ASIA':h>=16&&h<22?'EUROPE':'US';}
+function watchRenderSessions() {
+  const groups={ASIA:[],EUROPE:[],US:[]};watchState.sessionBars.forEach(b=>groups[watchSessionName(b.t)].push(b));
+  const stats=Object.entries(groups).map(([name,a])=>{if(!a.length)return{name,a,ret:null,range:null,vol:0,score:-1};const open=a[0].o,close=a.at(-1).c,hi=Math.max(...a.map(x=>x.h)),lo=Math.min(...a.map(x=>x.l)),ret=(close/open-1)*100,range=(hi/lo-1)*100;return{name,a,ret,range,vol:a.reduce((s,x)=>s+x.v,0),score:Math.abs(ret)+range*.35};});
+  const valid=stats.filter(x=>x.ret!==null),winner=valid.sort((a,b)=>b.score-a.score)[0];const grid=$('sessionGrid');grid.textContent='';
+  stats.forEach(s=>{const c=document.createElement('div');c.className='sessionCard'+(winner&&winner.name===s.name?' winner':'');const label=document.createElement('span');label.textContent=s.name;const b=document.createElement('b');b.textContent=s.ret===null?'—':`${s.ret>=0?'+':''}${s.ret.toFixed(2)}%`;if(s.ret!==null)b.className=s.ret>=0?'up':'dn';const small=document.createElement('small');small.textContent=s.ret===null?'아직 열리지 않음':`변동폭 ${s.range.toFixed(2)}% · ${s.a.length*5}분`;c.append(label,b,small);grid.appendChild(c);});
+  $('sessionBadge').textContent=winner?`${winner.name} LEADS`:'TODAY';$('sessionCopy').textContent=winner?`${winner.name} 세션이 변동폭 ${winner.range.toFixed(2)}%로 오늘 가장 거칠었습니다.`:'오늘의 세션 장부를 기다리고 있습니다.';
+}
+
+function watchCheckFakeWall(asks,bids) {
+  const ask=asks.reduce((s,x)=>s+(+x[0])*(+x[1]),0),bid=bids.reduce((s,x)=>s+(+x[0])*(+x[1]),0),now=Date.now(),prev=watchState.prevBook;
+  if(prev&&now-prev.ts<2500&&watchState.price&&Math.abs(watchState.price-prev.px)/prev.px<.0003&&now>watchState.fakeWallAt){const askGone=prev.ask>500000&&ask<prev.ask*.42,bidGone=prev.bid>500000&&bid<prev.bid*.42;if(askGone||bidGone){watchState.fakeWallAt=now+60000;watchSignal(`fake-wall-${askGone?'ask':'bid'}`,80,'🎭','FAKE WALL',`${askGone?'매도':'매수'}벽이 체결 없이 사라졌습니다`,`상위 호가 잔량이 짧은 순간 ${Math.round((1-(askGone?ask/prev.ask:bid/prev.bid))*100)}% 취소됐습니다.`,'#d4af37');}}
+  watchState.prevBook={ask,bid,ts:now,px:watchState.price||1};
+}
+
+async function watchFetchSeed() {
+  try {
+    const [one,session]=await Promise.all([
+      fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=90').then(r=>r.json()),
+      fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${watchKstDayStart()}&limit=288`).then(r=>r.json())
+    ]);
+    if(Array.isArray(one)){const mapped=one.map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}));watchState.current=mapped.at(-1)||null;watchState.bars=mapped.slice(0,-1);watchState.price=watchState.current?.c||watchState.price;watchState.roadDirty=true;}
+    if(Array.isArray(session)){watchState.sessionBars=session.map(k=>({t:+k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}));watchRenderSessions();}
+    watchSeedAt=Date.now();watchRenderRoad();watchRenderShowdown();watchRenderRoulette();
+  } catch(e) { $('watchStatus').textContent='데이터 재연결 중'; }
+}
+
+function watchConnectSpot() {
+  if(!tabLive('watch')||watchWsSpot)return;clearTimeout(watchSpotRetry);$('watchStatus').textContent='시장 연결 중';
+  watchWsSpot=new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@aggTrade/btcusdt@depth20@100ms/btcusdt@kline_1m');
+  watchWsSpot.onopen=()=>{$('watchDot').classList.add('on');$('watchStatus').textContent='BTC 실시간';};
+  watchWsSpot.onclose=()=>{watchWsSpot=null;$('watchDot').classList.remove('on');$('watchStatus').textContent='재연결 중';if(tabLive('watch'))watchSpotRetry=setTimeout(watchConnectSpot,1800);};
+  watchWsSpot.onerror=()=>watchWsSpot?.close();
+  watchWsSpot.onmessage=ev=>{if(!tabLive('watch'))return;const m=JSON.parse(ev.data),s=m.stream,d=m.data;
+    if(s.endsWith('aggTrade')){const px=+d.p,val=px*(+d.q),buy=!d.m,ts=d.T||Date.now();watchState.price=px;watchState.trades.push({ts,val,buy});if(val>=WATCH_WHALE_MIN)watchAddWhale(val,buy,ts);}
+    else if(s.endsWith('depth20@100ms')){watchCheckFakeWall(d.asks,d.bids);watchState.asks=d.asks;watchState.bids=d.bids;}
+    else if(s==='btcusdt@kline_1m'){const k=d.k,bar={t:+k.t,o:+k.o,h:+k.h,l:+k.l,c:+k.c,v:+k.v};watchState.current=bar;watchState.price=bar.c;if(k.x&&watchState.bars.at(-1)?.t!==bar.t){watchSettleCandle(bar);watchState.bars.push(bar);watchState.bars=watchState.bars.slice(-100);watchState.current=null;}}
+  };
+}
+function watchConnectLiq() {
+  if(!tabLive('watch')||watchWsLiq)return;clearTimeout(watchLiqRetry);
+  watchWsLiq=new WebSocket('wss://fstream.binance.com/market/stream?streams=!forceOrder@arr');
+  watchWsLiq.onopen=()=>{watchLiqConnected=true;watchState.dirtyDomino=true;};watchWsLiq.onclose=()=>{watchLiqConnected=false;watchState.dirtyDomino=true;watchWsLiq=null;if(tabLive('watch'))watchLiqRetry=setTimeout(watchConnectLiq,2500);};watchWsLiq.onerror=()=>watchWsLiq?.close();
+  watchWsLiq.onmessage=ev=>{if(!tabLive('watch'))return;const o=JSON.parse(ev.data)?.data?.o;if(!o)return;const key=`${o.s}:${o.S}:${o.T}:${o.z}`;if(watchState.seenLiq.has(key))return;watchState.seenLiq.add(key);if(watchState.seenLiq.size>500)watchState.seenLiq.delete(watchState.seenLiq.values().next().value);const val=+(o.z||o.q)*+(o.ap||o.p);if(!Number.isFinite(val)||val<25000)return;watchAddLiquidation(o.S==='SELL'?'long':'short',val,o.T||Date.now(),o.s?.replace('USDT','')||'MARKET');};
+}
+function watchRenderTick() {
+  if(!tabLive('watch'))return;const now=Date.now();
+  $('watchPrice').textContent=watchState.price?'$ '+fmt(watchState.price,0):'—';watchRenderShowdown(now);watchRenderTug();watchRenderRoulette();
+  if(watchState.roadDirty)watchRenderRoad();if(watchState.dirtyWhales||now-watchLastRender>1000)watchRenderWhales();if(watchState.dirtyDomino||now-watchLastRender>1000)watchRenderDomino();watchLastRender=now;
+  if(!watchDirectorCurrent||now>=watchDirectorUntil)watchAmbientDirector();$('watchDirectorClock').textContent=watchDirectorUntil>now?`${Math.ceil((watchDirectorUntil-now)/1000)}초`:'SCANNING';
+}
+function watchOpen() {
+  if(!tabLive('watch'))return;if(!watchRuntimeOn){watchRuntimeOn=true;watchConnectSpot();watchConnectLiq();watchTimer=setInterval(watchRenderTick,500);if(!watchSeedAt||Date.now()-watchSeedAt>300000)watchFetchSeed();watchRenderStory();watchRenderRoad();watchRenderSessions();watchAmbientDirector();}watchRenderTick();
+}
+function watchClose() {
+  if(!watchRuntimeOn)return;watchRuntimeOn=false;clearInterval(watchTimer);watchTimer=null;clearTimeout(watchSpotRetry);clearTimeout(watchLiqRetry);watchSpotRetry=watchLiqRetry=null;
+  if(watchWsSpot){watchWsSpot.onmessage=null;watchWsSpot.onclose=null;try{watchWsSpot.close();}catch(e){}}if(watchWsLiq){watchWsLiq.onmessage=null;watchWsLiq.onclose=null;try{watchWsLiq.close();}catch(e){}}watchWsSpot=watchWsLiq=null;watchLiqConnected=false;$('watchDot').classList.remove('on');$('watchStatus').textContent='탭을 열면 연결';
+}
+
 // ═══ 실행 수명주기 — 보이는 탭만 갱신 ═══
 let loungeRuntimeOn = false;
 function startLoungeRuntime() {
@@ -3582,6 +3907,7 @@ function stopLoungeRuntime() {
 }
 function syncRuntimeState() {
   if (tabLive('lounge')) startLoungeRuntime(); else stopLoungeRuntime();
+  if (tabLive('watch')) watchOpen(); else watchClose();
   if (tabLive('arena')) arenaOpen(); else arenaClose();
   if (tabLive('chain')) onchainOpen(); else onchainClose();
   if (tabLive('macro')) macroOpen(); else macroClose();

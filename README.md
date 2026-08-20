@@ -81,6 +81,25 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 
 ---
 
+## 👁 Market Showroom · 관전실
+
+A participation-free floor where the market creates every scene. The UI follows progressive disclosure: **Now / Flow / Record**, while a single show director prevents overlapping alerts.
+참여나 베팅 없이 시장 데이터가 스스로 장면을 만드는 공간입니다. **지금 / 흐름 / 기록**으로 정보를 나눠 기본 화면을 가볍게 유지하고, 연출 감독이 동시 이벤트 중 가장 중요한 하나만 중앙에 올립니다.
+
+- **Candle Close Showdown · 봉 마감 쇼다운** — the live one-minute candle, provisional grade, direction, and final-ten-second lock-in / 진행 중 1분봉의 방향·예상 등급·마지막 10초 마감 연출
+- **Order-book Tug · 호가 줄다리기** — 60% actual taker flow plus 40% bid/ask depth; vanished walls are flagged separately / 실제 체결 60%와 호가 잔량 40%로 황소·곰 힘을 계산하고 체결 없이 사라진 벽은 별도 감지
+- **Whale Table · 고래 테이블** — $250k+ BTC fills become buy/sell chips; $500k+ arrivals can take the main stage / $25만 이상 BTC 체결을 매수·매도 칩으로 쌓고 $50만 이상은 메인 무대 후보
+- **Volatility Roulette · 변동성 룰렛** — CALM, TREND, BREAKOUT, SQUEEZE, PANIC, or REVERSAL from real candles and tape pressure / 캔들과 체결 압력으로 평온·추세·돌파·압축·패닉·반전을 판정
+- **Market Baccarat Road · 시장 바카라 로드** — red up candles, blue down candles, gold doji, with streak and break readings / 상승 빨강·하락 파랑·도지 금색 장부와 장줄·줄 끊김 표시
+- **Liquidation Domino · 청산 도미노** — market-wide futures liquidations chain when the same side repeats within ten seconds / 전 시장 선물 청산이 10초 안에 같은 방향으로 이어지면 체인으로 집계
+- **Session Championship · 세션 챔피언십** — Asia, Europe, and U.S. sessions compared by return and realized range / 아시아·유럽·미국장을 수익률과 실제 변동폭으로 비교
+- **Today's Market Story · 오늘의 시장 서사** — important scenes are kept locally as a time-ordered daily narrative / 중요한 장면만 기기 안에 시간순 하루 서사로 보관
+
+The showroom opens its own spot/futures streams only while visible and closes them immediately when another tab is selected. It uses DOM/CSS rather than additional canvases or permanent animation loops.
+관전실은 보이는 동안에만 전용 현물·선물 회선을 열고 다른 탭으로 이동하면 즉시 닫습니다. 추가 캔버스나 상시 애니메이션 루프 없이 DOM/CSS로 구성했습니다.
+
+---
+
 ## ⚔️ Futures Colosseum · 선물 콜로세움
 
 BTC futures data becomes a five-minute bout with a bell, a winner, reversals, and a persistent match ledger.
