@@ -502,7 +502,9 @@ body.shake { animation:shake .5s; }
 .sessionGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 16px 6px; }
 .sessionCard { padding:14px 15px; border:1px solid var(--line); border-radius:11px; background:rgba(0,0,0,.16); }
 .sessionCard.winner { border-color:var(--gold-dim); background:linear-gradient(145deg,rgba(212,175,55,.09),rgba(0,0,0,.2)); }
-.sessionCard span { color:var(--dim); font-size:9px; letter-spacing:1.2px; }
+.sessionCard span { display:flex; align-items:center; gap:7px; color:var(--dim); font-size:9px; letter-spacing:1.2px; }
+.sessionState { font-style:normal; padding:2px 6px; border:1px solid var(--line); border-radius:10px; font-size:8px; letter-spacing:.6px; color:var(--dim); }
+.sessionState.live { border-color:var(--gold-dim); color:var(--gold); background:rgba(212,175,55,.08); }
 .sessionCard b { display:block; margin-top:5px; font:700 19px Menlo,monospace; color:#e9edf5; }
 .sessionCard b.up { color:var(--grn); } .sessionCard b.dn { color:var(--red); }
 .sessionCard small { display:block; margin-top:4px; color:var(--dim); font-size:9.5px; }
@@ -655,7 +657,7 @@ body.shake { animation:shake .5s; }
       <div class="sessionCard"><span>EUROPE</span><b>—</b><small>집계 중</small></div>
       <div class="sessionCard"><span>US</span><b>—</b><small>집계 중</small></div>
     </div>
-    <div class="sessionFoot"><span id="sessionCopy">오늘의 5분봉 장부를 읽고 있습니다.</span><span>한국시간 기준 · 진행 중 세션 포함</span></div>
+    <div class="sessionFoot"><span id="sessionCopy">최근 5분봉 장부를 읽고 있습니다.</span><span>한국시간 기준 · 각 세션의 최근 회차</span></div>
   </div>
 
   <div class="spectatorGrid">
@@ -1693,6 +1695,8 @@ ensureLoungeChart(0);
 const rain = $('rain'), rctx = rain.getContext('2d');
 function sizeRain(){
   const wrap = rain.parentElement;
+  // 숨김 탭에서는 clientWidth가 0 → 그대로 대입하면 캔버스가 지워지고 복귀해도 살아나지 않는다
+  if (!wrap.clientWidth) return;
   rain.width = wrap.clientWidth;
   const h3h = wrap.querySelector('h3').offsetHeight;
   const lg = $('rainLegend') ? $('rainLegend').offsetHeight : 0;
@@ -3646,8 +3650,11 @@ function disconnectLiquidations() {
 let sessionBars = [], sessionTimer = null, sessionFetching = false;
 function sessionDayStart(){ const d = new Date(Date.now()+9*3600000);
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - 9*3600000; }
-// US 세션(22~08 KST)은 자정을 넘기므로 전날 22시부터 받아야 세션이 온전해진다
-function sessionFetchStart(){ return sessionDayStart() - 2*3600000; }
+// 세션은 달력 날짜에 맞춰 돌지 않는다(US는 22~08로 자정을 넘김).
+// 최근 30시간을 받아 각 세션의 '가장 최근 회차'를 항상 채운다.
+function sessionFetchStart(){ return Date.now() - 30*3600000; }
+function sessionKstDay(ts){ const d = new Date(ts+9*3600000);
+  return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`; }
 function sessionNameOf(ts){ const h = new Date(ts+9*3600000).getUTCHours();
   return h>=8 && h<16 ? 'ASIA' : h>=16 && h<22 ? 'EUROPE' : 'US'; }
 function renderSessions() {
@@ -3662,6 +3669,8 @@ function renderSessions() {
   });
   const groups = {ASIA:[], EUROPE:[], US:[]};
   runs.forEach(r => { groups[r.name] = r.bars; });   // 뒤쪽 구간이 앞쪽을 덮어씀
+  const liveName = runs.length ? runs[runs.length-1].name : null;   // 마지막 구간 = 진행 중
+  const today = sessionKstDay(Date.now());
   const stats = Object.entries(groups).map(([name, a]) => {
     if (!a.length) return { name, a, ret:null, range:null, score:-1 };
     const open = a[0].o, close = a.at(-1).c;
@@ -3675,6 +3684,13 @@ function renderSessions() {
     const c = document.createElement('div');
     c.className = 'sessionCard' + (winner && winner.name === s.name ? ' winner' : '');
     const label = document.createElement('span'); label.textContent = s.name;
+    if (s.a.length) {
+      const st = document.createElement('i');
+      st.className = 'sessionState' + (s.name === liveName ? ' live' : '');
+      st.textContent = s.name === liveName ? '진행 중'
+        : sessionKstDay(s.a[0].t) === today ? '오늘 마감' : '어제 마감';
+      label.appendChild(st);
+    }
     const b = document.createElement('b');
     b.textContent = s.ret === null ? '—' : `${s.ret>=0?'+':''}${s.ret.toFixed(2)}%`;
     if (s.ret !== null) b.className = s.ret >= 0 ? 'up' : 'dn';
@@ -3685,14 +3701,14 @@ function renderSessions() {
   });
   $('sessionBadge').textContent = winner ? `${winner.name} LEADS` : 'TODAY';
   $('sessionCopy').textContent = winner
-    ? `${winner.name} 세션이 변동폭 ${winner.range.toFixed(2)}%로 오늘 가장 거칠었습니다.`
-    : '오늘의 세션 장부를 기다리고 있습니다.';
+    ? `${winner.name} 세션이 변동폭 ${winner.range.toFixed(2)}%로 최근 한 바퀴 중 가장 거칠었습니다.`
+    : '세션 장부를 기다리고 있습니다.';
 }
 async function fetchSessions() {
   if (sessionFetching) return;
   sessionFetching = true;
   try {
-    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionFetchStart()}&limit=312`);
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionFetchStart()}&limit=360`);
     const k = await r.json();
     if (Array.isArray(k)) {
       sessionBars = k.map(x => ({ t:+x[0], o:+x[1], h:+x[2], l:+x[3], c:+x[4] }));
@@ -3955,6 +3971,7 @@ function startLoungeRuntime() {
     connectChartWS(); connectMainWS(); connectRaceWS(); connectLiquidations();
     pollKrwMarket();
   }
+  sizeRain();   // 숨김 중 리사이즈로 어긋난 캔버스 치수를 복귀 시 복구
   startGauges(); startRain(); startFx();
 }
 function stopLoungeRuntime() {
