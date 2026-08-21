@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T12:32:01.264826Z",
+  "generated_at": "2026-08-21T12:32:01.161270Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "d91a0b4f450474dc",
-      "source": "BLS",
-      "code": "PPI",
-      "title": "생산자물가지수",
-      "importance": "MAIN",
-      "scheduled_at": "2026-08-13T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "2026-07 관측 · 공식 일정 스냅샷",
-      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
-      "btc": {
-        "m5": 0.067,
-        "m15": 0.008,
-        "m60": 0.04
-      },
-      "status": "observed"
-    },
     {
       "id": "1699a4f3fc366500",
       "source": "BEA",
