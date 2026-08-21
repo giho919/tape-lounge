@@ -82,7 +82,6 @@ canvas { display:block; }
 .captchaGate .err { min-height:18px; margin-top:8px; color:var(--red); font-size:11px; }
 .msg.sys { color:var(--dim); font-size:11.5px; }
 .msg.madam .who { color:#e8a0bf; } .msg.andy .who { color:var(--cyan); } .msg.justin .who { color:#a78bfa; }
-.msg.degen .who { color:#fbbf24; } .msg.hermit .who { color:#8b7cf6; } .msg.wolf .who { color:#f87171; }
 .chatlock { border-top:1px solid var(--line); padding:10px 14px; font-size:11.5px; color:var(--dim); background:var(--panel2); }
 
 /* 전략가 탭 */
@@ -1823,8 +1822,7 @@ setInterval(() => {
 
 // ═══ 라운지 피드 ═══
 const feed = $('feed');
-const CHAT_AVA = { madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png',
-                   degen: 'avatars/degen.png', hermit: 'avatars/hermit.png', wolf: 'avatars/wolf.png' };
+const CHAT_AVA = { madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png' };
 function say(cls, who, body) {
   const m = document.createElement('div');
   m.className = 'msg ' + cls;
@@ -1862,8 +1860,7 @@ function sayLetter(cls, who, body) {
   feed.scrollTop = feed.scrollHeight;
 }
 // 전략가 서신 — 서버가 매일 reports/letters.json에 갱신 (실패 시 폴백)
-const CHAR_NAME = { madam: '鄭마담', andy: 'Andy', justin: 'Prof. Justin',
-                    degen: 'Degen', hermit: 'Cyber Hermit', wolf: 'Wolf' };
+const CHAR_NAME = { madam: '鄭마담', andy: 'Andy', justin: 'Prof. Justin' };
 const LETTER_FALLBACK = [
   { cls:'madam', at:'최근 갱신', body:'판은 늘 돌아가고 있어. 자세한 소식은 장부에 적어뒀으니 열어봐.' },
   { cls:'andy', at:'최근 갱신', body:'그물은 매일 밤 걷는다. 오늘 명단은 저녁 전보에서.' },
@@ -1894,64 +1891,6 @@ async function loadLetters() {
   });
 }
 loadLetters();
-
-// ═══ 전략가 시장 반응 — 판이 움직이면 각자 성격대로 한마디 ═══
-// pitSignal이 고른 '지금 가장 큰 장면'에만 반응한다. 방문자 발언과 구분되도록
-// 캐릭터 아바타·이름을 그대로 달고 나간다.
-const STRAT_REACT = {
-  candle:        [{who:'madam',  lines:['이런 봉이 나오면 판이 스스로 말을 하는 거야. 굳이 보태지 않아.','몸통이 굵다. 다음 봉이 이걸 지켜주는지가 진짜야.']},
-                  {who:'degen',  lines:['봉 봐라 봉! 이게 바로 내가 잠 안 자는 이유지','이런 거 보면 손이 근질거리는데 참는 중이다 진짜로']}],
-  breakout:      [{who:'madam',  lines:['천장을 넘었군. 국면이 열렸는지는 마감이 알려줄 거야.','돌파는 쉬워. 지켜내는 게 어렵지.']},
-                  {who:'wolf',   lines:['천장 뚫렸다. 전화통에 불나는 소리가 들리는군.','이런 날 사무실은 조용할 틈이 없지.']}],
-  breakdown:     [{who:'madam',  lines:['바닥이 깨졌어. 이럴 땐 아무것도 안 하는 것도 매매다.','판이 험하군. 금괴나 안고 기다린다.']},
-                  {who:'hermit', lines:['바닥이 열렸다. 나는 그냥 지켜본다.','소란한 날일수록 화면을 오래 본다.']}],
-  race:          [{who:'andy',   lines:['알트 쪽으로 온기가 도는군. 그물 걷을 시간이 앞당겨지겠어.','누가 달리는지는 보여줄 수 있다. 고르는 건 언제나 너다.']},
-                  {who:'degen',  lines:['알트 달린다 알트! 이 맛에 사는 거지','경마장 열렸네. 나는 이미 관중석이 아니라 트랙 위다']}],
-  whale:         [{who:'andy',   lines:['덩치 큰 손이 지나갔다. 한 번은 흔적, 세 번이면 방향이다.','큰 손이 움직였다. 뒤따를지는 네가 정해라.']},
-                  {who:'wolf',   lines:['큰 손이 들어왔다. 이런 건 냄새로 안다.','덩치가 움직이면 뒤에 항상 뭔가 있지.']}],
-  pressure:      [{who:'wolf',   lines:['한쪽으로 쏠린다. 이럴 때 전화가 제일 많이 울렸지.','수급이 기운다. 오래 못 갈 때가 많지만.']},
-                  {who:'andy',   lines:['체결이 한쪽으로 쏠린다. 스캐너에 표시해 두마.','수급이 기운다. 오래 가는지는 내일 전보에서 확인하자.']}],
-  'tower-crash': [{who:'justin', lines:['한쪽 청산이 몰렸습니다. 과열이 정리되는 국면으로 읽힙니다.','이런 구간의 되돌림은 방향 신호로 보기 어렵습니다.']},
-                  {who:'hermit', lines:['탑이 무너졌다. 매번 같은 자리에서 무너진다.','레버리지는 언제나 같은 방식으로 끝난다.']}],
-  'liq-jackpot': [{who:'degen',  lines:['잭팟이다!! 누군가는 오늘 잠 못 잔다','이 정도 청산이면 나 말고도 밤새운 사람 많겠는데']},
-                  {who:'justin', lines:['누적 청산이 임계에 닿았습니다. 모형은 변동성 확대 구간으로 분류합니다.','판단은 모형이 하고, 결정은 사람이 합니다. 무리하지 마십시오.']}],
-  liquidation:   [{who:'justin', lines:['청산이 들어왔습니다. 한 건으로 국면을 바꾸지는 않습니다.','표본이 쌓여야 의미가 생깁니다. 기록해 두겠습니다.']},
-                  {who:'hermit', lines:['또 하나 정리됐다. 조용히 기록만 남긴다.','누군가의 밤이 끝났다. 화면은 그대로다.']}],
-};
-// 서버(mirage)가 주기적으로 새 문장을 생성해 올린다. 없거나 형식이 어긋나면 위 기본 문장을 쓴다.
-async function loadStrategistLines() {
-  try {
-    const r = await fetch('reports/strategist_lines.json?t=' + Math.floor(Date.now()/3600000));
-    if (!r.ok) return;
-    const j = await r.json();
-    if (!j || !j.lines) return;
-    for (const [key, cast] of Object.entries(j.lines)) {
-      if (!STRAT_REACT[key] || !Array.isArray(cast)) continue;
-      const clean = cast
-        .filter(c => c && CHAT_AVA[c.who] && Array.isArray(c.lines))
-        .map(c => ({ who: c.who, lines: c.lines.filter(l => typeof l === 'string' && l.length >= 4 && l.length <= 80) }))
-        .filter(c => c.lines.length);
-      if (clean.length) STRAT_REACT[key] = clean;
-    }
-  } catch(e) {}
-}
-loadStrategistLines();
-
-let stratLastAt = 0;                       // 전체 쿨다운
-const stratWhoAt = {}, stratLastLine = {}; // 캐릭터별 쿨다운 · 직전 문장
-function stratReact(key) {
-  const cast = STRAT_REACT[key];
-  if (!cast || !cast.length || !tabLive('lounge')) return;
-  const now = Date.now();
-  if (now - stratLastAt < 70000) return;               // 채팅 도배 방지
-  const ready = cast.filter(c => now - (stratWhoAt[c.who] || 0) >= 240000);  // 인물별 4분
-  if (!ready.length) return;
-  const e = ready[Math.floor(Math.random() * ready.length)];
-  const pool = e.lines.filter(l => l !== stratLastLine[e.who]);
-  const line = pool[Math.floor(Math.random() * pool.length)] || e.lines[0];
-  stratLastAt = now; stratWhoAt[e.who] = now; stratLastLine[e.who] = line;
-  setTimeout(() => sayLetter(e.who, CHAR_NAME[e.who] || '', line), 1500 + Math.random() * 2500);
-}
 
 // ═══ 닉네임 (채팅·블라인드 방에서 공용) ═══
 let myNick = localStorage.getItem('salonNick') || '나 (닉네임 설정)';
@@ -2331,7 +2270,7 @@ function setPit(p, duration=45000) {
 }
 function pitSignal(key, score, icon, tag, title, copy, color) {
   const p = { key, score, icon, tag, title, copy, color };
-  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) { setPit(p); stratReact(key); }
+  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) setPit(p);
 }
 function selectAmbientTable() {
   const total = buyVol + sellVol;

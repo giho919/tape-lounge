@@ -79,7 +79,6 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 ### Interactive · 참여 요소
 
 - **Lounge Chat · 라운지 채팅** — Live visitor chat (nickname-based); the strategists' letters flow in alongside / 방문자 실시간 채팅(닉네임 기반) + 전략가 서신·소식이 함께 흐름
-- **House cast reactions · 하우스 캐릭터 반응** — six regulars (鄭마담, Andy, Prof. Justin, Degen, Cyber Hermit, Wolf) answer whatever scene the pit boss promotes, two possible speakers per event; lines are pre-generated every six hours by a local Qwen3-8B on the report server and fall back to built-ins. They always carry their own avatar and name — never posed as visitors — and are rate-limited to one line per 70s, one per character per 4min / 여섯 단골(鄭마담·Andy·Prof. Justin·Degen·Cyber Hermit·Wolf)이 핏 보스가 올린 장면에 반응하며 이벤트마다 화자 후보 2명, 대사는 리포트 서버의 로컬 Qwen3-8B가 6시간마다 미리 생성하고 실패 시 내장 문장 사용. 항상 아바타·이름을 달고 나가 방문자를 사칭하지 않으며 전체 70초·인물별 4분 간격 제한
 
 ---
 
