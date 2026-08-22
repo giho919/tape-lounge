@@ -87,6 +87,13 @@ class RecorderTests(unittest.TestCase):
         self.assertEqual(value.liquidation_minutes[minute]["published_amount"], 300_000)
         self.assertEqual(sum(item[1] for item in value.liquidation_window), 300_000)
 
+    def test_restart_restores_breakout_cooldown(self):
+        value = recorder()
+        event_time = MODULE.iso_time(time.time() * 1000)
+        with mock.patch.object(MODULE, "fetch_json", return_value=[{"event_time": event_time, "side": "up"}]):
+            value.seed_breakout_cooldowns()
+        self.assertGreater(value.breakout_cooldown["up"], time.time() + 14 * 60)
+
 
 if __name__ == "__main__":
     unittest.main()

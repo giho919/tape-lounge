@@ -184,6 +184,27 @@ class Recorder:
         self.jackpot_ready = total < JACKPOT_TARGET
         LOG.info("restored %d liquidation minutes (%s / 15m)", len(rows), money(total))
 
+    def seed_breakout_cooldowns(self) -> None:
+        since = datetime.fromtimestamp(time.time() - 15 * 60, timezone.utc).isoformat()
+        query = urllib.parse.urlencode({
+            "select": "event_time,side",
+            "event_type": "eq.breakout",
+            "event_time": f"gte.{since}",
+            "order": "event_time.desc",
+            "limit": "20",
+        })
+        rows = fetch_json(
+            f"{SUPABASE_URL}/rest/v1/market_events?{query}",
+            headers={"apikey": SUPABASE_PUBLISHABLE_KEY},
+        )
+        for row in rows:
+            side = row.get("side")
+            if side not in self.breakout_cooldown:
+                continue
+            event_time = datetime.fromisoformat(row["event_time"].replace("Z", "+00:00")).timestamp()
+            self.breakout_cooldown[side] = max(self.breakout_cooldown[side], event_time + 15 * 60)
+        LOG.info("restored %d recent breakout cooldowns", len(rows))
+
     def event(self, **values: Any) -> dict[str, Any]:
         return {
             "event_key": values["event_key"],
@@ -483,6 +504,10 @@ class Recorder:
             self.seed_liquidations()
         except Exception:
             LOG.exception("could not restore recent liquidation history; continuing live")
+        try:
+            self.seed_breakout_cooldowns()
+        except Exception:
+            LOG.exception("could not restore breakout cooldowns; continuing live")
         threads = [
             threading.Thread(target=self.stream, args=("spot", SPOT_WS, self.on_spot), daemon=True),
             threading.Thread(target=self.stream, args=("liquidation", LIQUIDATION_WS, self.on_liquidation), daemon=True),
