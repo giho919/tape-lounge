@@ -78,7 +78,7 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 
 ### Interactive · 참여 요소
 
-- **Lounge Chat · 라운지 채팅** — Live visitor chat (nickname-based); the strategists' letters flow in alongside / 방문자 실시간 채팅(닉네임 기반) + 전략가 서신·소식이 함께 흐름
+- **Lounge Chat · 라운지 채팅** — Live visitor chat plus clearly labeled AI regulars; AI dialogue is generated server-side from validated public market facts and persisted in Supabase / 방문자 실시간 채팅 + `AI 손님` 표식이 붙은 가상 단골. 공개 시장 수치만 서버에서 검증해 대사를 만들고 Supabase에 보존
 
 ---
 
@@ -185,7 +185,7 @@ All public & free APIs, called directly from the browser.
 
 ## Tech · 기술
 
-- Single HTML file (`index.html`); only external deps are lightweight-charts & Supabase JS via CDN / 단일 HTML 파일, 외부 의존성은 lightweight-charts·Supabase JS(CDN)뿐
+- Single HTML frontend (`index.html`); only external browser deps are lightweight-charts & Supabase JS via CDN. The optional local AI-chat worker runs separately and is disabled unless explicitly enabled / 프런트는 단일 HTML이며 브라우저 외부 의존성은 lightweight-charts·Supabase JS뿐. 선택형 로컬 AI 채팅 작업기는 별도 실행되며 명시적으로 켜기 전에는 게시하지 않음
 - **Supabase** — live chat and synchronized blind-study rooms over anonymous auth; RLS limits room rows, while a JWT-protected Edge Function keeps round seeds private and verifies shared-table trades / 익명 인증 기반 채팅·블라인드 스터디방, RLS로 방 행을 제한하고 JWT 보호 Edge Function이 정답 seed를 숨긴 채 공동 주문을 검증
 - **Database hardening · DB 보안** — public grants are least-privilege, internal settlement RPCs are service-role only, room creation is rate-limited, and joins lock the room row before enforcing the 12-seat cap / 공개 권한 최소화, 내부 정산 RPC service-role 전용, 방 생성 제한, 12석 입장 원자적 검증
 - **Hosting · 호스팅** — GitHub Pages

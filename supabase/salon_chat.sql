@@ -6,8 +6,33 @@ create table if not exists public.salon_chat (
   created_at timestamptz not null default now(),
   nick text not null check (char_length(nick) between 1 and 20),
   body text not null check (char_length(body) between 1 and 300),
-  user_id uuid default auth.uid()
+  user_id uuid default auth.uid(),
+  author_type text not null default 'human',
+  agent_key text
 );
+
+alter table public.salon_chat
+  add column if not exists author_type text not null default 'human',
+  add column if not exists agent_key text;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'salon_chat_author_identity'
+      and conrelid = 'public.salon_chat'::regclass
+  ) then
+    alter table public.salon_chat
+      add constraint salon_chat_author_identity check (
+        (author_type = 'human' and user_id is not null and agent_key is null)
+        or
+        (author_type = 'virtual' and user_id is null and agent_key in (
+          'chart_doryeong', 'funding_bear', 'spot_sister', 'watcher'
+        ))
+      ) not valid;
+    alter table public.salon_chat validate constraint salon_chat_author_identity;
+  end if;
+end $$;
 
 alter table public.salon_chat enable row level security;
 
@@ -23,7 +48,11 @@ drop policy if exists chat_write on public.salon_chat;
 create policy chat_write on public.salon_chat
 for insert
 to authenticated
-with check ((select auth.uid()) = user_id);
+with check (
+  (select auth.uid()) = user_id
+  and author_type = 'human'
+  and agent_key is null
+);
 
 -- update/delete 정책 없음 → RLS 기본 거부
 
@@ -33,16 +62,31 @@ returns trigger
 language plpgsql
 set search_path to 'pg_catalog'
 as $function$
+  declare
+    actor_key text;
+    cooldown interval;
   begin
-    perform pg_advisory_xact_lock(hashtext(new.user_id::text));
+    if new.author_type = 'virtual' then
+      actor_key := 'virtual:' || new.agent_key;
+      cooldown := interval '20 seconds';
+    else
+      actor_key := 'human:' || new.user_id::text;
+      cooldown := interval '3 seconds';
+    end if;
+
+    perform pg_advisory_xact_lock(hashtextextended(actor_key, 0));
 
     if exists (
       select 1
       from public.salon_chat
-      where user_id = new.user_id
-        and created_at > now() - interval '3 seconds'
+      where (
+          (new.author_type = 'virtual' and author_type = 'virtual' and agent_key = new.agent_key)
+          or
+          (new.author_type = 'human' and author_type = 'human' and user_id = new.user_id)
+        )
+        and created_at > now() - cooldown
     ) then
-      raise exception '채팅은 3초에 한 번만 보낼 수 있습니다.';
+      raise exception '채팅 발화 간격이 너무 짧습니다.';
     end if;
 
     return new;
@@ -65,12 +109,24 @@ begin
   end if;
 end $$;
 
+create index if not exists salon_chat_human_rate_idx
+  on public.salon_chat (user_id, created_at desc)
+  where author_type = 'human';
+create index if not exists salon_chat_virtual_rate_idx
+  on public.salon_chat (agent_key, created_at desc)
+  where author_type = 'virtual';
 
 revoke all on public.salon_chat from anon, authenticated;
 grant select on public.salon_chat to anon, authenticated;
 grant insert (nick, body, user_id) on public.salon_chat to authenticated;
 revoke all on sequence public.salon_chat_id_seq from anon, authenticated;
 grant usage on sequence public.salon_chat_id_seq to authenticated;
+
+revoke all on public.salon_chat from service_role;
+grant select on public.salon_chat to service_role;
+grant insert (nick, body, user_id, author_type, agent_key) on public.salon_chat to service_role;
+revoke all on sequence public.salon_chat_id_seq from service_role;
+grant usage on sequence public.salon_chat_id_seq to service_role;
 
 -- 트리거 함수는 테이블 트리거만 실행하며 Data API RPC로 직접 호출할 이유가 없습니다.
 revoke all on function public.limit_salon_chat_rate() from public, anon, authenticated;
