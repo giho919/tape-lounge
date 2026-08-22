@@ -69,9 +69,11 @@ canvas { display:block; }
 .msg { font-size:13px; line-height:1.55; animation:fadein .4s; }
 @keyframes fadein { from { opacity:0; transform:translateY(6px); } }
 .msg .who { font-weight:700; margin-right:6px; }
-.msg .aiTag { display:inline-flex; align-items:center; margin:-1px 6px 0 0; padding:1px 5px; border:1px solid rgba(56,189,248,.32); border-radius:999px; color:#7dd3fc; background:rgba(56,189,248,.08); font-size:8.5px; font-weight:800; letter-spacing:.7px; vertical-align:1px; }
+.msg .aiTag { display:inline-flex; align-items:center; margin:-1px 6px 0 0; padding:1px 5px; border:1px solid rgba(56,189,248,.32); border-radius:999px; color:#7dd3fc; background:rgba(56,189,248,.08); font-size:8.5px; font-weight:800; letter-spacing:.45px; vertical-align:1px; }
+.msg .aiTag.official { border-color:rgba(212,175,55,.42); color:#f5d778; background:rgba(212,175,55,.09); }
 .msg.virtual .body { color:#cbd5e1; }
 .msg .ava { width:18px; height:18px; border-radius:50%; vertical-align:-4px; margin-right:5px; border:1px solid var(--gold-dim); }
+.msg .crewAva { width:18px; height:18px; border-radius:50%; vertical-align:-4px; margin-right:5px; border:1px solid rgba(56,189,248,.32); background:rgba(56,189,248,.1); color:#7dd3fc; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; }
 #chatIn { display:flex; gap:8px; padding:10px 14px; border-top:1px solid var(--line); }
 #chatIn input { flex:1; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:#e5e7eb; font-size:12.5px; outline:none; }
 #chatIn input:focus { border-color:var(--gold-dim); }
@@ -1824,7 +1826,10 @@ setInterval(() => {
 
 // ═══ 라운지 피드 ═══
 const feed = $('feed');
-const CHAT_AVA = { madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png' };
+const CHAT_AVA = {
+  madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png',
+  degen: 'avatars/degen.png', hermit: 'avatars/hermit.png', wolf: 'avatars/wolf.png'
+};
 function say(cls, who, body) {
   const m = document.createElement('div');
   m.className = 'msg ' + cls;
@@ -1967,12 +1972,20 @@ function nickColor(n) {
   let h = 0; for (const c of n) h = (h * 31 + c.charCodeAt(0)) % 360;
   return `hsl(${h} 60% 72%)`;
 }
-function sayUser(nick, body, authorType = 'human') {
+const CHAT_CREW_ICON = { watcher:'○', chart_doryeong:'⌁', funding_bear:'₣', spot_sister:'●' };
+const CHAT_OFFICIAL = new Set(['madam', 'andy', 'justin']);
+function sayUser(nick, body, authorType = 'human', agentKey = null) {
   const m = document.createElement('div');
   const virtual = authorType === 'virtual';
   m.className = `msg user${virtual ? ' virtual' : ''}`;
-  const tag = virtual ? '<span class="aiTag" title="AI가 생성한 가상 손님">AI 손님</span>' : '';
-  m.innerHTML = `<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
+  const official = virtual && CHAT_OFFICIAL.has(agentKey);
+  const ava = virtual && CHAT_AVA[agentKey]
+    ? `<img class="ava" src="${CHAT_AVA[agentKey]}" alt="">`
+    : virtual && CHAT_CREW_ICON[agentKey]
+      ? `<span class="crewAva" aria-hidden="true">${CHAT_CREW_ICON[agentKey]}</span>` : '';
+  const tag = virtual
+    ? `<span class="aiTag${official ? ' official' : ''}" title="AI가 생성한 공개 시장 대화">${official ? '공식 전략가 · AI' : '라운지 크루 · AI'}</span>` : '';
+  m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
   feed.appendChild(m);
   while (feed.children.length > 60) feed.removeChild(feed.firstChild);
   feed.scrollTop = feed.scrollHeight;
@@ -1999,7 +2012,7 @@ async function loadChatHistory() {
   if (chatHistoryLoaded || !sbc) return;
   chatHistoryLoaded = true;
   const { data } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
-  if (data) data.reverse().forEach(m => sayUser(m.nick, m.body, m.author_type));
+  if (data) data.reverse().forEach(m => sayUser(m.nick, m.body, m.author_type, m.agent_key));
 }
 function chatWanted() {
   const onLounge = document.querySelector('.tab.on')?.dataset.tab === 'lounge';
@@ -2010,7 +2023,7 @@ async function syncChat() {
     if (!chatChannel) {
       const channel = sbc.channel(`salon-chat-${++chatChannelSeq}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
-            p => sayUser(p.new.nick, p.new.body, p.new.author_type));
+            p => sayUser(p.new.nick, p.new.body, p.new.author_type, p.new.agent_key));
       chatChannel = channel;   // history await 중 들어오는 중복 syncChat을 먼저 막는다
       await loadChatHistory();
       if (chatChannel === channel && chatWanted()) channel.subscribe();

@@ -15,24 +15,18 @@ alter table public.salon_chat
   add column if not exists author_type text not null default 'human',
   add column if not exists agent_key text;
 
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint
-    where conname = 'salon_chat_author_identity'
-      and conrelid = 'public.salon_chat'::regclass
-  ) then
-    alter table public.salon_chat
-      add constraint salon_chat_author_identity check (
-        (author_type = 'human' and user_id is not null and agent_key is null)
-        or
-        (author_type = 'virtual' and user_id is null and agent_key in (
-          'chart_doryeong', 'funding_bear', 'spot_sister', 'watcher'
-        ))
-      ) not valid;
-    alter table public.salon_chat validate constraint salon_chat_author_identity;
-  end if;
-end $$;
+alter table public.salon_chat drop constraint if exists salon_chat_author_identity;
+alter table public.salon_chat
+  add constraint salon_chat_author_identity check (
+    (author_type = 'human' and user_id is not null and agent_key is null)
+    or
+    (author_type = 'virtual' and user_id is null and agent_key in (
+      'madam', 'andy', 'justin',
+      'chart_doryeong', 'funding_bear', 'spot_sister', 'watcher',
+      'degen', 'hermit', 'wolf'
+    ))
+  ) not valid;
+alter table public.salon_chat validate constraint salon_chat_author_identity;
 
 alter table public.salon_chat enable row level security;
 

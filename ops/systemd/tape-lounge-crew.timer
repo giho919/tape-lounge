@@ -1,0 +1,12 @@
+[Unit]
+Description=Check whether the Tape Lounge crew should speak
+
+[Timer]
+OnBootSec=12min
+OnUnitActiveSec=10min
+RandomizedDelaySec=2min
+Persistent=true
+Unit=tape-lounge-crew.service
+
+[Install]
+WantedBy=timers.target
