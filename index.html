@@ -2008,42 +2008,43 @@ async function chatSend() {
 window.chatSend = chatSend;
 
 
-// ═══ 채팅 지연 연결 — 실제 관여 시에만 Realtime 회선 사용 (무료 티어 200 동접 보호) ═══
-let chatChannel = null, chatChannelSeq = 0, chatHistoryLoaded = false, chatInteracted = false, chatIdleTimer = null;
+// ═══ 채팅 실시간 연결 — 라운지가 보일 때만 유지하고 복귀 시 누락분 동기화 ═══
+let chatChannel = null, chatChannelSeq = 0;
+const chatSeenIds = new Set();
+function renderChatRow(row) {
+  if (!row || chatSeenIds.has(row.id)) return;
+  chatSeenIds.add(row.id);
+  sayUser(row.nick, row.body, row.author_type, row.agent_key);
+}
 async function loadChatHistory() {
-  if (chatHistoryLoaded || !sbc) return;
-  chatHistoryLoaded = true;
+  if (!sbc) return;
   const { data } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
-  if (data) data.reverse().forEach(m => sayUser(m.nick, m.body, m.author_type, m.agent_key));
+  if (data) data.reverse().forEach(renderChatRow);
 }
 function chatWanted() {
   const onLounge = document.querySelector('.tab.on')?.dataset.tab === 'lounge';
-  return sbc && chatInteracted && !document.hidden && onLounge;
+  return sbc && !document.hidden && onLounge;
 }
 async function syncChat() {
   if (chatWanted()) {
     if (!chatChannel) {
       const channel = sbc.channel(`salon-chat-${++chatChannelSeq}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
-            p => sayUser(p.new.nick, p.new.body, p.new.author_type, p.new.agent_key));
-      chatChannel = channel;   // history await 중 들어오는 중복 syncChat을 먼저 막는다
-      await loadChatHistory();
-      if (chatChannel === channel && chatWanted()) channel.subscribe();
+            p => renderChatRow(p.new));
+      chatChannel = channel;
+      channel.subscribe(status => {
+        if (status === 'SUBSCRIBED' && chatChannel === channel) loadChatHistory();
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.warn('chat realtime', status);
+      });
     }
   } else if (chatChannel) {
     const channel = chatChannel; chatChannel = null;
-    sbc.removeChannel(channel);   // 백그라운드·타 탭·유휴 시 회선 반납
+    sbc.removeChannel(channel);   // 백그라운드·타 탭에서는 회선 반납
   }
 }
-function markActive() {
-  chatInteracted = true;
-  clearTimeout(chatIdleTimer);
-  chatIdleTimer = setTimeout(() => { chatInteracted = false; syncChat(); }, 5 * 60 * 1000);  // 5분 유휴 → 회선 반납
-  syncChat();
-}
-['click','keydown','scroll','touchstart'].forEach(ev => window.addEventListener(ev, markActive, { passive: true }));
 document.addEventListener('visibilitychange', syncChat);
 window.syncChat = syncChat;
+syncChat();
 
 renderNick();
 
