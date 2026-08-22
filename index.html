@@ -664,7 +664,7 @@ body.shake { animation:shake .5s; }
 
   <div class="spectatorGrid">
     <div class="panel spectatorCard">
-      <h3>🧱 청산 타워 <small>전 시장 · 접속 후 최대 5분</small></h3>
+      <h3>🧱 청산 타워 <small>전 시장 · 공용 장부 최근 5분</small></h3>
       <div class="towerBody">
         <div class="towerSide long">
           <div class="towerHead"><span>롱 청산</span><b id="towerLongTotal">$0</b></div>
@@ -685,14 +685,14 @@ body.shake { animation:shake .5s; }
     </div>
 
     <div class="panel spectatorCard">
-      <h3>🎞 시장 하이라이트 <small>눌러서 다시 보기</small></h3>
+      <h3>🎞 시장 하이라이트 <small>최근 24시간 · 눌러서 다시 보기</small></h3>
       <div class="highlightList" id="highlightList"></div>
     </div>
   </div>
 
   <div class="casinoDuo">
     <div class="panel jackpotCard" id="jackpotCard">
-      <h3>🎰 청산 잭팟 <small>전 시장 · 접속 후 최대 15분</small></h3>
+      <h3>🎰 청산 잭팟 <small>전 시장 · 공용 장부 최근 15분</small></h3>
       <div class="jackpotBody">
         <div class="jackpotTop"><div class="jackpotTotal" id="jackpotTotal">$0</div><div class="jackpotStage" id="jackpotStage">COLD</div></div>
         <div class="jackpotMeter" aria-label="청산 잭팟 충전율"><i id="jackpotFill"></i></div>
@@ -1388,14 +1388,14 @@ function ensureLoungeChart(i) {
   }
   return loungeCharts[i];
 }
-let gradeMarkers = [], comboMarkers = [], treasureMarkers = [];
+let gradeMarkers = [], comboMarkers = [], treasureMarkers = [], liquidationMarkers = [];
 const whaleBuckets = new Map();
 function renderBtcMarkers() {
   const whales = chartTf === '1m' ? [...whaleBuckets.values()].map(w => {
     const buy = w.buy >= w.sell, total = w.buy + w.sell;
     return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle', text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
   }) : [];
-  const all = [...gradeMarkers, ...comboMarkers, ...treasureMarkers, ...whales.slice(-6)];
+  const all = [...gradeMarkers, ...comboMarkers, ...treasureMarkers, ...liquidationMarkers.slice(-10), ...whales.slice(-6)];
   all.sort((a,b) => a.time - b.time);
   const chart = chartOf(0); if (chart) chart.s.setMarkers(all);
 }
@@ -1687,6 +1687,8 @@ async function setTf(tf) {
   document.querySelectorAll('.tfb').forEach(b => b.classList.toggle('on', b.dataset.tf === tf));
   $('cd').textContent = '--';
   await seedAll();
+  rebuildLiquidationMarkers();
+  renderBtcMarkers();
   connectChartWS();
   reseedDeck();
 }
@@ -2239,18 +2241,11 @@ const mmss = ms => {
 };
 
 let highlights = [];
-try {
-  const saved = JSON.parse(localStorage.getItem('tapeHighlightsV1') || '[]');
-  if (Array.isArray(saved)) highlights = saved.slice(0, 8);
-} catch(e) {}
-function addHighlight(icon, title, detail, tone='gold') {
-  const now = Date.now();
-  if (highlights[0] && highlights[0].title === title && now - highlights[0].ts < 30000) return;
-  highlights.unshift({ icon:String(icon), title:String(title), detail:String(detail), tone:String(tone), ts:now });
-  highlights = highlights.slice(0, 8);
-  localStorage.setItem('tapeHighlightsV1', JSON.stringify(highlights));
-  renderHighlights();
-}
+const marketEventRows = new Map();
+let marketEventChannel = null;
+// 하이라이트의 정본은 서버 수집기와 Supabase 장부다. 기존 호출부는 실시간
+// 이펙트만 담당하고, 서로 다른 브라우저가 각자 전표를 만들지 않는다.
+function addHighlight() {}
 function renderHighlights() {
   const list = $('highlightList');
   list.textContent = '';
@@ -2274,6 +2269,102 @@ function replayHighlight(i) {
   $('pitStage').animate([{transform:'scale(.99)',filter:'brightness(1.4)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:520,easing:'ease-out'});
 }
 renderHighlights();
+
+function syncMarketHighlights() {
+  const cutoff = Date.now() - 24 * 3600000;
+  highlights = [...marketEventRows.values()]
+    .filter(row => row.is_highlight && +new Date(row.event_time) >= cutoff)
+    .sort((a,b) => +new Date(b.event_time) - +new Date(a.event_time))
+    .slice(0, 12)
+    .map(row => ({
+      icon:String(row.icon), title:String(row.title), detail:String(row.detail),
+      tone:String(row.tone), ts:+new Date(row.event_time), key:String(row.event_key)
+    }));
+  renderHighlights();
+}
+
+function liquidationBucketTime(timestamp) {
+  const seconds = { '1m':60, '15m':900, '1h':3600, '4h':14400, '1d':86400 }[chartTf];
+  return seconds ? Math.floor(timestamp / 1000 / seconds) * seconds : null;
+}
+function rebuildLiquidationMarkers() {
+  const grouped = new Map(), cutoff = Date.now() - 24 * 3600000;
+  marketEventRows.forEach(row => {
+    if (row.event_type !== 'liquidation') return;
+    const timestamp = +new Date(row.event_time);
+    if (timestamp < cutoff) return;
+    const time = liquidationBucketTime(timestamp); if (time === null) return;
+    const meta = row.metadata || {}, current = grouped.get(time) || { time, long:0, short:0 };
+    current.long += +meta.long_usd || 0; current.short += +meta.short_usd || 0;
+    grouped.set(time, current);
+  });
+  liquidationMarkers = [...grouped.values()].sort((a,b)=>a.time-b.time).slice(-10).map(item => {
+    const longWipeout = item.long >= item.short, total = item.long + item.short;
+    return { time:item.time, position:longWipeout?'aboveBar':'belowBar', color:longWipeout?'#f87171':'#4ade80', shape:'circle', text:`${longWipeout?'🩸':'⚡'} ${moneyShort(total)}` };
+  });
+}
+
+function appendHydratedLiqBlock(isLong, value, title) {
+  const stack = $(isLong ? 'towerLong' : 'towerShort');
+  const block = document.createElement('div'); block.className = 'liqBlock';
+  block.style.width = Math.min(100, 42 + Math.log10(Math.max(1,value/1000))*20) + '%';
+  block.style.height = Math.min(22, 7 + Math.log10(Math.max(1,value/1000))*4) + 'px';
+  block.title = title; stack.appendChild(block);
+  while (stack.children.length > 14) stack.removeChild(stack.firstChild);
+}
+
+function hydrateLiquidationHistory() {
+  const now = Date.now(), fifteenMinutesAgo = now - 15 * 60000;
+  const currentRound = Math.floor(now / 300000) * 300000;
+  const rows = [...marketEventRows.values()].filter(row => row.event_type === 'liquidation' && +new Date(row.event_time) >= fifteenMinutesAgo);
+  jackpotEvents = [];
+  towerLongSum = 0; towerShortSum = 0; towerCrashed = false;
+  $('towerLong').textContent = ''; $('towerShort').textContent = '';
+  rows.sort((a,b)=>+new Date(a.event_time)-+new Date(b.event_time)).forEach(row => {
+    const timestamp = +new Date(row.event_time), meta = row.metadata || {};
+    const longValue = +meta.long_usd || 0, shortValue = +meta.short_usd || 0;
+    if (longValue) jackpotEvents.push({ts:timestamp,val:longValue,long:true});
+    if (shortValue) jackpotEvents.push({ts:timestamp,val:shortValue,long:false});
+    if (timestamp >= currentRound) {
+      towerLongSum += longValue; towerShortSum += shortValue;
+      if (longValue) appendHydratedLiqBlock(true, longValue, `전 시장 · ${moneyShort(longValue)}`);
+      if (shortValue) appendHydratedLiqBlock(false, shortValue, `전 시장 · ${moneyShort(shortValue)}`);
+    }
+  });
+  const totals = jackpotTotals(now);
+  jackpotReady = totals.total < JACKPOT_TARGET;
+  towerRender(); jackpotRender();
+  rebuildLiquidationMarkers(); renderBtcMarkers();
+}
+
+function applyMarketEvent(row) {
+  if (!row?.event_key) return;
+  const previous = marketEventRows.get(row.event_key);
+  const becameHighlight = row.is_highlight && !previous?.is_highlight;
+  marketEventRows.set(row.event_key, row);
+  syncMarketHighlights();
+  if (row.event_type === 'liquidation' || row.event_type === 'jackpot') hydrateLiquidationHistory();
+  if (row.event_type === 'liquidation' && becameHighlight) towerBurst(row);
+  if (row.event_type === 'jackpot' && !previous) {
+    const meta = row.metadata || {};
+    jackpotFire({ total:+row.amount_usd||0, long:+meta.long_usd||0, short:+meta.short_usd||0 });
+  }
+}
+
+async function loadMarketEvents() {
+  if (!sbc) return;
+  localStorage.removeItem('tapeHighlightsV1');
+  const since = new Date(Date.now() - 24 * 3600000).toISOString();
+  const { data, error } = await sbc.from('market_events')
+    .select('event_key,event_type,event_time,icon,title,detail,tone,symbol,side,price,amount_usd,importance,is_highlight,metadata')
+    .gte('event_time', since).order('event_time', {ascending:false}).limit(1000);
+  if (error) { console.log('market event history off', error.message); return; }
+  (data || []).forEach(row => marketEventRows.set(row.event_key, row));
+  syncMarketHighlights(); hydrateLiquidationHistory();
+  marketEventChannel = sbc.channel('market-events-' + Math.random().toString(36).slice(2))
+    .on('postgres_changes', {event:'*', schema:'public', table:'market_events'}, payload => applyMarketEvent(payload.new))
+    .subscribe();
+}
 
 let pitCurrent = null, pitStarted = Date.now(), pitEnds = Date.now() + 45000;
 function setPit(p, duration=45000) {
@@ -2327,26 +2418,12 @@ function towerReset() {
   $('towerLong').textContent = ''; $('towerShort').textContent = '';
   $('towerLong').classList.remove('crash'); $('towerShort').classList.remove('crash'); towerRender();
 }
-function towerCollapse(isLong) {
+function towerBurst(row) {
+  const isLong = row.side === 'long';
   if (towerCrashed) return; towerCrashed = true;
   const stack = $(isLong ? 'towerLong' : 'towerShort'); stack.classList.add('crash');
-  const total = isLong ? towerLongSum : towerShortSum;
-  addHighlight(isLong?'🩸':'⚡', `${isLong?'롱':'숏'} 청산 타워 붕괴`, `${moneyShort(total)}가 한쪽에 몰리며 탑이 무너졌습니다.`, isLong?'dn':'up');
-  pitSignal('tower-crash', 96, isLong?'🩸':'⚡', 'TOWER CRASH', `${isLong?'롱':'숏'} 청산 타워 붕괴`, `${moneyShort(total)} 규모의 블록이 한쪽으로 쏠렸습니다.`, isLong?'#f87171':'#4ade80');
-  setTimeout(towerReset, 1800);
-}
-function towerAdd(isLong, val, symbol) {
-  if (!Number.isFinite(val) || val < 1000) return;
-  if (isLong) towerLongSum += val; else towerShortSum += val;
-  const stack = $(isLong ? 'towerLong' : 'towerShort');
-  const block = document.createElement('div'); block.className = 'liqBlock';
-  block.style.width = Math.min(100, 42 + Math.log10(Math.max(1,val/1000))*20) + '%';
-  block.style.height = Math.min(22, 7 + Math.log10(Math.max(1,val/1000))*4) + 'px';
-  block.title = `${symbol} · ${moneyShort(val)}`; stack.appendChild(block);
-  while (stack.children.length > 14) stack.removeChild(stack.firstChild);
-  towerRender();
-  const own = isLong ? towerLongSum : towerShortSum, other = isLong ? towerShortSum : towerLongSum;
-  if (val >= 2000000 || (own >= 3000000 && own > Math.max(1,other)*2.5)) towerCollapse(isLong);
+  pitSignal('tower-crash', row.importance || 90, row.icon, 'LIQUIDATION BURST', row.title, row.detail, isLong?'#f87171':'#4ade80');
+  setTimeout(() => { stack.classList.remove('crash'); towerCrashed = false; }, 1800);
 }
 setInterval(() => {
   if (!tabLive('lounge')) return;
@@ -2375,21 +2452,15 @@ function jackpotRender() {
 }
 function jackpotFire(t) {
   jackpotReady = false;
-  const longWipeout = t.long >= t.short, tone = longWipeout ? 'dn' : 'up';
+  const longWipeout = t.long >= t.short;
   const card = $('jackpotCard'); card.classList.remove('fire'); void card.offsetWidth; card.classList.add('fire');
   fxBurst({up:!longWipeout,count:180,colors:longWipeout?['248,113,113','120,20,20']:['74,222,128','212,175,55'],speed:12});
   fxBanner(`🎰 ${longWipeout?'롱':'숏'} 청산 잭팟<small>${moneyShort(t.total)} · 15분</small>`, longWipeout?'#f87171':'#4ade80');
-  addHighlight('🎰', `${longWipeout?'롱':'숏'} 청산 잭팟`, `15분 누적 ${moneyShort(t.total)}`, tone);
   pitSignal('liq-jackpot', 100, '🎰', 'JACKPOT', `${longWipeout?'롱':'숏'} 청산 잭팟`, `전 시장 15분 누적 ${moneyShort(t.total)} — 잭팟이 터졌습니다.`, longWipeout?'#f87171':'#4ade80');
-}
-function jackpotAdd(longWipeout, val) {
-  if (!Number.isFinite(val) || val < 1000) return;
-  jackpotEvents.push({ts:Date.now(),val,long:longWipeout});
-  const t = jackpotTotals(); jackpotRender();
-  if (jackpotReady && t.total >= JACKPOT_TARGET) jackpotFire(t);
 }
 setInterval(() => { if (tabLive('lounge')) jackpotRender(); }, 1000);
 jackpotRender();
+loadMarketEvents();
 
 const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
 const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
@@ -3637,8 +3708,8 @@ function connectLiquidations() {
   if (seenLiquidations.size > 500) seenLiquidations.delete(seenLiquidations.values().next().value);
   const val = +(o.z || o.q) * +(o.ap || o.p), longLiq = o.S === 'SELL';
   if (!Number.isFinite(val) || val <= 0) return;
-  jackpotAdd(longLiq, val);
-  towerAdd(longLiq, val, o.s.replace('USDT',''));
+  // 누계·차트 마커는 24시간 서버 수집기의 Supabase 장부를 정본으로 사용한다.
+  // 이 회선은 즉시 화면 이펙트만 담당해 방문자별 중복 집계를 만들지 않는다.
   if (val >= 100000) {
     pitSignal('liquidation', Math.min(92,65+Math.log10(val/100000)*20), longLiq?'🩸':'⚡', 'LIQUIDATION', `${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산`, `${moneyShort(val)} 강제 청산 — 청산 타워가 흔들립니다.`, longLiq?'#f87171':'#4ade80');
   }

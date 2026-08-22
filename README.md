@@ -32,11 +32,11 @@ The market plays the game; visitors watch the tension build and the result settl
 시장이 스스로 판을 벌이고, 방문자는 긴장과 결과 확정의 순간을 관전합니다.
 
 - **Pit Boss · 핏 보스** — automatically promotes the hottest live scene among tape pressure, whale fills, liquidations, breakouts, and the coin race / 체결 압력·고래·청산·돌파·경마 중 가장 뜨거운 판을 자동으로 메인 무대에 올림
-- **Liquidation Tower · 청산 타워** — market-wide long and short liquidations stack as blocks over five-minute rounds; a severe imbalance knocks the tower down / 전 시장 롱·숏 청산이 5분간 블록으로 쌓이고 심한 불균형에서 타워 붕괴
-- **Liquidation Jackpot · 청산 잭팟** — a rolling 15-minute market-wide liquidation meter fires at $5M with a full-screen payout / 전 시장 15분 청산 누적이 $5M에 닿으면 전면 연출과 함께 잭팟 발동
+- **Liquidation Tower · 청산 타워** — the shared Supabase ledger restores the latest five-minute market-wide liquidation stack for every visitor / Supabase 공용 장부에서 최근 5분 전 시장 롱·숏 청산 블록을 모든 방문자에게 동일하게 복원
+- **Liquidation Jackpot · 청산 잭팟** — the server-recorded rolling 15-minute total survives reloads and fires at $5M / 서버가 기록한 최근 15분 청산 누계를 새로고침 뒤에도 복원하고 $5M에서 잭팟 발동
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
 - **Session Championship · 세션 챔피언십** — Asia (08–16 KST), Europe (16–22), and U.S. (22–08) compared by absolute return plus 35% of realized range; a five-minute REST snapshot with no socket of its own / 아시아·유럽·미국장을 절대 수익률에 변동폭 35%를 더한 점수로 비교, 전용 회선 없이 5분 REST 스냅샷으로 갱신
-- **Market Highlights · 시장 하이라이트** — major candles, breakouts, whales, tower crashes, and race winners are saved locally as replayable tickets / 장대봉·돌파·고래·타워 붕괴·경마 우승을 기기 안에 다시 볼 수 있는 전표로 보관
+- **Market Highlights · 시장 하이라이트** — a 24/7 server records major candles, breakouts, whales, liquidation bursts, jackpots, and settled macro releases to a 48-hour Supabase ledger; the latest 24 hours are replayable and recent liquidation clusters are marked on the BTC chart / 24시간 서버가 장대봉·돌파·고래·청산 폭발·잭팟·지표 확정을 48시간 Supabase 장부에 보관하고, 최근 24시간 전표와 청산 차트 마커를 모든 방문자에게 동일하게 제공
 
 ### Candle Deck 🃏 · 캔들 덱
 
@@ -170,8 +170,8 @@ Reports are auto-generated daily and pushed to this repo's `reports/`.
 
 ## Data sources · 데이터 출처
 
-All public & free APIs, called directly from the browser.
-전부 공개·무료 API, 브라우저에서 직접 호출.
+All public & free APIs, read by the browser or the minimal 24/7 market-event recorder.
+전부 공개·무료 API이며 브라우저 또는 최소 구성의 24시간 시장 이벤트 수집기가 조회합니다.
 
 - **Binance** — spot/futures WebSocket (trades, candles, liquidations, dominance index, long/short ratios) + REST history / 현물·선물 WebSocket (체결·캔들·강제청산·도미넌스 지수·롱숏 비율) + REST 과거 캔들
 - **Bithumb** — REST, BTC/KRW and USDT/KRW prices for the kimchi-premium calc / 김치 프리미엄 산출용 BTC·USDT 원화 시세
@@ -186,7 +186,7 @@ All public & free APIs, called directly from the browser.
 ## Tech · 기술
 
 - Single HTML frontend (`index.html`); only external browser deps are lightweight-charts & Supabase JS via CDN. The optional local AI-chat worker runs separately and is disabled unless explicitly enabled / 프런트는 단일 HTML이며 브라우저 외부 의존성은 lightweight-charts·Supabase JS뿐. 선택형 로컬 AI 채팅 작업기는 별도 실행되며 명시적으로 켜기 전에는 게시하지 않음
-- **Supabase** — live chat and synchronized blind-study rooms over anonymous auth; RLS limits room rows, while a JWT-protected Edge Function keeps round seeds private and verifies shared-table trades / 익명 인증 기반 채팅·블라인드 스터디방, RLS로 방 행을 제한하고 JWT 보호 Edge Function이 정답 seed를 숨긴 채 공동 주문을 검증
+- **Supabase** — live chat, the shared 48-hour market-event ledger, and synchronized blind-study rooms; public clients get read-only market history while an RSA-signed Edge Function accepts writes only from the recorder / 라이브 채팅·48시간 공용 시장 장부·블라인드 스터디방을 제공하며, 공개 클라이언트는 시장 기록 읽기만 가능하고 RSA 서명 Edge Function이 수집기 쓰기만 허용
 - **Database hardening · DB 보안** — public grants are least-privilege, internal settlement RPCs are service-role only, room creation is rate-limited, and joins lock the room row before enforcing the 12-seat cap / 공개 권한 최소화, 내부 정산 RPC service-role 전용, 방 생성 제한, 12석 입장 원자적 검증
 - **Hosting · 호스팅** — GitHub Pages
 
