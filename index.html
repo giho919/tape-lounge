@@ -503,7 +503,7 @@ body.shake { animation:shake .5s; }
 /* ═══ 세션 챔피언십 (라운지) ═══ */
 .sessionGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 16px 6px; }
 .sessionCard { padding:14px 15px; border:1px solid var(--line); border-radius:11px; background:rgba(0,0,0,.16); }
-.sessionCard.winner { border-color:var(--gold-dim); background:linear-gradient(145deg,rgba(212,175,55,.09),rgba(0,0,0,.2)); }
+.sessionCard.live { border-color:var(--gold-dim); background:linear-gradient(145deg,rgba(212,175,55,.09),rgba(0,0,0,.2)); box-shadow:inset 0 0 22px rgba(212,175,55,.04); }
 .sessionCard span { display:flex; align-items:center; gap:7px; color:var(--dim); font-size:9px; letter-spacing:1.2px; }
 .sessionState { font-style:normal; padding:2px 6px; border:1px solid var(--line); border-radius:10px; font-size:8px; letter-spacing:.6px; color:var(--dim); }
 .sessionState.live { border-color:var(--gold-dim); color:var(--gold); background:rgba(212,175,55,.08); }
@@ -653,7 +653,7 @@ body.shake { animation:shake .5s; }
   </div>
 
   <div class="panel sessionPanel" id="sessionPanel">
-    <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 오늘 가장 거친 시간대</small><b class="deckTrack" id="sessionBadge">TODAY</b></h3>
+    <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 최근 한 바퀴 비교</small><b class="deckTrack" id="sessionBadge">LATEST</b></h3>
     <div class="sessionGrid" id="sessionGrid">
       <div class="sessionCard"><span>ASIA</span><b>—</b><small>집계 중</small></div>
       <div class="sessionCard"><span>EUROPE</span><b>—</b><small>집계 중</small></div>
@@ -3763,19 +3763,21 @@ function renderSessions() {
     const open = a[0].o, close = a.at(-1).c;
     const hi = Math.max(...a.map(x => x.h)), lo = Math.min(...a.map(x => x.l));
     const ret = (close/open - 1) * 100, range = (hi/lo - 1) * 100;
-    return { name, a, ret, range, score: Math.abs(ret) + range * .35 };
+    const end = name === liveName ? Date.now() : a.at(-1).t + 5*60000;
+    const minutes = Math.max(1, Math.floor((end - a[0].t) / 60000));
+    return { name, a, ret, range, minutes, score: Math.abs(ret) + range * .35 };
   });
   const winner = stats.filter(x => x.ret !== null).sort((a,b) => b.score - a.score)[0];
   const grid = $('sessionGrid'); grid.textContent = '';
   stats.forEach(s => {
     const c = document.createElement('div');
-    c.className = 'sessionCard' + (winner && winner.name === s.name ? ' winner' : '');
+    c.className = 'sessionCard' + (s.name === liveName ? ' live' : '');
     const label = document.createElement('span'); label.textContent = s.name;
     if (s.a.length) {
       const st = document.createElement('i');
       st.className = 'sessionState' + (s.name === liveName ? ' live' : '');
       st.textContent = s.name === liveName ? '진행 중'
-        : sessionKstDay(s.a[0].t) === today ? '오늘 마감' : '어제 마감';
+        : sessionKstDay(s.a.at(-1).t + 5*60000) === today ? '오늘 마감' : '어제 마감';
       label.appendChild(st);
     }
     const b = document.createElement('b');
@@ -3783,12 +3785,12 @@ function renderSessions() {
     if (s.ret !== null) b.className = s.ret >= 0 ? 'up' : 'dn';
     const small = document.createElement('small');
     small.textContent = s.ret === null ? '아직 열리지 않음'
-      : `변동폭 ${s.range.toFixed(2)}% · ${s.a.length*5}분`;
+      : `변동폭 ${s.range.toFixed(2)}% · ${s.minutes}분`;
     c.append(label, b, small); grid.appendChild(c);
   });
-  $('sessionBadge').textContent = winner ? `${winner.name} LEADS` : 'TODAY';
+  $('sessionBadge').textContent = winner ? `${winner.name} LEADS` : 'LATEST';
   $('sessionCopy').textContent = winner
-    ? `${winner.name} 세션이 변동폭 ${winner.range.toFixed(2)}%로 최근 한 바퀴 중 가장 거칠었습니다.`
+    ? `${winner.name} 세션이 등락률 ${winner.ret>=0?'+':''}${winner.ret.toFixed(2)}%, 변동폭 ${winner.range.toFixed(2)}%로 종합 선두입니다.`
     : '세션 장부를 기다리고 있습니다.';
 }
 async function fetchSessions() {
