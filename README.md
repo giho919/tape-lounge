@@ -5,8 +5,16 @@
 
 **Live** → https://tapelounge.com
 
-A **single-file static site** running entirely on free public APIs in the browser (no backend; only chat and blind-study rooms use Supabase). The concept: a members' hideaway for people who like to *read the tape*.
-브라우저에서 무료 공개 API만으로 돌아가는 **단일 파일 정적 사이트**입니다 (백엔드 없음, 채팅·블라인드 스터디방만 Supabase). "시세를 읽는" 사람들의 아지트라는 콘셉트.
+A **single-file static site** running primarily on free public APIs in the browser (Supabase provides chat, blind-study rooms, shared market events, anonymous Presence, and privacy-first aggregate analytics). The concept: a members' hideaway for people who like to *read the tape*.
+브라우저의 무료 공개 API를 중심으로 돌아가는 **단일 파일 정적 사이트**입니다 (Supabase는 채팅·블라인드 스터디방·공용 시장 이벤트·익명 Presence·최소 방문 통계를 담당). "시세를 읽는" 사람들의 아지트라는 콘셉트.
+
+### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
+
+- The header shows the live number of visible page sessions through Supabase Presence; Presence state is not written to the database / 헤더의 현재 관전 인원은 Supabase Presence로 계산하며 DB에는 저장하지 않음
+- No IP address, device fingerprint, nickname, or user-agent is collected / IP·기기 지문·닉네임·브라우저 정보는 수집하지 않음
+- A random browser ID is hashed inside Postgres; raw sessions are retained for 14 days, then only daily aggregates remain / 브라우저 무작위 ID는 DB에서 해시하며 원본 세션은 14일 뒤 삭제하고 일별 집계만 유지
+- Admin-only views live in the private schema: `site_analytics_today`, `site_analytics_tabs_today`, `site_analytics_daily`, and `site_analytics_tabs_daily` / 관리자 통계는 Supabase의 private 스키마에서만 조회
+- The daily rollup runs at 00:15 KST through Supabase Cron / 일별 집계는 Supabase Cron으로 매일 00:15 KST 실행
 
 ---
 

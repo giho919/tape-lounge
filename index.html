@@ -27,7 +27,8 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .tabs { display:flex; gap:4px; align-items:flex-end; }
 .tab { padding:8px 22px; font-size:12px; line-height:1.4; letter-spacing:2px; color:var(--dim); cursor:pointer; border:1px solid transparent; border-radius:8px 8px 0 0; }
 .tab.on { color:var(--gold); border-color:var(--gold-dim); border-bottom-color:var(--bg); background:var(--panel); }
-.hdr .live { font-size:10px; color:var(--dim); letter-spacing:1px; }
+.hdr .live { display:flex; align-items:center; padding:5px 9px; border:1px solid rgba(74,222,128,.22); border-radius:999px; background:rgba(74,222,128,.055); font-size:10px; color:#9ca3af; letter-spacing:.7px; white-space:nowrap; }
+.hdr .live b { margin-left:4px; color:#d7dce4; font:700 10px Menlo,monospace; }
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--grn); margin-right:5px; animation:blink 2s infinite; }
 @keyframes blink { 50% { opacity:.3; } }
 
@@ -381,7 +382,7 @@ body.shake { animation:shake .5s; }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
-  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{display:none}.tabs{width:100%;order:3}
+  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabs{width:100%;order:3}
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
@@ -607,7 +608,7 @@ body.shake { animation:shake .5s; }
     <div class="tab" data-tab="chars">🎩 전략가들</div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
-    <div class="live"><span class="dot"></span>LIVE</div>
+    <div class="live" title="현재 페이지를 열어 둔 관전 세션"><span class="dot"></span>LIVE <b id="viewerCount">연결 중</b></div>
   </div>
 </div>
 
@@ -1195,6 +1196,7 @@ const tabLive = name => activeTab === name && !document.hidden;
 
 // ═══ 탭 ═══
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  if (typeof siteAnalyticsTabLeaving === 'function') siteAnalyticsTabLeaving();
   activeTab = t.dataset.tab;
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
   t.classList.add('on');
@@ -1210,6 +1212,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   }
   if (t.dataset.tab === 'lounge') requestAnimationFrame(trimDeck);   // 복귀 시 실제 폭으로 덱 재정렬
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
+  if (typeof siteAnalyticsTabEntered === 'function') siteAnalyticsTabEntered();
   if (typeof syncRuntimeState === 'function') syncRuntimeState();
 });
 
@@ -1920,6 +1923,83 @@ const SUPA_KEY = 'sb_publishable_S5ohCvizmH8zI-H1wvRupA_aHTG4YOH';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let sbc = null, myUid = null, authPending = null;
 try { sbc = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.log('supabase off', e); }
+
+// ═══ 익명 관전 인원 · 개인정보 없는 방문 통계 ═══
+const siteUuid = () => crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+  const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+});
+let analyticsVisitorId = null;
+try {
+  analyticsVisitorId = localStorage.getItem('tapeVisitorId');
+  if (!analyticsVisitorId) { analyticsVisitorId = siteUuid(); localStorage.setItem('tapeVisitorId', analyticsVisitorId); }
+} catch(e) { analyticsVisitorId = siteUuid(); }
+const analyticsSessionId = siteUuid();
+let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null, presenceSeq = 0;
+
+function analyticsPayload(activeSeconds = 0, isView = false) {
+  return { p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab, p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView };
+}
+async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
+  if (!sbc || !analyticsVisitorId) return;
+  const body = analyticsPayload(activeSeconds, isView);
+  try {
+    if (keepalive) {
+      await fetch(`${SUPA_URL}/rest/v1/rpc/record_site_activity`, {
+        method:'POST', keepalive:true, headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body)
+      });
+    } else {
+      const { error } = await sbc.rpc('record_site_activity', body);
+      if (error) console.warn('analytics off', error.message);
+    }
+  } catch(e) { console.warn('analytics off'); }
+}
+function siteAnalyticsFlush(keepalive = false) {
+  if (document.hidden && !keepalive) return;
+  const now = performance.now(), elapsed = Math.max(0, (now - analyticsLastActiveAt) / 1000);
+  analyticsLastActiveAt = now;
+  recordSiteActivity(elapsed, keepalive);
+}
+function siteAnalyticsTabLeaving() { siteAnalyticsFlush(false); }
+function siteAnalyticsTabEntered() { analyticsLastActiveAt = performance.now(); recordSiteActivity(0, false, true); }
+window.siteAnalyticsTabLeaving = siteAnalyticsTabLeaving;
+window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
+
+function renderViewerCount() {
+  if (!presenceChannel) return;
+  const count = Object.keys(presenceChannel.presenceState() || {}).length;
+  $('viewerCount').textContent = count ? `${count}명 관전 중` : '관전 중';
+}
+function startSitePresence() {
+  if (!sbc || document.hidden || presenceChannel) return;
+  const channel = sbc.channel(`tape-lounge-presence-${++presenceSeq}`, { config:{ presence:{ key:analyticsSessionId } } })
+    .on('presence', { event:'sync' }, renderViewerCount);
+  presenceChannel = channel;
+  channel.subscribe(async status => {
+    if (status === 'SUBSCRIBED' && presenceChannel === channel) {
+      await channel.track({ online_at:new Date().toISOString() });
+      renderViewerCount();
+    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+      $('viewerCount').textContent = '연결 대기';
+    }
+  });
+}
+function stopSitePresence() {
+  if (!presenceChannel) return;
+  const channel = presenceChannel; presenceChannel = null;
+  channel.untrack().catch(() => {}); sbc.removeChannel(channel);
+  $('viewerCount').textContent = '자리 비움';
+}
+function syncSiteAudience() {
+  if (document.hidden) {
+    siteAnalyticsFlush(true); stopSitePresence(); clearInterval(analyticsTimer); analyticsTimer = null;
+  } else {
+    analyticsLastActiveAt = performance.now(); recordSiteActivity(0, false, !analyticsStarted); analyticsStarted = true; startSitePresence();
+    if (!analyticsTimer) analyticsTimer = setInterval(() => siteAnalyticsFlush(false), 60000);
+  }
+}
+document.addEventListener('visibilitychange', syncSiteAudience);
+window.addEventListener('pagehide', () => { siteAnalyticsFlush(true); stopSitePresence(); });
+syncSiteAudience();
 // 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
 const TURNSTILE_SITEKEY = '0x4AAAAAAEDtJF9PJ4ZwYXIl';
 let captchaWidgetId = null, captchaPending = null;
