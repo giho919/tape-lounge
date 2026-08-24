@@ -71,6 +71,12 @@ BANNED = (
     "롱 가자", "숏 가자", "진입해", "손절해", "익절해", "내 포지션",
     "수익 인증", "세력이다", "지지 확인", "저항 확인", "안착",
 )
+LLM_UNVERIFIED_CLAIMS = (
+    "올랐", "오른", "오르고", "내렸", "내린", "내리고",
+    "줄었", "줄어", "늘었", "늘어", "쌓", "사라",
+    "지지", "저항", "돌파", "이탈", "회복", "반등",
+    "강해졌", "약해졌", "끝이 보",
+)
 
 
 @dataclass
@@ -487,17 +493,36 @@ def should_publish(scene: Scene | None, latest: dict[str, Any], force: bool) -> 
     return True, "ready"
 
 
-def allowed_llm_numbers(snapshot: MarketSnapshot) -> set[str]:
-    return {
+def llm_agent_keys(scene: Scene | None) -> tuple[str, ...]:
+    key = scene.key if scene else ""
+    if key in {"funding_positive", "funding_negative", "oi_price_up", "oi_price_down", "long_liquidation", "short_liquidation"}:
+        return ("funding_bear", "spot_sister", "degen", "watcher", "wolf")
+    if key in {"volume_burst", "bid_heavy", "ask_heavy", "spread_wide"}:
+        return ("wolf", "watcher", "chart_doryeong", "spot_sister", "degen")
+    if key in {"mempool_busy", "block_settled"}:
+        return ("hermit", "watcher", "spot_sister", "wolf")
+    return ("chart_doryeong", "watcher", "spot_sister", "wolf", "degen")
+
+
+def allowed_llm_numbers(snapshot: MarketSnapshot, scene: Scene | None = None) -> set[str]:
+    allowed = {
         f"{snapshot.price:,.1f}", pct(snapshot.change_24h_pct),
         pct(snapshot.high_gap_pct), pct(snapshot.low_gap_pct),
         pct(snapshot.funding_pct), f"{snapshot.spread_usdt:.1f}", "24",
     }
+    if scene:
+        for value in scene.facts.values():
+            allowed.update(NUMBER_RE.findall(value))
+    return allowed
 
 
-def llm_fallback(snapshot: MarketSnapshot, chat: dict[str, Any] | None = None) -> list[dict[str, str]] | None:
+def llm_fallback(
+    snapshot: MarketSnapshot,
+    chat: dict[str, Any] | None = None,
+    scene: Scene | None = None,
+) -> list[dict[str, str]] | None:
     chat = chat or empty_chat_context()
-    allowed_agents = {key: name for key, name in AGENT_NAMES.items() if key not in OFFICIAL}
+    allowed_agents = {key: AGENT_NAMES[key] for key in llm_agent_keys(scene)}
     agent_counts = chat.get("agent_counts", {})
     underused = sorted(allowed_agents, key=lambda key: (int(agent_counts.get(key, 0)), key))[:4]
     recent_lines = chat.get("recent_lines", [])[:20]
@@ -506,11 +531,13 @@ def llm_fallback(snapshot: MarketSnapshot, chat: dict[str, Any] | None = None) -
 BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가까지 {pct(snapshot.high_gap_pct)},
 저가까지 {pct(snapshot.low_gap_pct)}, 펀딩 {pct(snapshot.funding_pct)}, 스프레드 {snapshot.spread_usdt:.1f} USDT.
 인물: {json.dumps(allowed_agents, ensure_ascii=False)}
+현재 장면: {scene.key if scene else "general"}, 검증된 장면 값: {json.dumps(scene.facts if scene else {}, ensure_ascii=False)}
 최근 적게 나온 인물 후보: {json.dumps(underused, ensure_ascii=False)}
 최근 사용한 문장: {json.dumps(recent_lines, ensure_ascii=False)}
 서로 반응하는 자연스러운 반말 2~4개를 JSON으로만 출력한다.
 최근 사용한 문장과 같거나 숫자만 바꾼 표현은 쓰지 않는다. 가능하면 최근 적게 나온 인물을 포함한다.
-새 숫자·원인·지지·저항·전망·매매 지시·실제 포지션은 만들지 않는다.
+위에 적힌 현재 관찰값만 말하고, 이전보다 올랐다·내렸다·줄었다·늘었다 같은 변화나 원인·지지·저항·전망을 추측하지 않는다.
+새 숫자·매매 지시·실제 포지션은 만들지 않는다.
 항상 질문으로 시작하거나 깔끔하게 결론내지 말고, 짧은 맞장구나 반론을 섞는다.
 형식: {{"messages":[{{"agent_key":"wolf","body":"..."}}]}}"""
     result = request_json(
@@ -529,7 +556,7 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
     rows = raw.get("messages")
     if not isinstance(rows, list) or not 2 <= len(rows) <= 4:
         return None
-    allowed_numbers = allowed_llm_numbers(snapshot)
+    allowed_numbers = allowed_llm_numbers(snapshot, scene)
     messages: list[dict[str, str]] = []
     speakers: set[str] = set()
     for row in rows:
@@ -538,6 +565,8 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
             return None
         body = body.strip()
         if any(term in body for term in BANNED):
+            return None
+        if any(term in body for term in LLM_UNVERIFIED_CLAIMS):
             return None
         if any(number not in allowed_numbers for number in NUMBER_RE.findall(body)):
             return None
@@ -617,7 +646,7 @@ def main() -> int:
             source, pack_id = "library", pack["id"]
     if messages is None and not args.no_llm:
         try:
-            messages = llm_fallback(snapshot, latest)
+            messages = llm_fallback(snapshot, latest, scene)
             source = "llm" if messages else "none"
         except (KeyError, TypeError, ValueError, json.JSONDecodeError, urllib.error.URLError):
             messages = None

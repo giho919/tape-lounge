@@ -111,6 +111,25 @@ class SceneTests(unittest.TestCase):
         self.assertIsNotNone(chosen)
         self.assertEqual(chosen[0]["id"], "other")
 
+    def test_llm_cast_stays_relevant_to_scene(self):
+        self.assertEqual(
+            set(MODULE.llm_agent_keys(MODULE.Scene("bid_heavy", 70, {}))),
+            {"wolf", "watcher", "chart_doryeong", "spot_sister", "degen"},
+        )
+        self.assertNotIn(
+            "funding_bear", MODULE.llm_agent_keys(MODULE.Scene("bid_heavy", 70, {}))
+        )
+
+    def test_llm_rejects_unverified_change_claim(self):
+        response = {"choices": [{"message": {"content": '{"messages":['
+            '{"agent_key":"wolf","body":"주문 잔량이 조금 줄어든 모양이네."},'
+            '{"agent_key":"watcher","body":"지금 수치만 조금 더 지켜볼게."}]}'}}]}
+        with mock.patch.object(MODULE, "request_json", return_value=response):
+            messages = MODULE.llm_fallback(
+                snapshot(), MODULE.empty_chat_context(), MODULE.Scene("bid_heavy", 70, {})
+            )
+        self.assertIsNone(messages)
+
     def test_state_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "state.json"
