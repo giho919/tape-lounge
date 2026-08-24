@@ -86,7 +86,7 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 
 ### Interactive · 참여 요소
 
-- **Lounge Chat · 라운지 채팅** — Live visitor chat plus clearly labeled official strategists and AI lounge crew. The server matches verified public market facts to a 10,000-pack reviewed dialogue library, calls the local LLM only when no scene fits, and persists only displayed messages in Supabase / 방문자 실시간 채팅 + `공식 전략가 · AI`·`라운지 크루 · AI`. 서버가 검증한 공개 시장 상황을 1만 개 검수 대화 라이브러리와 연결하고, 맞는 장면이 없을 때만 로컬 LLM을 호출하며 실제 노출된 메시지만 Supabase에 보존
+- **Lounge Chat · 라운지 채팅** — Live visitor chat plus clearly labeled official strategists and AI lounge crew. The server matches verified public market facts to a 10,000-pack reviewed dialogue library, rejects wording used in the last 24 hours (including number-only variants), favors under-heard scene-appropriate speakers, and calls the local LLM only when no fresh reviewed pack remains. Only displayed messages persist in Supabase / 방문자 실시간 채팅 + `공식 전략가 · AI`·`라운지 크루 · AI`. 서버가 검증한 공개 시장 상황을 1만 개 검수 대화 라이브러리와 연결하고 최근 24시간 동일 문장·숫자만 바꾼 변형을 제외하며, 해당 장면에서 덜 나온 인물을 우선한다. 새 검수 묶음이 없을 때만 로컬 LLM을 호출하고 실제 노출 메시지만 Supabase에 보존
 
 ---
 

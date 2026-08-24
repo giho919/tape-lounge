@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Select and publish a Tape Lounge crew conversation from verified facts.
 
-The 10,000-pack local library is the normal path. The local Qwen model is only
-asked for a conversation when no reviewed scenario matches. Dry-run is the
-default; publishing requires both --publish and TAPE_AI_CHAT_ENABLE=1.
+The 10,000-pack local library is the normal path. Recently used wording is
+removed before selection and underused speakers are preferred. The local Qwen
+model is asked only when no fresh reviewed pack remains. Dry-run is the default;
+publishing requires both --publish and TAPE_AI_CHAT_ENABLE=1.
 """
 
 from __future__ import annotations
@@ -59,6 +60,10 @@ AGENT_NAMES = {
     "wolf": "울프",
 }
 OFFICIAL = {"madam", "andy", "justin"}
+RECENT_CHAT_HOURS = 24
+RECENT_CHAT_LIMIT = 500
+OFFICIAL_GAP_SECONDS = 4 * 3600
+OFFICIAL_CHANCE = 0.15
 PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
 NUMBER_RE = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:%p|%|배|M|K)?")
 BANNED = (
@@ -373,49 +378,104 @@ def render_pack(pack: dict[str, Any], facts: dict[str, str]) -> list[dict[str, s
     return messages if 2 <= len(messages) <= 6 else None
 
 
+def normalize_body(body: str) -> str:
+    """Collapse numeric variants so cosmetically changed repeats still match."""
+    return re.sub(r"\s+", " ", NUMBER_RE.sub("#", body.casefold())).strip()
+
+
+def empty_chat_context() -> dict[str, Any]:
+    return {
+        "human": 0.0,
+        "virtual": 0.0,
+        "recent_bodies": set(),
+        "recent_lines": [],
+        "agent_counts": {},
+    }
+
+
 def choose_pack(
-    library: list[dict[str, Any]], scene: Scene, state: dict[str, Any]
+    library: list[dict[str, Any]],
+    scene: Scene,
+    state: dict[str, Any],
+    chat: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, str]]] | None:
+    chat = chat or empty_chat_context()
     recent = set(state.get("recent_ids", []))
-    official_ready = time.time() - float(state.get("last_official_at", 0)) >= 6 * 3600
+    recent_bodies = set(chat.get("recent_bodies", set()))
+    agent_counts = chat.get("agent_counts", {})
+    last_lead = state.get("last_lead_agent")
+    official_ready = time.time() - float(state.get("last_official_at", 0)) >= OFFICIAL_GAP_SECONDS
     candidates = [row for row in library if row.get("scenario_key") == scene.key and row.get("id") not in recent]
     random.shuffle(candidates)
-    without_official = [row for row in candidates if not any(m.get("agent_key") in OFFICIAL for m in row.get("messages", []))]
-    with_official = [row for row in candidates if any(m.get("agent_key") in OFFICIAL for m in row.get("messages", []))]
-    if official_ready and with_official and random.random() < 0.08:
-        candidates = with_official
-    else:
-        candidates = without_official or candidates
+
+    rendered_candidates: list[tuple[dict[str, Any], list[dict[str, str]]]] = []
     for pack in candidates:
         rendered = render_pack(pack, scene.facts)
-        if rendered:
-            return pack, rendered
-    return None
+        if not rendered:
+            continue
+        if any(normalize_body(message["body"]) in recent_bodies for message in rendered):
+            continue
+        rendered_candidates.append((pack, rendered))
+
+    without_official = [item for item in rendered_candidates if not any(m["agent_key"] in OFFICIAL for m in item[1])]
+    with_official = [item for item in rendered_candidates if any(m["agent_key"] in OFFICIAL for m in item[1])]
+    if official_ready and with_official and random.random() < OFFICIAL_CHANCE:
+        pool = with_official
+    else:
+        pool = without_official or rendered_candidates
+    if not pool:
+        return None
+
+    # Keep expertise tied to the scene, then prefer the least-heard eligible cast.
+    non_repeating_leads = [item for item in pool if item[1][0]["agent_key"] != last_lead]
+    if non_repeating_leads:
+        pool = non_repeating_leads
+
+    def balance_key(item: tuple[dict[str, Any], list[dict[str, str]]]) -> tuple[float, int, float]:
+        speakers = {message["agent_key"] for message in item[1]}
+        counts = [int(agent_counts.get(agent, 0)) for agent in speakers]
+        return (sum(counts) / max(len(counts), 1), max(counts, default=0), random.random())
+
+    return min(pool, key=balance_key)
 
 
-def recent_chat() -> dict[str, float]:
+def recent_chat() -> dict[str, Any]:
+    since = datetime.fromtimestamp(
+        time.time() - RECENT_CHAT_HOURS * 3600, timezone.utc
+    ).isoformat()
     query = urllib.parse.urlencode({
-        "select": "created_at,author_type",
+        "select": "created_at,author_type,agent_key,body",
+        "created_at": f"gte.{since}",
         "order": "created_at.desc",
-        "limit": "40",
+        "limit": str(RECENT_CHAT_LIMIT),
     })
     rows = request_json(
         f"{SUPABASE_URL}/rest/v1/salon_chat?{query}",
         headers={"apikey": SUPABASE_PUBLISHABLE_KEY},
     )
-    latest = {"human": 0.0, "virtual": 0.0}
+    context = empty_chat_context()
     for row in rows if isinstance(rows, list) else []:
         kind = row.get("author_type")
-        if kind not in latest or latest[kind]:
+        if kind not in ("human", "virtual"):
             continue
-        try:
-            latest[kind] = datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")).timestamp()
-        except (KeyError, ValueError, TypeError):
-            pass
-    return latest
+        if not context[kind]:
+            try:
+                context[kind] = datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")).timestamp()
+            except (KeyError, ValueError, TypeError):
+                pass
+        if kind != "virtual":
+            continue
+        agent, body = row.get("agent_key"), row.get("body")
+        if agent in AGENT_NAMES:
+            context["agent_counts"][agent] = context["agent_counts"].get(agent, 0) + 1
+        if isinstance(body, str) and body.strip():
+            context["recent_bodies"].add(normalize_body(body))
+            if len(context["recent_lines"]) < 30:
+                context["recent_lines"].append(body.strip())
+    return context
 
 
-def should_publish(scene: Scene | None, latest: dict[str, float], force: bool) -> tuple[bool, str]:
+def should_publish(scene: Scene | None, latest: dict[str, Any], force: bool) -> tuple[bool, str]:
     if force:
         return True, "forced"
     now = time.time()
@@ -435,14 +495,21 @@ def allowed_llm_numbers(snapshot: MarketSnapshot) -> set[str]:
     }
 
 
-def llm_fallback(snapshot: MarketSnapshot) -> list[dict[str, str]] | None:
+def llm_fallback(snapshot: MarketSnapshot, chat: dict[str, Any] | None = None) -> list[dict[str, str]] | None:
+    chat = chat or empty_chat_context()
     allowed_agents = {key: name for key, name in AGENT_NAMES.items() if key not in OFFICIAL}
+    agent_counts = chat.get("agent_counts", {})
+    underused = sorted(allowed_agents, key=lambda key: (int(agent_counts.get(key, 0)), key))[:4]
+    recent_lines = chat.get("recent_lines", [])[:20]
     prompt = f"""/no_think
 너는 Tape Lounge 라운지 크루의 짧은 대화를 쓴다. 다음 관찰값만 사용할 수 있다.
 BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가까지 {pct(snapshot.high_gap_pct)},
 저가까지 {pct(snapshot.low_gap_pct)}, 펀딩 {pct(snapshot.funding_pct)}, 스프레드 {snapshot.spread_usdt:.1f} USDT.
 인물: {json.dumps(allowed_agents, ensure_ascii=False)}
+최근 적게 나온 인물 후보: {json.dumps(underused, ensure_ascii=False)}
+최근 사용한 문장: {json.dumps(recent_lines, ensure_ascii=False)}
 서로 반응하는 자연스러운 반말 2~4개를 JSON으로만 출력한다.
+최근 사용한 문장과 같거나 숫자만 바꾼 표현은 쓰지 않는다. 가능하면 최근 적게 나온 인물을 포함한다.
 새 숫자·원인·지지·저항·전망·매매 지시·실제 포지션은 만들지 않는다.
 항상 질문으로 시작하거나 깔끔하게 결론내지 말고, 짧은 맞장구나 반론을 섞는다.
 형식: {{"messages":[{{"agent_key":"wolf","body":"..."}}]}}"""
@@ -473,6 +540,8 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
         if any(term in body for term in BANNED):
             return None
         if any(number not in allowed_numbers for number in NUMBER_RE.findall(body)):
+            return None
+        if normalize_body(body) in set(chat.get("recent_bodies", set())):
             return None
         speakers.add(key)
         messages.append({"agent_key": key, "nick": AGENT_NAMES[key], "body": body})
@@ -539,20 +608,20 @@ def main() -> int:
     snapshot = fetch_snapshot()
     scenes = detect_scenes(snapshot, state)
     scene = choose_scene(scenes, state, args.scenario)
+    latest = recent_chat() if args.publish else empty_chat_context()
     source, pack_id, messages = "none", None, None
     if scene:
-        chosen = choose_pack(load_library(args.library), scene, state)
+        chosen = choose_pack(load_library(args.library), scene, state, latest)
         if chosen:
             pack, messages = chosen
             source, pack_id = "library", pack["id"]
     if messages is None and not args.no_llm:
         try:
-            messages = llm_fallback(snapshot)
+            messages = llm_fallback(snapshot, latest)
             source = "llm" if messages else "none"
         except (KeyError, TypeError, ValueError, json.JSONDecodeError, urllib.error.URLError):
             messages = None
 
-    latest = recent_chat() if args.publish else {"human": 0.0, "virtual": 0.0}
     allowed, reason = should_publish(scene, latest, args.force)
     result = {
         "source": source,
@@ -574,6 +643,7 @@ def main() -> int:
             state["recent_ids"] = recent_ids[:500]
             if any(message["agent_key"] in OFFICIAL for message in messages):
                 state["last_official_at"] = time.time()
+            state["last_lead_agent"] = messages[0]["agent_key"]
             state.pop("pending_liquidation", None)
         save_state(args.state, state)
     return 0

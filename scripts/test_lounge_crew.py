@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 MODULE_PATH = Path(__file__).with_name("lounge_crew.py")
@@ -54,6 +55,61 @@ class SceneTests(unittest.TestCase):
 
     def test_extreme_book_ratio_is_capped_for_display(self):
         self.assertEqual(MODULE.multiple(20.88), "10배 이상")
+
+    def test_numeric_variants_share_repeat_key(self):
+        self.assertEqual(
+            MODULE.normalize_body("매도 쪽이 5.00배 우세해."),
+            MODULE.normalize_body("매도 쪽이 6.57배 우세해."),
+        )
+
+    def test_pack_rejects_recent_wording_and_prefers_underused_cast(self):
+        library = [
+            {"id": "repeated", "scenario_key": "ask_heavy", "messages": [
+                {"agent_key": "watcher", "body": "위에 매도벽 꽤 두껍다. 여기서 막히는 거야?"},
+                {"agent_key": "wolf", "body": "실제 체결을 더 봐야겠네."},
+            ]},
+            {"id": "overused", "scenario_key": "ask_heavy", "messages": [
+                {"agent_key": "watcher", "body": "매도 잔량이 다시 쌓이는 중이네."},
+                {"agent_key": "spot_sister", "body": "걸어둔 주문보다 체결 결과를 볼게."},
+            ]},
+            {"id": "balanced", "scenario_key": "ask_heavy", "messages": [
+                {"agent_key": "chart_doryeong", "body": "통과 여부가 확인될 때까지 기다려 보자."},
+                {"agent_key": "wolf", "body": "한 번 더 찍히는지를 보겠어."},
+            ]},
+        ]
+        chat = MODULE.empty_chat_context()
+        chat["recent_bodies"] = {MODULE.normalize_body("위에 매도벽 꽤 두껍다. 여기서 막히는 거야?")}
+        chat["agent_counts"] = {"watcher": 20, "spot_sister": 18, "chart_doryeong": 2, "wolf": 3}
+        with mock.patch.object(MODULE.random, "random", return_value=0.9):
+            chosen = MODULE.choose_pack(library, MODULE.Scene("ask_heavy", 70, {}), {}, chat)
+        self.assertIsNotNone(chosen)
+        self.assertEqual(chosen[0]["id"], "balanced")
+
+    def test_pack_returns_none_when_only_recent_wording_remains(self):
+        library = [{"id": "one", "scenario_key": "quiet_range", "messages": [
+            {"agent_key": "watcher", "body": "지금은 조용해서 한 번 더 볼래."},
+            {"agent_key": "spot_sister", "body": "서두르지 않고 기다려 보자."},
+        ]}]
+        chat = MODULE.empty_chat_context()
+        chat["recent_bodies"] = {MODULE.normalize_body("지금은 조용해서 한 번 더 볼래.")}
+        self.assertIsNone(MODULE.choose_pack(library, MODULE.Scene("quiet_range", 36, {}), {}, chat))
+
+    def test_pack_avoids_same_lead_when_alternative_exists(self):
+        library = [
+            {"id": "same", "scenario_key": "bid_heavy", "messages": [
+                {"agent_key": "watcher", "body": "매수벽이 다시 두꺼워졌네."},
+                {"agent_key": "wolf", "body": "체결이 따라오는지 보자."},
+            ]},
+            {"id": "other", "scenario_key": "bid_heavy", "messages": [
+                {"agent_key": "chart_doryeong", "body": "가격이 벽 위에서 버티는지를 보자."},
+                {"agent_key": "spot_sister", "body": "주문만 보고 결론내리진 않을게."},
+            ]},
+        ]
+        chosen = MODULE.choose_pack(
+            library, MODULE.Scene("bid_heavy", 70, {}), {"last_lead_agent": "watcher"}
+        )
+        self.assertIsNotNone(chosen)
+        self.assertEqual(chosen[0]["id"], "other")
 
     def test_state_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:
