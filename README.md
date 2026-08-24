@@ -58,6 +58,7 @@ Each closed candle is dealt as a card; body size sets its rarity (common → unc
 - **Moving averages · 이동평균선** — MA 10 · 20 · 60 · 120 · 200 (live on every chart / 전 차트 실시간)
 - **Candle Grade · 캔들 등급** — every closed BTC candle is graded in the HUD; only rare and epic candles receive chart markers / 모든 BTC 확정봉 등급은 HUD에 표시하고 레어·에픽만 차트 마커로 남김
 - **Candle Combo · 캔들 콤보** — the HUD always shows the streak, while only 5·8 combos and major breaks receive chart markers / 연속 수는 HUD에 항상 표시하되 5·8콤보와 큰 브레이크만 차트 마커로 남김
+- **Capture watermark · 캡처 워터마크** — every live chart carries a quiet `tapelounge.com` signature that stays readable in desktop and mobile screenshots without covering candles / 모든 라이브 차트에 캔들을 가리지 않는 은은한 `tapelounge.com` 출처를 넣어 PC·모바일 캡처에 남김
 - **Price Chests · 가격 보물상자** — rolling 40-candle high/low chests open as bronze, gold, or diamond based on breakout volume / 최근 40개 확정봉 고저점 상자가 돌파 거래량에 따라 브론즈·골드·다이아로 개봉
 - **Whale Footprints · 고래 발자국** — $500k+ BTC fills leave minute-aggregated buy/sell markers / $50만 이상 BTC 체결을 분 단위 매수·매도 발자국으로 기록
 - Countdown to candle close, split-flap price display / 봉 마감 카운트다운, split-flap 가격
@@ -150,6 +151,7 @@ You're dropped into a **real past market** with its identity hidden — no symbo
 - **Server-verified portfolio · 서버 판정 장부** — the hidden round is assigned by a JWT-protected Edge Function; every shared-table order and final return is recalculated server-side and restored after refresh / JWT 보호 Edge Function이 숨은 판을 배정하고, 함께 보는 판의 주문·최종 수익률을 서버에서 다시 계산해 새로고침 뒤에도 복원
 - **Segment outlook · 구간 전망** — every 20-day segment accepts one bullish, neutral, or bearish outlook; classmates' choices are grouped into chart markers after the reveal / 20일 구간마다 강세·중립·약세 전망을 한 번 선택하며 공개 뒤 다른 사람의 선택을 차트 마커로 묶어 표시
 - **Shared settlement · 공동 정산** — returns, buy-and-hold comparison, trade count, and the opinion chart are revealed together / 수익률·존버 비교·매매 횟수와 의견 차트를 함께 공개
+- **Result signature · 결과 출처** — solo and shared reveal cards carry `tapelounge.com`, while the chart itself keeps the same subtle watermark / 개인·공동 최종 결과 카드와 블라인드 차트에 `tapelounge.com` 출처를 표시
 - **Mobile layout · 모바일 화면** — the blind chart, controls, lobby, and shared panels collapse into a single-column touch layout on small screens / 작은 화면에서는 블라인드 차트·주문·로비·공용 패널을 한 열 터치 레이아웃으로 재배치
 
 > Crypto data streams live from Binance; US-stock history (100+ S&P 500 / Nasdaq-100 large caps) is served as a static bundle the server refreshes weekly.

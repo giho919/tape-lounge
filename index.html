@@ -194,10 +194,16 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .chd .sym { color:#fff; font-weight:700; letter-spacing:1px; }
 .chd .px2 { font-size:14px; color:#fff; }
 .caroPage { position:relative; }
+.chartWatermark { position:absolute; right:70px; bottom:28px; z-index:3; pointer-events:none; user-select:none;
+  padding:4px 6px; border:1px solid rgba(212,175,55,.22); border-radius:5px; background:rgba(10,12,16,.68);
+  color:rgba(232,213,151,.72); font:700 10px/1 Menlo,monospace; letter-spacing:1.1px; text-shadow:0 1px 5px rgba(0,0,0,.9); }
+.resultWatermark { width:max-content; max-width:100%; margin:16px auto 0; padding-top:9px; border-top:1px solid rgba(212,175,55,.28);
+  color:rgba(232,213,151,.78); font:700 10px/1 Menlo,monospace; letter-spacing:1.4px; }
 .chartFunHud { position:absolute; top:44px; left:11px; right:11px; z-index:4; display:flex; flex-wrap:wrap; gap:5px; pointer-events:none; }
 .chartFunHud span { padding:4px 7px; border:1px solid rgba(138,115,37,.48); border-radius:5px; background:rgba(10,12,16,.82); color:#aeb4bf; font:700 8px Menlo,monospace; letter-spacing:.4px; backdrop-filter:blur(3px); }
 .chartFunHud .hot { color:#fff0a8; border-color:var(--gold); box-shadow:0 0 12px rgba(212,175,55,.18); }
 @media(max-width:620px){.chartFunHud{top:43px;left:7px;right:7px;gap:3px}.chartFunHud span{padding:3px 5px;font-size:7px}}
+@media(max-width:620px){.chartWatermark{right:54px;bottom:25px;padding:3px 5px;font-size:8px;letter-spacing:.7px}.resultWatermark{margin-top:12px;font-size:9px}}
 #rainLegend { display:flex; gap:14px; align-items:center; padding:7px 15px; font-size:10.5px; color:var(--dim); border-bottom:1px solid var(--line); flex-wrap:wrap; }
 #rainLegend .d { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:-1px; }
 #rainIntro { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.82); backdrop-filter:blur(3px);
@@ -738,18 +744,22 @@ body.shake { animation:shake .5s; }
         <div class="chd"><span class="sym">BTC/USDT</span><span class="px2 num" id="livePx">—</span><span class="num" id="liveChg">—</span><span style="margin-left:auto">마감 <b class="num" id="cd">--</b></span></div>
         <div class="chartFunHud"><span id="gradeHud">CANDLE · —</span><span id="comboHud">COMBO · —</span><span id="chestHud">🧰 CHEST SCAN</span><span id="whaleHud">🐋 ≥ $500K</span></div>
         <div id="c_btc" class="chart"></div>
+        <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
       </div>
       <div class="caroPage hidden" data-p="1">
         <div class="chd"><span class="sym">ETH/USDT</span><span class="px2 num" id="ethPx">—</span><span class="num" id="ethChg">—</span></div>
         <div id="c_eth" class="chart"></div>
+        <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
       </div>
       <div class="caroPage hidden" data-p="2">
         <div class="chd"><span class="sym">BTC.D INDEX FUTURES</span><span class="px2 num" id="domPx">—</span><span class="num gold" id="domPct">—</span></div>
         <div id="c_dom" class="chart"></div>
+        <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
       </div>
       <div class="caroPage hidden" data-p="3">
         <div class="chd"><span class="sym">QQQB/USDT</span><span class="px2 num" id="qqqPx">—</span><span class="num" id="qqqChg">—</span><span style="margin-left:auto;font-size:10px;color:var(--dim)">나스닥100 ETF 토큰 · 24h</span></div>
         <div id="c_qqq" class="chart"></div>
+        <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
       </div>
     </div>
 
@@ -925,6 +935,7 @@ body.shake { animation:shake .5s; }
       <span class="num" id="bgPx" style="margin-left:auto">—</span>
     </div>
     <div id="bgChart" style="height:480px"></div>
+    <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
     <div id="bgOver">
       <div class="box" id="bgOverBox">
         <h4>🎲 나만의 판</h4>
@@ -3027,6 +3038,7 @@ async function blindFinish(early) {
     <div class="big num" style="color:${roi>0?'var(--grn)':roi<0?'var(--red)':'#c6cad3'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
     <p>같은 기간 존버: <b class="num" style="color:${bh>0?'var(--grn)':'var(--red)'}">${bh>=0?'+':''}${bh.toFixed(2)}%</b>
     ${isBest ? ' · <b style="color:var(--gold)">🏆 신기록!</b>' : ''}<br>${verdicts[Math.floor(Math.random()*verdicts.length)]}</p>
+    <div class="resultWatermark">tapelounge.com</div>
     <div class="go" onclick="blindStart()">한 판 더 🎲</div>`;
   $('bgOver').classList.remove('hidden');
 }
@@ -3510,6 +3522,7 @@ async function studyShowResults(name = '—', realStart = '', realEnd = '') {
   const endDate = realEnd || bg.realEnd;
   $('bgOverBox').innerHTML = `<h4>IDENTITY REVEAL</h4><p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${esc(name)}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${endDate} 실제 시세${buyHold==null?'':` · 존버 ${buyHold>=0?'+':''}${(+buyHold).toFixed(2)}%`}</span></p>
     <div class="studyResults">${rows}</div><div class="studyCalls"><div class="studyCallRow">💬 ${opinions.length ? `${studyCalls.length}개의 시장 전망을 구간별로 묶어 차트에 표시했습니다.` : '선택한 시장 전망이 없습니다.'}</div></div>
+    <div class="resultWatermark">tapelounge.com</div>
     <div class="studyBtns"><button class="go invite" onclick="studyViewChart()">차트에서 의견 보기</button><button class="go leave" onclick="studyLeaveRoom()">방 선택</button></div>`;
   $('bgOver').classList.remove('hidden'); studyRenderPanel();
 }
