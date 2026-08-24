@@ -394,7 +394,6 @@ def empty_chat_context() -> dict[str, Any]:
         "human": 0.0,
         "virtual": 0.0,
         "recent_bodies": set(),
-        "recent_lines": [],
         "agent_counts": {},
     }
 
@@ -476,8 +475,6 @@ def recent_chat() -> dict[str, Any]:
             context["agent_counts"][agent] = context["agent_counts"].get(agent, 0) + 1
         if isinstance(body, str) and body.strip():
             context["recent_bodies"].add(normalize_body(body))
-            if len(context["recent_lines"]) < 30:
-                context["recent_lines"].append(body.strip())
     return context
 
 
@@ -525,7 +522,6 @@ def llm_fallback(
     allowed_agents = {key: AGENT_NAMES[key] for key in llm_agent_keys(scene)}
     agent_counts = chat.get("agent_counts", {})
     underused = sorted(allowed_agents, key=lambda key: (int(agent_counts.get(key, 0)), key))[:4]
-    recent_lines = chat.get("recent_lines", [])[:20]
     prompt = f"""/no_think
 너는 Tape Lounge 라운지 크루의 짧은 대화를 쓴다. 다음 관찰값만 사용할 수 있다.
 BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가까지 {pct(snapshot.high_gap_pct)},
@@ -533,9 +529,8 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
 인물: {json.dumps(allowed_agents, ensure_ascii=False)}
 현재 장면: {scene.key if scene else "general"}, 검증된 장면 값: {json.dumps(scene.facts if scene else {}, ensure_ascii=False)}
 최근 적게 나온 인물 후보: {json.dumps(underused, ensure_ascii=False)}
-최근 사용한 문장: {json.dumps(recent_lines, ensure_ascii=False)}
 서로 반응하는 자연스러운 반말 2~4개를 JSON으로만 출력한다.
-최근 사용한 문장과 같거나 숫자만 바꾼 표현은 쓰지 않는다. 가능하면 최근 적게 나온 인물을 포함한다.
+가능하면 최근 적게 나온 인물을 포함한다. 각 문장은 위의 검증된 관찰값을 그대로 말하거나, 새 사실을 보태지 않는 짧은 반응이어야 한다.
 위에 적힌 현재 관찰값만 말하고, 이전보다 올랐다·내렸다·줄었다·늘었다 같은 변화나 원인·지지·저항·전망을 추측하지 않는다.
 새 숫자·매매 지시·실제 포지션은 만들지 않는다.
 항상 질문으로 시작하거나 깔끔하게 결론내지 말고, 짧은 맞장구나 반론을 섞는다.
@@ -559,19 +554,23 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
     allowed_numbers = allowed_llm_numbers(snapshot, scene)
     messages: list[dict[str, str]] = []
     speakers: set[str] = set()
+    seen_bodies: set[str] = set()
+    recent_bodies = set(chat.get("recent_bodies", set()))
     for row in rows:
         key, body = row.get("agent_key"), row.get("body")
         if key not in allowed_agents or not isinstance(body, str) or not 8 <= len(body.strip()) <= 90:
-            return None
+            continue
         body = body.strip()
         if any(term in body for term in BANNED):
-            return None
+            continue
         if any(term in body for term in LLM_UNVERIFIED_CLAIMS):
-            return None
+            continue
         if any(number not in allowed_numbers for number in NUMBER_RE.findall(body)):
-            return None
-        if normalize_body(body) in set(chat.get("recent_bodies", set())):
-            return None
+            continue
+        normalized = normalize_body(body)
+        if normalized in recent_bodies or normalized in seen_bodies:
+            continue
+        seen_bodies.add(normalized)
         speakers.add(key)
         messages.append({"agent_key": key, "nick": AGENT_NAMES[key], "body": body})
     return messages if len(speakers) >= 2 else None

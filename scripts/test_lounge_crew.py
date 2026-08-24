@@ -130,6 +130,17 @@ class SceneTests(unittest.TestCase):
             )
         self.assertIsNone(messages)
 
+    def test_llm_keeps_safe_rows_when_other_rows_are_rejected(self):
+        response = {"choices": [{"message": {"content": '{"messages":['
+            '{"agent_key":"wolf","body":"주문 잔량이 조금 줄어든 모양이네."},'
+            '{"agent_key":"degen","body":"한 숫자만 보고 결론내리긴 이르지."},'
+            '{"agent_key":"watcher","body":"응, 다른 흐름도 같이 보자."}]}'}}]}
+        with mock.patch.object(MODULE, "request_json", return_value=response):
+            messages = MODULE.llm_fallback(
+                snapshot(), MODULE.empty_chat_context(), MODULE.Scene("bid_heavy", 70, {})
+            )
+        self.assertEqual([message["agent_key"] for message in messages], ["degen", "watcher"])
+
     def test_state_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "state.json"
