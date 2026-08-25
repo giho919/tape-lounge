@@ -77,6 +77,38 @@ LLM_UNVERIFIED_CLAIMS = (
     "지지", "저항", "돌파", "이탈", "회복", "반등",
     "강해졌", "약해졌", "끝이 보",
 )
+LLM_TERM_NORMALIZATIONS = (
+    (r"(?:open\s*interest|오픈\s*인터레스트|오픈\s*이자|오\s*아이|오이)", "OI"),
+    (r"미체결\s*약정", "미결제약정"),
+    (r"미결제\s+약정", "미결제약정"),
+    (r"비티씨", "BTC"),
+    (r"유에스디티", "USDT"),
+    (r"알에스아이", "RSI"),
+    (r"이엠에이", "EMA"),
+    (r"에스엠에이", "SMA"),
+    (r"에이티알", "ATR"),
+    (r"(?:브이왑|브이와프)", "VWAP"),
+    (r"씨브이디", "CVD"),
+    (r"엠브이알브이", "MVRV"),
+    (r"(?:book\s*imbalance|북\s*(?:임밸런스|인밸런스))", "호가 불균형"),
+    (r"(?:order\s*book|오더\s*북|호가\s*북)", "호가창"),
+    (r"(?:funding\s*rate|펀딩\s*레이트|펀비)", "펀딩비"),
+    (r"(?:long[-\s]*short\s*ratio|롱\s*숏\s*(?:레이시오|비율))", "롱·숏 비율"),
+    (r"(?:liquidation|리퀴데이션)", "청산"),
+    (r"(?:mark\s*price|마크\s*프라이스)", "마크가격"),
+    (r"(?:index\s*price|인덱스\s*프라이스)", "지수가격"),
+    (r"(?:taker\s*buy|테이커\s*바이)", "테이커 매수"),
+    (r"(?:taker\s*sell|테이커\s*셀)", "테이커 매도"),
+    (r"(?<![A-Za-z])bid(?![A-Za-z])|비드", "매수호가"),
+    (r"(?<![A-Za-z])ask(?![A-Za-z])|애스크|아스크", "매도호가"),
+    (r"(?<![A-Za-z])volume(?![A-Za-z])|볼륨", "거래량"),
+    (r"비트\s*도미(?!넌스)", "BTC 도미넌스"),
+)
+LLM_KOREAN_CANONICAL_TERMS = (
+    "미결제약정", "호가 불균형", "호가창", "펀딩비", "롱·숏 비율",
+    "청산", "마크가격", "지수가격", "테이커 매수", "테이커 매도",
+    "매수호가", "매도호가", "거래량", "BTC 도미넌스",
+)
 
 
 @dataclass
@@ -389,6 +421,37 @@ def normalize_body(body: str) -> str:
     return re.sub(r"\s+", " ", NUMBER_RE.sub("#", body.casefold())).strip()
 
 
+def normalize_llm_terms(body: str) -> str:
+    """Canonicalize common model transliterations before safety validation."""
+    for pattern, replacement in LLM_TERM_NORMALIZATIONS:
+        body = re.sub(pattern, replacement, body, flags=re.IGNORECASE)
+    particle_pairs = {
+        "은": ("은", "는"), "는": ("은", "는"),
+        "이": ("이", "가"), "가": ("이", "가"),
+        "을": ("을", "를"), "를": ("을", "를"),
+        "과": ("과", "와"), "와": ("과", "와"),
+    }
+    for term in LLM_KOREAN_CANONICAL_TERMS:
+        last_hangul = next((char for char in reversed(term) if "가" <= char <= "힣"), None)
+        if not last_hangul:
+            continue
+        jong = (ord(last_hangul) - ord("가")) % 28
+
+        def fix_particle(match: re.Match[str]) -> str:
+            particle = match.group(1)
+            if particle in ("으로", "로"):
+                return term + ("로" if jong in (0, 8) else "으로")
+            with_batchim, without_batchim = particle_pairs[particle]
+            return term + (with_batchim if jong else without_batchim)
+
+        body = re.sub(
+            rf"{re.escape(term)}(으로|로|은|는|이|가|을|를|과|와)",
+            fix_particle,
+            body,
+        )
+    return re.sub(r"\s+", " ", body).strip()
+
+
 def empty_chat_context() -> dict[str, Any]:
     return {
         "human": 0.0,
@@ -558,9 +621,11 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
     recent_bodies = set(chat.get("recent_bodies", set()))
     for row in rows:
         key, body = row.get("agent_key"), row.get("body")
-        if key not in allowed_agents or not isinstance(body, str) or not 8 <= len(body.strip()) <= 90:
+        if key not in allowed_agents or not isinstance(body, str):
             continue
-        body = body.strip()
+        body = normalize_llm_terms(body)
+        if not 8 <= len(body) <= 90:
+            continue
         if any(term in body for term in BANNED):
             continue
         if any(term in body for term in LLM_UNVERIFIED_CLAIMS):

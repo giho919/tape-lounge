@@ -62,6 +62,34 @@ class SceneTests(unittest.TestCase):
             MODULE.normalize_body("매도 쪽이 6.57배 우세해."),
         )
 
+    def test_llm_term_normalization_covers_market_transliterations(self):
+        self.assertEqual(
+            MODULE.normalize_llm_terms(
+                "오이와 오픈 인터레스트, 비티씨 유에스디티, 북 임밸런스, "
+                "오더북, 펀딩 레이트, 리퀴데이션, 브이와프, 씨브이디를 봐."
+            ),
+            "OI와 OI, BTC USDT, 호가 불균형, 호가창, 펀딩비, 청산, VWAP, CVD를 봐.",
+        )
+
+    def test_llm_term_normalization_preserves_korean_particles(self):
+        self.assertEqual(
+            MODULE.normalize_llm_terms("오이가 높아도 볼륨과 비드를 같이 보자."),
+            "OI가 높아도 거래량과 매수호가를 같이 보자.",
+        )
+
+    def test_llm_fallback_normalizes_terms_before_returning_messages(self):
+        response = {"choices": [{"message": {"content": '{"messages":['
+            '{"agent_key":"spot_sister","body":"오이만으로 방향을 정하긴 이르지."},'
+            '{"agent_key":"watcher","body":"북 임밸런스와 볼륨도 같이 보자."}]}'}}]}
+        with mock.patch.object(MODULE, "request_json", return_value=response):
+            messages = MODULE.llm_fallback(
+                snapshot(), MODULE.empty_chat_context(), MODULE.Scene("oi_price_up", 70, {})
+            )
+        self.assertEqual(
+            [message["body"] for message in messages],
+            ["OI만으로 방향을 정하긴 이르지.", "호가 불균형과 거래량도 같이 보자."],
+        )
+
     def test_pack_rejects_recent_wording_and_prefers_underused_cast(self):
         library = [
             {"id": "repeated", "scenario_key": "ask_heavy", "messages": [
