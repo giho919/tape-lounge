@@ -3,7 +3,10 @@ import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const STOCKS_URL = "https://tapelounge.com/reports/stocks.json";
-const TOTAL = 460;
+const TOTAL = 1000;              // Binance klines 1회 요청 상한
+const PLAY = 200;                // 플레이 구간 길이
+const MIN_TOTAL = PLAY + 260;    // 상장이 늦은 종목은 1000봉이 안 나온다 — 최소 이만큼은 필요
+const baseIdx = (n: number) => n - PLAY - 1;   // 플레이 시작 봉 인덱스는 실제 길이에서 유도
 const CRYPTO_POOL = ["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","ADAUSDT","LTCUSDT","LINKUSDT","TRXUSDT","XLMUSDT","ETCUSDT","EOSUSDT"];
 const ALLOWED_ORIGINS = new Set(["https://tapelounge.com", "https://giho919.github.io", "http://localhost:3000", "http://127.0.0.1:3000"]);
 
@@ -25,8 +28,8 @@ function rng(seed: number) {
 }
 function isoDay(ms: number) { return new Date(ms).toISOString().slice(0, 10); }
 function normalize(raw: unknown[][]) {
-  if (!Array.isArray(raw) || raw.length !== TOTAL) throw new Error("ROUND_DATA_UNAVAILABLE");
-  const base = Number(raw[259]?.[4]);
+  if (!Array.isArray(raw) || raw.length < MIN_TOTAL) throw new Error("ROUND_DATA_UNAVAILABLE");
+  const base = Number(raw[baseIdx(raw.length)]?.[4]);
   if (!Number.isFinite(base) || base <= 0) throw new Error("ROUND_DATA_INVALID");
   return raw.map((k, i) => [
     946684800000 + i * 86400000,
@@ -46,7 +49,7 @@ async function buildRound(track: string, seed: number) {
     const rows = bundle[symbol];
     const end = TOTAL - 1 + Math.floor(random() * (rows.length - TOTAL + 1));
     const raw = rows.slice(end - TOTAL + 1, end + 1);
-    return {symbol, real_start:isoDay(Number(raw[259][0])), real_end:isoDay(Number(raw[TOTAL-1][0])), candles:normalize(raw)};
+    return {symbol, real_start:isoDay(Number(raw[baseIdx(raw.length)][0])), real_end:isoDay(Number(raw[raw.length-1][0])), candles:normalize(raw)};
   }
 
   for (let attempt = 0; attempt < CRYPTO_POOL.length; attempt++) {
@@ -56,8 +59,8 @@ async function buildRound(track: string, seed: number) {
     const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1d&limit=${TOTAL}&endTime=${endTime}`);
     if (!response.ok) continue;
     const raw = await response.json() as unknown[][];
-    if (!Array.isArray(raw) || raw.length !== TOTAL) continue;
-    return {symbol, real_start:isoDay(Number(raw[259][0])), real_end:isoDay(Number(raw[TOTAL-1][0])), candles:normalize(raw)};
+    if (!Array.isArray(raw) || raw.length < MIN_TOTAL) continue;
+    return {symbol, real_start:isoDay(Number(raw[baseIdx(raw.length)][0])), real_end:isoDay(Number(raw[raw.length-1][0])), candles:normalize(raw)};
   }
   throw new Error("ROUND_DATA_UNAVAILABLE");
 }

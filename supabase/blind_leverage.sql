@@ -52,6 +52,7 @@ declare
   v_required numeric;
   v_delta numeric;
   v_i integer;
+  v_base integer;
   v_hi numeric;
   v_lo numeric;
   v_trade jsonb;
@@ -74,7 +75,9 @@ begin
       then greatest(0::bigint, floor(extract(epoch from (now() - v_room.state_at)) * 1000 * v_room.speed)::bigint)
     else 0::bigint end);
   v_day := least(200, greatest(0, floor(v_elapsed / 2400.0)::integer));
-  v_px := (v_round.candles -> (259 + v_day) ->> 4)::numeric;
+  -- 플레이 시작 봉 인덱스는 저장된 길이에서 유도 (구 460봉 라운드도 그대로 동작)
+  v_base := jsonb_array_length(v_round.candles) - 201;
+  v_px := (v_round.candles -> (v_base + v_day) ->> 4)::numeric;
 
   v_side := v_player.pos ->> 'side';
   v_qty := coalesce((v_player.pos ->> 'qty')::numeric, 0);
@@ -88,8 +91,8 @@ begin
       then v_entry - (v_margin / v_qty - v_mmr * v_entry)
       else v_entry + (v_margin / v_qty - v_mmr * v_entry) end);
     for v_i in greatest(0, v_player.liq_day + 1) .. v_day loop
-      v_hi := (v_round.candles -> (259 + v_i) ->> 2)::numeric;
-      v_lo := (v_round.candles -> (259 + v_i) ->> 3)::numeric;
+      v_hi := (v_round.candles -> (v_base + v_i) ->> 2)::numeric;
+      v_lo := (v_round.candles -> (v_base + v_i) ->> 3)::numeric;
       if (v_side = 'long' and v_lo <= v_liq) or (v_side = 'short' and v_hi >= v_liq) then
         v_player.trades := jsonb_build_array(jsonb_build_object(
           'day', v_i, 'side', case when v_side = 'long' then 'SELL' else 'BUY' end,
@@ -189,7 +192,7 @@ declare
   v_px numeric;
   v_start_px numeric;
   v_side text; v_qty numeric; v_entry numeric; v_margin numeric;
-  v_liq numeric; v_i integer; v_hi numeric; v_lo numeric;
+  v_liq numeric; v_i integer; v_base integer; v_hi numeric; v_lo numeric;
   v_equity numeric;
   v_roi numeric;
   v_bh numeric;
@@ -205,8 +208,10 @@ begin
     else 0::bigint end);
   if v_room.status <> 'finished' and v_elapsed < 480000 then raise exception 'ROUND_NOT_OVER'; end if;
   v_day := least(200, greatest(0, floor(v_elapsed / 2400.0)::integer));
-  v_px := (v_round.candles -> (259 + v_day) ->> 4)::numeric;
-  v_start_px := (v_round.candles -> 259 ->> 4)::numeric;
+  -- 플레이 시작 봉 인덱스는 저장된 길이에서 유도 (구 460봉 라운드도 그대로 동작)
+  v_base := jsonb_array_length(v_round.candles) - 201;
+  v_px := (v_round.candles -> (v_base + v_day) ->> 4)::numeric;
+  v_start_px := (v_round.candles -> v_base ->> 4)::numeric;
 
   v_side := v_player.pos ->> 'side';
   v_qty := coalesce((v_player.pos ->> 'qty')::numeric, 0);
@@ -219,8 +224,8 @@ begin
       then v_entry - (v_margin / v_qty - v_mmr * v_entry)
       else v_entry + (v_margin / v_qty - v_mmr * v_entry) end);
     for v_i in greatest(0, v_player.liq_day + 1) .. v_day loop
-      v_hi := (v_round.candles -> (259 + v_i) ->> 2)::numeric;
-      v_lo := (v_round.candles -> (259 + v_i) ->> 3)::numeric;
+      v_hi := (v_round.candles -> (v_base + v_i) ->> 2)::numeric;
+      v_lo := (v_round.candles -> (v_base + v_i) ->> 3)::numeric;
       if (v_side = 'long' and v_lo <= v_liq) or (v_side = 'short' and v_hi >= v_liq) then
         v_side := null; v_qty := 0; v_margin := 0;
         exit;

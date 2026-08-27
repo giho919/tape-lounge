@@ -53,6 +53,7 @@ Each closed candle is dealt as a card; body size sets its rarity (common → unc
 
 ### Live charts (swipeable) · 라이브 차트 (넘겨보기)
 
+- **Pan & zoom · 이동·확대** — charts scroll and scale by drag, wheel, and pinch; both edges are pinned to the loaded range so the view never drifts into empty space, and live updates stop auto-following once you scroll into the past / 드래그·휠·핀치로 차트를 옮기고 확대할 수 있으며, 불러온 캔들 바깥으로는 넘어가지 않도록 양쪽 끝을 고정합니다. 과거를 보는 중에는 실시간 갱신이 화면을 끌고 가지 않습니다
 - **Symbols · 종목** — BTC · ETH · BTC.D (dominance / 도미넌스) · NASDAQ (QQQB, a Nasdaq-100 ETF token / 나스닥100 ETF 토큰)
 - **Timeframes · 타임프레임** — 1m · 15m · 60m · 240m · daily · weekly · monthly / 1분·15분·60분·240분·일봉·주봉·월봉
 - **Moving averages · 이동평균선** — MA 10 · 20 · 60 · 120 · 200 (live on every chart / 전 차트 실시간)
@@ -147,6 +148,7 @@ Official free sources do not provide a market-consensus estimate, so the Lounge 
 You're dropped into a **real past market** with its identity hidden — no symbol, no dates (start price indexed to 100, time axis removed). Pick a track — **🪙 crypto or 📈 US stocks** — then trade a $10,000 stake as the chart **advances by itself over time** (⏸ pause / ▶ play / speed 1×·2×·4×). After 200 days the identity is revealed and you're judged against **buy & hold over the same window**. Moving averages and volume included.
 정체를 숨긴 **과거의 실제 시장**에 던져집니다. 종목도 날짜도 비밀 (시작가 100 기준 지수화, 시간축 숨김). **🪙 코인 / 📈 미국주식** 트랙을 고른 뒤, 밑천 $10,000으로 매매하는데 캔들이 **시간에 따라 저절로 진행**됩니다 (⏸ 일시정지 / ▶ 재생 / 속도 1×·2×·4×). 200일 뒤 정체가 공개되며 **같은 기간 존버 대비 성적**으로 판정받습니다. 이동평균선·거래량도 함께 표시됩니다.
 
+- **Round depth · 라운드 길이** — a round now carries up to 1,000 daily candles (800 of hidden history before the 200-day play window), and the chart pans and zooms across all of it while staying pinned to the loaded range. Late-listed symbols that return fewer bars are still playable — the play window is derived from the round's actual length / 한 라운드가 최대 1,000개 일봉(플레이 200일 앞에 숨은 과거 800일)을 담고, 그 안에서 자유롭게 이동·확대하되 불러온 범위 밖으로는 나가지 않습니다. 상장이 늦어 봉이 모자란 종목도 실제 길이에서 플레이 구간을 유도하므로 그대로 열립니다
 - **Leverage · 레버리지** — isolated-margin positions at 1–10×, holding the exchange identity `margin = notional ÷ leverage`. Changing leverage re-margins the whole position and settles the difference against the wallet, so raising it releases margin and widens order capacity, while lowering it beyond the free balance is rejected. Order size is a percentage of the maximum openable notional / 1~10배 격리 마진 포지션으로 `증거금 = 명목가 ÷ 레버리지` 항등식을 유지합니다. 배수를 바꾸면 포지션 전체 필요증거금을 다시 계산해 차액을 지갑과 정산하므로, 올리면 증거금이 반환돼 주문 여력이 늘고 잔고보다 더 필요하면 거절됩니다. 주문 비율은 최대 주문가능 명목가 대비입니다
 - **Position panel · 포지션 패널** — entry price, liquidation price, notional, margin, and unrealized PnL with ROE, plus the maximum openable notional for the selected leverage / 진입가·청산가·명목가·증거금·미실현 손익(ROE)과 선택한 배수의 최대 주문가능 금액을 함께 표시
 - **Forced liquidation · 강제청산** — a candle whose wick touches the liquidation price wipes the position's margin; a wiped account settles the run immediately / 캔들 고저가가 청산가에 닿으면 증거금이 전액 소멸하고, 밑천이 다 녹으면 즉시 정산

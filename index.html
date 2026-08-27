@@ -1363,6 +1363,18 @@ pollUsdKrw(); setInterval(pollUsdKrw, 60 * 60 * 1000);
 
 // ═══ 라이브 차트 (lightweight-charts) ═══
 const MA_DEFS = [[10, '#f6d365'], [20, '#ff9f43'], [60, '#4ade80'], [120, '#38bdf8'], [200, '#c084fc']];
+const LOUNGE_KL_LIMIT = 1000;      // Binance klines 1회 요청 상한
+const LOUNGE_VIEW_BARS = 160;      // 처음 보여줄 캔들 수 (나머지는 왼쪽으로 밀어 두고 탐색)
+
+// 사용자가 과거를 들여다보는 중이면 실시간 갱신이 화면을 끌고 가지 않도록 한다
+function chartAtRightEdge(ch) {
+  const pos = ch.timeScale().scrollPosition();
+  return typeof pos !== 'number' || pos >= -1.5;
+}
+function chartShowRecent(ch, total, bars = LOUNGE_VIEW_BARS) {
+  if (total > bars) ch.timeScale().setVisibleLogicalRange({ from: total - bars, to: total + 3 });
+  else ch.timeScale().fitContent();
+}
 function makeChart(elId) {
   const el = $(elId);
   const ch = LightweightCharts.createChart(el, {
@@ -1370,9 +1382,14 @@ function makeChart(elId) {
     grid: { vertLines: { color: '#1a1f2b' }, horzLines: { color: '#1a1f2b' } },
     crosshair: { mode: 0 },
     rightPriceScale: { borderColor: '#232838' },
-    timeScale: { borderColor: '#232838', timeVisible: true, secondsVisible: false, rightOffset: 3 },
-    handleScroll: false,
-    handleScale: false,
+    timeScale: {
+      borderColor: '#232838', timeVisible: true, secondsVisible: false, rightOffset: 3,
+      // 불러온 캔들 바깥(빈 공간)으로는 넘어가지 못하게 양쪽 끝을 고정
+      fixLeftEdge: true, fixRightEdge: true,
+      minBarSpacing: 0.6,
+    },
+    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+    handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: false }, axisDoubleClickReset: true },
   });
   const s = ch.addCandlestickSeries({
     upColor: '#4ade80', downColor: '#f87171', borderVisible: false,
@@ -1414,7 +1431,7 @@ function hydrateLoungeChart(i) {
     chart.s.update({ time:live.t/1000, open:+live.o, high:+live.h, low:+live.l, close:+live.c });
     chart.vol.update({ time:live.t/1000, value:+live.v, color:volColor(+live.o,+live.c) });
   }
-  chart.ch.timeScale().scrollToRealTime();
+  chartShowRecent(chart.ch, kl.length);
 }
 function ensureLoungeChart(i) {
   if (!loungeCharts[i]) {
@@ -1450,7 +1467,7 @@ function caroGo(i) {
   requestAnimationFrame(() => {
     const w = el.clientWidth, h = el.clientHeight || 460;
     chart.ch.resize(w, h);
-    chart.ch.timeScale().scrollToRealTime();
+    if (chartAtRightEdge(chart.ch)) chart.ch.timeScale().scrollToRealTime();
   });
   if (typeof reseedDeck === 'function') reseedDeck();   // 덱은 선택된 차트를 따라감
 }
@@ -1587,7 +1604,7 @@ async function seedChart(i) {
   const cs = CHART_SYMS[i];
   try {
     const base = cs.spot ? 'https://api.binance.com/api/v3' : 'https://fapi.binance.com/fapi/v1';
-    const kl = await (await fetch(`${base}/klines?symbol=${cs.sym}&interval=${chartTf}&limit=300`)).json();
+    const kl = await (await fetch(`${base}/klines?symbol=${cs.sym}&interval=${chartTf}&limit=${LOUNGE_KL_LIMIT}`)).json();
     if (!Array.isArray(kl)) throw new Error('bad');
     chartSeed[i] = kl; hydrateLoungeChart(i);
     if (i === 2 && kl.length) $('domPx').textContent = fmt(+kl[kl.length - 1][4], 1);
@@ -2807,7 +2824,9 @@ if (location.search.includes('demo') || location.hash.includes('demo')) runDemo(
 
 // ═══ 🎰 블라인드 차트 게임 ═══
 const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DOGEUSDT','DOTUSDT','LTCUSDT','LINKUSDT','AVAXUSDT','TRXUSDT','XLMUSDT','ATOMUSDT','UNIUSDT','ETCUSDT','FILUSDT','NEARUSDT','SANDUSDT','MANAUSDT','AAVEUSDT','ALGOUSDT','VETUSDT','EOSUSDT','XTZUSDT','CHZUSDT'];
-const BG_HIST = 260, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;
+const BG_HIST = 800, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;   // 1000 = Binance klines 1회 상한
+// 상장이 늦은 종목은 1000봉이 안 나온다 — 받은 만큼만 쓰되 최소 이 정도는 있어야 판을 연다
+const BG_MIN_TOTAL = BG_PLAY + 260;
 // 미국주식은 브라우저에서 Yahoo CORS 불가 → 서버가 전체 이력을 받아 만든 번들(reports/stocks.json)을 1회 로드
 let stockBundle = null;
 async function loadStockBundle() {
@@ -2824,6 +2843,7 @@ function stockSlice(arr, endMs) {
   if (endIdx < BG_TOTAL - 1) return null;
   return arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
 }
+const BG_VIEW_BARS = 140;   // 판에 앉았을 때 처음 보이는 캔들 수
 const BG_FEE_RATE = 0.001;
 const BG_MAX_LEVERAGE = 10;
 const BG_LEV_STEPS = [1, 2, 3, 5, 10];
@@ -2872,8 +2892,11 @@ function blindOpen() {
         grid: { vertLines: { color: '#1a1f2b' }, horzLines: { color: '#1a1f2b' } },
         crosshair: { mode: 0 },
         rightPriceScale: { borderColor: '#232838' },
-        timeScale: { visible: false },   // 날짜 은닉
-        handleScroll: false, handleScale: false,
+        // 날짜는 숨기되 좌우 탐색은 허용 — 시리즈에는 진행된 날짜까지만 들어가므로
+        // fixRightEdge가 곧 '미래를 못 본다'는 보장이 된다
+        timeScale: { visible: false, fixLeftEdge: true, fixRightEdge: true, minBarSpacing: 0.6 },
+        handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+        handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: false }, axisDoubleClickReset: true },
       });
       bgS = bgCh.addCandlestickSeries({
         upColor: '#4ade80', downColor: '#f87171', borderVisible: false,
@@ -2906,20 +2929,21 @@ function blindOpen() {
 
 // kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
 function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
-  const startIdx = BG_HIST - 1;
+  // 서버가 보낸 라운드 길이에서 유도 — 예전에 저장된 짧은 라운드도 그대로 열린다
+  const startIdx = Math.max(0, kl.length - BG_PLAY - 1);
   const base = +kl[startIdx][4];
   bg = {
     sym: symName, track,
     realStart: new Date(+kl[startIdx][0]).toISOString().slice(0, 10),
-    realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
+    realEnd: new Date(+kl[kl.length - 1][0]).toISOString().slice(0, 10),
     realDates: kl.map(k => new Date(+k[0]).toISOString().slice(0, 10)),
     norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
-    idx: startIdx, wallet: 10000, pos: null, trades: [], markers: [], over: false, bankrupt: false, gameMode,
+    idx: startIdx, base: startIdx, wallet: 10000, pos: null, trades: [], markers: [], over: false, bankrupt: false, gameMode,
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
   };
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
   bgMASet(); bgVolSet(); bgS.setMarkers([]);
-  bgCh.timeScale().fitContent();
+  chartShowRecent(bgCh, bg.idx + 1, BG_VIEW_BARS);
   $('bgOver').classList.add('hidden');
   $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
@@ -2953,7 +2977,7 @@ async function blindStart() {
     const endTime = minEnd + Math.floor(Math.random() * (maxEnd - minEnd));
     try {
       const kl = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
-      if (!Array.isArray(kl) || kl.length !== BG_TOTAL) continue;
+      if (!Array.isArray(kl) || kl.length < BG_MIN_TOTAL) continue;
       bgSetupSolo(kl, sym, 'crypto');
       return;
     } catch (e) { /* 다른 종목 재시도 */ }
@@ -3026,7 +3050,7 @@ function bgTotal() {
 }
 
 function blindStatus() {
-  const day = bg.idx - (BG_HIST - 1);
+  const day = bg.idx - bg.base;
   const px = bgPrice(), p = bg.pos;
   $('bgDay').textContent = `D+${day} / ${BG_PLAY}`;
   $('bgPx').textContent = px.toFixed(2);
@@ -3077,7 +3101,7 @@ async function blindTrade(action, pct) {
   pct = Math.max(0, Math.min(1, Number(pct) || 0));
   if (!pct) return;
   if (bg.gameMode === 'study') { await studyTrade(action, pct); return; }
-  const px = bgPrice(), day = bg.idx - (BG_HIST - 1), p = bg.pos;
+  const px = bgPrice(), day = bg.idx - bg.base, p = bg.pos;
   const want = action === 'buy' ? 'long' : 'short';
   let notional = 0, qty = 0, fee = 0, intent = '', lev = bgLev;
 
@@ -3140,7 +3164,7 @@ function bgCheckLiquidation() {
   if (p.side === 'long' ? c.low > liq : c.high < liq) return false;
   const isLong = p.side === 'long';
   bg.trades.unshift({
-    day: bg.idx - (BG_HIST - 1), side: isLong ? 'SELL' : 'BUY',
+    day: bg.idx - bg.base, side: isLong ? 'SELL' : 'BUY',
     intent: 'LIQ', px: liq, amt: p.qty * liq, fee: 0, lev: bgPosLev(p),
   });
   bg.markers.push({
@@ -3176,7 +3200,7 @@ async function blindFinish(early) {
   bg.over = true;
   clearInterval(bgTimer); bgTimer = null;
   const roi = (bgTotal() / 10000 - 1) * 100;
-  const bh = (bg.norm[bg.idx].close / bg.norm[BG_HIST - 1].close - 1) * 100;  // 같은 기간 존버
+  const bh = (bg.norm[bg.idx].close / bg.norm[bg.base].close - 1) * 100;  // 같은 기간 존버
   const name = bg.sym.replace('USDT', '');
   $('bgSym').textContent = bg.track === 'stock' ? name : `${name} / USDT`;
   if (bg.gameMode === 'study') {
@@ -3249,12 +3273,12 @@ function soloTick() {
   bg.elapsedMs += (now - bgTickLast) * bgSpeed;   // 속도 배율만큼 게임 시간 가속
   bgTickLast = now;
   const day = Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS));
-  const target = BG_HIST - 1 + day;
+  const target = bg.base + day;
   let moved = false;
   while (bg.idx < target && !bg.over) { bgAdvanceOneDay(); moved = true; }
-  if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); }
+  if (moved) { if (chartAtRightEdge(bgCh)) bgCh.timeScale().scrollToRealTime(); blindStatus(); }
   soloStatus();
-  if (bg.idx >= BG_TOTAL - 1) { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
+  if (bg.idx >= bg.norm.length - 1) { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
 }
 function soloPauseToggle() {
   if (!bg || bg.over) return;
@@ -3277,7 +3301,7 @@ function blindSettle() {
   else blindFinish(true);
 }
 function soloStatus() {
-  const day = bg ? bg.idx - (BG_HIST - 1) : 0;
+  const day = bg ? bg.idx - bg.base : 0;
   const btn = $('bgPlayBtn'), dot = $('bgLiveDot'), txt = $('bgLiveTxt');
   if (!bg || bg.over) { btn.textContent = '⏸ 일시정지'; return; }
   if (bg.playing) {
@@ -3521,7 +3545,7 @@ function studyRestorePlayerState() {
   bgApplyServerLedger(me);
   bg.trades = Array.isArray(me.trades) ? me.trades : [];
   bg.markers = [...bg.trades].reverse().map(t => ({
-    time: bg.norm[Math.max(BG_HIST - 1, Math.min(BG_TOTAL - 1, BG_HIST - 1 + (+t.day || 0)))].time,
+    time: bg.norm[Math.max(bg.base, Math.min(bg.norm.length - 1, bg.base + (+t.day || 0)))].time,
     position: t.side === 'BUY' ? 'belowBar' : 'aboveBar',
     color: t.side === 'BUY' ? '#4ade80' : '#f87171',
     shape: t.side === 'BUY' ? 'arrowUp' : 'arrowDown',
@@ -3541,7 +3565,7 @@ function studyApplyState(state) {
   bgApplyServerLedger(state);
   bg.trades = Array.isArray(state.trades) ? state.trades : [];
   bg.markers = [...bg.trades].reverse().map(t => ({
-    time:bg.norm[Math.max(BG_HIST-1,Math.min(BG_TOTAL-1,BG_HIST-1+(+t.day||0)))].time,
+    time:bg.norm[Math.max(bg.base,Math.min(bg.norm.length-1,bg.base+(+t.day||0)))].time,
     position:t.side==='BUY'?'belowBar':'aboveBar', color:t.side==='BUY'?'#4ade80':'#f87171',
     shape:t.side==='BUY'?'arrowUp':'arrowDown', text:t.side==='BUY'?'B':'S',
   }));
@@ -3582,7 +3606,7 @@ async function studyHostControl(action) {
 
 async function studyKlines() {
   const data = await studyEdge('round');
-  if (!Array.isArray(data?.kl) || data.kl.length !== BG_TOTAL) throw new Error('study candles');
+  if (!Array.isArray(data?.kl) || data.kl.length < BG_PLAY + 2) throw new Error('study candles');
   return {sym:'HIDDEN', kl:data.kl};
 }
 async function studyWaitChart() {
@@ -3646,10 +3670,10 @@ function studyTick() {
   $('bgOver').classList.add('hidden');
   const elapsed = studyElapsedMs();
   const day = Math.min(BG_PLAY, Math.floor(elapsed / BG_TICK_MS));
-  const target = BG_HIST - 1 + day;
+  const target = bg.base + day;
   let moved = false;
   while (bg.idx < target && !bg.over) { bgAdvanceOneDay(); moved = true; }
-  if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); studyRenderPanel(); }
+  if (moved) { if (chartAtRightEdge(bgCh)) bgCh.timeScale().scrollToRealTime(); blindStatus(); studyRenderPanel(); }
   const live = studyRoom.playing && studyRoom.status === 'running';
   $('bgLiveTxt').textContent = `${live?'● GROUP LIVE':'⏸ GROUP PAUSED'} · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
   $('bgLiveDot').style.background = live ? 'var(--gold)' : 'var(--dim)'; $('bgLiveDot').style.boxShadow = live ? '0 0 8px var(--gold)' : 'none';
@@ -3658,7 +3682,7 @@ function studyTick() {
 }
 function studyRenderPanel() {
   if (!studyRoom || studyRoom.status === 'lobby') return;
-  const day = bg ? bg.idx - (BG_HIST - 1) : 0;
+  const day = bg ? bg.idx - bg.base : 0;
   const checkpoint = Math.min(180, Math.floor(day / 20) * 20);
   const mine = studyCalls.find(c => c.user_id === myUid && c.day === checkpoint);
   $('studyRoomMeta').textContent = `${studyRoom.code} · ${studyRoom.status.toUpperCase()}`;
@@ -3696,12 +3720,12 @@ function studyOpinionMarkers() {
   return [...grouped.entries()].map(([key,names]) => {
     const [day, stance] = key.split(':'), s = style[stance];
     const who = names.slice(0,2).join('·') + (names.length > 2 ? ` 외 ${names.length-2}` : '');
-    return {time:bg.norm[Math.min(BG_TOTAL-1, BG_HIST-1+(+day))].time, position:s.position, color:s.color, shape:s.shape, text:`${s.icon} ${names.length} · ${who}`};
+    return {time:bg.norm[Math.min(bg.norm.length-1, bg.base+(+day))].time, position:s.position, color:s.color, shape:s.shape, text:`${s.icon} ${names.length} · ${who}`};
   });
 }
 function studyViewChart() {
   $('bgOver').classList.add('hidden');
-  bgCh.timeScale().fitContent();
+  chartShowRecent(bgCh, bg ? bg.idx + 1 : BG_TOTAL, BG_PLAY + 30);
 }
 async function studyShowResults(name = '—', realStart = '', realEnd = '') {
   const {data:calls} = await sbc.from('blind_room_calls').select('*').eq('room_id',studyRoom.id).order('day').order('created_at');
