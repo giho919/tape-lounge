@@ -194,6 +194,16 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .chd .sym { color:#fff; font-weight:700; letter-spacing:1px; }
 .chd .px2 { font-size:14px; color:#fff; }
 .caroPage { position:relative; }
+.levBox { padding:12px 0 4px; }
+.levHead { display:flex; justify-content:space-between; align-items:center; font-size:10.5px; color:var(--dim); margin-bottom:7px; }
+.levHead b { color:var(--gold); font-size:12.5px; }
+.levRow { display:flex; gap:5px; }
+.levRow .lv { flex:1; padding:6px 0; text-align:center; font:700 10px Menlo,monospace; color:var(--dim);
+  border:1px solid var(--line); border-radius:6px; background:var(--panel2); cursor:pointer; }
+.levRow .lv:hover { color:var(--tx); border-color:var(--gold-dim); }
+.levRow .lv.on { color:#0a0c10; background:var(--gold); border-color:var(--gold); }
+.levRow .lv.on.hot { color:#fff; background:#f87171; border-color:#f87171; }
+#bgLiq.warn { color:#f87171; }
 .chartWatermark { position:absolute; right:70px; bottom:28px; z-index:3; pointer-events:none; user-select:none;
   padding:4px 6px; border:1px solid rgba(212,175,55,.22); border-radius:5px; background:rgba(10,12,16,.68);
   color:rgba(232,213,151,.72); font:700 10px/1 Menlo,monospace; letter-spacing:1.1px; text-shadow:0 1px 5px rgba(0,0,0,.9); }
@@ -952,13 +962,21 @@ body.shake { animation:shake .5s; }
     <div class="panel">
       <h3>💼 내 판돈</h3>
       <div id="bgStat">
-        <div class="r"><div class="l2">현금</div><div class="v2 num" id="bgCash">$10,000</div></div>
+        <div class="r"><div class="l2">지갑 잔고</div><div class="v2 num" id="bgCash">$10,000</div></div>
         <div class="r"><div class="l2">포지션</div><div class="v2 num" id="bgCoin">없음</div></div>
+        <div class="r"><div class="l2">진입가</div><div class="v2 num" id="bgEntry">—</div></div>
+        <div class="r"><div class="l2">청산가</div><div class="v2 num" id="bgLiq">—</div></div>
+        <div class="r"><div class="l2">증거금</div><div class="v2 num" id="bgMargin">—</div></div>
+        <div class="r"><div class="l2">미실현 손익</div><div class="v2 num" id="bgPnl">—</div></div>
         <div class="r"><div class="l2">총자산</div><div class="v2 num" id="bgTot">$10,000</div></div>
         <div class="r"><div class="l2">수익률</div><div class="v2 num" id="bgRoi">+0.00%</div></div>
       </div>
+      <div class="levBox">
+        <div class="levHead"><span>레버리지 · 격리</span><b class="num" id="bgLevVal">1×</b></div>
+        <div class="levRow" id="bgLevRow"></div>
+      </div>
       <div class="ordBox">
-        <div class="ordHead"><span>주문 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="0" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
+        <div class="ordHead"><span>증거금 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="0" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
         <div class="ordSlider">
           <div class="ordFill" id="bgPctFill" style="width:25%"></div>
           <input type="range" id="bgPctSlider" min="0" max="100" value="25" oninput="bgPctSync(this.value)">
@@ -2800,17 +2818,31 @@ function stockSlice(arr, endMs) {
   return arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
 }
 const BG_FEE_RATE = 0.001;
-const BG_MAX_LEVERAGE = 1;
-let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25, bgMode = 'solo';
+const BG_MAX_LEVERAGE = 10;
+const BG_LEV_STEPS = [1, 2, 3, 5, 10];
+const BG_MMR = 0.005;   // 유지증거금률 0.5% · 격리 마진
+let bgCh = null, bgS = null, bgMA = null, bgVol = null, bg = null, bgPct = 25, bgLev = 1, bgMode = 'solo';
 function bgPctSync(v) {
   v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
   $('bgPctSlider').value = v; $('bgPctNum').value = v;
   $('bgPctFill').style.width = v + '%';
-  $('bgBuyCustom').textContent = `롱 ${v}%`;
-  $('bgSellCustom').textContent = `숏 ${v}%`;
+  $('bgBuyCustom').textContent = `롱 ${v}%` + (bgLev > 1 ? ` ${bgLev}×` : '');
+  $('bgSellCustom').textContent = `숏 ${v}%` + (bgLev > 1 ? ` ${bgLev}×` : '');
 }
 window.bgPctSync = bgPctSync;
+
+function bgLevSync(v) {
+  v = Math.max(1, Math.min(BG_MAX_LEVERAGE, Number(v) || 1));
+  bgLev = v;
+  $('bgLevVal').textContent = v + '×';
+  $('bgLevVal').style.color = v >= 5 ? '#f87171' : 'var(--gold)';
+  $('bgLevRow').innerHTML = BG_LEV_STEPS.map(x =>
+    `<div class="lv${x === v ? ' on' : ''}${x === v && x >= 5 ? ' hot' : ''}" onclick="bgLevSync(${x})">${x}×</div>`
+  ).join('');
+  bgPctSync(bgPct);
+}
+window.bgLevSync = bgLevSync;
 
 function blindOpen() {
   if (!bgCh) {
@@ -2842,7 +2874,7 @@ function blindOpen() {
   }
   const best = localStorage.getItem('salonBlindBest');
   if (best !== null) $('bgBest').textContent = `최고 기록 ${(+best >= 0 ? '+' : '')}${(+best).toFixed(1)}%`;
-  bgPctSync(bgPct);
+  bgLevSync(bgLev);
   if (bgMode === 'study') { studyOpen(); return; }
   $('bgStudyPanel').classList.add('hidden');
   $('bgTrackRow').classList.remove('hidden');
@@ -2863,7 +2895,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
     realEnd: new Date(+kl[BG_TOTAL - 1][0]).toISOString().slice(0, 10),
     realDates: kl.map(k => new Date(+k[0]).toISOString().slice(0, 10)),
     norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
-    idx: startIdx, cash: 10000, coin: 0, trades: [], markers: [], over: false, gameMode,
+    idx: startIdx, wallet: 10000, pos: null, trades: [], markers: [], over: false, bankrupt: false, gameMode,
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
   };
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
@@ -2929,15 +2961,54 @@ function bgVolSet() {
   })));
 }
 function bgPrice() { return bg.norm[bg.idx].close; }
-function bgTotal() { return Math.max(0, bg.cash + bg.coin * bgPrice()); }
+
+// ── 격리 마진 포지션 계산 ──
+// 청산 조건: 미실현 손실이 (증거금 − 유지증거금)을 다 먹는 지점
+function bgLiqPrice(pos) {
+  if (!pos || pos.qty <= 0 || pos.margin <= 0) return null;
+  const gap = pos.margin / pos.qty - BG_MMR * pos.entry;
+  return Math.max(0, pos.side === 'long' ? pos.entry - gap : pos.entry + gap);
+}
+function bgUnreal(px) {
+  const p = bg.pos;
+  if (!p) return 0;
+  return (p.side === 'long' ? px - p.entry : p.entry - px) * p.qty;
+}
+function bgPosLev(pos) {
+  return pos && pos.margin > 0 ? (pos.qty * pos.entry) / pos.margin : 0;
+}
+function bgTotal() {
+  const p = bg.pos;
+  return Math.max(0, bg.wallet + (p ? p.margin + bgUnreal(bgPrice()) : 0));
+}
 
 function blindStatus() {
   const day = bg.idx - (BG_HIST - 1);
+  const px = bgPrice(), p = bg.pos;
   $('bgDay').textContent = `D+${day} / ${BG_PLAY}`;
-  $('bgPx').textContent = bgPrice().toFixed(2);
-  $('bgCash').textContent = '$' + fmt(bg.cash);
-  const pos = Math.abs(bg.coin) < 1e-10 ? 0 : bg.coin;
-  $('bgCoin').textContent = pos > 0 ? `LONG ${pos.toFixed(4)}` : pos < 0 ? `SHORT ${Math.abs(pos).toFixed(4)}` : '없음';
+  $('bgPx').textContent = px.toFixed(2);
+  $('bgCash').textContent = '$' + fmt(bg.wallet);
+  const liqEl = $('bgLiq'), pnlEl = $('bgPnl');
+  if (p) {
+    const isLong = p.side === 'long';
+    $('bgCoin').innerHTML = `<b style="color:${isLong?'var(--grn)':'var(--red)'}">${isLong?'LONG':'SHORT'}</b> `
+      + `${p.qty.toFixed(4)} <span style="color:var(--gold)">${bgPosLev(p).toFixed(1)}×</span>`;
+    $('bgEntry').textContent = p.entry.toFixed(2);
+    $('bgMargin').textContent = '$' + fmt(p.margin, 2);
+    const liq = bgLiqPrice(p);
+    liqEl.textContent = liq === null ? '—' : liq.toFixed(2);
+    // 현재가가 청산가 5% 이내로 붙으면 경고색
+    liqEl.classList.toggle('warn', liq !== null && (isLong ? px <= liq * 1.05 : px >= liq * 0.95));
+    const pnl = bgUnreal(px), roe = p.margin > 0 ? pnl / p.margin * 100 : 0;
+    pnlEl.textContent = `${pnl>=0?'+':'-'}$${fmt(Math.abs(pnl), 2)} (${roe>=0?'+':''}${roe.toFixed(1)}%)`;
+    pnlEl.style.color = pnl > 0 ? 'var(--grn)' : pnl < 0 ? 'var(--red)' : '#c6cad3';
+  } else {
+    $('bgCoin').textContent = bg.bankrupt ? '💀 파산' : '없음';
+    $('bgEntry').textContent = '—';
+    $('bgMargin').textContent = '—';
+    liqEl.textContent = '—'; liqEl.classList.remove('warn');
+    pnlEl.textContent = '—'; pnlEl.style.color = '#c6cad3';
+  }
   $('bgTot').textContent = '$' + fmt(bgTotal());
   const roi = (bgTotal() / 10000 - 1) * 100;
   const el = $('bgRoi');
@@ -2946,56 +3017,91 @@ function blindStatus() {
 }
 
 function renderTradeRow(t) {
-  const label = esc(t.intent || (t.side === 'BUY' ? 'LONG' : 'SHORT'));
+  const liq = t.intent === 'LIQ';
+  const label = liq ? '강제청산' : esc(t.intent || (t.side === 'BUY' ? 'LONG' : 'SHORT'));
+  const color = liq ? '#f87171' : (t.side === 'BUY' ? 'var(--grn)' : 'var(--red)');
+  const lev = Number(t.lev) > 1 ? ` ${Number(t.lev)}×` : '';
   const fee = Number(t.fee || 0);
   const day = Math.max(0, Math.min(BG_PLAY, Number(t.day) || 0));
   const px = Number(t.px) || 0, amt = Number(t.amt) || 0;
-  return `<div class="tr"><span>D+${day} <b style="color:${t.side==='BUY'?'var(--grn)':'var(--red)'}">${label}</b></span><span class="num">@${px.toFixed(2)} · $${fmt(amt)} · fee $${fmt(fee)}</span></div>`;
+  const tail = liq ? '증거금 소멸' : `fee $${fmt(fee)}`;
+  return `<div class="tr"><span>D+${day} <b style="color:${color}">${label}${lev}</b></span><span class="num">@${px.toFixed(2)} · $${fmt(amt)} · ${tail}</span></div>`;
 }
 async function blindTrade(action, pct) {
   if (!bg || bg.over) return;
   pct = Math.max(0, Math.min(1, Number(pct) || 0));
   if (!pct) return;
   if (bg.gameMode === 'study') { await studyTrade(action, pct); return; }
-  const px = bgPrice(), day = bg.idx - (BG_HIST - 1), before = bg.coin;
-  const equity = bgTotal();
-  if (equity <= 0) return;
-  let qty = 0, notional = 0, intent = '';
-  if (action === 'buy') {
-    if (before < 0) {
-      notional = Math.min(Math.abs(before) * px * pct, bg.cash / (1 + BG_FEE_RATE));
-      intent = 'COVER';
-    } else {
-      notional = (bg.cash / (1 + BG_FEE_RATE)) * pct;
-      intent = 'LONG';
-    }
+  const px = bgPrice(), day = bg.idx - (BG_HIST - 1), p = bg.pos;
+  const want = action === 'buy' ? 'long' : 'short';
+  let notional = 0, qty = 0, fee = 0, intent = '', lev = bgLev;
+
+  if (p && p.side !== want) {
+    // 반대 방향 주문 = 보유 포지션 축소 (남은 수량 비율만큼)
+    qty = p.qty * pct;
+    notional = qty * px;
     if (notional < 1) return;
-    qty = notional / px;
-    const fee = notional * BG_FEE_RATE;
-    bg.coin += qty; bg.cash -= notional + fee;
-    bg.trades.unshift({ day, side: 'BUY', intent, px, amt: notional, fee });
-    bg.markers.push({ time: bg.norm[bg.idx].time, position: 'belowBar', color: '#4ade80', shape: 'arrowUp', text: 'B' });
+    fee = notional * BG_FEE_RATE;
+    const realized = (p.side === 'long' ? px - p.entry : p.entry - px) * qty;
+    const freed = p.margin * pct;
+    bg.wallet += freed + realized - fee;
+    p.qty -= qty; p.margin -= freed;
+    intent = p.side === 'long' ? 'CLOSE' : 'COVER';
+    lev = bgPosLev(p) || lev;
+    if (p.qty < 1e-10 || p.margin <= 0) bg.pos = null;
   } else {
-    if (before > 0) {
-      qty = before * pct;
-      notional = qty * px;
-      intent = 'CLOSE';
-    } else {
-      const used = Math.abs(before) * px;
-      notional = Math.max(0, (equity * BG_MAX_LEVERAGE - used) / (1 + BG_FEE_RATE)) * pct;
-      qty = notional / px;
-      intent = 'SHORT';
-    }
+    // 신규 진입 또는 같은 방향 추가 진입 — 주문 비율은 지갑 대비 증거금 비중
+    const budget = bg.wallet * pct;
+    const margin = budget / (1 + lev * BG_FEE_RATE);
+    notional = margin * lev;
     if (notional < 1) return;
-    const fee = notional * BG_FEE_RATE;
-    bg.cash += notional - fee; bg.coin -= qty;
-    bg.trades.unshift({ day, side: 'SELL', intent, px, amt: notional, fee });
-    bg.markers.push({ time: bg.norm[bg.idx].time, position: 'aboveBar', color: '#f87171', shape: 'arrowDown', text: 'S' });
+    fee = notional * BG_FEE_RATE;
+    qty = notional / px;
+    bg.wallet -= margin + fee;
+    if (!p) bg.pos = { side: want, qty, entry: px, margin };
+    else {
+      p.entry = (p.entry * p.qty + px * qty) / (p.qty + qty);
+      p.qty += qty; p.margin += margin;
+    }
+    intent = want === 'long' ? 'LONG' : 'SHORT';
   }
-  if (Math.abs(bg.coin) < 1e-10) bg.coin = 0;
+  if (bg.wallet < 0) bg.wallet = 0;
+  bg.trades.unshift({ day, side: action === 'buy' ? 'BUY' : 'SELL', intent, px, amt: notional, fee, lev: +lev.toFixed(1) });
+  bg.markers.push({
+    time: bg.norm[bg.idx].time,
+    position: action === 'buy' ? 'belowBar' : 'aboveBar',
+    color: action === 'buy' ? '#4ade80' : '#f87171',
+    shape: action === 'buy' ? 'arrowUp' : 'arrowDown',
+    text: action === 'buy' ? 'B' : 'S',
+  });
   bgS.setMarkers(bg.markers);
   $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
   blindStatus();
+}
+
+// 캔들 고저가 청산가를 스치면 증거금 전액 소멸
+function bgCheckLiquidation() {
+  const p = bg.pos;
+  if (!p) return false;
+  const liq = bgLiqPrice(p);
+  if (liq === null) return false;
+  const c = bg.norm[bg.idx];
+  if (p.side === 'long' ? c.low > liq : c.high < liq) return false;
+  const isLong = p.side === 'long';
+  bg.trades.unshift({
+    day: bg.idx - (BG_HIST - 1), side: isLong ? 'SELL' : 'BUY',
+    intent: 'LIQ', px: liq, amt: p.qty * liq, fee: 0, lev: +bgPosLev(p).toFixed(1),
+  });
+  bg.markers.push({
+    time: c.time, position: isLong ? 'belowBar' : 'aboveBar',
+    color: '#f87171', shape: isLong ? 'arrowDown' : 'arrowUp', text: '청산',
+  });
+  bg.pos = null;
+  bgS.setMarkers(bg.markers);
+  $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 520);
+  return true;
 }
 
 function bgAdvanceOneDay() {
@@ -3009,6 +3115,10 @@ function bgAdvanceOneDay() {
     for (let j = bg.idx - p + 1; j <= bg.idx; j++) sum += bg.norm[j].close;
     bgMA[mi].update({ time: x.time, value: sum / p });
   });
+  if (bgCheckLiquidation() && bg.gameMode !== 'study' && bgTotal() < 1) {
+    bg.bankrupt = true;
+    blindFinish(true);   // 밑천이 다 녹으면 즉시 정산
+  }
 }
 async function blindFinish(early) {
   if (!bg || bg.over) return;
@@ -3027,17 +3137,22 @@ async function blindFinish(early) {
   const prevBest = localStorage.getItem('salonBlindBest');
   const isBest = prevBest === null || roi > +prevBest;
   if (isBest) { localStorage.setItem('salonBlindBest', roi.toFixed(2)); $('bgBest').textContent = `최고 기록 ${(roi>=0?'+':'')}${roi.toFixed(1)}%`; }
+  const liqCount = bg.trades.filter(t => t.intent === 'LIQ').length;
   const beat = roi >= bh;
-  const verdicts = beat
+  const verdicts = bg.bankrupt
+    ? ['밑천이 다 녹았습니다. 레버리지는 양날의 검이죠.', '강제청산으로 판이 끝났습니다. 다음엔 배수를 낮춰보시죠.', '시장이 수업료를 받아갔습니다.']
+    : beat
     ? ['존버를 이겼습니다. 판을 읽을 줄 아는 손이군요.', '시장을 앞섰습니다 — 정마담이 눈여겨볼 솜씨.', '차트만 보고 이 정도면, 대단한 감입니다.']
     : ['이번엔 존버가 이겼네요. 다음 판이 있습니다.', '시장이 한 수 위였습니다. 판은 늘 다시 열립니다.', '가만히 있는 것도 실력이라는 걸 시장이 알려주는군요.'];
   $('bgOverBox').innerHTML = `
-    <h4>${early ? '🏳 중간 정산' : '🎰 정체 공개'}</h4>
+    <h4>${bg.bankrupt ? '💀 파산' : early ? '🏳 중간 정산' : '🎰 정체 공개'}</h4>
     <p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${name}</b><br>
     <span style="color:var(--dim)">${bg.realStart} ~ ${bg.realEnd} 실제 시세</span></p>
     <div class="big num" style="color:${roi>0?'var(--grn)':roi<0?'var(--red)':'#c6cad3'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
     <p>같은 기간 존버: <b class="num" style="color:${bh>0?'var(--grn)':'var(--red)'}">${bh>=0?'+':''}${bh.toFixed(2)}%</b>
-    ${isBest ? ' · <b style="color:var(--gold)">🏆 신기록!</b>' : ''}<br>${verdicts[Math.floor(Math.random()*verdicts.length)]}</p>
+    ${isBest ? ' · <b style="color:var(--gold)">🏆 신기록!</b>' : ''}
+    ${liqCount ? `<br><b style="color:var(--red)">강제청산 ${liqCount}회</b>` : ''}
+    <br>${verdicts[Math.floor(Math.random()*verdicts.length)]}</p>
     <div class="resultWatermark">tapelounge.com</div>
     <div class="go" onclick="blindStart()">한 판 더 🎲</div>`;
   $('bgOver').classList.remove('hidden');
@@ -3085,7 +3200,7 @@ function soloTick() {
   const day = Math.min(BG_PLAY, Math.floor(bg.elapsedMs / BG_TICK_MS));
   const target = BG_HIST - 1 + day;
   let moved = false;
-  while (bg.idx < target) { bgAdvanceOneDay(); moved = true; }
+  while (bg.idx < target && !bg.over) { bgAdvanceOneDay(); moved = true; }
   if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); }
   soloStatus();
   if (bg.idx >= BG_TOTAL - 1) { clearInterval(bgTimer); bgTimer = null; blindFinish(false); }
@@ -3331,12 +3446,23 @@ async function studyLeaveRoom() {
   studyHomeOverlay();
 }
 
+// 함께 보는 판은 서버 장부가 정본 — wallet/pos를 그대로 받아 반영
+function bgApplyServerLedger(src) {
+  if (!bg || !src) return;
+  bg.wallet = Number(src.wallet ?? src.cash ?? bg.wallet ?? 10000);
+  const raw = src.pos;
+  const qty = Number(raw?.qty || 0);
+  bg.pos = (raw && qty > 1e-10 && (raw.side === 'long' || raw.side === 'short'))
+    ? { side: raw.side, qty, entry: Number(raw.entry) || 0, margin: Number(raw.margin) || 0 }
+    : null;
+  bg.bankrupt = !bg.pos && bg.wallet < 1;
+}
+
 function studyRestorePlayerState() {
   if (!bg) return;
   const me = studyPlayers.find(p => p.user_id === myUid);
   if (!me) return;
-  bg.cash = Number(me.cash ?? 10000);
-  bg.coin = Number(me.coin ?? 0);
+  bgApplyServerLedger(me);
   bg.trades = Array.isArray(me.trades) ? me.trades : [];
   bg.markers = [...bg.trades].reverse().map(t => ({
     time: bg.norm[Math.max(BG_HIST - 1, Math.min(BG_TOTAL - 1, BG_HIST - 1 + (+t.day || 0)))].time,
@@ -3356,8 +3482,7 @@ async function studyEdge(action, extra = {}) {
 }
 function studyApplyState(state) {
   if (!bg || !state) return;
-  bg.cash = Number(state.cash ?? bg.cash);
-  bg.coin = Number(state.coin ?? bg.coin);
+  bgApplyServerLedger(state);
   bg.trades = Array.isArray(state.trades) ? state.trades : [];
   bg.markers = [...bg.trades].reverse().map(t => ({
     time:bg.norm[Math.max(BG_HIST-1,Math.min(BG_TOTAL-1,BG_HIST-1+(+t.day||0)))].time,
@@ -3371,7 +3496,7 @@ function studyApplyState(state) {
 async function studyTrade(action, pct) {
   if (!sbc || !bg || !studyRoom || bg.over) return;
   try {
-    const state = await studyEdge('trade', {side:action, pct});
+    const state = await studyEdge('trade', {side:action, pct, lev:bgLev});
     studyApplyState(state);
   } catch (error) {
     const out = studyErrorEl();
@@ -3454,7 +3579,7 @@ function studyTick() {
   const day = Math.min(BG_PLAY, Math.floor(elapsed / BG_TICK_MS));
   const target = BG_HIST - 1 + day;
   let moved = false;
-  while (bg.idx < target) { bgAdvanceOneDay(); moved = true; }
+  while (bg.idx < target && !bg.over) { bgAdvanceOneDay(); moved = true; }
   if (moved) { bgCh.timeScale().scrollToRealTime(); blindStatus(); studyRenderPanel(); }
   const live = studyRoom.playing && studyRoom.status === 'running';
   $('bgLiveTxt').textContent = `${live?'● GROUP LIVE':'⏸ GROUP PAUSED'} · ${studyPlayers.length}명 · D+${day}/${BG_PLAY}`;
