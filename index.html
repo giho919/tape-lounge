@@ -1368,13 +1368,33 @@ const CHART_RIGHT_PAD = 10;        // 최신 캔들이 가격축에 붙지 않�
 const LOUNGE_VIEW_BARS = 160;      // 처음 보여줄 캔들 수 (나머지는 왼쪽으로 밀어 두고 탐색)
 
 // 사용자가 과거를 들여다보는 중이면 실시간 갱신이 화면을 끌고 가지 않도록 한다
+// 새 봉이 붙을 때만 개수를 올린다 (같은 봉 갱신은 그대로)
+function chartBumpBars(chart, timeSec) {
+  if (timeSec > chart.lastT) { chart.bars += 1; chart.lastT = timeSec; }
+}
 function chartAtRightEdge(ch) {
   const pos = ch.timeScale().scrollPosition();
   return typeof pos !== 'number' || pos >= -1.5;
 }
 function chartShowRecent(ch, total, bars = LOUNGE_VIEW_BARS) {
-  if (total > bars) ch.timeScale().setVisibleLogicalRange({ from: total - bars, to: total + CHART_RIGHT_PAD });
+  const to = total - 1 + CHART_RIGHT_PAD;
+  if (total > bars) ch.timeScale().setVisibleLogicalRange({ from: to - bars, to });
   else ch.timeScale().fitContent();
+}
+// fixRightEdge는 rightOffset 여백까지 눌러 최신 캔들을 가격축에 붙여 버린다.
+// 그래서 오른쪽 경계는 직접 잡고, 마지막 캔들 뒤로 CHART_RIGHT_PAD만큼은 남긴다.
+function clampRightEdge(ch, barCount) {
+  let busy = false;
+  ch.timeScale().subscribeVisibleLogicalRangeChange(r => {
+    if (busy || !r) return;
+    const bars = barCount();
+    if (!bars) return;
+    const maxTo = bars - 1 + CHART_RIGHT_PAD;
+    if (r.to <= maxTo + 0.01) return;
+    busy = true;
+    ch.timeScale().setVisibleLogicalRange({ from: r.from - (r.to - maxTo), to: maxTo });
+    requestAnimationFrame(() => { busy = false; });
+  });
 }
 function makeChart(elId) {
   const el = $(elId);
@@ -1385,8 +1405,8 @@ function makeChart(elId) {
     rightPriceScale: { borderColor: '#232838' },
     timeScale: {
       borderColor: '#232838', timeVisible: true, secondsVisible: false, rightOffset: CHART_RIGHT_PAD,
-      // 불러온 캔들 바깥(빈 공간)으로는 넘어가지 못하게 양쪽 끝을 고정
-      fixLeftEdge: true, fixRightEdge: true,
+      // 왼쪽은 라이브러리에 맡기고, 오른쪽은 여백을 남겨야 하므로 clampRightEdge가 맡는다
+      fixLeftEdge: true,
       minBarSpacing: 0.6,
     },
     handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
@@ -1402,7 +1422,9 @@ function makeChart(elId) {
   const vol = ch.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: '', priceLineVisible: false, lastValueVisible: false });
   vol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16% 오버레이
   new ResizeObserver(() => ch.applyOptions({ width: el.clientWidth })).observe(el);
-  return { ch, s, ma, vol };
+  const chart = { ch, s, ma, vol, bars: 0, lastT: -Infinity };
+  clampRightEdge(ch, () => chart.bars);
+  return chart;
 }
 const volColor = (o, c) => c >= o ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)';
 function seedMA(chart, closes, times) {
@@ -1424,15 +1446,17 @@ function chartOf(i) { return loungeCharts[i]; }
 function hydrateLoungeChart(i) {
   const chart = chartOf(i), kl = chartSeed[i];
   if (!chart || !kl) return;
+  chart.bars = kl.length; chart.lastT = kl[kl.length - 1][0] / 1000;
   chart.s.setData(kl.map(k => ({ time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4] })));
   chart.vol.setData(kl.map(k => ({ time:k[0]/1000, value:+k[5], color:volColor(+k[1],+k[4]) })));
   seedMA(chart, kl.map(k=>+k[4]), kl.map(k=>k[0]/1000));
   const live = chartLive[i];
   if (live) {
+    chartBumpBars(chart, live.t / 1000);
     chart.s.update({ time:live.t/1000, open:+live.o, high:+live.h, low:+live.l, close:+live.c });
     chart.vol.update({ time:live.t/1000, value:+live.v, color:volColor(+live.o,+live.c) });
   }
-  chartShowRecent(chart.ch, kl.length);
+  chartShowRecent(chart.ch, chart.bars);
 }
 function ensureLoungeChart(i) {
   if (!loungeCharts[i]) {
@@ -1664,6 +1688,7 @@ function handleChartK(stream, k) {
   chartLive[i] = k;
   const chart = chartOf(i);
   if (chart) {
+    chartBumpBars(chart, k.t / 1000);
     chart.s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
     chart.vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
     maTick(i, k);
@@ -1691,7 +1716,7 @@ function handleChartK(stream, k) {
       const last = chartSeed[i][chartSeed[i].length - 1];
       if (last && last[0] === k.t) chartSeed[i][chartSeed[i].length - 1] = [k.t, k.o, k.h, k.l, k.c, k.v];
       else chartSeed[i].push([k.t, k.o, k.h, k.l, k.c, k.v]);
-      if (chartSeed[i].length > 300) chartSeed[i].shift();
+      if (chartSeed[i].length > LOUNGE_KL_LIMIT) chartSeed[i].shift();
     }
     if (i === 0) { lastBtcClosedTime = k.t; refreshComboMarkers(); refreshCandleGrades(); refreshTreasureLevels(); renderBtcMarkers(); }
     if (i === caroIdx) dealFromSeedTail(i);
@@ -2893,9 +2918,9 @@ function blindOpen() {
         grid: { vertLines: { color: '#1a1f2b' }, horzLines: { color: '#1a1f2b' } },
         crosshair: { mode: 0 },
         rightPriceScale: { borderColor: '#232838' },
-        // 날짜는 숨기되 좌우 탐색은 허용 — 시리즈에는 진행된 날짜까지만 들어가므로
-        // fixRightEdge가 곧 '미래를 못 본다'는 보장이 된다
-        timeScale: { visible: false, fixLeftEdge: true, fixRightEdge: true, minBarSpacing: 0.6, rightOffset: CHART_RIGHT_PAD },
+        // 날짜는 숨기되 좌우 탐색은 허용 — 시리즈에는 진행된 날짜까지만 들어가고
+        // clampRightEdge가 그 뒤 여백까지만 열어 주므로 미래 캔들은 볼 수 없다
+        timeScale: { visible: false, fixLeftEdge: true, minBarSpacing: 0.6, rightOffset: CHART_RIGHT_PAD },
         handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
         handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: false }, axisDoubleClickReset: true },
       });
@@ -2912,6 +2937,7 @@ function blindOpen() {
       });
       bgVol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16%에 거래량 오버레이
       bgCh.resize(el.clientWidth, el.clientHeight || 480);
+      clampRightEdge(bgCh, () => bg ? bg.idx + 1 : 0);
       new ResizeObserver(() => bgCh?.resize(el.clientWidth, el.clientHeight || 480)).observe(el);
     });
   }
