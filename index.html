@@ -203,6 +203,10 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .levRow .lv:hover { color:var(--tx); border-color:var(--gold-dim); }
 .levRow .lv.on { color:#0a0c10; background:var(--gold); border-color:var(--gold); }
 .levRow .lv.on.hot { color:#fff; background:#f87171; border-color:#f87171; }
+.levMax { display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:var(--dim); }
+.levMax b { color:var(--tx); }
+.ordMsg { margin:8px 0 0; padding:7px 9px; border:1px solid rgba(248,113,113,.34); border-radius:6px;
+  background:rgba(248,113,113,.09); color:#f8a5a5; font-size:10.5px; line-height:1.5; }
 #bgLiq.warn { color:#f87171; }
 .chartWatermark { position:absolute; right:70px; bottom:28px; z-index:3; pointer-events:none; user-select:none;
   padding:4px 6px; border:1px solid rgba(212,175,55,.22); border-radius:5px; background:rgba(10,12,16,.68);
@@ -966,6 +970,7 @@ body.shake { animation:shake .5s; }
         <div class="r"><div class="l2">포지션</div><div class="v2 num" id="bgCoin">없음</div></div>
         <div class="r"><div class="l2">진입가</div><div class="v2 num" id="bgEntry">—</div></div>
         <div class="r"><div class="l2">청산가</div><div class="v2 num" id="bgLiq">—</div></div>
+        <div class="r"><div class="l2">명목가</div><div class="v2 num" id="bgNotional">—</div></div>
         <div class="r"><div class="l2">증거금</div><div class="v2 num" id="bgMargin">—</div></div>
         <div class="r"><div class="l2">미실현 손익</div><div class="v2 num" id="bgPnl">—</div></div>
         <div class="r"><div class="l2">총자산</div><div class="v2 num" id="bgTot">$10,000</div></div>
@@ -974,6 +979,7 @@ body.shake { animation:shake .5s; }
       <div class="levBox">
         <div class="levHead"><span>레버리지 · 격리</span><b class="num" id="bgLevVal">1×</b></div>
         <div class="levRow" id="bgLevRow"></div>
+        <div class="levMax">최대 주문가능 <b class="num" id="bgMaxOrd">$0</b></div>
       </div>
       <div class="ordBox">
         <div class="ordHead"><span>증거금 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="bgPctNum" min="0" max="100" value="25" oninput="bgPctSync(this.value)"><span class="ordPct">%</span></div></div>
@@ -986,6 +992,7 @@ body.shake { animation:shake .5s; }
           <span onclick="bgPctSync(75)">75</span><span onclick="bgPctSync(100)">100</span>
         </div>
       </div>
+      <div class="ordMsg hidden" id="bgOrderMsg"></div>
       <div class="gRow">
         <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">롱 25%</div>
         <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">숏 25%</div>
@@ -2832,15 +2839,27 @@ function bgPctSync(v) {
 }
 window.bgPctSync = bgPctSync;
 
-function bgLevSync(v) {
-  v = Math.max(1, Math.min(BG_MAX_LEVERAGE, Number(v) || 1));
-  bgLev = v;
-  $('bgLevVal').textContent = v + '×';
-  $('bgLevVal').style.color = v >= 5 ? '#f87171' : 'var(--gold)';
+function bgLevRender() {
+  $('bgLevVal').textContent = bgLev + '×';
+  $('bgLevVal').style.color = bgLev >= 5 ? '#f87171' : 'var(--gold)';
   $('bgLevRow').innerHTML = BG_LEV_STEPS.map(x =>
-    `<div class="lv${x === v ? ' on' : ''}${x === v && x >= 5 ? ' hot' : ''}" onclick="bgLevSync(${x})">${x}×</div>`
+    `<div class="lv${x === bgLev ? ' on' : ''}${x === bgLev && x >= 5 ? ' hot' : ''}" onclick="bgLevSync(${x})">${x}×</div>`
   ).join('');
   bgPctSync(bgPct);
+  if (bg) blindStatus();
+}
+function bgLevSync(v) {
+  v = Math.max(1, Math.min(BG_MAX_LEVERAGE, Math.round(Number(v) || 1)));
+  const open = bg && !bg.over && bg.pos;
+  if (open && bg.gameMode === 'study') { studySetLeverage(v); return; }
+  if (open && !bgApplyLeverage(v)) {
+    bgOrderMsg(`${v}배로 내리려면 증거금이 더 필요합니다`);
+    bgLevRender();
+    return;
+  }
+  bgLev = v;
+  bgOrderMsg('');
+  bgLevRender();
 }
 window.bgLevSync = bgLevSync;
 
@@ -2874,7 +2893,7 @@ function blindOpen() {
   }
   const best = localStorage.getItem('salonBlindBest');
   if (best !== null) $('bgBest').textContent = `최고 기록 ${(+best >= 0 ? '+' : '')}${(+best).toFixed(1)}%`;
-  bgLevSync(bgLev);
+  bgLevRender();
   if (bgMode === 'study') { studyOpen(); return; }
   $('bgStudyPanel').classList.add('hidden');
   $('bgTrackRow').classList.remove('hidden');
@@ -2974,8 +2993,32 @@ function bgUnreal(px) {
   if (!p) return 0;
   return (p.side === 'long' ? px - p.entry : p.entry - px) * p.qty;
 }
-function bgPosLev(pos) {
-  return pos && pos.margin > 0 ? (pos.qty * pos.entry) / pos.margin : 0;
+function bgPosLev(pos) { return pos ? Number(pos.lev) || 0 : 0; }
+function bgNotional(pos) { return pos ? pos.qty * pos.entry : 0; }
+// 거래소 항등식: 필요증거금 = 명목가 ÷ 레버리지
+function bgRequiredMargin(pos, lev) { return bgNotional(pos) / lev; }
+// 지금 낼 수 있는 최대 주문 명목가 (수수료까지 지갑에서 빠지는 것을 감안)
+function bgMaxNotional(lev) {
+  if (!bg) return 0;
+  return (bg.wallet * lev) / (1 + lev * BG_FEE_RATE);
+}
+// 레버리지 변경 = 포지션 전체 재증거금 산정, 차액을 지갑과 정산
+function bgApplyLeverage(v) {
+  const p = bg && !bg.over ? bg.pos : null;
+  if (!p) return true;
+  const required = bgRequiredMargin(p, v);
+  const delta = required - p.margin;        // 양수면 추가 납입, 음수면 반환
+  if (delta > bg.wallet + 1e-9) return false;   // 잔고 부족 → 거절
+  bg.wallet -= delta;
+  p.margin = required;
+  p.lev = v;
+  return true;
+}
+function bgOrderMsg(text) {
+  const el = $('bgOrderMsg');
+  if (!el) return;
+  el.textContent = text || '';
+  el.classList.toggle('hidden', !text);
 }
 function bgTotal() {
   const p = bg.pos;
@@ -2992,7 +3035,7 @@ function blindStatus() {
   if (p) {
     const isLong = p.side === 'long';
     $('bgCoin').innerHTML = `<b style="color:${isLong?'var(--grn)':'var(--red)'}">${isLong?'LONG':'SHORT'}</b> `
-      + `${p.qty.toFixed(4)} <span style="color:var(--gold)">${bgPosLev(p).toFixed(1)}×</span>`;
+      + `${p.qty.toFixed(4)} <span style="color:var(--gold)">${bgPosLev(p)}×</span>`;
     $('bgEntry').textContent = p.entry.toFixed(2);
     $('bgMargin').textContent = '$' + fmt(p.margin, 2);
     const liq = bgLiqPrice(p);
@@ -3009,6 +3052,8 @@ function blindStatus() {
     liqEl.textContent = '—'; liqEl.classList.remove('warn');
     pnlEl.textContent = '—'; pnlEl.style.color = '#c6cad3';
   }
+  $('bgNotional').textContent = p ? '$' + fmt(bgNotional(p)) : '—';
+  $('bgMaxOrd').textContent = '$' + fmt(bgMaxNotional(bgLev));
   $('bgTot').textContent = '$' + fmt(bgTotal());
   const roi = (bgTotal() / 10000 - 1) * 100;
   const el = $('bgRoi');
@@ -3040,33 +3085,39 @@ async function blindTrade(action, pct) {
     // 반대 방향 주문 = 보유 포지션 축소 (남은 수량 비율만큼)
     qty = p.qty * pct;
     notional = qty * px;
-    if (notional < 1) return;
+    if (notional < 1) { bgOrderMsg('정리할 수량이 없습니다'); return; }
     fee = notional * BG_FEE_RATE;
     const realized = (p.side === 'long' ? px - p.entry : p.entry - px) * qty;
     const freed = p.margin * pct;
     bg.wallet += freed + realized - fee;
     p.qty -= qty; p.margin -= freed;
     intent = p.side === 'long' ? 'CLOSE' : 'COVER';
-    lev = bgPosLev(p) || lev;
     if (p.qty < 1e-10 || p.margin <= 0) bg.pos = null;
   } else {
-    // 신규 진입 또는 같은 방향 추가 진입 — 주문 비율은 지갑 대비 증거금 비중
-    const budget = bg.wallet * pct;
-    const margin = budget / (1 + lev * BG_FEE_RATE);
-    notional = margin * lev;
-    if (notional < 1) return;
+    // 신규 진입 또는 같은 방향 추가 진입 — 주문 비율은 최대 주문가능 명목가 대비
+    notional = bgMaxNotional(lev) * pct;
+    if (notional < 1) { bgOrderMsg('주문 가능 금액이 부족합니다'); return; }
     fee = notional * BG_FEE_RATE;
     qty = notional / px;
-    bg.wallet -= margin + fee;
-    if (!p) bg.pos = { side: want, qty, entry: px, margin };
-    else {
-      p.entry = (p.entry * p.qty + px * qty) / (p.qty + qty);
-      p.qty += qty; p.margin += margin;
+    if (!p) {
+      const margin = notional / lev;
+      bg.wallet -= margin + fee;
+      bg.pos = { side: want, qty, entry: px, margin, lev };
+    } else {
+      // 추가 진입 후에도 필요증거금 = 전체 명목가 ÷ 레버리지가 유지되도록 재산정
+      const nextQty = p.qty + qty;
+      const nextEntry = (p.entry * p.qty + px * qty) / nextQty;
+      const required = (nextQty * nextEntry) / lev;
+      const delta = required - p.margin;
+      if (delta + fee > bg.wallet + 1e-9) { bgOrderMsg('증거금이 부족합니다'); return; }
+      bg.wallet -= delta + fee;
+      p.qty = nextQty; p.entry = nextEntry; p.margin = required; p.lev = lev;
     }
     intent = want === 'long' ? 'LONG' : 'SHORT';
   }
+  bgOrderMsg('');
   if (bg.wallet < 0) bg.wallet = 0;
-  bg.trades.unshift({ day, side: action === 'buy' ? 'BUY' : 'SELL', intent, px, amt: notional, fee, lev: +lev.toFixed(1) });
+  bg.trades.unshift({ day, side: action === 'buy' ? 'BUY' : 'SELL', intent, px, amt: notional, fee, lev });
   bg.markers.push({
     time: bg.norm[bg.idx].time,
     position: action === 'buy' ? 'belowBar' : 'aboveBar',
@@ -3090,7 +3141,7 @@ function bgCheckLiquidation() {
   const isLong = p.side === 'long';
   bg.trades.unshift({
     day: bg.idx - (BG_HIST - 1), side: isLong ? 'SELL' : 'BUY',
-    intent: 'LIQ', px: liq, amt: p.qty * liq, fee: 0, lev: +bgPosLev(p).toFixed(1),
+    intent: 'LIQ', px: liq, amt: p.qty * liq, fee: 0, lev: bgPosLev(p),
   });
   bg.markers.push({
     time: c.time, position: isLong ? 'belowBar' : 'aboveBar',
@@ -3274,6 +3325,9 @@ function studyFriendly(error) {
   if (m.includes('CONTROL_NOT_OPEN')) return '공동 진행이 시작된 뒤에 조작할 수 있습니다.';
   if (m.includes('ROUND_NOT_OVER')) return '아직 공동 정산 시각이 되지 않았습니다.';
   if (m.includes('CANNOT_LEAVE')) return '현재 이 판에서 나갈 수 없습니다.';
+  if (m.includes('INSUFFICIENT_MARGIN')) return '증거금이 부족해 레버리지를 내릴 수 없습니다.';
+  if (m.includes('ORDER_NOT_OPEN')) return '지금은 주문할 수 없습니다.';
+  if (m.includes('INVALID_ORDER')) return '주문 가능 금액이 부족합니다.';
   if (m.includes('duplicate key')) return '이 구간 전망은 이미 선택했습니다.';
   return '그룹 서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 }
@@ -3453,8 +3507,10 @@ function bgApplyServerLedger(src) {
   const raw = src.pos;
   const qty = Number(raw?.qty || 0);
   bg.pos = (raw && qty > 1e-10 && (raw.side === 'long' || raw.side === 'short'))
-    ? { side: raw.side, qty, entry: Number(raw.entry) || 0, margin: Number(raw.margin) || 0 }
+    ? { side: raw.side, qty, entry: Number(raw.entry) || 0,
+        margin: Number(raw.margin) || 0, lev: Number(raw.lev) || 1 }
     : null;
+  if (bg.pos) bgLev = bg.pos.lev;
   bg.bankrupt = !bg.pos && bg.wallet < 1;
 }
 
@@ -3493,6 +3549,19 @@ function studyApplyState(state) {
   $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0,30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
   blindStatus();
 }
+async function studySetLeverage(v) {
+  if (!sbc || !bg || !studyRoom || bg.over) return;
+  try {
+    const state = await studyEdge('leverage', { lev: v });
+    studyApplyState(state);
+    bgLev = v;
+    bgOrderMsg('');
+  } catch (error) {
+    bgOrderMsg(studyFriendly(error));
+  }
+  bgLevRender();
+}
+
 async function studyTrade(action, pct) {
   if (!sbc || !bg || !studyRoom || bg.over) return;
   try {

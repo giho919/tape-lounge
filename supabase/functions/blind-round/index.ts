@@ -63,7 +63,7 @@ async function buildRound(track: string, seed: number) {
 }
 function safeError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
-  const known = ["NOT_A_MEMBER","ROUND_NOT_OVER","ORDER_NOT_OPEN","INVALID_ORDER","ROUND_DATA_UNAVAILABLE","ROUND_DATA_INVALID"];
+  const known = ["NOT_A_MEMBER","ROUND_NOT_OVER","ORDER_NOT_OPEN","INVALID_ORDER","ROUND_DATA_UNAVAILABLE","ROUND_DATA_INVALID","INSUFFICIENT_MARGIN"];
   return known.find(code => message.includes(code)) || "SERVER_ERROR";
 }
 
@@ -84,6 +84,13 @@ Deno.serve(async (req: Request) => {
       const {data, error} = await service.rpc("blind_apply_trade_internal", {
         p_room_id:roomId, p_user_id:user.id, p_action:String(body.side || ""), p_pct:Number(body.pct),
         p_lev:Number(body.lev) || 1,
+      });
+      if (error) throw error;
+      return reply(req, data);
+    }
+    if (body.action === "leverage") {
+      const {data, error} = await service.rpc("blind_set_leverage_internal", {
+        p_room_id:roomId, p_user_id:user.id, p_lev:Number(body.lev) || 1,
       });
       if (error) throw error;
       return reply(req, data);

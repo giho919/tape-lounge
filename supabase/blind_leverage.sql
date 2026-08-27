@@ -45,6 +45,12 @@ declare
   v_intent text;
   v_realized numeric;
   v_freed numeric;
+  v_poslev numeric;
+  v_maxn numeric;
+  v_new_qty numeric;
+  v_new_entry numeric;
+  v_required numeric;
+  v_delta numeric;
   v_i integer;
   v_hi numeric;
   v_lo numeric;
@@ -74,6 +80,7 @@ begin
   v_qty := coalesce((v_player.pos ->> 'qty')::numeric, 0);
   v_entry := coalesce((v_player.pos ->> 'entry')::numeric, 0);
   v_margin := coalesce((v_player.pos ->> 'margin')::numeric, 0);
+  v_poslev := coalesce((v_player.pos ->> 'lev')::numeric, 1);
 
   -- ── 지난 봉의 고저가로 강제청산 소급 판정 ──
   if v_side is not null and v_qty > 0 and v_margin > 0 then
@@ -97,6 +104,16 @@ begin
   end if;
   v_player.liq_day := v_day;
 
+  -- 배수가 바뀌었으면 포지션 전체 필요증거금을 다시 산정 (명목가 ÷ 배수)
+  if v_side is not null and v_poslev <> v_lev then
+    v_required := (v_qty * v_entry) / v_lev;
+    v_delta := v_required - v_margin;
+    if v_delta > v_player.wallet + 0.000000001 then raise exception 'INSUFFICIENT_MARGIN'; end if;
+    v_player.wallet := v_player.wallet - v_delta;
+    v_margin := v_required;
+    v_poslev := v_lev;
+  end if;
+
   if p_action = 'buy' then v_intent := 'long'; else v_intent := 'short'; end if;
 
   if v_side is not null and v_side <> v_intent then
@@ -113,27 +130,34 @@ begin
       if v_qty < 0.0000000001 or v_margin <= 0 then v_side := null; v_qty := 0; v_entry := 0; v_margin := 0; end if;
     end if;
   else
-    -- 신규 진입 또는 같은 방향 추가 진입
-    v_margin := v_margin + 0;
-    v_freed := (v_player.wallet * p_pct) / (1 + v_lev * v_feerate);   -- 이번에 넣을 증거금
-    v_notional := v_freed * v_lev;
+    -- 신규/추가 진입 — 주문 비율은 최대 주문가능 명목가 대비
+    v_maxn := (v_player.wallet * v_lev) / (1 + v_lev * v_feerate);
+    v_notional := v_maxn * p_pct;
     if v_notional >= 1 then
       v_fee := v_notional * v_feerate;
       v_fill := v_notional / v_px;
-      v_player.wallet := v_player.wallet - v_freed - v_fee;
       if v_side is null then
-        v_side := v_intent; v_qty := v_fill; v_entry := v_px; v_margin := v_freed;
+        v_side := v_intent; v_qty := v_fill; v_entry := v_px;
+        v_margin := v_notional / v_lev;
+        v_player.wallet := v_player.wallet - v_margin - v_fee;
       else
-        v_entry := (v_entry * v_qty + v_px * v_fill) / (v_qty + v_fill);
-        v_qty := v_qty + v_fill; v_margin := v_margin + v_freed;
+        v_new_qty := v_qty + v_fill;
+        v_new_entry := (v_entry * v_qty + v_px * v_fill) / v_new_qty;
+        v_required := (v_new_qty * v_new_entry) / v_lev;
+        v_delta := v_required - v_margin;
+        if v_delta + v_fee > v_player.wallet + 0.000000001 then raise exception 'INVALID_ORDER'; end if;
+        v_player.wallet := v_player.wallet - v_delta - v_fee;
+        v_qty := v_new_qty; v_entry := v_new_entry; v_margin := v_required;
       end if;
+      v_poslev := v_lev;
       v_intent := upper(v_intent);
     end if;
   end if;
 
   if v_player.wallet < 0 then v_player.wallet := 0; end if;
   v_player.pos := case when v_side is null then null else jsonb_build_object(
-    'side', v_side, 'qty', round(v_qty, 10), 'entry', round(v_entry, 8), 'margin', round(v_margin, 4)) end;
+    'side', v_side, 'qty', round(v_qty, 10), 'entry', round(v_entry, 8),
+    'margin', round(v_margin, 4), 'lev', v_poslev) end;
 
   if v_notional >= 1 then
     v_trade := jsonb_build_object('day', v_day, 'side', case when p_action='buy' then 'BUY' else 'SELL' end,
@@ -219,6 +243,48 @@ begin
     'real_start', v_round.real_start, 'real_end', v_round.real_end);
 end;
 $$;
+
+-- 주문 없이 배수만 바꿀 때도 서버가 재증거금을 산정한다
+create or replace function public.blind_set_leverage_internal(
+  p_room_id uuid, p_user_id uuid, p_lev numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $lev$
+declare
+  v_player public.blind_room_players%rowtype;
+  v_lev numeric;
+  v_qty numeric; v_entry numeric; v_margin numeric;
+  v_required numeric; v_delta numeric;
+begin
+  v_lev := floor(coalesce(p_lev, 1));
+  if v_lev < 1 or v_lev > 10 then raise exception 'INVALID_ORDER'; end if;
+  select * into v_player from public.blind_room_players
+    where room_id = p_room_id and user_id = p_user_id for update;
+  if v_player.user_id is null then raise exception 'NOT_A_MEMBER'; end if;
+
+  if v_player.pos is not null then
+    v_qty := coalesce((v_player.pos ->> 'qty')::numeric, 0);
+    v_entry := coalesce((v_player.pos ->> 'entry')::numeric, 0);
+    v_margin := coalesce((v_player.pos ->> 'margin')::numeric, 0);
+    v_required := (v_qty * v_entry) / v_lev;
+    v_delta := v_required - v_margin;
+    if v_delta > v_player.wallet + 0.000000001 then raise exception 'INSUFFICIENT_MARGIN'; end if;
+    v_player.wallet := v_player.wallet - v_delta;
+    v_player.pos := jsonb_set(jsonb_set(v_player.pos,
+      '{margin}', to_jsonb(round(v_required, 4))), '{lev}', to_jsonb(v_lev));
+    update public.blind_room_players
+      set wallet = round(v_player.wallet, 4), pos = v_player.pos
+      where room_id = p_room_id and user_id = p_user_id;
+  end if;
+  return jsonb_build_object('wallet', round(v_player.wallet,4), 'pos', v_player.pos, 'trades', v_player.trades);
+end;
+$lev$;
+
+revoke all on function public.blind_set_leverage_internal(uuid,uuid,numeric) from public, anon, authenticated;
+grant execute on function public.blind_set_leverage_internal(uuid,uuid,numeric) to service_role;
 
 revoke all on function public.blind_apply_trade_internal(uuid,uuid,text,numeric,numeric) from public, anon, authenticated;
 revoke all on function public.blind_finish_player_internal(uuid,uuid) from public, anon, authenticated;
