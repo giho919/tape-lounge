@@ -551,6 +551,9 @@ begin
 end;
 $$;
 
+-- ⚠️ 아래 두 함수는 blind_leverage.sql이 대체합니다 (cash/coin → wallet/pos + 레버리지).
+-- 이 파일을 다시 실행하면 blind_finish_player_internal이 구 버전으로 덮어써져 정산이 깨집니다.
+-- 재실행이 필요하면 반드시 blind_leverage.sql을 뒤이어 적용하세요.
 create or replace function public.blind_apply_trade_internal(
   p_room_id uuid, p_user_id uuid, p_action text, p_pct numeric
 )
