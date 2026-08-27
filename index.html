@@ -1456,7 +1456,8 @@ function ensureLoungeChart(i) {
   }
   return loungeCharts[i];
 }
-let gradeMarkers = [], comboMarkers = [], treasureMarkers = [], liquidationMarkers = [];
+// 차트 마커는 고래와 청산만 남긴다. 캔들 등급·콤보·보물상자는 HUD 칩에서 계속 보여준다.
+let liquidationMarkers = [];
 const whaleBuckets = new Map();
 
 // 마커 등급: 3 = 에픽·청산, 2 = 레어·콤보·보물상자, 1 = 고래
@@ -1475,10 +1476,9 @@ function renderBtcMarkers() {
     return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle', tier:1, text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
   }) : [];
   const ts = chart.ch.timeScale();
-  const px = chartPxPerBar(chart.ch);
-  // 봉이 좁아질수록 낮은 등급부터 통째로 숨긴다
-  const minTier = px >= 4 ? 1 : px >= 1.5 ? 2 : 3;
-  const all = [...gradeMarkers, ...comboMarkers, ...treasureMarkers, ...liquidationMarkers.slice(-10), ...whales.slice(-6)]
+  // 봉이 아주 좁아지면 고래는 빼고 청산만 남긴다
+  const minTier = chartPxPerBar(chart.ch) >= 3 ? 1 : 3;
+  const all = [...liquidationMarkers.slice(-10), ...whales.slice(-6)]
     .filter(m => (m.tier || 2) >= minTier)
     .sort((a, b) => a.time - b.time);
   // 라벨은 화면 좌표에서 서로 겹치지 않을 때만 붙인다. 등급 높은 쪽이 먼저 자리를
@@ -1557,37 +1557,26 @@ function candleGrade(bodyPct, avgBody) {
   return ratio >= 3.2 ? {tier:'epic',label:'EPIC',ratio} : ratio >= 2 ? {tier:'rare',label:'RARE',ratio} : ratio >= 1.3 ? {tier:'uncommon',label:'UNCOMMON',ratio} : {tier:'common',label:'COMMON',ratio};
 }
 function refreshComboMarkers() {
-  const bars = closedBtcBars().slice(-80), marks = [];
+  const bars = closedBtcBars().slice(-80);
   let dir = 0, streak = 0;
   for (const k of bars) {
     const next = +k[4] > +k[1] ? 1 : +k[4] < +k[1] ? -1 : 0;
     if (!next) { dir = 0; streak = 0; continue; }
     if (next === dir) streak++;
-    else {
-      if (streak >= 5) marks.push({ time:k[0]/1000, position:next>0?'belowBar':'aboveBar', color:'#d4af37', shape:'circle', tier:2, text:'✂ COMBO BREAK' });
-      dir = next; streak = 1;
-    }
-    if ([5,8].includes(streak)) marks.push({ time:k[0]/1000, position:dir>0?'belowBar':'aboveBar', color:dir>0?'#4ade80':'#f87171', shape:'circle', tier:2, text:`🔥 ${streak} COMBO` });
+    else { dir = next; streak = 1; }
   }
-  comboMarkers = marks.slice(-3);
   $('comboHud').textContent = streak >= 2 ? `COMBO · ${streak} ${dir>0?'UP':'DOWN'}` : 'COMBO · —';
   $('comboHud').classList.toggle('hot', streak >= 3);
 }
 function refreshCandleGrades() {
-  const bars = closedBtcBars().slice(-100), marks = [], bodies = [];
+  const bars = closedBtcBars().slice(-100), bodies = [];
   let latest = null;
   for (const k of bars) {
     const bodyPct = Math.abs(+k[4]-+k[1]) / +k[1] * 100;
     const avgBody = bodies.length ? bodies.reduce((a,b)=>a+b,0)/bodies.length : bodyPct;
-    const grade = candleGrade(bodyPct, avgBody);
-    latest = grade;
-    if (grade.tier === 'rare' || grade.tier === 'epic') {
-      const up = +k[4] >= +k[1], epic = grade.tier === 'epic';
-      marks.push({ time:k[0]/1000, position:up?'belowBar':'aboveBar', color:epic?(up?'#4ade80':'#f87171'):'#d4af37', shape:'circle', tier:epic?3:2, text:epic?(up?'👑 EPIC':'💀 EPIC'):'★ RARE' });
-    }
+    latest = candleGrade(bodyPct, avgBody);
     bodies.push(bodyPct); if (bodies.length > 30) bodies.shift();
   }
-  gradeMarkers = marks.slice(-4);
   $('gradeHud').textContent = latest ? `CANDLE · ${latest.label}` : 'CANDLE · —';
   $('gradeHud').classList.toggle('hot', latest?.tier === 'rare' || latest?.tier === 'epic');
 }
@@ -1615,8 +1604,6 @@ function openTreasure(side, k) {
   const avgVol = bars.length ? bars.reduce((s,b)=>s + +b[5],0)/bars.length : 0;
   const volRatio = avgVol ? +k.v/avgVol : 1;
   const rank = volRatio >= 2.5 ? '💎 DIAMOND' : volRatio >= 1.5 ? '🥇 GOLD' : '🥉 BRONZE';
-  const mark = { time:k.t/1000, position:isHigh?'belowBar':'aboveBar', color:isHigh?'#d4af37':'#22d3ee', shape:isHigh?'arrowUp':'arrowDown', tier:2, text:`${rank} CHEST` };
-  treasureMarkers = [...treasureMarkers, mark].slice(-4);
   const chart = chartOf(0);
   if (isHigh) { treasure.highOpen = true; if (treasure.highLine && chart) chart.s.removePriceLine(treasure.highLine); treasure.highLine = null; }
   else { treasure.lowOpen = true; if (treasure.lowLine && chart) chart.s.removePriceLine(treasure.lowLine); treasure.lowLine = null; }
