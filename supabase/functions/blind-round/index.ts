@@ -83,6 +83,7 @@ Deno.serve(async (req: Request) => {
     if (body.action === "trade") {
       const {data, error} = await service.rpc("blind_apply_trade_internal", {
         p_room_id:roomId, p_user_id:user.id, p_action:String(body.side || ""), p_pct:Number(body.pct),
+        p_lev:Number(body.lev) || 1,
       });
       if (error) throw error;
       return reply(req, data);
