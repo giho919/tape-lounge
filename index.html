@@ -1364,6 +1364,7 @@ pollUsdKrw(); setInterval(pollUsdKrw, 60 * 60 * 1000);
 // ═══ 라이브 차트 (lightweight-charts) ═══
 const MA_DEFS = [[10, '#f6d365'], [20, '#ff9f43'], [60, '#4ade80'], [120, '#38bdf8'], [200, '#c084fc']];
 const LOUNGE_KL_LIMIT = 1000;      // Binance klines 1회 요청 상한
+const CHART_RIGHT_PAD = 10;        // 최신 캔들이 가격축에 붙지 않도록 오른쪽에 비워 둘 봉 수
 const LOUNGE_VIEW_BARS = 160;      // 처음 보여줄 캔들 수 (나머지는 왼쪽으로 밀어 두고 탐색)
 
 // 사용자가 과거를 들여다보는 중이면 실시간 갱신이 화면을 끌고 가지 않도록 한다
@@ -1372,7 +1373,7 @@ function chartAtRightEdge(ch) {
   return typeof pos !== 'number' || pos >= -1.5;
 }
 function chartShowRecent(ch, total, bars = LOUNGE_VIEW_BARS) {
-  if (total > bars) ch.timeScale().setVisibleLogicalRange({ from: total - bars, to: total + 3 });
+  if (total > bars) ch.timeScale().setVisibleLogicalRange({ from: total - bars, to: total + CHART_RIGHT_PAD });
   else ch.timeScale().fitContent();
 }
 function makeChart(elId) {
@@ -1383,7 +1384,7 @@ function makeChart(elId) {
     crosshair: { mode: 0 },
     rightPriceScale: { borderColor: '#232838' },
     timeScale: {
-      borderColor: '#232838', timeVisible: true, secondsVisible: false, rightOffset: 3,
+      borderColor: '#232838', timeVisible: true, secondsVisible: false, rightOffset: CHART_RIGHT_PAD,
       // 불러온 캔들 바깥(빈 공간)으로는 넘어가지 못하게 양쪽 끝을 고정
       fixLeftEdge: true, fixRightEdge: true,
       minBarSpacing: 0.6,
@@ -2894,7 +2895,7 @@ function blindOpen() {
         rightPriceScale: { borderColor: '#232838' },
         // 날짜는 숨기되 좌우 탐색은 허용 — 시리즈에는 진행된 날짜까지만 들어가므로
         // fixRightEdge가 곧 '미래를 못 본다'는 보장이 된다
-        timeScale: { visible: false, fixLeftEdge: true, fixRightEdge: true, minBarSpacing: 0.6 },
+        timeScale: { visible: false, fixLeftEdge: true, fixRightEdge: true, minBarSpacing: 0.6, rightOffset: CHART_RIGHT_PAD },
         handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
         handleScale: { mouseWheel: true, pinch: true, axisPressedMouseMove: { time: true, price: false }, axisDoubleClickReset: true },
       });
