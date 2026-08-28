@@ -204,6 +204,13 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .levRow .lv.on { color:#0a0c10; background:var(--gold); border-color:var(--gold); }
 .levRow .lv.on.hot { color:#fff; background:#f87171; border-color:#f87171; }
 .levMax { display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:var(--dim); }
+#paperPanel { margin-top:12px; }
+#paperStat .r { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; }
+#paperStat .l2 { font-size:10.5px; color:var(--dim); }
+#paperStat .v2 { font-size:13px; }
+#pLiq.warn { color:#f87171; }
+.paperFoot { padding:2px 0 12px; font-size:9.5px; color:var(--dim); line-height:1.5; }
+.paperBust { color:#f87171; }
 .levMax b { color:var(--tx); }
 .ordMsg { margin:8px 0 0; padding:7px 9px; border:1px solid rgba(248,113,113,.34); border-radius:6px;
   background:rgba(248,113,113,.09); color:#f8a5a5; font-size:10.5px; line-height:1.5; }
@@ -777,6 +784,41 @@ body.shake { animation:shake .5s; }
       </div>
     </div>
 
+    <div class="panel" id="paperPanel">
+      <h3>💵 모의투자 <small>BTC 무기한 · 격리 마진 · 가짜 돈</small><b class="deckTrack" id="paperBadge">—</b></h3>
+      <div id="paperStat">
+        <div class="r"><div class="l2">지갑 잔고</div><div class="v2 num" id="pWallet">—</div></div>
+        <div class="r"><div class="l2">포지션</div><div class="v2 num" id="pPos">없음</div></div>
+        <div class="r"><div class="l2">진입가</div><div class="v2 num" id="pEntry">—</div></div>
+        <div class="r"><div class="l2">청산가</div><div class="v2 num" id="pLiq">—</div></div>
+        <div class="r"><div class="l2">명목가</div><div class="v2 num" id="pNotional">—</div></div>
+        <div class="r"><div class="l2">증거금</div><div class="v2 num" id="pMargin">—</div></div>
+        <div class="r"><div class="l2">미실현 손익</div><div class="v2 num" id="pPnl">—</div></div>
+        <div class="r"><div class="l2">총자산</div><div class="v2 num" id="pEquity">—</div></div>
+      </div>
+      <div class="levBox">
+        <div class="levHead"><span>레버리지 · 격리</span><b class="num" id="pLevVal">1×</b></div>
+        <div class="levRow" id="pLevRow"></div>
+        <div class="levMax">최대 주문가능 <b class="num" id="pMaxOrd">$0</b></div>
+      </div>
+      <div class="ordBox">
+        <div class="ordHead"><span>주문 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="pPctNum" min="0" max="100" value="25" oninput="pPctSync(this.value)"><span class="ordPct">%</span></div></div>
+        <div class="ordSlider">
+          <div class="ordFill" id="pPctFill" style="width:25%"></div>
+          <input type="range" id="pPctSlider" min="0" max="100" value="25" oninput="pPctSync(this.value)">
+        </div>
+        <div class="ordTicks">
+          <span onclick="pPctSync(0)">0</span><span onclick="pPctSync(25)">25</span><span onclick="pPctSync(50)">50</span>
+          <span onclick="pPctSync(75)">75</span><span onclick="pPctSync(100)">100</span>
+        </div>
+      </div>
+      <div class="ordMsg hidden" id="pMsg"></div>
+      <div class="gRow" style="padding-bottom:14px">
+        <div class="gbtn buy solid" id="pBuy" onclick="paperOrder('buy')">롱 25%</div>
+        <div class="gbtn sell solid" id="pSell" onclick="paperOrder('sell')">숏 25%</div>
+      </div>
+      <div class="paperFoot">실제 주문이 아닙니다 · 체결가와 청산은 서버가 바이낸스 시세로 판정합니다</div>
+    </div>
 
   </div>
 
@@ -1247,6 +1289,7 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
     if (typeof studyDisconnect === 'function') studyDisconnect();
   }
   if (t.dataset.tab === 'lounge') requestAnimationFrame(trimDeck);   // 복귀 시 실제 폭으로 덱 재정렬
+  if (typeof paperLoop === 'function') paperLoop();
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
   if (typeof siteAnalyticsTabEntered === 'function') siteAnalyticsTabEntered();
   if (typeof syncRuntimeState === 'function') syncRuntimeState();
@@ -1713,7 +1756,7 @@ function handleChartK(stream, k) {
     maTick(i, k);
     if (fresh && follow) chartFollowBars(chart.ch, 1);
   }
-  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; checkTreasure(k); }
+  if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; checkTreasure(k); paperTick(+k.c); }
   if (i === 1) {
     $('ethPx').textContent = fmt(+k.c, 1);
     if (ethOpen) {
@@ -3797,6 +3840,172 @@ window.studyCopyInvite = studyCopyInvite; window.studyChangeNick = studyChangeNi
 window.studyPrepareRound = studyPrepareRound; window.studyLockCall = studyLockCall; window.studyFinishRound = studyFinishRound; window.studyViewChart = studyViewChart;
 
 window.blindOpen = blindOpen; window.blindStart = blindStart;
+// ═══ 라운지 모의투자 (BTC 무기한 · 격리 마진) ═══
+// 체결가와 청산 판정은 서버가 바이낸스 시세로 한다. 여기서는 화면 표시만 계산한다.
+const PAPER_LEV_STEPS = [1, 2, 3, 5, 10];
+const PAPER_MMR = 0.005, PAPER_FEE = 0.001;
+let paper = null, paperLev = 1, paperPct = 25, paperBusy = false;
+let paperPoll = null, paperLiqAsk = 0;
+
+async function paperEdge(action, extra = {}) {
+  const { data, error } = await sbc.functions.invoke('paper-trade', { body: { action, ...extra } });
+  if (error) throw new Error(error.message || 'SERVER_ERROR');
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+function paperSay(text, tone) {
+  const el = $('pMsg');
+  if (!el) return;
+  el.textContent = text || '';
+  el.classList.toggle('hidden', !text);
+  el.classList.toggle('paperBust', tone === 'bust');
+}
+function paperLiqPrice(pos) {
+  if (!pos || !(pos.qty > 0) || !(pos.margin > 0)) return null;
+  const gap = pos.margin / pos.qty - PAPER_MMR * pos.entry;
+  return Math.max(0, pos.side === 'long' ? pos.entry - gap : pos.entry + gap);
+}
+function paperMaxNotional() {
+  const wallet = paper ? paper.wallet : 10000;   // 첫 주문 전에는 시드 기준으로 보여준다
+  return (wallet * paperLev) / (1 + paperLev * PAPER_FEE);
+}
+function pPctSync(v) {
+  v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
+  paperPct = v;
+  $('pPctSlider').value = v; $('pPctNum').value = v;
+  $('pPctFill').style.width = v + '%';
+  $('pBuy').textContent = `롱 ${v}%` + (paperLev > 1 ? ` ${paperLev}×` : '');
+  $('pSell').textContent = `숏 ${v}%` + (paperLev > 1 ? ` ${paperLev}×` : '');
+}
+function pLevRender() {
+  $('pLevVal').textContent = paperLev + '×';
+  $('pLevVal').style.color = paperLev >= 5 ? '#f87171' : 'var(--gold)';
+  $('pLevRow').innerHTML = PAPER_LEV_STEPS.map(x =>
+    `<div class="lv${x === paperLev ? ' on' : ''}${x === paperLev && x >= 5 ? ' hot' : ''}" onclick="pLevSync(${x})">${x}×</div>`
+  ).join('');
+  pPctSync(paperPct);
+  paperRender();
+}
+async function pLevSync(v) {
+  v = Math.max(1, Math.min(10, Math.round(Number(v) || 1)));
+  // 포지션이 있으면 필요증거금이 달라지므로 서버가 정산해야 한다
+  if (paper?.pos && !paperBusy) {
+    paperBusy = true;
+    try { paperApply(await paperEdge('leverage', { lev: v })); paperLev = v; paperSay(''); }
+    catch (e) { paperSay(paperWhy(e)); }
+    finally { paperBusy = false; }
+  } else {
+    paperLev = v;
+  }
+  pLevRender();
+}
+function paperWhy(e) {
+  const m = e?.message || '';
+  if (m.includes('INSUFFICIENT_MARGIN')) return '증거금이 부족해 레버리지를 내릴 수 없습니다.';
+  if (m.includes('INVALID_ORDER')) return '주문 가능 금액이 부족합니다.';
+  if (m.includes('NO_PRICE')) return '시세를 받아오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+  return '주문 서버에 연결하지 못했습니다.';
+}
+function paperApply(state) {
+  if (!state) return;
+  paper = {
+    wallet: Number(state.wallet) || 0,
+    pos: state.pos && Number(state.pos.qty) > 0 ? {
+      side: state.pos.side, qty: +state.pos.qty, entry: +state.pos.entry,
+      margin: +state.pos.margin, lev: Number(state.pos.lev) || 1,
+    } : null,
+    refills: Number(state.refills) || 0,
+    liquidations: Number(state.liquidations) || 0,
+    peak: Number(state.peak_equity) || 0,
+  };
+  if (paper.pos) paperLev = paper.pos.lev;
+  if (state.refilled) paperSay(`💀 파산 — 시드를 다시 채웠습니다 (${paper.refills}회째)`, 'bust');
+  pLevRender();
+}
+function paperPrice() { return lastBtcClose || 0; }
+function paperUnreal(px) {
+  const p = paper?.pos;
+  if (!p || !px) return 0;
+  return (p.side === 'long' ? px - p.entry : p.entry - px) * p.qty;
+}
+function paperEquity() {
+  if (!paper) return 0;
+  const p = paper.pos;
+  return Math.max(0, paper.wallet + (p ? p.margin + paperUnreal(paperPrice()) : 0));
+}
+function paperRender() {
+  if (!$('pWallet')) return;
+  const px = paperPrice(), p = paper?.pos;
+  $('pWallet').textContent = paper ? '$' + fmt(paper.wallet) : '$' + fmt(10000);
+  $('pMaxOrd').textContent = '$' + fmt(paperMaxNotional());
+  const liqEl = $('pLiq'), pnlEl = $('pPnl');
+  if (p) {
+    const isLong = p.side === 'long';
+    $('pPos').innerHTML = `<b style="color:${isLong?'var(--grn)':'var(--red)'}">${isLong?'LONG':'SHORT'}</b> `
+      + `${p.qty.toFixed(4)} <span style="color:var(--gold)">${p.lev}×</span>`;
+    $('pEntry').textContent = fmt(p.entry, 2);
+    $('pNotional').textContent = '$' + fmt(p.qty * p.entry);
+    $('pMargin').textContent = '$' + fmt(p.margin, 2);
+    const liq = paperLiqPrice(p);
+    liqEl.textContent = liq === null ? '—' : fmt(liq, 2);
+    liqEl.classList.toggle('warn', liq !== null && px > 0 && (isLong ? px <= liq * 1.02 : px >= liq * 0.98));
+    const pnl = paperUnreal(px), roe = p.margin > 0 ? pnl / p.margin * 100 : 0;
+    pnlEl.textContent = px ? `${pnl>=0?'+':'-'}$${fmt(Math.abs(pnl), 2)} (${roe>=0?'+':''}${roe.toFixed(1)}%)` : '—';
+    pnlEl.style.color = pnl > 0 ? 'var(--grn)' : pnl < 0 ? 'var(--red)' : '#c6cad3';
+  } else {
+    $('pPos').textContent = paper ? '없음' : '주문하면 시작됩니다';
+    $('pEntry').textContent = '—'; $('pNotional').textContent = '—'; $('pMargin').textContent = '—';
+    liqEl.textContent = '—'; liqEl.classList.remove('warn');
+    pnlEl.textContent = '—'; pnlEl.style.color = '#c6cad3';
+  }
+  $('pEquity').textContent = paper ? '$' + fmt(paperEquity()) : '$' + fmt(10000);
+  $('paperBadge').textContent = paper
+    ? `청산 ${paper.liquidations} · 파산 ${paper.refills} · 최고 $${fmt(paper.peak)}`
+    : '가짜 돈 $10,000';
+}
+// 실시간 시세가 청산가를 넘어서면 서버에 확정을 요청한다 (5초에 한 번까지)
+function paperTick(px) {
+  if (!paper?.pos || !px) { paperRender(); return; }
+  const liq = paperLiqPrice(paper.pos);
+  const hit = liq !== null && (paper.pos.side === 'long' ? px <= liq : px >= liq);
+  paperRender();
+  if (hit && Date.now() - paperLiqAsk > 5000) { paperLiqAsk = Date.now(); paperSync(); }
+}
+async function paperSync() {
+  if (!sbc || paperBusy) return;
+  const { data: { session } } = await sbc.auth.getSession();
+  if (!session?.user) return;            // 아직 주문한 적 없는 방문자는 계좌를 만들지 않는다
+  paperBusy = true;
+  try { paperApply(await paperEdge('state', { lev: paperLev })); }
+  catch (e) { /* 조회 실패는 조용히 넘긴다 */ }
+  finally { paperBusy = false; }
+}
+async function paperOrder(side) {
+  if (paperBusy) return;
+  const pct = paperPct / 100;
+  if (!pct) { paperSay('주문 비율을 정해 주세요.'); return; }
+  paperBusy = true; paperSay('');
+  try {
+    if (!myUid && !(await ensureAuth())) {
+      paperSay('접속 확인에 실패했습니다. 새로고침 후 다시 시도해 주세요.');
+      return;
+    }
+    paperApply(await paperEdge(side, { pct, lev: paperLev }));
+  } catch (e) {
+    paperSay(paperWhy(e));
+  } finally { paperBusy = false; }
+}
+function paperLoop() {
+  clearInterval(paperPoll); paperPoll = null;
+  if (activeTab !== 'lounge') return;
+  paperSync();
+  // 창을 열어 둔 채로도 청산이 확정되도록 주기적으로 맞춘다
+  paperPoll = setInterval(() => { if (paper?.pos && !document.hidden) paperSync(); }, 60000);
+}
+window.pPctSync = pPctSync; window.pLevSync = pLevSync; window.paperOrder = paperOrder;
+pLevRender();
+setTimeout(paperLoop, 1500);   // 이미 세션이 있으면 계좌를 복원한다
+
 window.blindTrade = blindTrade; window.blindFinish = blindFinish;
 
 if (STUDY_INVITE_CODE) setTimeout(() => {

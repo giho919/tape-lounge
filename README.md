@@ -86,6 +86,17 @@ Live bid/sell walls beside the rain; a market-order fill **shatters** the wall l
 Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flicker · spotlight — the whole screen responds when the market moves hard.
 장대양봉 분출 · 장대음봉 낙하 · 60분 고점 돌파 / 저점 붕괴 · 네온 점멸 · 스포트라이트 — 시장이 크게 움직이는 순간을 화면 전체로 반응합니다.
 
+### Paper trading · 모의투자
+
+Trade live BTC perpetuals with fake money, right under the lounge chart — no separate screen.
+라운지 차트 바로 아래에서 가짜 돈으로 BTC 무기한을 매매합니다. 별도 화면으로 나가지 않습니다.
+
+- **Same margin engine as the blind chart · 블라인드 차트와 같은 엔진** — isolated margin at 1–10×, holding `margin = notional ÷ leverage`; changing leverage re-margins the open position / 1~10배 격리 마진, `증거금 = 명목가 ÷ 레버리지` 항등식 유지, 배수 변경 시 포지션 전체 재산정
+- **Server-judged fills · 서버 판정 체결** — the Edge Function reads the price from Binance itself, so a client-supplied price is never trusted / 체결가를 Edge Function이 바이낸스에서 직접 읽어 클라이언트가 보낸 가격은 신뢰하지 않음
+- **Liquidation while you are away · 자리를 비운 사이의 청산** — on each visit the server scans the candles since the last check for a liquidation touch, widening the candle interval for long absences, so no always-on watcher is needed / 접속할 때마다 마지막 판정 이후 봉의 고저를 훑어 청산을 소급 판정하며, 오래 비웠으면 굵은 봉으로 훑어 상주 감시 서버가 필요 없음
+- **Bust and refill · 파산과 재충전** — a wiped account is immediately reseeded; the badge keeps liquidation count, bust count, and peak equity instead of a return figure / 파산하면 즉시 시드를 다시 채우고, 수익률 대신 청산 횟수·파산 횟수·최고 도달 자산을 기록
+- Anonymous accounts are created only on the first order, not on page load / 계좌는 첫 주문 시에만 만들어지며 페이지 진입만으로는 생성되지 않음
+
 ### Interactive · 참여 요소
 
 - **Lounge Chat · 라운지 채팅** — Live visitor chat plus clearly labeled official strategists and AI lounge crew. The server matches verified public market facts to a 10,000-pack reviewed dialogue library, rejects wording used in the last 24 hours (including number-only variants), favors under-heard scene-appropriate speakers, and calls the local LLM only when no fresh reviewed pack remains. Only displayed messages persist in Supabase / 방문자 실시간 채팅 + `공식 전략가 · AI`·`라운지 크루 · AI`. 서버가 검증한 공개 시장 상황을 1만 개 검수 대화 라이브러리와 연결하고 최근 24시간 동일 문장·숫자만 바꾼 변형을 제외하며, 해당 장면에서 덜 나온 인물을 우선한다. 새 검수 묶음이 없을 때만 로컬 LLM을 호출하고 실제 노출 메시지만 Supabase에 보존
