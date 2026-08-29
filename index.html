@@ -214,6 +214,7 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 #pLiq.warn { color:#f87171; }
 .paperFoot { padding:2px 15px 12px; font-size:9.5px; color:var(--dim); line-height:1.5; }
 .paperBust { color:#f87171; }
+.ordMsg.info { border-color:rgba(212,175,55,.3); background:rgba(212,175,55,.06); color:var(--gold); }
 .levMax b { color:var(--tx); }
 .ordMsg { margin:8px 0 0; padding:7px 9px; border:1px solid rgba(248,113,113,.34); border-radius:6px;
   background:rgba(248,113,113,.09); color:#f8a5a5; font-size:10.5px; line-height:1.5; }
@@ -3866,6 +3867,7 @@ function paperSay(text, tone) {
   el.textContent = text || '';
   el.classList.toggle('hidden', !text);
   el.classList.toggle('paperBust', tone === 'bust');
+  el.classList.toggle('info', tone === 'info');
 }
 function paperLiqPrice(pos) {
   if (!pos || !(pos.qty > 0) || !(pos.margin > 0)) return null;
@@ -3895,11 +3897,26 @@ function pLevRender() {
 }
 async function pLevSync(v) {
   v = Math.max(1, Math.min(10, Math.round(Number(v) || 1)));
-  // 포지션이 있으면 필요증거금이 달라지므로 서버가 정산해야 한다
-  if (paper?.pos && !paperBusy) {
+  const p = paper?.pos;
+  if (p) {
+    if (paperBusy || v === p.lev) { pLevRender(); return; }
+    // 필요증거금 변화를 먼저 계산한다 — 지갑으로 감당이 안 되면 서버까지 갈 것도 없다
+    const delta = (p.qty * p.entry) / v - p.margin;
+    if (delta > paper.wallet + 1e-9) {
+      paperSay(`${v}배로 내리려면 증거금 $${fmt(delta - paper.wallet, 2)}가 더 필요합니다. 포지션을 일부 정리해 증거금을 회수한 뒤 낮춰 주세요.`);
+      pLevRender();
+      return;
+    }
     paperBusy = true;
-    try { paperApply(await paperEdge('leverage', { lev: v })); paperLev = v; paperSay(''); }
-    catch (e) { paperSay(paperWhy(e)); }
+    const before = p.margin;
+    try {
+      paperApply(await paperEdge('leverage', { lev: v }));
+      paperLev = v;
+      // 지갑이 왜 움직였는지 그 자리에서 보여준다 (격리 마진: 증거금 ↔ 지갑 이동)
+      const moved = before - (paper.pos?.margin ?? 0);
+      paperSay(moved > 0.005 ? `${v}× 적용 — 증거금 $${fmt(moved, 2)}를 지갑으로 반환했습니다.`
+             : moved < -0.005 ? `${v}× 적용 — 지갑에서 증거금 $${fmt(-moved, 2)}를 포지션에 추가했습니다.` : '', 'info');
+    } catch (e) { paperSay(paperWhy(e)); }
     finally { paperBusy = false; }
   } else {
     paperLev = v;
@@ -3911,7 +3928,9 @@ function paperWhy(e) {
   if (m.includes('INSUFFICIENT_MARGIN')) return '증거금이 부족해 레버리지를 내릴 수 없습니다.';
   if (m.includes('INVALID_ORDER')) return '주문 가능 금액이 부족합니다.';
   if (m.includes('NO_PRICE')) return '시세를 받아오지 못했습니다. 잠시 후 다시 시도해 주세요.';
-  return '주문 서버에 연결하지 못했습니다.';
+  if (m.includes('AUTH_REQUIRED')) return '접속 확인이 필요합니다. 새로고침 후 다시 시도해 주세요.';
+  // 짧은 오류 코드면 그대로 보여준다 — 무엇이 왔는지 알아야 고칠 수 있다
+  return /^[A-Z_]{3,32}$/.test(m) ? `요청이 거절되었습니다 (${m})` : '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
 }
 function paperApply(state) {
   if (!state) return;
