@@ -111,8 +111,8 @@ begin
   if v_side is not null and v_poslev <> v_lev then
     v_required := (v_qty * v_entry) / v_lev;
     v_delta := v_required - v_margin;
-    if v_delta > v_player.wallet + 0.000000001 then raise exception 'INSUFFICIENT_MARGIN'; end if;
-    v_player.wallet := v_player.wallet - v_delta;
+    if v_delta > v_player.wallet + 0.01 then raise exception 'INSUFFICIENT_MARGIN'; end if;
+    v_player.wallet := greatest(0, v_player.wallet - v_delta);
     v_margin := v_required;
     v_poslev := v_lev;
   end if;
@@ -148,7 +148,7 @@ begin
         v_new_entry := (v_entry * v_qty + v_px * v_fill) / v_new_qty;
         v_required := (v_new_qty * v_new_entry) / v_lev;
         v_delta := v_required - v_margin;
-        if v_delta + v_fee > v_player.wallet + 0.000000001 then raise exception 'INVALID_ORDER'; end if;
+        if v_delta + v_fee > v_player.wallet + 0.01 then raise exception 'INVALID_ORDER'; end if;
         v_player.wallet := v_player.wallet - v_delta - v_fee;
         v_qty := v_new_qty; v_entry := v_new_entry; v_margin := v_required;
       end if;
@@ -276,8 +276,8 @@ begin
     v_margin := coalesce((v_player.pos ->> 'margin')::numeric, 0);
     v_required := (v_qty * v_entry) / v_lev;
     v_delta := v_required - v_margin;
-    if v_delta > v_player.wallet + 0.000000001 then raise exception 'INSUFFICIENT_MARGIN'; end if;
-    v_player.wallet := v_player.wallet - v_delta;
+    if v_delta > v_player.wallet + 0.01 then raise exception 'INSUFFICIENT_MARGIN'; end if;
+    v_player.wallet := greatest(0, v_player.wallet - v_delta);
     v_player.pos := jsonb_set(jsonb_set(v_player.pos,
       '{margin}', to_jsonb(round(v_required, 4))), '{lev}', to_jsonb(v_lev));
     update public.blind_room_players

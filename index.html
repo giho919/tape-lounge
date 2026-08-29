@@ -3125,8 +3125,8 @@ function bgApplyLeverage(v) {
   if (!p) return true;
   const required = bgRequiredMargin(p, v);
   const delta = required - p.margin;        // 양수면 추가 납입, 음수면 반환
-  if (delta > bg.wallet + 1e-9) return false;   // 잔고 부족 → 거절
-  bg.wallet -= delta;
+  if (delta > bg.wallet + 0.01) return false;   // 잔고 부족 → 거절 (1센트는 반올림 먼지)
+  bg.wallet = Math.max(0, bg.wallet - delta);
   p.margin = required;
   p.lev = v;
   return true;
@@ -3226,7 +3226,7 @@ async function blindTrade(action, pct) {
       const nextEntry = (p.entry * p.qty + px * qty) / nextQty;
       const required = (nextQty * nextEntry) / lev;
       const delta = required - p.margin;
-      if (delta + fee > bg.wallet + 1e-9) { bgOrderMsg('증거금이 부족합니다'); return; }
+      if (delta + fee > bg.wallet + 0.01) { bgOrderMsg('증거금이 부족합니다'); return; }
       bg.wallet -= delta + fee;
       p.qty = nextQty; p.entry = nextEntry; p.margin = required; p.lev = lev;
     }
@@ -3902,7 +3902,7 @@ async function pLevSync(v) {
     if (paperBusy || v === p.lev) { pLevRender(); return; }
     // 필요증거금 변화를 먼저 계산한다 — 지갑으로 감당이 안 되면 서버까지 갈 것도 없다
     const delta = (p.qty * p.entry) / v - p.margin;
-    if (delta > paper.wallet + 1e-9) {
+    if (delta > paper.wallet + 0.01) {
       paperSay(`${v}배로 내리려면 증거금 $${fmt(delta - paper.wallet, 2)}가 더 필요합니다. 포지션을 일부 정리해 증거금을 회수한 뒤 낮춰 주세요.`);
       pLevRender();
       return;

@@ -94,7 +94,7 @@ begin
   if v_side is not null and v_poslev <> v_lev and p_action in ('buy','sell','leverage') then
     v_required := (v_qty * v_entry) / v_lev;
     v_delta := v_required - v_margin;
-    if v_delta > v.wallet + 0.000000001 then raise exception 'INSUFFICIENT_MARGIN'; end if;
+    if v_delta > v.wallet + 0.01 then raise exception 'INSUFFICIENT_MARGIN'; end if;
     v.wallet := v.wallet - v_delta;
     v_margin := v_required; v_poslev := v_lev;
   end if;
@@ -135,7 +135,7 @@ begin
           v_new_entry := (v_entry * v_qty + p_price * v_fill) / v_new_qty;
           v_required := (v_new_qty * v_new_entry) / v_lev;
           v_delta := v_required - v_margin;
-          if v_delta + v_fee > v.wallet + 0.000000001 then raise exception 'INVALID_ORDER'; end if;
+          if v_delta + v_fee > v.wallet + 0.01 then raise exception 'INVALID_ORDER'; end if;
           v.wallet := v.wallet - v_delta - v_fee;
           v_qty := v_new_qty; v_entry := v_new_entry; v_margin := v_required;
         end if;
