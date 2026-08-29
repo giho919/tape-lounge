@@ -212,6 +212,15 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 #paperStat .r .v2 { font-size:14px; font-weight:700; }
 #pMsg { margin:8px 15px 0; }
 #pLiq.warn { color:#f87171; }
+#paperBoard { margin:0 15px 10px; border-top:1px solid var(--line); padding-top:9px; }
+.pbHead { display:flex; justify-content:space-between; align-items:baseline; font-size:10px; color:var(--gold); letter-spacing:1.5px; margin-bottom:6px; }
+.pbHead small { color:var(--dim); letter-spacing:.5px; }
+.pbRow { display:flex; align-items:baseline; gap:8px; padding:3px 0; font-size:11.5px; }
+.pbRow .rk { width:13px; color:var(--dim); font:700 10px Menlo,monospace; }
+.pbRow .nm { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#c6cad3; }
+.pbRow .sd { font:700 10px Menlo,monospace; letter-spacing:.5px; }
+.pbRow .roe { font:700 11.5px Menlo,monospace; min-width:56px; text-align:right; }
+.pbRow.me .nm { color:var(--gold); font-weight:700; }
 .paperFoot { padding:2px 15px 12px; font-size:9.5px; color:var(--dim); line-height:1.5; }
 .paperBust { color:#f87171; }
 .levMax b { color:var(--tx); }
@@ -792,11 +801,11 @@ body.shake { animation:shake .5s; }
       <div id="paperStat">
         <div class="r"><div class="l2">지갑 잔고</div><div class="v2 num" id="pWallet">—</div></div>
         <div class="r"><div class="l2">포지션</div><div class="v2 num" id="pPos">없음</div></div>
-        <div class="r"><div class="l2">진입가</div><div class="v2 num" id="pEntry">—</div></div>
-        <div class="r"><div class="l2">청산가</div><div class="v2 num" id="pLiq">—</div></div>
-        <div class="r"><div class="l2">명목가</div><div class="v2 num" id="pNotional">—</div></div>
-        <div class="r"><div class="l2">증거금</div><div class="v2 num" id="pMargin">—</div></div>
-        <div class="r"><div class="l2">미실현 손익</div><div class="v2 num" id="pPnl">—</div></div>
+        <div class="r posOnly hidden"><div class="l2">진입가</div><div class="v2 num" id="pEntry">—</div></div>
+        <div class="r posOnly hidden"><div class="l2">청산가</div><div class="v2 num" id="pLiq">—</div></div>
+        <div class="r posOnly hidden"><div class="l2">명목가</div><div class="v2 num" id="pNotional">—</div></div>
+        <div class="r posOnly hidden"><div class="l2">증거금</div><div class="v2 num" id="pMargin">—</div></div>
+        <div class="r posOnly hidden"><div class="l2">미실현 손익</div><div class="v2 num" id="pPnl">—</div></div>
         <div class="r"><div class="l2">총자산</div><div class="v2 num" id="pEquity">—</div></div>
       </div>
       <div class="levBox">
@@ -819,6 +828,10 @@ body.shake { animation:shake .5s; }
       <div class="gRow" style="padding-bottom:14px">
         <div class="gbtn buy solid" id="pBuy" onclick="paperOrder('buy')">롱 25%</div>
         <div class="gbtn sell solid" id="pSell" onclick="paperOrder('sell')">숏 25%</div>
+      </div>
+      <div id="paperBoard" class="hidden">
+        <div class="pbHead"><span>🏆 실시간 포지션</span><small>미실현 수익률 순</small></div>
+        <div id="pbRows"></div>
       </div>
       <div class="paperFoot">실제 주문이 아닙니다 · 체결가와 청산은 서버가 바이낸스 시세로 판정합니다</div>
     </div>
@@ -3953,6 +3966,7 @@ function paperEquity() {
 function paperRender() {
   if (!$('pWallet')) return;
   const px = paperPrice(), p = paper?.pos;
+  document.querySelectorAll('#paperStat .posOnly').forEach(el => el.classList.toggle('hidden', !p));
   $('pWallet').textContent = paper ? '$' + fmt(paper.wallet) : '$' + fmt(10000);
   $('pMaxOrd').textContent = '$' + fmt(paperMaxNotional());
   const liqEl = $('pLiq'), pnlEl = $('pPnl');
@@ -3982,10 +3996,10 @@ function paperRender() {
 }
 // 실시간 시세가 청산가를 넘어서면 서버에 확정을 요청한다 (5초에 한 번까지)
 function paperTick(px) {
-  if (!paper?.pos || !px) { paperRender(); return; }
+  if (!paper?.pos || !px) { paperRender(); paperBoardRender(); return; }
   const liq = paperLiqPrice(paper.pos);
   const hit = liq !== null && (paper.pos.side === 'long' ? px <= liq : px >= liq);
-  paperRender();
+  paperRender(); paperBoardRender();
   if (hit && Date.now() - paperLiqAsk > 5000) { paperLiqAsk = Date.now(); paperSync(); }
 }
 async function paperSync() {
@@ -4007,17 +4021,53 @@ async function paperOrder(side) {
       paperSay('접속 확인에 실패했습니다. 새로고침 후 다시 시도해 주세요.');
       return;
     }
-    paperApply(await paperEdge(side, { pct, lev: paperLev }));
+    const nick = myNick.startsWith('나 ') ? '' : myNick;
+    paperApply(await paperEdge(side, { pct, lev: paperLev, nick }));
   } catch (e) {
     paperSay(paperWhy(e));
   } finally { paperBusy = false; }
 }
+// ── 실시간 포지션 랭킹: 서버는 포지션 원본만 주고, 순위는 실시간 시세로 여기서 매긴다 ──
+let paperBoardRows = [];
+async function paperBoardFetch() {
+  if (!sbc || activeTab !== 'lounge') return;
+  try {
+    const { data, error } = await sbc.rpc('paper_leaderboard');
+    if (error || !Array.isArray(data)) return;
+    paperBoardRows = data;
+    paperBoardRender();
+  } catch (e) { /* 랭킹은 없어도 그만 */ }
+}
+function paperBoardRender() {
+  const box = $('paperBoard'); if (!box) return;
+  const px = paperPrice();
+  const rows = paperBoardRows.map(r => {
+    const qty = +r.qty, entry = +r.entry, margin = +r.margin;
+    if (!(qty > 0) || !(margin > 0) || !(entry > 0) || !px) return null;
+    const pnl = (r.side === 'long' ? px - entry : entry - px) * qty;
+    return { ...r, roe: pnl / margin * 100 };
+  }).filter(Boolean).sort((a, b) => b.roe - a.roe).slice(0, 5);
+  box.classList.toggle('hidden', !rows.length);
+  if (!rows.length) return;
+  $('pbRows').innerHTML = rows.map((r, i) => {
+    const isLong = r.side === 'long';
+    return `<div class="pbRow${r.me ? ' me' : ''}"><span class="rk">${i + 1}</span>`
+      + `<span class="nm">${esc(r.nick || '게스트')}${r.me ? ' · 나' : ''}</span>`
+      + `<span class="sd" style="color:${isLong ? 'var(--grn)' : 'var(--red)'}">${isLong ? 'LONG' : 'SHORT'} ${+r.lev || 1}×</span>`
+      + `<span class="roe" style="color:${r.roe > 0 ? 'var(--grn)' : r.roe < 0 ? 'var(--red)' : '#c6cad3'}">${r.roe >= 0 ? '+' : ''}${r.roe.toFixed(1)}%</span></div>`;
+  }).join('');
+}
+
 function paperLoop() {
   clearInterval(paperPoll); paperPoll = null;
   if (activeTab !== 'lounge') return;
-  paperSync();
-  // 창을 열어 둔 채로도 청산이 확정되도록 주기적으로 맞춘다
-  paperPoll = setInterval(() => { if (paper?.pos && !document.hidden) paperSync(); }, 60000);
+  paperSync(); paperBoardFetch();
+  // 창을 열어 둔 채로도 청산이 확정되고 랭킹도 낡지 않도록 주기적으로 맞춘다
+  paperPoll = setInterval(() => {
+    if (document.hidden) return;
+    if (paper?.pos) paperSync();
+    paperBoardFetch();
+  }, 60000);
 }
 window.pPctSync = pPctSync; window.pLevSync = pLevSync; window.paperOrder = paperOrder;
 pLevRender();

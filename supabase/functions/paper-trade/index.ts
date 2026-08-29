@@ -68,6 +68,7 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json();
     const action = String(body?.action || "state");
+    const nick = String(body?.nick || "").replace(/\s+/g, " ").trim().slice(0, 10);
     if (!["state","buy","sell","leverage"].includes(action)) return reply(req, {error:"INVALID_ACTION"}, 400);
 
     // 청산 판정에 필요한 만큼만 봉을 받아 온다 (포지션이 없으면 생략)
@@ -90,6 +91,10 @@ Deno.serve(async (req: Request) => {
       p_bars: bars,
     });
     if (error) throw error;
+    // 주문에 실린 라운지 닉네임을 랭킹 표시용으로 저장한다 (없으면 그대로)
+    if ((action === "buy" || action === "sell") && nick) {
+      await service.from("paper_accounts").update({ nick }).eq("user_id", user.id);
+    }
     return reply(req, data);
   } catch (error) {
     return reply(req, {error:safeError(error)}, 400);
