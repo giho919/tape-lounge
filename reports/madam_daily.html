@@ -28,11 +28,12 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 .btcompare { min-width:760px; }
 .btcompare small { display:block; color:var(--dim); font-size:9px; margin-top:3px; }
 .btcallout { background:#111827; border:1px solid var(--line); border-left:3px solid var(--amber); border-radius:6px; padding:12px 14px; margin-top:12px; line-height:1.7; }
+.btinsight { background:#0d1b19; border:1px solid #183a32; border-left:3px solid var(--grn); border-radius:6px; padding:10px 14px; margin-top:10px; line-height:1.7; }
 .btnote { color:var(--dim); font-size:10px; line-height:1.7; margin-top:9px; }
 @media (max-width:760px) { .btgrid { grid-template-columns:repeat(2,minmax(0,1fr)); } .btvalue { font-size:17px; } }
 
 </style></head><body><div class='wrap'>
-<div class='hdr'><h1>鄭마담의 장부 <b>//</b> TAPE LOUNGE</h1><div class='ts'>2026-08-29 15:03 KST · 公開版</div></div>
+<div class='hdr'><h1>鄭마담의 장부 <b>//</b> TAPE LOUNGE</h1><div class='ts'>2026-08-29 15:11 KST · 公開版</div></div>
 
 <div class='strip'>
 <div class='kv'>SYSTEM STATE<b class='up'>BTC 보유</b></div>
@@ -40,7 +41,7 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 <div class='kv'>추세 신호<b class='up'>상승</b></div>
 <div class='kv'>시장 국면 (Aug)<b class='up'>진입 허용</b></div>
 <div class='kv'>MVRV<b>1.16</b></div>
-<div class='kv'>BTC DOMINANCE<b>59.0%</b></div>
+<div class='kv'>BTC DOMINANCE<b>58.9%</b></div>
 </div>
 
 <h2>SIGNAL MATRIX — 다음 캔들 08/29 13:00 KST</h2>
@@ -63,8 +64,8 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 
 <div class='btgrid'>
   <div class='btcard'><div class='btlabel'>누적 수익률</div><div class='btvalue up'>+1,417.05%</div><div class='btmeta'>2020.09–2026.08</div></div>
-  <div class='btcard'><div class='btlabel'>FREQTRADE DD</div><div class='btvalue dn'>-34.70%</div><div class='btmeta'>최대 절대낙폭 구간</div></div>
-  <div class='btcard'><div class='btlabel'>MAX UNDERWATER</div><div class='btvalue dn'>-40.67%</div><div class='btmeta'>종결자산 상대 낙폭</div></div>
+  <div class='btcard'><div class='btlabel'>최대 낙폭 (MDD)</div><div class='btvalue dn'>-34.70%</div><div class='btmeta'>종결 손익 기준</div></div>
+  <div class='btcard'><div class='btlabel'>평가액 낙폭 (UW)</div><div class='btvalue dn'>-40.67%</div><div class='btmeta'>고점 대비 최대 하락</div></div>
   <div class='btcard'><div class='btlabel'>CALMAR</div><div class='btvalue'>35.77</div><div class='btmeta'>PF 1.54</div></div>
   <div class='btcard'><div class='btlabel'>거래 횟수</div><div class='btvalue'>257</div><div class='btmeta'>BTC↔PAXG 합산</div></div>
 </div>
@@ -73,10 +74,12 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 현행 전략은 시장 국면과 추세에 따라 BTC·PAXG를 교대 보유합니다.</div>
 
 <div class='panel btscroll' style='margin-top:12px'><table class='btcompare'>
-<tr><th>적용 자산</th><th>전략 수익률</th><th>BUY & HOLD</th><th>초과수익</th><th>전략 UW</th><th>B&H MDD</th><th>CALMAR</th><th>거래</th></tr>
-<tr><td style='color:#fff'>BTC↔PAXG<small>2020.09–2026.08</small></td><td class='up'>+1,417.05%</td><td>+558.39%</td><td class='up'>+858.66%p</td><td class='dn'>-40.67%</td><td class='dn'>-77.04%</td><td>35.77</td><td>257</td></tr><tr><td style='color:#fff'>ETH · 동일 월간 시그널<small>2020.01–2026.08</small></td><td class='up'>+1,566.83%</td><td>+1,649.92%</td><td class='warn'>-83.09%p</td><td class='dn'>-33.43%</td><td class='dn'>-81.12%</td><td>44.28</td><td>138</td></tr>
+<tr><th>적용 자산</th><th>전략 수익률</th><th>BUY & HOLD</th><th>초과수익</th><th>전략 최대낙폭</th><th>B&H 최대낙폭</th><th>CALMAR</th><th>거래</th></tr>
+<tr><td style='color:#fff'>BTC · 동일 시그널<small>2020.01–2026.08</small></td><td class='up'>+1,153.85%</td><td>+877.03%</td><td class='up'>+276.82%p</td><td class='dn'>-41.02%</td><td class='dn'>-77.04%</td><td>31.06</td><td>133</td></tr><tr><td style='color:#fff'>ETH · 동일 시그널<small>2020.01–2026.08</small></td><td class='up'>+1,566.83%</td><td>+1,649.92%</td><td class='warn'>-83.09%p</td><td class='dn'>-33.43%</td><td class='dn'>-81.12%</td><td>44.28</td><td>138</td></tr><tr><td style='color:#fff'>BTC↔PAXG · 현행<small>2020.09–2026.08</small></td><td class='up'>+1,417.05%</td><td>+558.39%</td><td class='up'>+858.66%p</td><td class='dn'>-40.67%</td><td class='dn'>-77.04%</td><td>35.77</td><td>257</td></tr>
 </table></div>
-<div class='btnote'>ETH 행은 현행 BTC 월간 레짐 시그널과 동일한 진입 허용 기준을 ETH 4시간봉 추세에 적용한 비교입니다.</div>
+<div class='btinsight'><b>동일 시작일 비교</b> — ETH 시그널은 BTC보다 수익률이 <span class='up'>+412.98%p</span> 높았습니다.
+ETH Buy & Hold보다 수익률은 83.09%p 낮지만, 최대 낙폭은 <span class='up'>47.69%p 완화</span>됐습니다.</div>
+<div class='btnote'>BTC·ETH 행은 같은 월간 레짐 시그널을 각 자산의 4시간봉 추세에 적용한 동일 기간 비교입니다. 현행 BTC↔PAXG는 PAXG 데이터가 시작되는 2020년 9월부터 측정합니다.</div>
 
 <div class='panel' style='margin-top:12px'><table>
 <tr><th>ROLLING WINDOW</th><th>중앙 수익률</th><th>수익 창 비율</th><th>중앙 UNDERWATER</th><th>표본</th></tr>
@@ -94,5 +97,5 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 
 
 <div class='foot'>추세 신호 × ML 시장 국면 판정 × 방어자산(금) 로테이션 · 완전 자동 운용 · 월간 자동 재학습<br>
-본 문서는 정보 제공 목적의 시스템 상태 요약이며 투자 권유가 아닙니다. 실계좌·포지션 성과는 게재하지 않으며, 표시된 수치는 과거 백테스트입니다. · GENERATED 2026-08-29 15:03</div>
+본 문서는 정보 제공 목적의 시스템 상태 요약이며 투자 권유가 아닙니다. 실계좌·포지션 성과는 게재하지 않으며, 표시된 수치는 과거 백테스트입니다. · GENERATED 2026-08-29 15:11</div>
 </div></body></html>
