@@ -5,11 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/home/shyoo/tape-lounge
+WorkingDirectory=/home/shyoo/projects/tape-lounge
 Environment=PYTHONDONTWRITEBYTECODE=1
 Environment=TAPE_AI_CHAT_ENABLE=1
 Environment=TAPE_AI_CHAT_SIGNING_KEY=/home/shyoo/.config/tape-lounge/lounge-crew-signing-key.pem
-ExecStart=/usr/bin/python3 /home/shyoo/tape-lounge/scripts/lounge_crew.py --publish
+ExecStart=/usr/bin/python3 /home/shyoo/projects/tape-lounge/scripts/lounge_crew.py --publish
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
