@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang='ko'><head><meta charset='utf-8'><title>TAPE LOUNGE // 鄭마담의 장부</title><style>
+<!DOCTYPE html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>TAPE LOUNGE // 鄭마담의 장부</title><style>
 :root { --bg:#0b0f17; --panel:#0d1420; --line:#1f2937; --tx:#d1d5db; --dim:#6b7280; --amber:#f59e0b; --cyan:#22d3ee; --grn:#4ade80; --red:#f87171; --gold:#d4af37; }
 * { box-sizing:border-box; }
 body { background:var(--bg); color:var(--tx); font-family:'SF Mono',Menlo,'Apple SD Gothic Neo',monospace; margin:0; font-size:13px; }
@@ -6,6 +6,7 @@ body { background:var(--bg); color:var(--tx); font-family:'SF Mono',Menlo,'Apple
 .hdr { display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid var(--gold); padding:18px 0 10px; }
 .hdr h1 { font-size:17px; letter-spacing:4px; margin:0; color:#fff; } .hdr h1 b { color:var(--gold); }
 .hdr .ts { color:var(--dim); font-size:11px; letter-spacing:1px; }
+.back { color:var(--dim); font-size:10px; text-decoration:none; letter-spacing:1px; } .back:hover { color:var(--gold); }
 .strip { display:flex; gap:26px; padding:12px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
 .kv { font-size:11px; color:var(--dim); letter-spacing:1px; } .kv b { display:block; font-size:16px; color:#fff; letter-spacing:0; margin-top:2px; }
 .up { color:var(--grn); } .dn { color:var(--red); } .warn { color:var(--amber); }
@@ -49,9 +50,9 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 .btnote { color:var(--dim); font-size:10px; line-height:1.7; margin-top:9px; }
 @media (max-width:760px) { .btgrid,.btgrid4,.comparegrid { grid-template-columns:repeat(2,minmax(0,1fr)); } .rollinggrid { grid-template-columns:1fr; } .btvalue { font-size:17px; } }
 
-@media (max-width:760px) { .signalflow { grid-template-columns:1fr; } .flowarrow { transform:rotate(90deg); min-height:12px; } }
+@media (max-width:760px) { .wrap { padding:0 12px 28px; } .hdr { align-items:flex-start; flex-direction:column; gap:7px; } .hdr h1 { font-size:15px; letter-spacing:2px; } .signalflow { grid-template-columns:1fr; } .flowarrow { transform:rotate(90deg); min-height:12px; } }
 </style></head><body><div class='wrap'>
-<div class='hdr'><h1>鄭마담의 장부 <b>//</b> TAPE LOUNGE</h1><div class='ts'>2026-08-30 16:06 KST · 公開版</div></div>
+<div class='hdr'><div><a class='back' href='../'>← TAPE LOUNGE</a><h1>鄭마담의 장부 <b>//</b> TAPE LOUNGE</h1></div><div class='ts'>2026-08-30 16:58 KST · 公開版</div></div>
 
 <div class='strip'>
 <div class='kv'>SYSTEM STATE<b class='up'>BTC 보유</b></div>
@@ -103,5 +104,5 @@ img { width:100%; border-radius:6px; border:1px solid var(--line); }
 
 
 <div class='foot'>추세 신호 × ML 시장 국면 판정 × 방어자산(금) 로테이션 · 완전 자동 운용 · 월간 자동 재학습<br>
-본 문서는 정보 제공 목적의 시스템 상태 요약이며 투자 권유가 아닙니다. 실계좌·포지션 성과는 게재하지 않으며, 표시된 수치는 과거 백테스트입니다. · GENERATED 2026-08-30 16:06</div>
+본 문서는 정보 제공 목적의 시스템 상태 요약이며 투자 권유가 아닙니다. 실계좌·포지션 성과는 게재하지 않으며, 표시된 수치는 과거 백테스트입니다. · GENERATED 2026-08-30 16:58</div>
 </div></body></html>
