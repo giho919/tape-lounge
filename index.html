@@ -90,28 +90,30 @@ canvas { display:block; }
 .chatlock { border-top:1px solid var(--line); padding:10px 14px; font-size:11.5px; color:var(--dim); background:var(--panel2); }
 
 /* 전략가 탭 */
-.strategistFlow { display:grid; grid-template-columns:1fr 30px 1fr 30px 1fr; align-items:stretch; gap:8px; margin-top:14px; }
-.strategistStep { background:linear-gradient(160deg,var(--panel2),var(--panel)); border:1px solid var(--line); border-top:2px solid var(--accent); border-radius:10px; padding:14px; text-align:center; }
-.strategistStep span { display:block; color:var(--dim); font-size:9px; letter-spacing:1.5px; }
-.strategistStep b { display:block; color:var(--accent); font-size:14px; margin-top:7px; }
-.strategistStep small { display:block; color:#aeb3bd; font-size:10px; margin-top:4px; }
-.strategistArrow { display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:18px; }
-.chars { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px; }
-.char { background:linear-gradient(160deg,var(--panel2),var(--panel)); border:1px solid var(--line); border-top:2px solid var(--accent,var(--gold-dim)); border-radius:14px; padding:22px; }
-.char .avatar { width:64px; height:64px; border-radius:50%; border:2px solid var(--accent,var(--gold-dim)); display:flex; align-items:center; justify-content:center; font-size:28px; background:var(--bg); margin-bottom:12px; overflow:hidden; }
+.kpiRow { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+.kpiTile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:15px 17px; }
+.kpiTile .l { font-size:11px; color:var(--dim); }
+.kpiTile .v { font-size:24px; font-weight:650; margin-top:6px; letter-spacing:-.01em; color:var(--tx); }
+.kpiTile .d { display:inline-block; font-size:11.5px; margin-top:6px; padding:2px 8px; border-radius:20px; }
+.kpiTile .d.pos { color:#33c281; background:#0f2419; }
+.kpiTile .d.neg { color:#e2645f; background:#2a1414; }
+.kpiTile .d.flat { color:var(--dim); background:var(--panel2); }
+.secLabel { display:flex; align-items:baseline; justify-content:space-between; margin:26px 0 10px; }
+.secLabel h3 { margin:0; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); font-weight:600; }
+.secLabel span { font-size:11.5px; color:var(--dim); }
+.chars { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.char { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; display:flex; flex-direction:column; gap:11px; }
+.char .head { display:flex; align-items:center; gap:11px; }
+.char .avatar { width:40px; height:40px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:17px; background:var(--bg); overflow:hidden; flex:none; }
 .char .avatar img { width:100%; height:100%; object-fit:cover; }
-.char .nm { font-family:Georgia,serif; font-size:17px; color:var(--accent,var(--gold)); }
-.char .role { font-size:11px; color:var(--dim); margin:4px 0 14px; letter-spacing:.5px; }
-.char .desc { font-size:12.5px; color:#b9bdc7; line-height:1.7; }
-.char .letters { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
-.char .letters h4 { font-size:10px; letter-spacing:2px; color:var(--dim); margin-bottom:8px; }
+.char .nm { font-size:15px; font-weight:650; color:var(--tx); }
+.char .role { font-size:11.5px; color:var(--dim); margin-top:2px; }
+.char .desc { font-size:12.5px; color:#a8adb8; line-height:1.65; }
+.char .letters { margin-top:auto; border-top:1px solid var(--line); padding-top:11px; }
+.char .letters h4 { font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--dim); margin:0 0 7px; font-weight:600; }
 .letter { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12px; line-height:1.6; color:#c6cad3; margin-bottom:8px; white-space:pre-line; }
 .letter .lt { font-size:10px; color:var(--dim); margin-bottom:4px; }
-.char .schips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 2px; }
-.char .schip { font-size:10px; letter-spacing:.5px; color:#b9bdc7; border:1px solid var(--line); border-radius:20px; padding:4px 10px; background:var(--bg); }
-.char .schip b { color:var(--gold); font-weight:600; }
-.char .radarWrap { display:flex; justify-content:center; margin:8px 0 2px; }
-.char .rptBtn { display:block; margin-top:12px; text-align:center; padding:9px 0; font-size:11.5px; letter-spacing:1.5px; color:var(--gold); border:1px solid var(--gold-dim); border-radius:8px; text-decoration:none; background:var(--bg); }
+.char .rptBtn { display:block; text-align:center; padding:9px 0; font-size:12px; font-weight:600; color:var(--dim); border:1px solid var(--line); border-radius:8px; text-decoration:none; }
 .char .rptBtn:hover { border-color:var(--accent,var(--gold)); color:var(--accent,var(--gold)); }
 
 #deck { display:flex; gap:8px; padding:14px; overflow:hidden; align-items:flex-end; justify-content:flex-end; height:150px; }
@@ -422,7 +424,7 @@ body.shake { animation:shake .5s; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
   .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabs{width:100%;order:3}
-  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.strategistFlow{grid-template-columns:1fr}.strategistArrow{transform:rotate(90deg);min-height:12px}
+  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
   #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
@@ -1187,67 +1189,48 @@ body.shake { animation:shake .5s; }
 
 <!-- ═══════════ 전략가 탭 ═══════════ -->
 <div id="tab-chars" class="hidden">
-<div class="strategistFlow">
-  <div class="strategistStep" style="--accent:#10b981"><span>01 · 시장을 읽는다</span><b>Prof. Justin</b><small>월간 국면 판정</small></div>
-  <div class="strategistArrow">→</div>
-  <div class="strategistStep" style="--accent:var(--cyan)"><span>02 · 기회를 찾는다</span><b>Andy</b><small>매일 후보 발굴</small></div>
-  <div class="strategistArrow">→</div>
-  <div class="strategistStep" style="--accent:#e8a0bf"><span>03 · 원칙대로 움직인다</span><b>鄭마담</b><small>BTC·금 자동 운용</small></div>
+<div class="kpiRow" id="stratKpi">
+  <div class="kpiTile" data-kpi="justin"><div class="l">이달 시장 국면</div><div class="v">확인 중</div><div class="d flat">최신 소견서 불러오는 중</div></div>
+  <div class="kpiTile" data-kpi="andy"><div class="l">오늘 발굴 후보</div><div class="v">확인 중</div><div class="d flat">최신 전보 불러오는 중</div></div>
+  <div class="kpiTile" data-kpi="madam"><div class="l">鄭마담 포지션</div><div class="v">확인 중</div><div class="d flat">최신 장부 불러오는 중</div></div>
 </div>
+<div class="secLabel"><h3>전략가</h3><span>최근 코멘트 · 리포트</span></div>
 <div class="chars">
   <div class="char" style="--accent:#e8a0bf">
-    <div class="avatar"><img src="avatars/madam.png" alt="鄭마담"></div>
-    <div class="nm">鄭마담</div>
-    <div class="role">여의도 · 살롱의 안주인 · 시스템 트레이딩 총괄</div>
-    <div class="desc">시장 국면과 추세가 함께 열릴 때 BTC를 들고, 그렇지 않을 때는 금으로 이동한다.</div>
-    <div class="schips">
-      <span class="schip">무대 <b>BTC · 金</b></span>
-      <span class="schip">호흡 <b>수 주 단위</b></span>
-      <span class="schip">원칙 <b>추세 × 국면 이중 관문</b></span>
-      <span class="schip">쉬는 법 <b>금괴를 안고</b></span>
+    <div class="head">
+      <div class="avatar"><img src="avatars/madam.png" alt="鄭마담"></div>
+      <div><div class="nm">鄭마담</div><div class="role">BTC · 금 자동 운용</div></div>
     </div>
-    <div class="radarWrap"><canvas id="rd_madam" width="190" height="140" role="img" aria-label="정마담 운용 스타일 레이더"></canvas></div>
+    <div class="desc">시장 국면과 추세가 함께 열릴 때 BTC를 들고, 그렇지 않을 때는 금으로 이동한다.</div>
     <div class="letters">
       <h4>최근 서신</h4>
       <div class="letter"><div class="lt" id="madamRecentMeta">최신 장부 확인 중</div><span id="madamRecentText">鄭마담의 최근 서신을 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/madam_daily.html" target="_blank" rel="noopener">📔 오늘의 장부 열람 →</a>
+    <a class="rptBtn" href="reports/madam_daily.html" target="_blank" rel="noopener">오늘의 장부 열람 →</a>
   </div>
   <div class="char" style="--accent:var(--cyan)">
-    <div class="avatar"><img src="avatars/andy.png" alt="Andy"></div>
-    <div class="nm">Andy</div>
-    <div class="role">Chicago · 종목 스카우터 · 매일 20시 전보</div>
-    <div class="desc">유동성 있는 알트코인을 매일 훑고 신규 돌파·추세 진행·바닥 반전으로 나눠 보여준다.</div>
-    <div class="schips">
-      <span class="schip">전장 <b>알트 150여 곳</b></span>
-      <span class="schip">타전 <b>매일 20:00</b></span>
-      <span class="schip">그물 <b>돌파 · 추세 · 바닥 3종</b></span>
-      <span class="schip">신조 <b>발굴은 기계, 결정은 사람</b></span>
+    <div class="head">
+      <div class="avatar"><img src="avatars/andy.png" alt="Andy"></div>
+      <div><div class="nm">Andy</div><div class="role">매일 20시 후보 발굴</div></div>
     </div>
-    <div class="radarWrap"><canvas id="rd_andy" width="190" height="140" role="img" aria-label="Andy 발굴 스타일 레이더"></canvas></div>
+    <div class="desc">유동성 있는 알트코인을 매일 훑고 신규 돌파·추세 진행·바닥 반전으로 나눠 보여준다.</div>
     <div class="letters">
       <h4>최근 전보</h4>
       <div class="letter"><div class="lt" id="andyRecentMeta">최신 전보 확인 중</div><span id="andyRecentText">Andy의 최근 스캔 전보를 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/andy_scan.html" target="_blank" rel="noopener">📡 오늘의 스캔 전보 열람 →</a>
+    <a class="rptBtn" href="reports/andy_scan.html" target="_blank" rel="noopener">오늘의 스캔 전보 열람 →</a>
   </div>
   <div class="char" style="--accent:#10b981">
-    <div class="avatar"><img src="avatars/prof.png" alt="Prof. Justin"></div>
-    <div class="nm">Prof. Justin</div>
-    <div class="role">연구실 · 수석 연구원 · 월간 소견서</div>
-    <div class="desc">온체인·심리·거시 흐름을 종합해 매월 시장을 허용·차단·비상으로 판정한다.</div>
-    <div class="schips">
-      <span class="schip">재학습 <b>매월 1일</b></span>
-      <span class="schip">판정 <b>허용 · 차단 · 비상 3단계</b></span>
-      <span class="schip">재료 <b>온체인 · 심리 · 거시</b></span>
-      <span class="schip">비법 <b>연구실 기밀</b></span>
+    <div class="head">
+      <div class="avatar"><img src="avatars/prof.png" alt="Prof. Justin"></div>
+      <div><div class="nm">Prof. Justin</div><div class="role">월간 국면 판정</div></div>
     </div>
-    <div class="radarWrap"><canvas id="rd_justin" width="190" height="140" role="img" aria-label="Prof. Justin 연구 스타일 레이더"></canvas></div>
+    <div class="desc">온체인·심리·거시 흐름을 종합해 매월 시장을 허용·차단·비상으로 판정한다.</div>
     <div class="letters">
       <h4>최근 소견서</h4>
       <div class="letter"><div class="lt" id="justinRecentMeta">최신 소견서 확인 중</div><span id="justinRecentText">Prof. Justin의 최근 소견서를 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/justin_lab.html" target="_blank" rel="noopener">🎓 연구실 열람 →</a>
+    <a class="rptBtn" href="reports/justin_lab.html" target="_blank" rel="noopener">연구실 열람 →</a>
   </div>
 </div>
 </div>
@@ -2045,6 +2028,19 @@ async function loadLetters() {
     if (card) {
       $(card[0]).textContent = `${m.at || updated || '최근 갱신'} · ${card[2]}`;
       $(card[1]).textContent = String(m.body || '');
+    }
+    const tile = document.querySelector(`#stratKpi .kpiTile[data-kpi="${m.cls}"]`);
+    if (tile && m.kpi) {
+      tile.querySelector('.l').textContent = String(m.kpi.label || '');
+      tile.querySelector('.v').textContent = String(m.kpi.value || '—');
+      const d = tile.querySelector('.d');
+      d.textContent = String(m.kpi.note || '');
+      d.className = 'd ' + (['pos','neg','flat'].includes(m.kpi.tone) ? m.kpi.tone : 'flat');
+    } else if (tile) {
+      tile.querySelector('.v').textContent = '—';
+      const d = tile.querySelector('.d');
+      d.textContent = '다음 갱신을 기다리는 중';
+      d.className = 'd flat';
     }
     setTimeout(() => sayLetter(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200);
   });
@@ -4264,38 +4260,6 @@ async function onchainRefresh() {
 }
 function onchainOpen(){loadChainReport();onchainRefresh();if(!onchainStarted){onchainStarted=true;onchainTimer=setInterval(onchainRefresh,20000);chainClockTimer=setInterval(updateChainClock,1000);}}
 function onchainClose(){clearInterval(onchainTimer);clearInterval(chainClockTimer);onchainTimer=chainClockTimer=null;onchainStarted=false;}
-
-// ═══ 전략가 스타일 레이더 ═══
-function drawRadar(id, vals, color) {
-  const cv = $(id); if (!cv) return;
-  const ctx = cv.getContext('2d');
-  const labels = ['기술', '거시', '온체인', '심리', '인내'];
-  const cx = cv.width / 2, cy = cv.height / 2 + 4, R = 44;
-  const pt = (i, r) => {
-    const a = -Math.PI / 2 + i * 2 * Math.PI / 5;
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-  };
-  ctx.strokeStyle = '#232838'; ctx.fillStyle = '#6b7280'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
-  for (const f of [0.33, 0.66, 1]) {
-    ctx.beginPath();
-    for (let i = 0; i <= 5; i++) { const [x, y] = pt(i % 5, R * f); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-    ctx.stroke();
-  }
-  for (let i = 0; i < 5; i++) {
-    const [x, y] = pt(i, R);
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x, y); ctx.stroke();
-    const [lx, ly] = pt(i, R + 14);
-    ctx.fillText(labels[i], lx, ly + 3);
-  }
-  ctx.beginPath();
-  for (let i = 0; i <= 5; i++) { const [x, y] = pt(i % 5, R * vals[i % 5] / 100); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-  ctx.closePath();
-  ctx.fillStyle = color + '33'; ctx.fill();
-  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke(); ctx.lineWidth = 1;
-}
-drawRadar('rd_madam',  [85, 70, 60, 35, 95], '#ec4899');
-drawRadar('rd_andy',   [90, 40, 55, 65, 50], '#3b82f6');
-drawRadar('rd_justin', [55, 85, 90, 75, 80], '#10b981');
 
 // 선물 청산 — Binance 현행 market 스트림, 끊김 시 자동 재연결
 let wsl, liqReconnectTimer;
