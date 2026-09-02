@@ -24,9 +24,13 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 0 12px; border-bottom:1px solid var(--gold-dim); }
 .brand { font-family:Georgia,serif; font-size:22px; letter-spacing:6px; color:var(--gold); }
 .brand small { display:block; font-size:9px; letter-spacing:4px; color:var(--dim); margin-top:2px; }
+.tabsWrap { position:relative; min-width:0; }
+.tabsWrap.scrollable::after { content:''; position:absolute; top:0; right:0; bottom:0; width:26px; pointer-events:none;
+  background:linear-gradient(to right, transparent, var(--bg)); }
 .tabs { display:flex; gap:4px; align-items:flex-end; }
 .tab { padding:8px 22px; font-size:12px; line-height:1.4; letter-spacing:2px; color:var(--dim); cursor:pointer; border:1px solid transparent; border-radius:8px 8px 0 0; }
 .tab.on { color:var(--gold); border-color:var(--gold-dim); border-bottom-color:var(--bg); background:var(--panel); }
+.tab:focus-visible { outline:1px solid var(--gold); outline-offset:-1px; }
 .hdr .live { display:flex; align-items:center; padding:5px 9px; border:1px solid rgba(74,222,128,.22); border-radius:999px; background:rgba(74,222,128,.055); font-size:10px; color:#9ca3af; letter-spacing:.7px; white-space:nowrap; }
 .hdr .live b { margin-left:4px; color:#d7dce4; font:700 10px Menlo,monospace; }
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--grn); margin-right:5px; animation:blink 2s infinite; }
@@ -423,7 +427,7 @@ body.shake { animation:shake .5s; }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
-  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabs{width:100%;order:3}
+  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabsWrap{width:100%;order:3}
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
@@ -640,16 +644,18 @@ body.shake { animation:shake .5s; }
 
 <div class="hdr">
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
-  <div class="tabs">
-    <div class="tab on" data-tab="lounge">🥂 라운지</div>
-    <div class="tab" data-tab="desk">📊 데스크</div>
-    <div class="tab" data-tab="chain">⛓ 온체인</div>
-    <div class="tab" data-tab="macro">📣 발표장</div>
-    <div class="tab" data-tab="game">🎰 블라인드</div>
-    <div class="tab" data-tab="chars">🎩 전략가들</div>
+  <div class="tabsWrap">
+  <div class="tabs" role="tablist" aria-label="라운지 섹션">
+    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge">🥂 라운지</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk">📊 데스크</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain">⛓ 온체인</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro">📣 발표장</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game">🎰 블라인드</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars">🎩 전략가들</div>
+  </div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
-    <div class="live" title="현재 페이지를 열어 둔 관전 세션"><span class="dot"></span>LIVE <b id="viewerCount">연결 중</b></div>
+    <div class="live" title="지금 이 페이지를 열어 둔 창의 수 — 같은 사람이 탭을 여러 개 열면 함께 집계됩니다"><span class="dot"></span>LIVE <b id="viewerCount">연결 중</b></div>
   </div>
 </div>
 
@@ -1261,11 +1267,11 @@ let activeTab = 'lounge';
 const tabLive = name => activeTab === name && !document.hidden;
 
 // ═══ 탭 ═══
-document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+function selectTab(t) {
   if (typeof siteAnalyticsTabLeaving === 'function') siteAnalyticsTabLeaving();
   activeTab = t.dataset.tab;
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
-  t.classList.add('on');
+  document.querySelectorAll('.tab').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-selected', 'false'); });
+  t.classList.add('on'); t.setAttribute('aria-selected', 'true');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
   $('tab-desk').classList.toggle('hidden', t.dataset.tab !== 'desk');
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
@@ -1281,7 +1287,22 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
   if (typeof siteAnalyticsTabEntered === 'function') siteAnalyticsTabEntered();
   if (typeof syncRuntimeState === 'function') syncRuntimeState();
+}
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => selectTab(t);
+  t.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTab(t); } };
 });
+
+// 탭 바가 좁아져 스크롤이 필요할 때만 우측 페이드 표시 — 숨겨진 스크롤바만으론
+// 오른쪽에 탭이 더 있다는 게 안 보여서(scrollbar-width:none) 대부분 라운지에만 머문 원인 중 하나였다.
+(() => {
+  const wrap = document.querySelector('.tabsWrap'), bar = document.querySelector('.tabs');
+  if (!wrap || !bar) return;
+  const update = () => wrap.classList.toggle('scrollable', bar.scrollWidth - bar.scrollLeft - bar.clientWidth > 4);
+  bar.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
 
 let usd = 0, krw = 0, usdKrw = 0, usdtKrw = 0, kimchi = null;
 
@@ -2077,7 +2098,7 @@ try {
   if (!analyticsVisitorId) { analyticsVisitorId = siteUuid(); localStorage.setItem('tapeVisitorId', analyticsVisitorId); }
 } catch(e) { analyticsVisitorId = siteUuid(); }
 const analyticsSessionId = siteUuid();
-let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null, presenceSeq = 0;
+let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null;
 
 function analyticsPayload(activeSeconds = 0, isView = false) {
   return { p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab, p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView };
@@ -2110,11 +2131,13 @@ window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
 function renderViewerCount() {
   if (!presenceChannel) return;
   const count = Object.keys(presenceChannel.presenceState() || {}).length;
-  $('viewerCount').textContent = count ? `${count}명 관전 중` : '관전 중';
+  $('viewerCount').textContent = count ? `${count}열람 중` : '열람 중';
 }
 function startSitePresence() {
   if (!sbc || document.hidden || presenceChannel) return;
-  const channel = sbc.channel(`tape-lounge-presence-${++presenceSeq}`, { config:{ presence:{ key:analyticsSessionId } } })
+  // 고정 채널명 — 세션마다 다른 이름을 쓰면(구 -${presenceSeq}) 탭 전환 후 재구독한 사람이
+  // 새 채널로 옮겨가 버려 같은 순간에도 서로 다른 채널에 흩어지고 인원수가 실제보다 적게 잡혔다.
+  const channel = sbc.channel('tape-lounge-presence', { config:{ presence:{ key:analyticsSessionId } } })
     .on('presence', { event:'sync' }, renderViewerCount);
   presenceChannel = channel;
   channel.subscribe(async status => {
