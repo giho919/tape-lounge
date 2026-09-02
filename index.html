@@ -24,6 +24,21 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 0 12px; border-bottom:1px solid var(--gold-dim); }
 .brand { font-family:Georgia,serif; font-size:22px; letter-spacing:6px; color:var(--gold); }
 .brand small { display:block; font-size:9px; letter-spacing:4px; color:var(--dim); margin-top:2px; }
+/* 다른 자리 안내 — 탭 바를 거의 누르지 않는다는 이용 분석 결과에 대한 대응 */
+.rooms { margin-top:14px; }
+.rooms h3 { font-size:11px; letter-spacing:3px; color:var(--gold); font-weight:600; margin:0 0 3px; }
+.rooms .roomsLead { font-size:11.5px; color:var(--dim); margin:0 0 11px; }
+.roomGrid { display:grid; grid-template-columns:repeat(5,1fr); gap:9px; }
+.roomCard { display:flex; flex-direction:column; gap:5px; text-align:left; padding:13px 14px;
+  background:var(--panel); border:1px solid var(--line); border-radius:10px; cursor:pointer;
+  font:inherit; color:inherit; transition:border-color .15s; }
+.roomCard:hover, .roomCard:focus-visible { border-color:var(--gold-dim); outline:none; }
+.roomCard b { font-size:13px; color:#e7ebf2; font-weight:650; }
+.roomCard span { font-size:11.5px; color:var(--dim); line-height:1.5; }
+.roomCard em { font-style:normal; font-size:10.5px; color:var(--gold); letter-spacing:.5px; }
+@media(max-width:900px){ .roomGrid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:420px){ .roomGrid{ grid-template-columns:1fr; } }
+
 .tabsWrap { position:relative; min-width:0; }
 .tabsWrap.scrollable::after { content:''; position:absolute; top:0; right:0; bottom:0; width:26px; pointer-events:none;
   background:linear-gradient(to right, transparent, var(--bg)); }
@@ -429,6 +444,14 @@ body.shake { animation:shake .5s; }
 @media(max-width:760px){
   .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabsWrap{width:100%;order:3}
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
+  /* 모바일 시세 스트립 — 7개 타일이 같은 무게로 4줄을 먹던 것을 위계에 맞게 재배치.
+     BTC는 전폭으로 키우고, 보조 지표 4개(환율·도미넌스·펀딩)는 촘촘하게 접는다. */
+  .strip .tile:first-child{grid-column:1/-1}
+  .strip .tile:first-child .v{font-size:26px}
+  .strip .tile:nth-child(n+4){padding:8px 10px}
+  .strip .tile:nth-child(n+4) .l{font-size:9px;letter-spacing:1.2px}
+  .strip .tile:nth-child(n+4) .v{font-size:14px;margin-top:2px}
+  .strip .tile:nth-child(n+4) .s{font-size:9.5px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
   #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
@@ -646,12 +669,18 @@ body.shake { animation:shake .5s; }
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
   <div class="tabsWrap">
   <div class="tabs" role="tablist" aria-label="라운지 섹션">
-    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge">🥂 라운지</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk">📊 데스크</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain">⛓ 온체인</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro">📣 발표장</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game">🎰 블라인드</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars">🎩 전략가들</div>
+    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge"
+         title="실시간 시세·청산·채팅이 흐르는 메인 화면">🥂 라운지</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk"
+         title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서">📊 데스크</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain"
+         title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표">⛓ 온체인</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro"
+         title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과">📣 발표장</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game"
+         title="블라인드 — 종목명을 가린 실제 차트 맞히기">🎰 블라인드</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars"
+         title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부">🎩 전략가들</div>
   </div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
@@ -892,6 +921,33 @@ body.shake { animation:shake .5s; }
     <div id="bookBids" class="bookSide"></div>
   </div>
   </div>
+
+  <nav class="rooms" aria-label="다른 자리">
+    <h3>다른 자리</h3>
+    <p class="roomsLead">라운지 말고도 방이 더 있습니다. 상단 탭으로도 갈 수 있습니다.</p>
+    <div class="roomGrid">
+      <button type="button" class="roomCard" data-goto="desk">
+        <em>📊 데스크</em><b>선물 시장을 뜯어봅니다</b>
+        <span>추세 정렬·주요 가격대·펀딩·호가까지 한 화면에서 교차 확인</span>
+      </button>
+      <button type="button" class="roomCard" data-goto="chain">
+        <em>⛓ 온체인</em><b>블록체인 위의 흔적</b>
+        <span>수수료·미결제·고래 이동 등 거래소 밖에서 벌어지는 일</span>
+      </button>
+      <button type="button" class="roomCard" data-goto="macro">
+        <em>📣 발표장</em><b>지표 발표 일정과 결과</b>
+        <span>CPI·고용·FOMC 등 시장을 흔드는 발표를 시간순으로</span>
+      </button>
+      <button type="button" class="roomCard" data-goto="game">
+        <em>🎰 블라인드</em><b>차트만 보고 맞혀보기</b>
+        <span>종목명을 가린 실제 과거 차트로 혼자 또는 여럿이</span>
+      </button>
+      <button type="button" class="roomCard" data-goto="chars">
+        <em>🎩 전략가들</em><b>세 명의 시장 의견</b>
+        <span>월간 국면 판정·매일 후보 발굴·자동 운용 장부를 매일 갱신</span>
+      </button>
+    </div>
+  </nav>
 </div>
 
 <!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
@@ -1291,6 +1347,12 @@ function selectTab(t) {
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => selectTab(t);
   t.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTab(t); } };
+});
+
+// 라운지 하단 "다른 자리" 카드 → 해당 탭으로 (button 이라 키보드는 기본 동작)
+document.querySelectorAll('.roomCard[data-goto]').forEach(c => c.onclick = () => {
+  const t = document.querySelector(`.tab[data-tab="${c.dataset.goto}"]`);
+  if (t) { selectTab(t); window.scrollTo({ top:0, behavior:'smooth' }); }
 });
 
 // 탭 바가 좁아져 스크롤이 필요할 때만 우측 페이드 표시 — 숨겨진 스크롤바만으론
@@ -2100,8 +2162,41 @@ try {
 const analyticsSessionId = siteUuid();
 let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null;
 
+// ── 유휴 상한 ──
+// 예전에는 탭이 화면에 떠 있기만 하면 60초마다 60초를 그대로 적립했다.
+// 그래서 방치된 탭 하나가 하루 1,440분(=24시간)을 찍어 체류시간 지표가 통째로 망가졌다.
+// 이제 마지막 실제 조작 이후 IDLE_LIMIT_MS 가 지나면 적립을 멈춘다.
+const IDLE_LIMIT_MS = 5 * 60 * 1000;
+let analyticsLastInputAt = performance.now();
+const markUserInput = () => { analyticsLastInputAt = performance.now(); };
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev =>
+  window.addEventListener(ev, markUserInput, { passive:true, capture:true }));
+
+// ── 유입 경로 ── 호스트만, 우리 도메인은 제외(내부 이동)
+const analyticsReferrerHost = (() => {
+  try {
+    if (!document.referrer) return null;
+    const h = new URL(document.referrer).hostname.toLowerCase();
+    return (!h || h === location.hostname) ? null : h;
+  } catch(e) { return null; }
+})();
+
+// ── 운영자/내부 트래픽 표시 ──
+// ?internal=1 로 한 번 켜두면 이 브라우저는 계속 내부로 집계된다 (?internal=0 으로 해제).
+let analyticsInternal = false;
+try {
+  const q = new URLSearchParams(location.search).get('internal');
+  if (q === '1') localStorage.setItem('tapeInternal', '1');
+  else if (q === '0') localStorage.removeItem('tapeInternal');
+  analyticsInternal = localStorage.getItem('tapeInternal') === '1';
+} catch(e) {}
+
 function analyticsPayload(activeSeconds = 0, isView = false) {
-  return { p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab, p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView };
+  return {
+    p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab,
+    p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView,
+    p_referrer_host: analyticsReferrerHost, p_internal: analyticsInternal,
+  };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
   if (!sbc || !analyticsVisitorId) return;
@@ -2119,12 +2214,19 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
 }
 function siteAnalyticsFlush(keepalive = false) {
   if (document.hidden && !keepalive) return;
-  const now = performance.now(), elapsed = Math.max(0, (now - analyticsLastActiveAt) / 1000);
+  const now = performance.now();
+  // 조작이 끊긴 뒤의 시간은 활동으로 치지 않는다. 마지막 입력까지만 인정.
+  const countUntil = Math.min(now, analyticsLastInputAt + IDLE_LIMIT_MS);
+  const elapsed = Math.max(0, (countUntil - analyticsLastActiveAt) / 1000);
   analyticsLastActiveAt = now;
+  if (elapsed < 1 && !keepalive) return;   // 유휴 중에는 서버 호출 자체를 생략
   recordSiteActivity(elapsed, keepalive);
 }
 function siteAnalyticsTabLeaving() { siteAnalyticsFlush(false); }
-function siteAnalyticsTabEntered() { analyticsLastActiveAt = performance.now(); recordSiteActivity(0, false, true); }
+function siteAnalyticsTabEntered() {
+  analyticsLastActiveAt = performance.now(); markUserInput();   // 탭 전환은 명백한 조작
+  recordSiteActivity(0, false, true);
+}
 window.siteAnalyticsTabLeaving = siteAnalyticsTabLeaving;
 window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
 
