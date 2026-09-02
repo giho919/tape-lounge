@@ -2233,7 +2233,7 @@ window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
 function renderViewerCount() {
   if (!presenceChannel) return;
   const count = Object.keys(presenceChannel.presenceState() || {}).length;
-  $('viewerCount').textContent = count ? `${count}열람 중` : '열람 중';
+  $('viewerCount').textContent = count ? `${count}명 관전 중` : '관전 중';
 }
 function startSitePresence() {
   if (!sbc || document.hidden || presenceChannel) return;
