@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T15:02:02.972836Z",
+  "generated_at": "2026-09-02T15:02:59.451930Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -451,6 +451,22 @@
       "unit": null,
       "note": "Personal Income and Outlays",
       "source_url": "https://www.bea.gov/news/schedule",
+      "btc": {},
+      "status": "upcoming"
+    },
+    {
+      "id": "be72a32c5dc51e1d",
+      "source": "BLS",
+      "code": "JOLTS",
+      "title": "JOLTS 구인",
+      "importance": "MAIN",
+      "scheduled_at": "2026-12-01T15:00:00Z",
+      "previous": null,
+      "actual": null,
+      "actual_supported": false,
+      "unit": null,
+      "note": "2026-10 관측 · 공식 일정 스냅샷",
+      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {},
       "status": "upcoming"
     }
