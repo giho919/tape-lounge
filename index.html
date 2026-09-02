@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tape Lounge</title>
+<meta name="description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
+<meta property="og:site_name" content="Tape Lounge">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tapelounge.com/">
+<meta property="og:title" content="Tape Lounge">
+<meta property="og:description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
+<meta name="twitter:card" content="summary">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://api.bithumb.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎩%3C/text%3E%3C/svg%3E">
@@ -1323,9 +1330,27 @@ let activeTab = 'lounge';
 const tabLive = name => activeTab === name && !document.hidden;
 
 // ═══ 탭 ═══
-function selectTab(t) {
+// ═══ 탭별 주소 ═══
+// 라운지는 hash 없음(루트 URL 유지), 나머지는 #슬러그.
+// hash 를 쓰면 정적 호스팅 그대로 동작하고 뒤로가기도 브라우저가 알아서 처리한다.
+const TAB_SLUG = { lounge:'', desk:'desk', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
+const SLUG_TAB = Object.fromEntries(Object.entries(TAB_SLUG).filter(([,v]) => v).map(([k,v]) => [v, k]));
+let applyingHash = false;
+
+function selectTab(t, fromHash = false) {
   if (typeof siteAnalyticsTabLeaving === 'function') siteAnalyticsTabLeaving();
   activeTab = t.dataset.tab;
+  if (!fromHash) {
+    const slug = TAB_SLUG[activeTab] || '';
+    const want = slug ? `#${slug}` : '';
+    if ((location.hash || '') !== want) {
+      applyingHash = true;
+      // 라운지로 돌아갈 때는 주소창에 빈 #가 남지 않도록 정리
+      if (slug) location.hash = slug;
+      else history.replaceState(null, '', location.pathname + location.search);
+      applyingHash = false;
+    }
+  }
   document.querySelectorAll('.tab').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-selected', 'false'); });
   t.classList.add('on'); t.setAttribute('aria-selected', 'true');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
@@ -1354,6 +1379,20 @@ document.querySelectorAll('.roomCard[data-goto]').forEach(c => c.onclick = () =>
   const t = document.querySelector(`.tab[data-tab="${c.dataset.goto}"]`);
   if (t) { selectTab(t); window.scrollTo({ top:0, behavior:'smooth' }); }
 });
+
+// 주소의 hash → 탭. 첫 진입과 뒤로/앞으로 모두 여기로 들어온다.
+function applyTabFromHash() {
+  if (applyingHash) return;
+  const slug = (location.hash || '').replace(/^#/, '').toLowerCase();
+  const tabId = slug ? SLUG_TAB[slug] : 'lounge';
+  if (!tabId || tabId === activeTab) return;   // 모르는 hash(#demo 등)는 건드리지 않는다
+  const t = document.querySelector(`.tab[data-tab="${tabId}"]`);
+  if (t) selectTab(t, true);
+}
+window.addEventListener('hashchange', applyTabFromHash);
+// 첫 적용은 스크립트 평가가 끝난 뒤로 미룬다 — selectTab 이 아래쪽에서 let 으로
+// 선언되는 bgTimer 등을 참조하므로 즉시 호출하면 TDZ ReferenceError 로 죽는다.
+setTimeout(applyTabFromHash, 0);
 
 // 탭 바가 좁아져 스크롤이 필요할 때만 우측 페이드 표시 — 숨겨진 스크롤바만으론
 // 오른쪽에 탭이 더 있다는 게 안 보여서(scrollbar-width:none) 대부분 라운지에만 머문 원인 중 하나였다.
