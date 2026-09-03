@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T15:02:59.451930Z",
+  "generated_at": "2026-09-03T12:32:01.473446Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,46 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "1699a4f3fc366500",
-      "source": "BEA",
-      "code": "GDP",
-      "title": "미국 GDP",
-      "importance": "VIP",
-      "scheduled_at": "2026-08-26T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "Gross Domestic Product",
-      "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {
-        "m5": -0.399,
-        "m15": -0.569,
-        "m60": -0.841
-      },
-      "status": "observed"
-    },
-    {
-      "id": "45cbbf01d569ef94",
-      "source": "BEA",
-      "code": "PCE",
-      "title": "PCE 물가·개인소득",
-      "importance": "VIP",
-      "scheduled_at": "2026-08-26T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "Personal Income and Outlays",
-      "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {
-        "m5": -0.399,
-        "m15": -0.569,
-        "m60": -0.841
-      },
-      "status": "observed"
-    },
     {
       "id": "e6939b9ddf6ac4a9",
       "source": "BLS",
@@ -100,7 +60,7 @@
       "note": "U.S. International Trade in Goods and Services",
       "source_url": "https://www.bea.gov/news/schedule",
       "btc": {},
-      "status": "upcoming"
+      "status": "observed"
     },
     {
       "id": "586443d53082090b",
