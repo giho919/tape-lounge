@@ -3,8 +3,8 @@
 
 The 10,000-pack local library is the normal path. Recently used wording is
 removed before selection and underused speakers are preferred. The local Qwen
-model is asked only when no fresh reviewed pack remains. Dry-run is the default;
-publishing requires both --publish and TAPE_AI_CHAT_ENABLE=1.
+model can be asked only when no fresh reviewed pack remains. Dry-run is the
+default; publishing requires both --publish and TAPE_AI_CHAT_ENABLE=1.
 """
 
 from __future__ import annotations
@@ -64,6 +64,8 @@ RECENT_CHAT_HOURS = 24
 RECENT_CHAT_LIMIT = 500
 OFFICIAL_GAP_SECONDS = 4 * 3600
 OFFICIAL_CHANCE = 0.15
+PUBLISH_ATTEMPTS = 3
+TRANSIENT_HTTP_STATUS = {408, 425, 429, 500, 502, 503, 504}
 PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
 NUMBER_RE = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:%p|%|배|M|K)?")
 BANNED = (
@@ -641,19 +643,29 @@ BTC {snapshot.price:,.1f} USDT, 24시간 {pct(snapshot.change_24h_pct)}, 고가�
     return messages if len(speakers) >= 2 else None
 
 
-def publish(messages: list[dict[str, str]], delay_min: int, delay_max: int) -> None:
+def publishing_key() -> str:
     if os.getenv("TAPE_AI_CHAT_ENABLE") != "1":
         raise RuntimeError("publishing is locked; set TAPE_AI_CHAT_ENABLE=1")
     signing_key = os.getenv("TAPE_AI_CHAT_SIGNING_KEY")
     if not signing_key or not Path(signing_key).is_file():
         raise RuntimeError("TAPE_AI_CHAT_SIGNING_KEY must point to a private key")
-    batch_id = str(uuid.uuid4())
-    for index, message in enumerate(messages):
+    return signing_key
+
+
+def post_message(
+    batch_id: str,
+    sequence: int,
+    message: dict[str, str],
+    signing_key: str,
+    attempts: int = PUBLISH_ATTEMPTS,
+) -> bool:
+    """Post once logically; retries reuse the idempotency identity."""
+    for attempt in range(attempts):
         timestamp = int(time.time())
         payload = {
             "timestamp": timestamp,
             "batch_id": batch_id,
-            "sequence": index,
+            "sequence": sequence,
             "message": message,
         }
         body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
@@ -675,12 +687,100 @@ def publish(messages: list[dict[str, str]], delay_min: int, delay_max: int) -> N
             },
             method="POST",
         )
-        with urllib.request.urlopen(request, timeout=20) as response:
-            result = json.load(response)
-        if result.get("ok") is not True:
-            raise RuntimeError("chat publisher rejected the message")
-        if index < len(messages) - 1:
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                result = json.load(response)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in TRANSIENT_HTTP_STATUS:
+                raise RuntimeError(f"chat publisher returned HTTP {exc.code}") from exc
+            if attempt == attempts - 1:
+                return False
+        except (TimeoutError, urllib.error.URLError):
+            if attempt == attempts - 1:
+                return False
+        else:
+            if result.get("ok") is not True:
+                raise RuntimeError("chat publisher rejected the message")
+            return True
+        time.sleep(2 ** attempt)
+    return False
+
+
+def pending_publish(
+    messages: list[dict[str, str]], scene: Scene | None, pack_id: str | None
+) -> dict[str, Any]:
+    return {
+        "batch_id": str(uuid.uuid4()),
+        "next_sequence": 0,
+        "messages": messages,
+        "scene": scene.key if scene else "llm",
+        "pack_id": pack_id,
+        "queued_at": time.time(),
+    }
+
+
+def resume_publish(
+    state_path: Path,
+    state: dict[str, Any],
+    delay_min: int,
+    delay_max: int,
+) -> bool:
+    pending = state.get("pending_publish")
+    if not isinstance(pending, dict):
+        return True
+    batch_id = pending.get("batch_id")
+    messages = pending.get("messages")
+    sequence = pending.get("next_sequence")
+    if (
+        not isinstance(batch_id, str)
+        or not isinstance(messages, list)
+        or not isinstance(sequence, int)
+        or not 0 <= sequence <= len(messages)
+    ):
+        raise RuntimeError("pending publish state is invalid")
+    signing_key = publishing_key()
+    while sequence < len(messages):
+        message = messages[sequence]
+        if not isinstance(message, dict):
+            raise RuntimeError("pending publish message is invalid")
+        if not post_message(batch_id, sequence, message, signing_key):
+            print(
+                json.dumps({
+                    "publish": "deferred",
+                    "batch_id": batch_id,
+                    "next_sequence": sequence,
+                }),
+                file=sys.stderr,
+            )
+            return False
+        sequence += 1
+        pending["next_sequence"] = sequence
+        save_state(state_path, state)
+        if sequence < len(messages):
             time.sleep(random.randint(delay_min, delay_max))
+    return True
+
+
+def finalize_publish(state_path: Path, state: dict[str, Any]) -> None:
+    pending = state.get("pending_publish")
+    if not isinstance(pending, dict):
+        return
+    messages = pending.get("messages")
+    if not isinstance(messages, list) or not messages:
+        raise RuntimeError("completed publish state is invalid")
+    state["last_scene"] = pending.get("scene", "llm")
+    state["last_published_at"] = time.time()
+    pack_id = pending.get("pack_id")
+    recent_ids = ([pack_id] if isinstance(pack_id, str) else []) + list(
+        state.get("recent_ids", [])
+    )
+    state["recent_ids"] = recent_ids[:500]
+    if any(message.get("agent_key") in OFFICIAL for message in messages):
+        state["last_official_at"] = time.time()
+    state["last_lead_agent"] = messages[0]["agent_key"]
+    state.pop("pending_liquidation", None)
+    state.pop("pending_publish", None)
+    save_state(state_path, state)
 
 
 def main() -> int:
@@ -698,6 +798,18 @@ def main() -> int:
         parser.error("delays must satisfy 20 <= min <= max")
 
     state = load_state(args.state)
+    if args.publish and isinstance(state.get("pending_publish"), dict):
+        pending = state["pending_publish"]
+        print(json.dumps({
+            "source": "pending",
+            "decision": "resume_pending",
+            "batch_id": pending.get("batch_id"),
+            "next_sequence": pending.get("next_sequence"),
+        }, ensure_ascii=False, indent=2))
+        if resume_publish(args.state, state, args.delay_min, args.delay_max):
+            finalize_publish(args.state, state)
+        return 0
+
     snapshot = fetch_snapshot()
     scenes = detect_scenes(snapshot, state)
     scene = choose_scene(scenes, state, args.scenario)
@@ -712,7 +824,10 @@ def main() -> int:
         try:
             messages = llm_fallback(snapshot, latest, scene)
             source = "llm" if messages else "none"
-        except (KeyError, TypeError, ValueError, json.JSONDecodeError, urllib.error.URLError):
+        except (
+            KeyError, TypeError, ValueError, json.JSONDecodeError,
+            TimeoutError, urllib.error.URLError,
+        ):
             messages = None
 
     allowed, reason = should_publish(scene, latest, args.force)
@@ -729,15 +844,11 @@ def main() -> int:
     if args.publish:
         state["snapshot"] = asdict(snapshot)
         if messages and allowed:
-            publish(messages, args.delay_min, args.delay_max)
-            state["last_scene"] = scene.key if scene else "llm"
-            state["last_published_at"] = time.time()
-            recent_ids = ([pack_id] if pack_id else []) + list(state.get("recent_ids", []))
-            state["recent_ids"] = recent_ids[:500]
-            if any(message["agent_key"] in OFFICIAL for message in messages):
-                state["last_official_at"] = time.time()
-            state["last_lead_agent"] = messages[0]["agent_key"]
-            state.pop("pending_liquidation", None)
+            state["pending_publish"] = pending_publish(messages, scene, pack_id)
+            save_state(args.state, state)
+            if resume_publish(args.state, state, args.delay_min, args.delay_max):
+                finalize_publish(args.state, state)
+            return 0
         save_state(args.state, state)
     return 0
 

@@ -1,6 +1,6 @@
 [Unit]
 Description=Tape Lounge market-aware AI crew
-After=network-online.target llama-server.service
+After=network-online.target
 Wants=network-online.target
 
 [Service]
@@ -9,7 +9,7 @@ WorkingDirectory=/home/shyoo/projects/tape-lounge
 Environment=PYTHONDONTWRITEBYTECODE=1
 Environment=TAPE_AI_CHAT_ENABLE=1
 Environment=TAPE_AI_CHAT_SIGNING_KEY=/home/shyoo/.config/tape-lounge/lounge-crew-signing-key.pem
-ExecStart=/usr/bin/python3 /home/shyoo/projects/tape-lounge/scripts/lounge_crew.py --publish
+ExecStart=/usr/bin/python3 /home/shyoo/projects/tape-lounge/scripts/lounge_crew.py --publish --no-llm
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

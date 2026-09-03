@@ -1,4 +1,7 @@
 import importlib.util
+import io
+import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -174,6 +177,88 @@ class SceneTests(unittest.TestCase):
             path = Path(directory) / "state.json"
             MODULE.save_state(path, {"recent_ids": ["one"]})
             self.assertEqual(MODULE.load_state(path)["recent_ids"], ["one"])
+
+
+    def test_llm_timeout_is_a_non_fatal_empty_fallback(self):
+        scene = MODULE.Scene("bid_heavy", 70, {})
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
+            sys, "argv", ["lounge_crew.py", "--state", str(Path(directory) / "state.json")]
+        ), mock.patch.object(MODULE, "fetch_snapshot", return_value=snapshot()), mock.patch.object(
+            MODULE, "detect_scenes", return_value=[scene]
+        ), mock.patch.object(MODULE, "load_library", return_value=[]), mock.patch.object(
+            MODULE, "choose_pack", return_value=None
+        ), mock.patch.object(MODULE, "llm_fallback", side_effect=TimeoutError), mock.patch(
+            "builtins.print"
+        ):
+            self.assertEqual(MODULE.main(), 0)
+
+    def test_post_message_retries_same_idempotency_identity(self):
+        ok = io.BytesIO(b'{"ok":true}')
+        with mock.patch.object(
+            MODULE.subprocess, "run", return_value=mock.Mock(stdout=b"signature")
+        ), mock.patch.object(
+            MODULE.urllib.request, "urlopen",
+            side_effect=[MODULE.urllib.error.URLError("temporary"), ok],
+        ) as opened, mock.patch.object(MODULE.time, "sleep"):
+            self.assertTrue(MODULE.post_message(
+                "00000000-0000-0000-0000-000000000001", 2,
+                {"agent_key": "wolf", "nick": "wolf", "body": "test message body"},
+                "/tmp/test-key",
+            ))
+        sent = [json.loads(call.args[0].data) for call in opened.call_args_list]
+        self.assertEqual([(row["batch_id"], row["sequence"]) for row in sent], [
+            ("00000000-0000-0000-0000-000000000001", 2),
+            ("00000000-0000-0000-0000-000000000001", 2),
+        ])
+
+    def test_resume_publish_checkpoints_each_acknowledged_message(self):
+        messages = [
+            {"agent_key": "wolf", "nick": "wolf", "body": "first test message"},
+            {"agent_key": "watcher", "nick": "watcher", "body": "second test message"},
+        ]
+        state = {"pending_publish": {
+            "batch_id": "00000000-0000-0000-0000-000000000002",
+            "next_sequence": 0,
+            "messages": messages,
+            "scene": "bid_heavy",
+            "pack_id": "pack-1",
+        }}
+        with tempfile.TemporaryDirectory() as directory:
+            state_path = Path(directory) / "state.json"
+            key_path = Path(directory) / "key.pem"
+            key_path.touch()
+            with mock.patch.dict(os.environ, {
+                "TAPE_AI_CHAT_ENABLE": "1",
+                "TAPE_AI_CHAT_SIGNING_KEY": str(key_path),
+            }), mock.patch.object(
+                MODULE, "post_message", return_value=True
+            ) as posted, mock.patch.object(MODULE.time, "sleep"):
+                self.assertTrue(MODULE.resume_publish(state_path, state, 20, 20))
+            self.assertEqual([call.args[1] for call in posted.call_args_list], [0, 1])
+            self.assertEqual(MODULE.load_state(state_path)["pending_publish"]["next_sequence"], 2)
+
+    def test_resume_publish_defers_without_losing_progress(self):
+        message = {
+            "agent_key": "wolf", "nick": "wolf", "body": "retry test message"
+        }
+        state = {"pending_publish": {
+            "batch_id": "00000000-0000-0000-0000-000000000003",
+            "next_sequence": 0,
+            "messages": [message],
+        }}
+        with tempfile.TemporaryDirectory() as directory:
+            key_path = Path(directory) / "key.pem"
+            key_path.touch()
+            with mock.patch.dict(os.environ, {
+                "TAPE_AI_CHAT_ENABLE": "1",
+                "TAPE_AI_CHAT_SIGNING_KEY": str(key_path),
+            }), mock.patch.object(MODULE, "post_message", return_value=False), mock.patch(
+                "builtins.print"
+            ):
+                self.assertFalse(MODULE.resume_publish(
+                    Path(directory) / "state.json", state, 20, 20
+                ))
+        self.assertEqual(state["pending_publish"]["next_sequence"], 0)
 
 
 if __name__ == "__main__":

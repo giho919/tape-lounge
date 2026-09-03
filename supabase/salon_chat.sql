@@ -8,12 +8,16 @@ create table if not exists public.salon_chat (
   body text not null check (char_length(body) between 1 and 300),
   user_id uuid default auth.uid(),
   author_type text not null default 'human',
-  agent_key text
+  agent_key text,
+  batch_id uuid,
+  sequence smallint
 );
 
 alter table public.salon_chat
   add column if not exists author_type text not null default 'human',
-  add column if not exists agent_key text;
+  add column if not exists agent_key text,
+  add column if not exists batch_id uuid,
+  add column if not exists sequence smallint;
 
 alter table public.salon_chat drop constraint if exists salon_chat_author_identity;
 alter table public.salon_chat
@@ -27,6 +31,19 @@ alter table public.salon_chat
     ))
   ) not valid;
 alter table public.salon_chat validate constraint salon_chat_author_identity;
+
+alter table public.salon_chat drop constraint if exists salon_chat_publish_identity;
+alter table public.salon_chat
+  add constraint salon_chat_publish_identity check (
+    (batch_id is null and sequence is null)
+    or
+    (author_type = 'virtual' and batch_id is not null and sequence between 0 and 5)
+  ) not valid;
+alter table public.salon_chat validate constraint salon_chat_publish_identity;
+
+create unique index if not exists salon_chat_publish_idempotency_idx
+  on public.salon_chat (batch_id, sequence)
+  where batch_id is not null;
 
 alter table public.salon_chat enable row level security;
 
@@ -60,6 +77,18 @@ as $function$
     actor_key text;
     cooldown interval;
   begin
+    if new.author_type = 'virtual' and new.batch_id is not null then
+      perform pg_advisory_xact_lock(
+        hashtextextended('virtual-batch:' || new.batch_id::text || ':' || new.sequence::text, 0)
+      );
+      if exists (
+        select 1 from public.salon_chat
+        where batch_id = new.batch_id and sequence = new.sequence
+      ) then
+        return null;
+      end if;
+    end if;
+
     if new.author_type = 'virtual' then
       actor_key := 'virtual:' || new.agent_key;
       cooldown := interval '20 seconds';
@@ -118,7 +147,8 @@ grant usage on sequence public.salon_chat_id_seq to authenticated;
 
 revoke all on public.salon_chat from service_role;
 grant select on public.salon_chat to service_role;
-grant insert (nick, body, user_id, author_type, agent_key) on public.salon_chat to service_role;
+grant insert (nick, body, user_id, author_type, agent_key, batch_id, sequence)
+  on public.salon_chat to service_role;
 revoke all on sequence public.salon_chat_id_seq from service_role;
 grant usage on sequence public.salon_chat_id_seq to service_role;
 

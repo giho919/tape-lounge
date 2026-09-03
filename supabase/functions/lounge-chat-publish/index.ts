@@ -120,7 +120,14 @@ Deno.serve(async (request) => {
       "apikey": secret,
       "prefer": "return=minimal",
     },
-    body: JSON.stringify({ nick, body, author_type: "virtual", agent_key: agentKey }),
+    body: JSON.stringify({
+      nick,
+      body,
+      author_type: "virtual",
+      agent_key: agentKey,
+      batch_id: payload.batch_id,
+      sequence: payload.sequence,
+    }),
   });
   if (!inserted.ok) {
     console.error("salon_chat insert failed", inserted.status, await inserted.text());
