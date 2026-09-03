@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03T12:32:01.473446Z",
+  "generated_at": "2026-09-03T12:37:01.629993Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -59,7 +59,9 @@
       "unit": null,
       "note": "U.S. International Trade in Goods and Services",
       "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {},
+      "btc": {
+        "m5": 0.413
+      },
       "status": "observed"
     },
     {
