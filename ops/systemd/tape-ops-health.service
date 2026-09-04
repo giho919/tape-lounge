@@ -1,0 +1,20 @@
+[Unit]
+Description=Tape Lounge server and trading-bot health snapshot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/shyoo/projects/tape-lounge
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=TAPE_OPS_HEALTH_SIGNING_KEY=/home/shyoo/.config/tape-lounge/lounge-crew-signing-key.pem
+ExecStart=/usr/bin/python3 /home/shyoo/projects/tape-lounge/scripts/ops_health_collector.py
+TimeoutStartSec=45
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+MemoryMax=96M
+CPUQuota=30%
