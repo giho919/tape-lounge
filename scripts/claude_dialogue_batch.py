@@ -33,7 +33,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LIBRARY = BASE_DIR / "data" / "ai_dialogue_library.jsonl"
-SOURCE_TAG = "claude-authored"
+SOURCE_TAG = "claude-authored"      # 손으로 미리 써둔 상설 팩 (안전망, 정리 대상 아님)
+LIVE_TAG = "claude-live"            # 매시간 시황 보고 쓴 팩 (오래된 건 정리)
 
 AGENT_NAMES = {
     "madam": "鄭마담",
@@ -402,11 +403,36 @@ def load_packs_file(path: Path) -> list[tuple[str, list[dict[str, str]]]]:
     return out
 
 
+def prune_live(keep_n: int) -> int:
+    """실시간 팩은 계속 쌓이면 라이브러리가 무한정 커진다. 최신 N개만 남긴다.
+    상설 팩(SOURCE_TAG)과 기존 검수 팩은 건드리지 않는다."""
+    if not LIBRARY.exists():
+        return 0
+    rows = [json.loads(l) for l in LIBRARY.read_text(encoding="utf-8").splitlines() if l.strip()]
+    live = [r for r in rows if r.get("source") == LIVE_TAG]
+    if len(live) <= keep_n:
+        return len(live)
+    drop = {r["id"] for r in live[:len(live) - keep_n]}   # 파일 순서 = 추가 순서
+    kept = [r for r in rows if r["id"] not in drop]
+    LIBRARY.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in kept), encoding="utf-8")
+    return keep_n
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--append", action="store_true", help="검증 통과 시 라이브러리에 추가")
     ap.add_argument("--packs-file", type=Path, help="JSONL 배치 파일 (없으면 내장 PACKS)")
+    ap.add_argument("--live", action="store_true",
+                    help=f"실시간 팩으로 표시({LIVE_TAG}) — 오래되면 정리 대상")
+    ap.add_argument("--prune-live", type=int, metavar="N",
+                    help="최신 N개만 남기고 오래된 실시간 팩 삭제")
     args = ap.parse_args()
+
+    if args.prune_live is not None:
+        keep = prune_live(args.prune_live)
+        print(f"실시간 팩 정리: {keep}개 유지")
+        if not args.packs_file:
+            return 0
 
     packs = load_packs_file(args.packs_file) if args.packs_file else PACKS
     globals()["PACKS"] = packs
@@ -443,7 +469,7 @@ def main() -> int:
             fh.write(json.dumps({
                 "scenario_key": scene,
                 "messages": msgs,
-                "source": SOURCE_TAG,
+                "source": LIVE_TAG if args.live else SOURCE_TAG,
                 "status": "ready",
                 "id": f"dialogue-{idx + i:05d}",
             }, ensure_ascii=False) + "\n")
