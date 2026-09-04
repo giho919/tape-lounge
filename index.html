@@ -2172,7 +2172,6 @@ async function loadLetters() {
       d.textContent = '다음 갱신을 기다리는 중';
       d.className = 'd flat';
     }
-    setTimeout(() => sayLetter(m.cls, CHAR_NAME[m.cls] || '', m.body), 1200 + i * 2200);
   });
 }
 loadLetters();
