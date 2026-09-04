@@ -64,6 +64,11 @@ RECENT_CHAT_HOURS = 24
 RECENT_CHAT_LIMIT = 500
 OFFICIAL_GAP_SECONDS = 4 * 3600
 OFFICIAL_CHANCE = 0.15
+# 손으로 쓴 대사 우선 추첨 확률 (claude_dialogue_batch.py 가 채워 넣는다)
+AUTHORED_SOURCE = "claude-authored"
+# 팩 수가 적을 때 같은 대사가 반복되지 않도록 보수적으로 시작한다.
+# claude_dialogue_batch.py 로 팩이 쌓이면 올려도 된다.
+AUTHORED_CHANCE = 0.35
 PUBLISH_ATTEMPTS = 3
 TRANSIENT_HTTP_STATUS = {408, 425, 429, 500, 502, 503, 504}
 PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
@@ -493,6 +498,15 @@ def choose_pack(
         pool = with_official
     else:
         pool = without_official or rendered_candidates
+
+    # 손으로 쓴 대사를 우선한다. 기존 10,000팩은 조합 생성물이라 "응, 그 정도 선에서
+    # 보는 게 맞겠네" 같은 상투구가 여러 팩에 반복된다. 손으로 쓴 팩은 수가 훨씬 적어
+    # 균등 추첨으로는 거의 뽑히지 않으므로 확률을 따로 준다. 그 팩이 고갈되면(중복
+    # 필터에 걸리면) 자동으로 기존 풀로 돌아가므로 침묵하지 않는다.
+    authored = [item for item in pool if item[0].get("source") == AUTHORED_SOURCE]
+    if authored and random.random() < AUTHORED_CHANCE:
+        pool = authored
+
     if not pool:
         return None
 
