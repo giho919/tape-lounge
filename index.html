@@ -2413,8 +2413,12 @@ function renderChatRow(row) {
 }
 async function loadChatHistory() {
   if (!sbc) return;
-  const { data } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
-  if (data) data.reverse().forEach(renderChatRow);
+  const { data, error } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
+  if (error) { console.warn('chat history', error.message); return; }
+  // 서버의 현재 목록으로 다시 그려 삭제된 과거 가상 대화가 열린 탭에 남지 않게 한다.
+  feed.replaceChildren();
+  chatSeenIds.clear();
+  (data || []).reverse().forEach(renderChatRow);
 }
 function chatWanted() {
   const onLounge = document.querySelector('.tab.on')?.dataset.tab === 'lounge';
