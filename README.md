@@ -43,7 +43,7 @@ The market plays the game; visitors watch the tension build and the result settl
 - **Liquidation Tower · 청산 타워** — the shared Supabase ledger restores the latest five-minute market-wide liquidation stack for every visitor / Supabase 공용 장부에서 최근 5분 전 시장 롱·숏 청산 블록을 모든 방문자에게 동일하게 복원
 - **Liquidation Jackpot · 청산 잭팟** — the server-recorded rolling 15-minute total survives reloads and fires at $5M / 서버가 기록한 최근 15분 청산 누계를 새로고침 뒤에도 복원하고 $5M에서 잭팟 발동
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
-- **Session Championship · 세션 챔피언십** — Asia (08–16 KST), Europe (16–22), and U.S. (22–08) compared by absolute return plus 35% of realized range; a five-minute REST snapshot with no socket of its own / 아시아·유럽·미국장을 절대 수익률에 변동폭 35%를 더한 점수로 비교, 전용 회선 없이 5분 REST 스냅샷으로 갱신
+- **Session Championship · 세션 챔피언십** — Asia (08–16 KST), Europe (16–22), and U.S. (22–08) ranked by signed session return, with realized range used only as a tie-breaker; a five-minute REST snapshot with no socket of its own / 아시아·유럽·미국장을 부호 있는 세션 수익률로 비교하고 동률일 때만 변동폭으로 순위를 정하며, 전용 회선 없이 5분 REST 스냅샷으로 갱신
 - **Market Highlights · 시장 하이라이트** — a 24/7 server records major candles, breakouts, whales, liquidation bursts, jackpots, and settled macro releases to a 48-hour Supabase ledger; the latest 24 hours are replayable and recent liquidation clusters are marked on the BTC chart / 24시간 서버가 장대봉·돌파·고래·청산 폭발·잭팟·지표 확정을 48시간 Supabase 장부에 보관하고, 최근 24시간 전표와 청산 차트 마커를 모든 방문자에게 동일하게 제공
 
 ### Candle Deck 🃏 · 캔들 덱

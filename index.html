@@ -4493,7 +4493,7 @@ function disconnectLiquidations() {
   wsl = null; setLiqStreamState('connecting');
 }
 
-// ═══ 세션 챔피언십 — 아시아·유럽·미국장 중 오늘 가장 거친 시간대 ═══
+// ═══ 세션 챔피언십 — 아시아·유럽·미국장 최근 회차 수익률 비교 ═══
 // 5분봉 REST 스냅샷만 사용 (웹소켓 없음). 라운지가 보이는 동안 5분마다 갱신.
 let sessionBars = [], sessionTimer = null, sessionFetching = false;
 function sessionDayStart(){ const d = new Date(Date.now()+9*3600000);
@@ -4526,9 +4526,10 @@ function renderSessions() {
     const ret = (close/open - 1) * 100, range = (hi/lo - 1) * 100;
     const end = name === liveName ? Date.now() : a.at(-1).t + 5*60000;
     const minutes = Math.max(1, Math.floor((end - a[0].t) / 60000));
-    return { name, a, ret, range, minutes, score: Math.abs(ret) + range * .35 };
+    return { name, a, ret, range, minutes };
   });
-  const winner = stats.filter(x => x.ret !== null).sort((a,b) => b.score - a.score)[0];
+  const winner = stats.filter(x => x.ret !== null)
+    .sort((a,b) => (b.ret - a.ret) || (b.range - a.range))[0];
   const grid = $('sessionGrid'); grid.textContent = '';
   stats.forEach(s => {
     const c = document.createElement('div');
@@ -4551,7 +4552,7 @@ function renderSessions() {
   });
   $('sessionBadge').textContent = winner ? `${winner.name} LEADS` : 'LATEST';
   $('sessionCopy').textContent = winner
-    ? `${winner.name} 세션이 등락률 ${winner.ret>=0?'+':''}${winner.ret.toFixed(2)}%, 변동폭 ${winner.range.toFixed(2)}%로 종합 선두입니다.`
+    ? `${winner.name} 세션이 등락률 ${winner.ret>=0?'+':''}${winner.ret.toFixed(2)}%로 수익률 선두입니다. 변동폭은 ${winner.range.toFixed(2)}%입니다.`
     : '세션 장부를 기다리고 있습니다.';
 }
 async function fetchSessions() {
