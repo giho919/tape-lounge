@@ -389,14 +389,37 @@ def next_index(path: Path) -> int:
     return mx + 1
 
 
+def load_packs_file(path: Path) -> list[tuple[str, list[dict[str, str]]]]:
+    """JSONL 배치 파일을 읽는다. 각 줄: {"scenario_key": ..., "messages": [{agent_key, body}, ...]}
+    nick 은 AGENT_NAMES 에서 자동으로 채운다 — 손으로 적다가 틀리는 걸 막는다."""
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip() or line.lstrip().startswith("//"):
+            continue
+        d = json.loads(line)
+        msgs = [m(x["agent_key"], x["body"]) for x in d["messages"]]
+        out.append((d["scenario_key"], msgs))
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--append", action="store_true", help="검증 통과 시 라이브러리에 추가")
+    ap.add_argument("--packs-file", type=Path, help="JSONL 배치 파일 (없으면 내장 PACKS)")
     args = ap.parse_args()
 
+    packs = load_packs_file(args.packs_file) if args.packs_file else PACKS
+    globals()["PACKS"] = packs
+
+    # 라이브러리에 이미 있는 문장과 겹치면 dedup 필터에 함께 걸리므로 미리 배제한다.
     seen: set[str] = set()
+    if LIBRARY.exists():
+        for line in LIBRARY.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                for msg in json.loads(line)["messages"]:
+                    seen.add(re.sub(r"\s+", " ", msg["body"]).strip())
     all_errs: list[str] = []
-    for scene, msgs in PACKS:
+    for scene, msgs in packs:
         errs = validate(scene, msgs, seen)
         if errs:
             all_errs.append(f"[{scene}] " + "; ".join(errs))

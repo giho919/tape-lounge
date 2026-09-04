@@ -66,9 +66,9 @@ OFFICIAL_GAP_SECONDS = 4 * 3600
 OFFICIAL_CHANCE = 0.15
 # 손으로 쓴 대사 우선 추첨 확률 (claude_dialogue_batch.py 가 채워 넣는다)
 AUTHORED_SOURCE = "claude-authored"
-# 팩 수가 적을 때 같은 대사가 반복되지 않도록 보수적으로 시작한다.
-# claude_dialogue_batch.py 로 팩이 쌓이면 올려도 된다.
-AUTHORED_CHANCE = 0.35
+# 손으로 쓴 팩이 충분히 쌓여 항상 우선한다. 그 팩이 최근 중복 필터로 고갈되면
+# choose_pack 이 자동으로 기존 풀로 되돌아가므로 1.0 이어도 침묵하지 않는다.
+AUTHORED_CHANCE = 1.0
 PUBLISH_ATTEMPTS = 3
 TRANSIENT_HTTP_STATUS = {408, 425, 429, 500, 502, 503, 504}
 PLACEHOLDER_RE = re.compile(r"\{([a-z_]+)\}")
