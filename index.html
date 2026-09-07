@@ -2290,7 +2290,7 @@ function startSitePresence() {
   presenceChannel = channel;
   channel.subscribe(async status => {
     if (status === 'SUBSCRIBED' && presenceChannel === channel) {
-      await channel.track({ online_at:new Date().toISOString() });
+      if (!analyticsInternal) await channel.track({ online_at:new Date().toISOString() });
       renderViewerCount();
     } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
       $('viewerCount').textContent = '연결 대기';
