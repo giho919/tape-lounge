@@ -46,6 +46,7 @@ order by b.first_at,b.source_chat_id;
 $$;
 revoke all on function private.lounge_reply_candidates(timestamptz) from public,anon,authenticated;
 grant execute on function private.lounge_reply_candidates(timestamptz) to service_role;
+grant usage on schema private to service_role;
 comment on function private.lounge_reply_candidates(timestamptz) is
 'Shared read-only queue for market/reply automations. All eligible bundles, oldest first; semantic filtering happens before selecting one.';
 
