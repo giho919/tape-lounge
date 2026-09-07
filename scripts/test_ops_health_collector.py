@@ -72,6 +72,29 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(issues, ["cpu_temp_c_high", "disk_busy"])
 
     def test_publish_signs_exact_envelope(self):
+        self._check_publish_signs_exact_envelope()
+
+    def test_missing_kubernetes_is_not_healthy(self):
+        health = healthy_snapshot()
+        health['details']['kubernetes']['available'] = False
+        self.assertIn('kubernetes_check_failed', MODULE.assess_health(health)[1])
+
+    def test_failed_services_are_visible(self):
+        health = healthy_snapshot()
+        health['details']['server'] = {'failed_system_units': ['virtualbox.service'], 'failed_user_units': None}
+        issues = MODULE.assess_health(health)[1]
+        self.assertIn('system_units_failed', issues)
+        self.assertIn('user_units_check_failed', issues)
+
+    def test_balance_lookup_failure_is_unknown(self):
+        self.assertIsNone(MODULE.account_alignment({'accounts':[{'aligned':False,'error':'DNS'}]},0))
+        health = healthy_snapshot()
+        health['bithumb_account_1_aligned'] = None
+        issues = MODULE.assess_health(health)[1]
+        self.assertIn('bithumb_account_1_unknown', issues)
+        self.assertNotIn('bithumb_account_1_not_aligned', issues)
+
+    def _check_publish_signs_exact_envelope(self):
         health = {"sample_key": "server:123"}
         with tempfile.TemporaryDirectory() as directory:
             key = Path(directory) / "key.pem"

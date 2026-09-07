@@ -9,8 +9,10 @@ Coin Metrics Community API의 무료 일일 지표를 정적 JSON으로 정규�
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import subprocess
+import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -102,32 +104,54 @@ def stable(report: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in report.items() if key != "generated_at"}
 
 
-def git(*args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", "-C", str(REPO), *args], timeout=120, capture_output=True, text=True)
+def git(*args: str, repo: Path = REPO) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", "-C", str(repo), *args], timeout=120, capture_output=True, text=True)
 
 
-def prepare_publish() -> None:
-    if git("status", "--porcelain").stdout.strip():
-        raise RuntimeError("tape-lounge 작업트리가 깨끗하지 않아 publish를 중단합니다")
-    fetched = git("fetch", "-q", "origin", "main")
-    if fetched.returncode:
-        raise RuntimeError(f"git fetch 실패: {fetched.stderr.strip()[:180]}")
-    reset = git("reset", "--hard", "origin/main")
-    if reset.returncode:
-        raise RuntimeError(f"git reset 실패: {reset.stderr.strip()[:180]}")
+def publish_isolated(report: dict[str, Any], now: datetime, relative_output: Path) -> None:
+    """Publish from a disposable clone, never reset/stash the operational checkout."""
+    remote = git("remote", "get-url", "origin")
+    if remote.returncode or not remote.stdout.strip():
+        raise RuntimeError("온체인 발행 origin 확인 실패")
+    lock_dir = Path.home() / ".cache" / "tape-lounge"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    with (lock_dir / "onchain-publish.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        with tempfile.TemporaryDirectory(prefix="tape-onchain-") as directory:
+            checkout = Path(directory) / "repo"
+            cloned = subprocess.run(
+                ["git", "clone", "--quiet", "--depth=1", "--branch=main",
+                 "--single-branch", remote.stdout.strip(), str(checkout)],
+                capture_output=True, text=True, timeout=180,
+            )
+            if cloned.returncode:
+                raise RuntimeError("온체인 발행용 임시 clone 실패")
+            # Carry over repository-local author configuration, not credentials.
+            for key in ("user.name", "user.email"):
+                value = git("config", key)
+                if value.returncode == 0:
+                    git("config", key, value.stdout.strip(), repo=checkout)
+            output = checkout / relative_output
+            if write_report(output, report):
+                publish(output, now, repo=checkout)
 
 
-def publish(output: Path, now: datetime) -> None:
-    rel = str(output.relative_to(REPO))
-    git("add", rel)
-    committed = git("commit", "-q", "-m", f"data: 온체인 스냅샷 {now:%Y-%m-%d}")
+def publish(output: Path, now: datetime, *, repo: Path = REPO) -> None:
+    rel = str(output.relative_to(repo))
+    if git("add", "--", rel, repo=repo).returncode:
+        raise RuntimeError("온체인 git add 실패")
+    committed = git("commit", "-q", "-m", f"data: 온체인 스냅샷 {now:%Y-%m-%d}", repo=repo)
     if committed.returncode:
-        print("온체인 변경 없음 (스킵)")
-        return
-    pushed = git("push", "-q")
-    if pushed.returncode:
-        raise RuntimeError(f"git push 실패: {pushed.stderr.strip()[:180]}")
-    print("온체인 스냅샷 push 완료")
+        raise RuntimeError("온체인 git commit 실패")
+    for attempt in range(3):
+        if git("push", "-q", "origin", "HEAD:main", repo=repo).returncode == 0:
+            print("온체인 스냅샷 push 완료")
+            return
+        if git("fetch", "-q", "origin", "main", repo=repo).returncode:
+            break
+        if git("rebase", "origin/main", repo=repo).returncode:
+            break
+    raise RuntimeError("온체인 git push 실패; 다음 예약에서 재시도")
 
 
 def main() -> None:
@@ -135,11 +159,16 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
-    if args.publish:
-        prepare_publish()
     now = datetime.now(UTC)
     report = build_report(now)
     output = args.output.expanduser().resolve()
+    if args.publish:
+        publish_isolated(report, now, output.relative_to(REPO))
+    else:
+        write_report(output, report)
+
+
+def write_report(output: Path, report: dict[str, Any]) -> bool:
     previous = None
     if output.exists():
         try:
@@ -148,12 +177,11 @@ def main() -> None:
             pass
     if previous is not None and stable(previous) == stable(report):
         print(f"온체인 내용 변경 없음 · 기준일 {report['as_of']}")
-        return
+        return False
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{len(report['history'])}일 저장 · 기준일 {report['as_of']} · {output}")
-    if args.publish:
-        publish(output, now)
+    return True
 
 
 if __name__ == "__main__":

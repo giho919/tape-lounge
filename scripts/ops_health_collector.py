@@ -34,7 +34,7 @@ BITHUMB_STATUS = Path(
         "/home/shyoo/mirage/user_data/state/bithumb_signal_executor.json",
     )
 )
-VERSION = "1.0"
+VERSION = "1.1"
 
 
 def iso_time(value: datetime) -> str:
@@ -61,13 +61,15 @@ def systemd_properties(unit: str, *, user: bool = True) -> dict[str, str]:
     return dict(line.split("=", 1) for line in output.splitlines() if "=" in line)
 
 
-def failed_units(*, user: bool) -> list[str]:
+def failed_units(*, user: bool) -> list[str] | None:
     args = ["systemctl"]
     if user:
         args.append("--user")
     args.extend(["--failed", "--no-legend", "--plain"])
-    output = command(args) or ""
-    return [line.split()[0] for line in output.splitlines() if line.split()]
+    output = command(args)
+    if output is None:
+        return None
+    return [line.split()[0] for line in output.splitlines() if line.split()][:20]
 
 
 def cpu_counters(path: Path = Path("/proc/stat")) -> tuple[int, int]:
@@ -261,6 +263,8 @@ def account_alignment(status: dict[str, Any] | None, index: int) -> bool | None:
     if not isinstance(accounts, list) or index >= len(accounts) or not isinstance(accounts[index], dict):
         return None
     value = accounts[index].get("aligned")
+    if accounts[index].get("error"):
+        return None  # Failed lookup is not proof of an incorrect holding.
     return value if isinstance(value, bool) else None
 
 
@@ -275,7 +279,9 @@ def assess_health(health: dict[str, Any]) -> tuple[str, list[str]]:
     if health["bithumb_last_exit_code"] not in (0, None):
         critical.append("bithumb_executor_failed")
     for index, value in enumerate((health["bithumb_account_1_aligned"], health["bithumb_account_2_aligned"]), 1):
-        if value is not True:
+        if value is None:
+            critical.append(f"bithumb_account_{index}_unknown")
+        elif value is not True:
             critical.append(f"bithumb_account_{index}_not_aligned")
     if details["bithumb"].get("status_error"):
         critical.append("bithumb_status_error")
@@ -300,8 +306,17 @@ def assess_health(health: dict[str, Any]) -> tuple[str, list[str]]:
         degraded.append("cpu_saturated")
     if health.get("disk_busy_pct") is not None and health["disk_busy_pct"] >= 90:
         degraded.append("disk_busy")
-    if details["kubernetes"].get("available") and details["kubernetes"].get("unhealthy", 0) > 0:
+    if not details["kubernetes"].get("available"):
+        degraded.append("kubernetes_check_failed")
+    elif details["kubernetes"].get("unhealthy", 0) > 0:
         degraded.append("kubernetes_pods_unhealthy")
+    server = details.get("server", {})
+    for scope in ("system", "user"):
+        key = f"failed_{scope}_units"
+        if key in server and server[key] is None:
+            degraded.append(f"{scope}_units_check_failed")
+        elif server.get(key):
+            degraded.append(f"{scope}_units_failed")
     if details["services"].get("tape-market-recorder.service") != "active":
         degraded.append("market_recorder_unhealthy")
     issues = critical + degraded
@@ -314,7 +329,8 @@ def collect_health(now: datetime | None = None) -> dict[str, Any]:
     activity = sample_activity()
     memory = memory_metrics()
     root = shutil.disk_usage("/")
-    root_used_pct = round((root.total - root.free) / root.total * 100, 2)
+    # Match df's usable-space denominator, excluding reserved blocks.
+    root_used_pct = round(root.used / (root.used + root.free) * 100, 2)
     gpu = gpu_metrics()
 
     main = systemd_properties("freqtrade-btc-paxg.service")
@@ -346,7 +362,7 @@ def collect_health(now: datetime | None = None) -> dict[str, Any]:
                 accounts.append({
                     "name": str(account.get("name", ""))[:20],
                     "target": account.get("target"),
-                    "aligned": account.get("aligned"),
+                    "aligned": None if account.get("error") else account.get("aligned"),
                     "action": str(account.get("action", ""))[:80],
                     "error": bool(account.get("error")),
                 })
@@ -386,8 +402,8 @@ def collect_health(now: datetime | None = None) -> dict[str, Any]:
                 "swap_total_mb": memory["swap_total_mb"],
                 "root_disk_available_gb": round(root.free / 1024 ** 3, 2),
                 "disk_device": activity["disk_device"],
-                "failed_system_units": failed_units(user=False)[:20],
-                "failed_user_units": failed_units(user=True)[:20],
+                "failed_system_units": failed_units(user=False),
+                "failed_user_units": failed_units(user=True),
             },
             "gpu": gpu,
             "main_bot": {

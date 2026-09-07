@@ -896,7 +896,7 @@ body.shake { animation:shake .5s; }
     <div id="feed"></div>
     <div id="chatIn">
       <input id="chatTxt" maxlength="200" placeholder="한마디 남기기…" onkeydown="if(event.key==='Enter')chatSend()">
-      <button onclick="chatSend()">전송</button>
+      <button id="chatSendBtn" onclick="chatSend()">전송</button>
     </div>
   </div>
   </div>
@@ -2386,18 +2386,43 @@ function sayUser(nick, body, authorType = 'human', agentKey = null) {
   while (feed.children.length > 60) feed.removeChild(feed.firstChild);
   feed.scrollTop = feed.scrollHeight;
 }
-let _lastChat = 0;
+let _lastChat = 0, _chatSending = false;
 async function chatSend() {
-  if (!sbc) return;
+  if (_chatSending) return;
   const inp = $('chatTxt'), body = inp.value.trim();
   if (!body) return;
   if (myNick.startsWith('나 ')) { setNick(); if (myNick.startsWith('나 ')) return; }
   if (Date.now() - _lastChat < 3000) return;   // 도배 쿨다운 3초
-  await ensureAuth(); if (!myUid) return;
-  _lastChat = Date.now();
-  inp.value = '';
-  const { error } = await sbc.from('salon_chat').insert({ nick: myNick, body, user_id: myUid });
-  if (error) console.log('chat err', error.message);
+  const button = $('chatSendBtn');
+  let status = $('chatSendStatus');
+  if (!status) {
+    status = document.createElement('div');
+    status.id = 'chatSendStatus';
+    status.setAttribute('role', 'status');
+    status.style.cssText = 'color:#e7b86d;font-size:12px;padding:4px 12px';
+    inp.parentElement.insertAdjacentElement('afterend', status);
+  }
+  _chatSending = true;
+  button.disabled = true;
+  button.textContent = '전송 중…';
+  status.textContent = '';
+  try {
+    if (!sbc) throw new Error('chat unavailable');
+    await ensureAuth();
+    if (!myUid) throw new Error('authentication unavailable');
+    const { error } = await sbc.from('salon_chat').insert({ nick: myNick, body, user_id: myUid });
+    if (error) throw error;
+    _lastChat = Date.now();
+    // Preserve a new draft typed while the request was in flight.
+    if (inp.value.trim() === body) inp.value = '';
+  } catch (error) {
+    status.textContent = '전송을 확인하지 못했어요. 채팅에 올라왔는지 확인한 뒤 다시 시도해 주세요.';
+    console.warn('chat send failed');
+  } finally {
+    _chatSending = false;
+    button.disabled = false;
+    button.textContent = '전송';
+  }
 }
 window.chatSend = chatSend;
 
