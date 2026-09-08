@@ -100,8 +100,12 @@ canvas { display:block; }
 #liqFlash { position:absolute; top:34px; left:0; right:0; text-align:center; font-size:13px; font-weight:700; opacity:0; transition:opacity .3s; pointer-events:none; letter-spacing:1px; z-index:5; }
 .rainlbl { position:absolute; bottom:8px; font-size:10px; letter-spacing:2px; color:var(--dim); z-index:4; }
 
-#feed { flex:1; overflow-y:auto; padding:12px 16px; display:flex; flex-direction:column; gap:10px; min-height:0; scrollbar-width:thin; }
-.msg { font-size:13px; line-height:1.55; animation:fadein .4s; }
+#feed { flex:1; overflow-y:auto; overflow-anchor:none; padding:12px 16px; display:flex; flex-direction:column; gap:10px; min-height:0; scrollbar-width:thin; }
+.msg { flex-shrink:0; overflow-wrap:anywhere; font-size:13px; line-height:1.55; animation:fadein .4s; }
+.chatTime { float:right; margin:3px 0 2px 9px; color:#929aa9; font:10px Menlo,monospace; }
+#chatJump { align-self:center; margin:4px 12px 8px; padding:7px 15px; border:1px solid var(--gold-dim); border-radius:20px; background:rgba(212,175,55,.08); color:var(--gold); font-size:11px; cursor:pointer; }
+#chatJump[hidden] { display:none; }
+#chatJump:focus-visible,.highlightRow:focus-visible,.loungeGuide summary:focus-visible,.highlightFilters button:focus-visible { outline:2px solid var(--gold); outline-offset:-3px; }
 @keyframes fadein { from { opacity:0; transform:translateY(6px); } }
 .msg .who { font-weight:700; margin-right:6px; }
 .msg .aiTag { display:inline-flex; align-items:center; margin:-1px 6px 0 0; padding:1px 5px; border:1px solid rgba(56,189,248,.32); border-radius:999px; color:#7dd3fc; background:rgba(56,189,248,.08); font-size:8.5px; font-weight:800; letter-spacing:.45px; vertical-align:1px; }
@@ -110,7 +114,7 @@ canvas { display:block; }
 .msg .ava { width:18px; height:18px; border-radius:50%; vertical-align:-4px; margin-right:5px; border:1px solid var(--gold-dim); }
 .msg .crewAva { width:18px; height:18px; border-radius:50%; vertical-align:2px; margin-right:5px; border:1px solid rgba(56,189,248,.32); background:rgba(56,189,248,.1); color:#7dd3fc; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; }
 #chatIn { display:flex; gap:8px; padding:10px 14px; border-top:1px solid var(--line); }
-#chatIn input { flex:1; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:#e5e7eb; font-size:12.5px; outline:none; }
+#chatIn input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:#e5e7eb; font-size:12.5px; outline:none; }
 #chatIn input:focus { border-color:var(--gold-dim); }
 #chatIn button { background:var(--gold-dim); border:1px solid var(--gold); border-radius:8px; color:#fff; font-size:11.5px; letter-spacing:1px; padding:0 16px; cursor:pointer; }
 #chatIn button:hover { filter:brightness(1.2); }
@@ -394,7 +398,7 @@ body.shake { animation:shake .5s; }
 .raceFoot { display:flex; justify-content:space-between; padding:6px 14px 12px; border-top:1px solid var(--line); font-size:9.5px; color:var(--dim); }
 
 .highlightList { padding:5px 0; overflow:auto; max-height:246px; }
-.highlightRow { display:grid; grid-template-columns:30px 1fr 18px; gap:8px; align-items:center; padding:9px 13px; border-bottom:1px solid var(--line); cursor:pointer; }
+.highlightRow { display:grid; width:100%; background:transparent; text-align:left; font:inherit; border:0; grid-template-columns:30px minmax(0,1fr) 18px; gap:8px; align-items:center; min-height:54px; padding:9px 13px; border-bottom:1px solid var(--line); cursor:pointer; }
 .highlightRow:hover { background:rgba(212,175,55,.06); }
 .highlightRow:last-child { border-bottom:0; }
 .highlightIcon { font-size:18px; text-align:center; }
@@ -402,6 +406,22 @@ body.shake { animation:shake .5s; }
 .highlightMain span { display:block; margin-top:3px; font-size:9.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .highlightPlay { color:var(--gold-dim); font-size:12px; }
 .highlightEmpty { padding:30px 18px; text-align:center; color:var(--dim); font-size:11px; line-height:1.7; }
+.highlightTools { padding:9px 13px 8px; border-bottom:1px solid var(--line); }
+.highlightPeriod { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:10px; color:var(--dim); }
+.highlightPeriod select { color:#d9dde7; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:5px; font:inherit; }
+.highlightFilters { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.highlightFilters button { padding:5px 9px; border:1px solid var(--line); border-radius:20px; color:#a4abba; background:transparent; font:inherit; font-size:10px; cursor:pointer; min-height:30px; }
+.highlightFilters button[aria-pressed="true"] { color:var(--gold); border-color:var(--gold-dim); background:rgba(212,175,55,.08); }
+.highlightFoot { padding:8px 13px; border-top:1px solid var(--line); color:var(--dim); font-size:10px; line-height:1.5; }
+.highlightMore { padding:8px; color:var(--gold); background:transparent; border:0; border-top:1px solid var(--line); font-size:11px; cursor:pointer; }
+.highlightMore[hidden] { display:none; }
+.loungeGuide { margin:0 0 12px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:#aeb6c5; }
+.loungeGuide summary { padding:11px 14px; font-size:11px; cursor:pointer; color:var(--gold); }
+.loungeGuide summary span { margin-left:10px; color:var(--dim); font-size:10px; }
+.loungeGuideGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; padding:2px 15px 14px; }
+.loungeGuideGrid b { display:block; color:#d9dde7; font-size:12px; margin-bottom:5px; font-weight:600; }
+.loungeGuideGrid p { font-size:11px; line-height:1.75; margin:0; }
+@media(max-width:600px){ .loungeGuideGrid{grid-template-columns:1fr;gap:12px}.loungeGuide summary span{margin-left:5px} }
 @media (max-width:900px){ .pitStage{grid-template-columns:78px 1fr 118px}.pitScene{width:68px;height:68px;font-size:35px}.spectatorGrid{grid-template-columns:1fr 1fr}.spectatorGrid .spectatorCard:last-child{grid-column:1/-1}.highlightList{max-height:190px} }
 @media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorGrid{grid-template-columns:1fr}.spectatorGrid .spectatorCard:last-child{grid-column:auto}.spectatorCard{min-height:0} }
 
@@ -729,6 +749,15 @@ body.shake { animation:shake .5s; }
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
 
+<details class="loungeGuide">
+  <summary>라운지 안내 <span>처음 오셨다면, 이 세 가지만</span></summary>
+  <div class="loungeGuideGrid">
+    <div><b>01 · 놓친 장면부터</b><p>시장 하이라이트에서 최근 사건을 골라 보세요. 전표를 누르면 위 메인 테이블에서 다시 볼 수 있어요. 재생은 과거 기록이지 새로 발생한 사건은 아니에요.</p></div>
+    <div><b>02 · 숫자보다 맥락</b><p>청산은 빌린 돈으로 잡은 포지션이 강제로 정리된 금액이에요. 체결의 비는 실제 거래, 호가창은 아직 체결되지 않은 주문이에요. 큰 움직임 하나만으로 다음 방향이 정해지지는 않아요.</p></div>
+    <div><b>03 · 편하게 참여하기</b><p>채팅의 AI 배지는 라운지 크루를 뜻해요. 궁금한 점이나 시장을 보며 든 생각을 남겨도 좋아요. 모의투자는 가짜 돈으로 하는 연습이며, 실제 주문은 나가지 않아요.</p></div>
+  </div>
+</details>
+
 <section class="spectatorFloor" aria-label="실시간 시장 관전 카지노">
   <div class="pitStage" id="pitStage">
     <div class="pitScene" id="pitScene" aria-hidden="true">🎩</div>
@@ -777,8 +806,20 @@ body.shake { animation:shake .5s; }
     </div>
 
     <div class="panel spectatorCard">
-      <h3>🎞 시장 하이라이트 <small>최근 24시간 · 눌러서 다시 보기</small></h3>
+      <h3>🎞 시장 하이라이트 <small>놓친 장면 다시 보기</small></h3>
+      <div class="highlightTools">
+        <div class="highlightPeriod"><span>공용 시장 전표 · 한국시간</span><label>기간 <select id="highlightPeriod" aria-label="하이라이트 조회 기간" onchange="setHighlightWindow(this.value)"><option value="1">최근 1시간</option><option value="6">최근 6시간</option><option value="24" selected>최근 24시간</option></select></label></div>
+        <div class="highlightFilters" role="group" aria-label="하이라이트 종류">
+          <button type="button" aria-pressed="true" data-highlight-kind="all" onclick="setHighlightKind('all')">전체</button>
+          <button type="button" aria-pressed="false" data-highlight-kind="liquidation" onclick="setHighlightKind('liquidation')">청산</button>
+          <button type="button" aria-pressed="false" data-highlight-kind="price" onclick="setHighlightKind('price')">가격</button>
+          <button type="button" aria-pressed="false" data-highlight-kind="whale" onclick="setHighlightKind('whale')">고래</button>
+          <button type="button" aria-pressed="false" data-highlight-kind="macro" onclick="setHighlightKind('macro')">발표</button>
+        </div>
+      </div>
       <div class="highlightList" id="highlightList"></div>
+      <button type="button" class="highlightMore" id="highlightMore" onclick="showMoreHighlights()" hidden>전표 더 보기</button>
+      <div class="highlightFoot" id="highlightStatus" role="status">시장 장부를 불러오는 중</div>
     </div>
   </div>
 
@@ -892,10 +933,11 @@ body.shake { animation:shake .5s; }
 
   <div class="col">
   <div class="panel" id="chatPanel">
-    <h3>🥂 라운지 채팅 <small>살롱 피드</small><b class="nickBtn" id="nickBtn" onclick="setNick()">—</b></h3>
-    <div id="feed"></div>
+    <h3>🥂 라운지 채팅 <small id="chatConnection">연결 중</small><b class="nickBtn" id="nickBtn" onclick="setNick()">—</b></h3>
+    <div id="feed" tabindex="0" aria-label="라운지 대화 · 작성 시각은 한국시간"></div>
+    <button type="button" id="chatJump" onclick="jumpToLatestChat()" hidden aria-live="polite">새 메시지 ↓</button>
     <div id="chatIn">
-      <input id="chatTxt" maxlength="200" placeholder="한마디 남기기…" onkeydown="if(event.key==='Enter')chatSend()">
+      <input id="chatTxt" maxlength="200" aria-label="채팅 메시지" placeholder="한마디 남기기…" onkeydown="if(event.key==='Enter'&&!event.isComposing)chatSend()">
       <button id="chatSendBtn" onclick="chatSend()">전송</button>
     </div>
   </div>
@@ -2091,6 +2133,54 @@ setInterval(() => {
 
 // ═══ 라운지 피드 ═══
 const feed = $('feed');
+let chatUnread = 0;
+function chatViewport() {
+  const top = feed.getBoundingClientRect().top;
+  const anchor = [...feed.children].find(node => node.getBoundingClientRect().bottom > top + 1);
+  return { atEnd:feed.scrollHeight - feed.clientHeight - feed.scrollTop < 40,
+    node:anchor, id:anchor?.dataset.chatId, offset:anchor ? anchor.getBoundingClientRect().top - top : 0 };
+}
+function updateChatJump() {
+  const button = $('chatJump');
+  button.hidden = chatUnread === 0;
+  button.textContent = `새 메시지 ${chatUnread > 99 ? '99+' : chatUnread}개 ↓`;
+}
+function jumpToLatestChat() {
+  chatUnread = 0; updateChatJump();
+  feed.scrollTop = feed.scrollHeight;
+}
+function restoreChatViewport(view) {
+  if (view.atEnd) { jumpToLatestChat(); return; }
+  const anchor = view.id ? [...feed.children].find(node => node.dataset.chatId === view.id) : view.node;
+  if (anchor?.parentElement === feed) {
+    feed.scrollTop += anchor.getBoundingClientRect().top - feed.getBoundingClientRect().top - view.offset;
+  }
+}
+function appendChatMessage(node) {
+  const view = chatViewport();
+  feed.appendChild(node);
+  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
+  if (!view.atEnd) { chatUnread++; updateChatJump(); }
+  restoreChatViewport(view);
+}
+feed.addEventListener('scroll', () => {
+  if (feed.scrollHeight - feed.clientHeight - feed.scrollTop < 16 && chatUnread) {
+    chatUnread = 0; updateChatJump();
+  }
+}, {passive:true});
+function chatTimeElement(createdAt) {
+  if (!createdAt) return null;
+  const date = new Date(createdAt);
+  if (!Number.isFinite(+date)) return null;
+  const time = document.createElement('time');
+  time.className = 'chatTime'; time.dateTime = date.toISOString();
+  time.textContent = date.toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  if (date.toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'}) !== new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})) {
+    time.textContent = date.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit'}) + ' ' + time.textContent;
+  }
+  time.title = date.toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}) + ' · 한국시간';
+  return time;
+}
 const CHAT_AVA = {
   madam: 'avatars/madam.png', andy: 'avatars/andy.png', justin: 'avatars/prof.png',
   degen: 'avatars/degen.png', hermit: 'avatars/hermit.png', wolf: 'avatars/wolf.png'
@@ -2100,9 +2190,7 @@ function say(cls, who, body) {
   m.className = 'msg ' + cls;
   const ava = CHAT_AVA[cls] ? `<img class="ava" src="${CHAT_AVA[cls]}" alt="">` : '';
   m.innerHTML = ava + (who ? `<span class="who">${who}</span>` : '') + `<span class="body">${body}</span>`;
-  feed.appendChild(m);
-  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
-  feed.scrollTop = feed.scrollHeight;
+  appendChatMessage(m);
 }
 // 서버에서 내려오는 서신은 HTML로 해석하지 않는다. 배포 파이프라인이나 JSON이
 // 오염돼도 방문자 브라우저에서 스크립트가 실행되지 않도록 DOM 텍스트로만 렌더링한다.
@@ -2127,9 +2215,7 @@ function sayLetter(cls, who, body) {
   text.className = 'body';
   text.textContent = String(body ?? '');
   m.appendChild(text);
-  feed.appendChild(m);
-  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
-  feed.scrollTop = feed.scrollHeight;
+  appendChatMessage(m);
 }
 // 전략가 서신 — 서버가 매일 reports/letters.json에 갱신 (실패 시 폴백)
 const CHAR_NAME = { madam: '鄭마담', andy: 'Andy', justin: 'Prof. Justin' };
@@ -2370,7 +2456,7 @@ function nickColor(n) {
 }
 const CHAT_CREW_ICON = { watcher:'○', chart_doryeong:'⌁', funding_bear:'₣', spot_sister:'●' };
 const CHAT_OFFICIAL = new Set(['madam', 'andy', 'justin']);
-function sayUser(nick, body, authorType = 'human', agentKey = null) {
+function sayUser(nick, body, authorType = 'human', agentKey = null, createdAt = null, id = null, append = true) {
   const m = document.createElement('div');
   const virtual = authorType === 'virtual';
   m.className = `msg user${virtual ? ' virtual' : ''}`;
@@ -2382,9 +2468,11 @@ function sayUser(nick, body, authorType = 'human', agentKey = null) {
   const tag = virtual
     ? `<span class="aiTag${official ? ' official' : ''}" title="AI가 생성한 공개 시장 대화">${official ? '공식 전략가 · AI' : '라운지 크루 · AI'}</span>` : '';
   m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
-  feed.appendChild(m);
-  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
-  feed.scrollTop = feed.scrollHeight;
+  if (id !== null) m.dataset.chatId = String(id);
+  const time = chatTimeElement(createdAt);
+  if (time) m.prepend(time);
+  if (append) appendChatMessage(m);
+  return m;
 }
 let _lastChat = 0, _chatSending = false;
 async function chatSend() {
@@ -2429,20 +2517,38 @@ window.chatSend = chatSend;
 
 // ═══ 채팅 실시간 연결 — 라운지가 보일 때만 유지하고 복귀 시 누락분 동기화 ═══
 let chatChannel = null, chatChannelSeq = 0;
-const chatSeenIds = new Set();
+const chatRows = new Map();
+let chatArrivalSequence = 0, chatHistoryGeneration = 0;
 function renderChatRow(row) {
-  if (!row || chatSeenIds.has(row.id)) return;
-  chatSeenIds.add(row.id);
-  sayUser(row.nick, row.body, row.author_type, row.agent_key);
+  if (!row || row.id == null || chatRows.has(String(row.id))) return;
+  chatRows.set(String(row.id), {row, sequence:++chatArrivalSequence});
+  while (chatRows.size > 120) chatRows.delete(chatRows.keys().next().value);
+  sayUser(row.nick, row.body, row.author_type, row.agent_key, row.created_at, row.id);
 }
 async function loadChatHistory() {
   if (!sbc) return;
-  const { data, error } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(30);
-  if (error) { console.warn('chat history', error.message); return; }
-  // 서버의 현재 목록으로 다시 그려 삭제된 과거 가상 대화가 열린 탭에 남지 않게 한다.
-  feed.replaceChildren();
-  chatSeenIds.clear();
-  (data || []).reverse().forEach(renderChatRow);
+  const generation = ++chatHistoryGeneration, startedSequence = chatArrivalSequence;
+  try {
+    const { data, error } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(60);
+    if (generation !== chatHistoryGeneration) return;
+    if (error) throw error;
+    // Keep INSERTs received during the history request, but remove deleted old rows.
+    const merged = new Map((data || []).map(row => [String(row.id), row]));
+    chatRows.forEach(({row,sequence}, key) => { if (sequence > startedSequence) merged.set(key,row); });
+    const rows = [...merged.values()].sort((a,b) => Number(a.id) - Number(b.id)).slice(-60);
+    const view = chatViewport();
+    chatRows.clear();
+    const nodes = rows.map(row => {
+      chatRows.set(String(row.id), {row,sequence:chatArrivalSequence});
+      return sayUser(row.nick,row.body,row.author_type,row.agent_key,row.created_at,row.id,false);
+    });
+    feed.replaceChildren(...nodes);
+    restoreChatViewport(view);
+    $('chatConnection').textContent = '실시간 · 한국시간';
+  } catch (error) {
+    if (generation === chatHistoryGeneration) $('chatConnection').textContent = '대화 불러오기 지연';
+    console.warn('chat history unavailable');
+  }
 }
 function chatWanted() {
   const onLounge = document.querySelector('.tab.on')?.dataset.tab === 'lounge';
@@ -2453,15 +2559,20 @@ async function syncChat() {
     if (!chatChannel) {
       const channel = sbc.channel(`salon-chat-${++chatChannelSeq}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
-            p => renderChatRow(p.new));
+            p => { if (chatChannel === channel) renderChatRow(p.new); });
       chatChannel = channel;
       channel.subscribe(status => {
         if (status === 'SUBSCRIBED' && chatChannel === channel) loadChatHistory();
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.warn('chat realtime', status);
+        if (chatChannel === channel && (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT')) {
+          $('chatConnection').textContent = '재연결 중';
+          console.warn('chat realtime', status);
+        }
       });
     }
   } else if (chatChannel) {
     const channel = chatChannel; chatChannel = null;
+    chatHistoryGeneration++;  // Ignore a history response from a closed connection.
+    $('chatConnection').textContent = '대화 잠시 멈춤';
     sbc.removeChannel(channel);   // 백그라운드·타 탭에서는 회선 반납
   }
 }
@@ -2665,44 +2776,91 @@ const mmss = ms => {
 };
 
 let highlights = [];
+let highlightWindowHours = 24, highlightKind = 'all', highlightVisibleCount = 12;
+let marketHistoryReady = false, marketHistoryError = false, highlightRenderMinute = -1;
 const marketEventRows = new Map();
 let marketEventChannel = null;
 // 하이라이트의 정본은 서버 수집기와 Supabase 장부다. 기존 호출부는 실시간
 // 이펙트만 담당하고, 서로 다른 브라우저가 각자 전표를 만들지 않는다.
 function addHighlight() {}
+const HIGHLIGHT_KINDS = {
+  liquidation:['liquidation','jackpot'], price:['candle','breakout','breakdown'],
+  whale:['whale'], macro:['macro']
+};
+function filteredHighlights(now = Date.now()) {
+  return highlights.filter(h => h.ts >= now - highlightWindowHours * 3600000 && h.ts <= now
+    && (highlightKind === 'all' || HIGHLIGHT_KINDS[highlightKind]?.includes(h.type)));
+}
+function setHighlightWindow(value) {
+  const hours = Number(value);
+  if (![1,6,24].includes(hours)) return;
+  highlightWindowHours = hours; highlightVisibleCount = 12;
+  $('highlightPeriod').value = String(hours);
+  renderHighlights(); $('highlightList').scrollTop = 0;
+}
+function setHighlightKind(value) {
+  if (value !== 'all' && !Object.hasOwn(HIGHLIGHT_KINDS,value)) return;
+  highlightKind = value; highlightVisibleCount = 12;
+  document.querySelectorAll('[data-highlight-kind]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.highlightKind === value));
+  });
+  renderHighlights(); $('highlightList').scrollTop = 0;
+}
+function showMoreHighlights() {
+  highlightVisibleCount = Math.min(60,highlightVisibleCount + 12); renderHighlights();
+}
 function renderHighlights() {
-  const list = $('highlightList');
+  const list = $('highlightList'), top = list.scrollTop;
+  const focusedKey = list.contains(document.activeElement) ? document.activeElement.dataset.eventKey : null;
+  const filtered = filteredHighlights(), visible = filtered.slice(0,highlightVisibleCount);
   list.textContent = '';
-  if (!highlights.length) {
+  $('highlightMore').hidden = visible.length >= Math.min(60,filtered.length);
+  $('highlightStatus').textContent = marketHistoryError
+    ? '장부 연결 지연 · 마지막으로 받은 기록입니다'
+    : !marketHistoryReady ? '시장 장부를 불러오는 중'
+    : `최근 ${highlightWindowHours}시간 · 불러온 전표 ${filtered.length}건 중 ${visible.length}건 표시`;
+  if (!visible.length) {
     const empty = document.createElement('div'); empty.className = 'highlightEmpty';
-    empty.textContent = '극적인 시장 사건이 생기면 이곳에 전표가 쌓입니다.'; list.appendChild(empty); return;
+    empty.textContent = marketHistoryError ? '장부를 연결하지 못했어요. 새로고침해 다시 연결해 주세요.'
+      : !marketHistoryReady ? '공용 시장 장부를 읽고 있어요.'
+      : '이 시간대에는 해당 전표가 없어요. 기간을 넓히거나 다른 종류를 골라 보세요.';
+    list.appendChild(empty); return;
   }
-  highlights.forEach((h, i) => {
-    const row = document.createElement('div'); row.className = 'highlightRow'; row.onclick = () => replayHighlight(i);
+  visible.forEach(h => {
+    const row = document.createElement('button'); row.type = 'button'; row.className = 'highlightRow';
+    row.dataset.eventKey = h.key; row.onclick = () => replayHighlight(h);
+    const at = new Date(h.ts).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+    row.setAttribute('aria-label', at + ' · ' + h.title + ' 다시 보기');
+    row.title = h.title + ' · ' + h.detail;
     const icon = document.createElement('span'); icon.className = 'highlightIcon'; icon.textContent = h.icon;
     const main = document.createElement('div'); main.className = 'highlightMain';
     const title = document.createElement('b'); title.textContent = h.title; title.style.color = h.tone === 'up' ? 'var(--grn)' : h.tone === 'dn' ? 'var(--red)' : '';
-    const detail = document.createElement('span'); detail.textContent = new Date(h.ts).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' · ' + h.detail;
+    const detail = document.createElement('span'); detail.textContent = at + ' · ' + h.detail;
     const play = document.createElement('span'); play.className = 'highlightPlay'; play.textContent = '▶';
     main.append(title, detail); row.append(icon, main, play); list.appendChild(row);
   });
+  list.scrollTop = top;
+  if (focusedKey) [...list.children].find(node => node.dataset.eventKey === focusedKey)?.focus({preventScroll:true});
 }
-function replayHighlight(i) {
-  const h = highlights[i]; if (!h) return;
-  setPit({ key:'replay-' + h.ts, score:100, icon:h.icon, tag:'REPLAY', title:h.title, copy:h.detail, color:h.tone === 'up' ? '#4ade80' : h.tone === 'dn' ? '#f87171' : '#d4af37' }, 12000);
-  $('pitStage').animate([{transform:'scale(.99)',filter:'brightness(1.4)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:520,easing:'ease-out'});
+function replayHighlight(h) {
+  if (!h) return;
+  const at = new Date(h.ts).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  setPit({ key:'replay-' + h.key, score:100, icon:h.icon, tag:'REPLAY', title:h.title, copy:at + ' 한국시간 · ' + h.detail, color:h.tone === 'up' ? '#4ade80' : h.tone === 'dn' ? '#f87171' : '#d4af37' }, 12000);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('pitStage').scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});
+  if (!reduced) $('pitStage').animate([{transform:'scale(.99)',filter:'brightness(1.4)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:520,easing:'ease-out'});
 }
 renderHighlights();
 
 function syncMarketHighlights() {
   const cutoff = Date.now() - 24 * 3600000;
+  marketEventRows.forEach((row,key) => { if (+new Date(row.event_time) < cutoff) marketEventRows.delete(key); });
   highlights = [...marketEventRows.values()]
     .filter(row => row.is_highlight && +new Date(row.event_time) >= cutoff)
     .sort((a,b) => +new Date(b.event_time) - +new Date(a.event_time))
-    .slice(0, 12)
     .map(row => ({
       icon:String(row.icon), title:String(row.title), detail:String(row.detail),
-      tone:String(row.tone), ts:+new Date(row.event_time), key:String(row.event_key)
+      tone:String(row.tone), ts:+new Date(row.event_time), key:String(row.event_key), type:String(row.event_type)
     }));
   renderHighlights();
 }
@@ -2782,12 +2940,17 @@ async function loadMarketEvents() {
   const { data, error } = await sbc.from('market_events')
     .select('event_key,event_type,event_time,icon,title,detail,tone,symbol,side,price,amount_usd,importance,is_highlight,metadata')
     .gte('event_time', since).order('event_time', {ascending:false}).limit(1000);
-  if (error) { console.log('market event history off', error.message); return; }
+  if (error) { marketHistoryError = true; renderHighlights(); console.warn('market history unavailable'); return; }
+  marketHistoryReady = true; marketHistoryError = false;
   (data || []).forEach(row => marketEventRows.set(row.event_key, row));
   syncMarketHighlights(); hydrateLiquidationHistory();
   marketEventChannel = sbc.channel('market-events-' + Math.random().toString(36).slice(2))
     .on('postgres_changes', {event:'*', schema:'public', table:'market_events'}, payload => applyMarketEvent(payload.new))
-    .subscribe();
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') marketHistoryError = false;
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') marketHistoryError = true;
+      renderHighlights();
+    });
 }
 
 let pitCurrent = null, pitStarted = Date.now(), pitEnds = Date.now() + 45000;
@@ -2819,6 +2982,9 @@ function selectAmbientTable() {
 selectAmbientTable();
 setInterval(() => {
   if (!tabLive('lounge')) return;
+  if (highlightRenderMinute !== Math.floor(Date.now()/60000)) {
+    highlightRenderMinute = Math.floor(Date.now()/60000); syncMarketHighlights();
+  }
   if (Date.now() >= pitEnds) selectAmbientTable();
   const left = Math.max(0, pitEnds-Date.now()), span = Math.max(1,pitEnds-pitStarted);
   $('pitClock').childNodes[0].nodeValue = Math.ceil(left/1000) + '초';
@@ -4842,6 +5008,9 @@ function deskClose(){
 let loungeRuntimeOn = false;
 function startLoungeRuntime() {
   if (!tabLive('lounge')) return;
+  if (highlightRenderMinute !== Math.floor(Date.now()/60000)) {
+    highlightRenderMinute = Math.floor(Date.now()/60000); syncMarketHighlights();
+  }
   if (!loungeRuntimeOn) {
     loungeRuntimeOn = true;
     connectChartWS(); connectMainWS(); connectRaceWS(); connectLiquidations();

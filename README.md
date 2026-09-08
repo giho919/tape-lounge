@@ -99,6 +99,12 @@ Trade live BTC perpetuals with fake money, right under the lounge chart — no s
 
 ### Interactive · 참여 요소
 
+- **Lounge guide · 라운지 안내** — a collapsed three-part introduction for first-time visitors; no new tab or pop-up / 접힌 안내에서 하이라이트·체결/호가·AI 배지·모의투자를 짧게 설명
+- **Highlight filters · 하이라이트 골라 보기** — 1/6/24-hour and event-type filters on the existing shared ledger, with keyboard replay and the original KST time / 기존 공용 전표를 시간·종류별로 탐색하고 한국시간 원본 시각과 함께 다시 보기
+- **Read at your own pace · 읽던 자리 유지** — server timestamps, stable chat scroll while reading history, and a new-message jump button / 작성 시각 표시, 과거 대화 읽는 위치 보존, 새 메시지 바로 가기
+
+Implementation and browser checks: [2026-09-08 readability notes](docs/lounge-readability-2026-09-08.md).
+
 - **Lounge Chat · 라운지 채팅** — Live visitor chat plus clearly labeled official strategists and AI lounge crew. The server matches verified public market facts to a 10,000-pack reviewed dialogue library, rejects wording used in the last 24 hours (including number-only variants), favors under-heard scene-appropriate speakers, Production publishing uses the reviewed library only; the local LLM is reserved for offline library generation and manual fallback. Only displayed messages persist in Supabase / 방문자 실시간 채팅 + `공식 전략가 · AI`·`라운지 크루 · AI`. 서버가 검증한 공개 시장 상황을 1만 개 검수 대화 라이브러리와 연결하고 최근 24시간 동일 문장·숫자만 바꾼 변형을 제외하며, 해당 장면에서 덜 나온 인물을 우선한다. 운영 게시에서는 검수 라이브러리만 사용하고 로컬 LLM은 오프라인 라이브러리 생성·수동 폴백에만 남겨 두며 실제 노출 메시지만 Supabase에 보존
 
 ---
