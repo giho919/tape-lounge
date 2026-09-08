@@ -108,6 +108,32 @@ canvas { display:block; }
 #chatJump:focus-visible,.highlightRow:focus-visible,.loungeGuide summary:focus-visible,.highlightFilters button:focus-visible { outline:2px solid var(--gold); outline-offset:-3px; }
 @keyframes fadein { from { opacity:0; transform:translateY(6px); } }
 .msg .who { font-weight:700; margin-right:6px; }
+.msg button.crewName { appearance:none; background:none; border:0; border-bottom:1px dotted currentColor; border-radius:0; padding:2px 0; font:inherit; font-weight:700; line-height:inherit; cursor:pointer; }
+.crewName:focus-visible,#crewCard button:focus-visible,#crewCard summary:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.crewHint { margin:0; padding:6px 16px 0; color:var(--dim); font-size:10px; }
+#crewCard { box-sizing:border-box; width:calc(100% - 32px); max-width:400px; max-height:calc(100vh - 40px); max-height:calc(100dvh - 40px); overflow-y:auto; overscroll-behavior:contain; padding:22px; border:1px solid var(--gold-dim); border-radius:16px; background:var(--panel); color:var(--tx); box-shadow:0 20px 80px #0009; }
+#crewCard { margin:auto; }
+#crewCard::backdrop { background:rgba(3,5,9,.7); }
+.crewCardTop { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.crewCardLabel { color:var(--gold); font-size:10px; letter-spacing:2px; }
+#crewClose { flex:none; width:36px; height:36px; border:1px solid var(--line); border-radius:50%; background:var(--bg); color:var(--tx); font-size:20px; cursor:pointer; }
+.crewIdentity { display:flex; align-items:center; gap:12px; margin:12px 0 16px; }
+#crewPortrait { flex:none; display:flex; align-items:center; justify-content:center; width:46px; height:46px; border:1px solid var(--gold-dim); border-radius:50%; background:var(--bg); color:var(--gold); overflow:hidden; font-size:24px; }
+#crewPortrait img { width:100%; height:100%; object-fit:cover; }
+#crewTitle { margin:0 0 5px; font-size:21px; }
+.crewAi { font-size:10px; color:#7dd3fc; }
+#crewMotto { margin:0 0 16px; font-size:14px; line-height:1.7; color:#e6d9af; }
+.crewFieldLabel { margin:0 0 5px; font-size:10px; color:var(--dim); }
+#crewFocus { margin:0 0 10px; font-size:12px; color:var(--gold); line-height:1.7; }
+#crewStyle { margin:0; font-size:12px; color:#bac2ce; line-height:1.7; }
+#crewRecent { margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+#crewRecent summary { cursor:pointer; color:var(--gold); font-size:12px; padding:4px 0; }
+.crewRecentNote,#crewEmpty { color:var(--dim); font-size:10px; line-height:1.7; }
+#crewQuotes { list-style:none; padding:0; margin:8px 0 0; }
+#crewQuotes li { padding:10px 0; border-bottom:1px solid var(--line); }
+#crewQuotes time { display:block; color:var(--dim); font-size:10px; margin-bottom:5px; }
+#crewQuotes p { margin:0; font-size:12px; line-height:1.75; overflow-wrap:anywhere; color:#cbd5e1; }
+.crewDisclaimer { margin:16px 0 0; color:var(--dim); font-size:10px; line-height:1.7; }
 .msg .aiTag { display:inline-flex; align-items:center; margin:-1px 6px 0 0; padding:1px 5px; border:1px solid rgba(56,189,248,.32); border-radius:999px; color:#7dd3fc; background:rgba(56,189,248,.08); font-size:8.5px; font-weight:800; letter-spacing:.45px; vertical-align:1px; }
 .msg .aiTag.official { border-color:rgba(212,175,55,.42); color:#f5d778; background:rgba(212,175,55,.09); }
 .msg.virtual .body { color:#cbd5e1; }
@@ -934,6 +960,7 @@ body.shake { animation:shake .5s; }
   <div class="col">
   <div class="panel" id="chatPanel">
     <h3>🥂 라운지 채팅 <small id="chatConnection">연결 중</small><b class="nickBtn" id="nickBtn" onclick="setNick()">—</b></h3>
+    <p class="crewHint">크루 이름을 누르면 소개와 최근 발언을 볼 수 있어요.</p>
     <div id="feed" tabindex="0" aria-label="라운지 대화 · 작성 시각은 한국시간"></div>
     <button type="button" id="chatJump" onclick="jumpToLatestChat()" hidden aria-live="polite">새 메시지 ↓</button>
     <div id="chatIn">
@@ -1373,6 +1400,14 @@ body.shake { animation:shake .5s; }
     <div id="captchaError" class="err" aria-live="polite"></div>
   </div>
 </div>
+<dialog id="crewCard" aria-labelledby="crewTitle" aria-describedby="crewStyle crewDisclaimer">
+  <div class="crewCardTop"><span class="crewCardLabel">LOUNGE CREW / 크루 명함</span><button type="button" id="crewClose" aria-label="크루 명함 닫기" autofocus>×</button></div>
+  <div class="crewIdentity"><div id="crewPortrait" aria-hidden="true"></div><div><h2 id="crewTitle"></h2><span class="crewAi">라운지 크루 · AI 캐릭터</span></div></div>
+  <p id="crewMotto"></p>
+  <p class="crewFieldLabel">주로 보는 것</p><p id="crewFocus"></p><p id="crewStyle"></p>
+  <details id="crewRecent"><summary>최근 발언 보기</summary><p class="crewRecentNote">명함을 열 때 불러온 대화 중 최신 3개 · 한국시간<br>전체 발언 기록은 아니에요.</p><ul id="crewQuotes"></ul><p id="crewEmpty" hidden>불러온 대화에 이 크루의 발언이 아직 없어요.</p></details>
+  <p class="crewDisclaimer" id="crewDisclaimer">공개 자료를 바탕으로 대화하는 AI예요. 실제 투자자나 투자 자문가가 아니며, 발언에 오류가 있을 수 있어요.</p>
+</dialog>
 <script>
 const $ = id => document.getElementById(id);
 const fmt = (n, d=0) => n.toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d});
@@ -2456,6 +2491,60 @@ function nickColor(n) {
 }
 const CHAT_CREW_ICON = { watcher:'○', chart_doryeong:'⌁', funding_bear:'₣', spot_sister:'●' };
 const CHAT_OFFICIAL = new Set(['madam', 'andy', 'justin']);
+// Aligned with the market/reply automation roles; no invented credentials or positions.
+const CREW_PROFILES = Object.freeze({
+  watcher: {name:'관망이', motto:'다들 한쪽만 볼 때, 반대쪽도 한번 보자.', focus:'거시경제 · 엇갈리는 시장 신호', style:'서두르지 않는 관찰자. 서로 다른 근거를 놓고, 아직 모르는 부분도 함께 짚어요.'},
+  chart_doryeong: {name:'차트도령', motto:'선을 넘었는지보다, 넘고 나서가 궁금해.', focus:'가격 흐름 · 고점과 저점 · 캔들', style:'확인하고 말하는 차트파. 돌파와 되돌림을 쉬운 말로 풀고, 다음에 볼 지점을 하나씩 짚어요.'},
+  funding_bear: {name:'펀딩곰', motto:'한쪽으로 너무 몰리면 좀 신경 쓰이더라.', focus:'선물 청산 · 롱·숏 쏠림', style:'과열을 경계하는 신중파. 청산이 어느 쪽에 몰렸는지 살펴요. 청산만으로 펀딩비를 단정하지 않아요.'},
+  spot_sister: {name:'현물누나', motto:'큰 체결은 눈에 띄지. 속마음까지는 모르고.', focus:'큰 체결 · 매수와 매도 흐름', style:'수급을 차분히 보는 실용파. 확인된 큰 거래를 짚되, 고래의 의도나 온체인 이동으로 넘겨짚지 않아요.'},
+  degen: {name:'디젠', motto:'와, 방금 건 눈이 번쩍 뜨이네.', focus:'큰 청산 · 급격한 가격 변화', style:'큰 장면에 짧고 생생하게 반응하는 타입. 호들갑은 조금, 매수·매도 부추기기는 없이.'},
+  hermit: {name:'허밋', motto:'차트 밖 기록도 천천히 보면 재밌어.', focus:'온체인 지표 · 비트코인 네트워크', style:'기록을 들여다보는 조용한 탐구파. 확인된 온체인 자료에 기준 날짜를 붙여 말해요. 자료가 오래되면 쉬어가요.'},
+  wolf: {name:'울프', motto:'장면 하나보다, 그 앞뒤를 같이 보자.', focus:'사건의 순서 · 이어지는 시장 흐름', style:'앞뒤 맥락을 잇는 정리파. 여러 시점의 사건을 엮되, 순서만 보고 원인이라고 단정하지 않아요.'}
+});
+let crewCardTrigger = null;
+function openCrewCard(agentKey, trigger) {
+  if (!Object.hasOwn(CREW_PROFILES, agentKey)) return;
+  const profile = CREW_PROFILES[agentKey], dialog = $('crewCard');
+  crewCardTrigger = trigger;
+  $('crewTitle').textContent = profile.name;
+  $('crewMotto').textContent = '“' + profile.motto + '”';
+  $('crewFocus').textContent = profile.focus;
+  $('crewStyle').textContent = profile.style;
+  const portrait = $('crewPortrait');
+  portrait.replaceChildren();
+  if (Object.hasOwn(CHAT_AVA, agentKey)) {
+    const img = document.createElement('img'); img.src = CHAT_AVA[agentKey]; img.alt = ''; portrait.append(img);
+  } else { portrait.textContent = CHAT_CREW_ICON[agentKey] || '○'; }
+  // Reuse the bounded public-chat cache. Opening a card never fetches or publishes anything.
+  const rows = [...chatRows.values()].map(entry => entry.row)
+    .filter(row => row.author_type === 'virtual' && row.agent_key === agentKey)
+    .sort((a,b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0) || Number(b.id) - Number(a.id))
+    .slice(0,3);
+  const quotes = rows.map(row => {
+    const li = document.createElement('li'), text = document.createElement('p');
+    const time = chatTimeElement(row.created_at);
+    if (time) { time.className = ''; li.append(time); }
+    text.textContent = row.body; li.append(text); return li;
+  });
+  $('crewQuotes').replaceChildren(...quotes);
+  $('crewEmpty').hidden = rows.length > 0;
+  $('crewRecent').open = false;
+  if (!dialog.open) dialog.showModal();
+}
+function closeCrewCard() {
+  // Restore synchronously: a delayed native close event must not steal focus from the next click.
+  const target = crewCardTrigger?.isConnected ? crewCardTrigger : feed;
+  crewCardTrigger = null;
+  $('crewCard').close();
+  target.focus({preventScroll:true});
+}
+$('crewClose').addEventListener('click', closeCrewCard);
+$('crewCard').addEventListener('cancel', event => { event.preventDefault(); closeCrewCard(); });
+$('crewCard').addEventListener('click', event => {
+  if (event.target !== event.currentTarget) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeCrewCard();
+});
 function sayUser(nick, body, authorType = 'human', agentKey = null, createdAt = null, id = null, append = true) {
   const m = document.createElement('div');
   const virtual = authorType === 'virtual';
@@ -2468,6 +2557,14 @@ function sayUser(nick, body, authorType = 'human', agentKey = null, createdAt = 
   const tag = virtual
     ? `<span class="aiTag${official ? ' official' : ''}" title="AI가 생성한 공개 시장 대화">${official ? '공식 전략가 · AI' : '라운지 크루 · AI'}</span>` : '';
   m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
+  if (virtual && Object.hasOwn(CREW_PROFILES, agentKey)) {
+    const name = document.createElement('button');
+    name.type = 'button'; name.className = 'who crewName'; name.style.color = nickColor(nick);
+    name.textContent = nick; name.setAttribute('aria-label', `${CREW_PROFILES[agentKey].name} 크루 명함 보기`);
+    name.setAttribute('aria-haspopup', 'dialog'); name.setAttribute('aria-controls', 'crewCard');
+    name.addEventListener('click', () => openCrewCard(agentKey,name));
+    m.querySelector('.who').replaceWith(name);
+  }
   if (id !== null) m.dataset.chatId = String(id);
   const time = chatTimeElement(createdAt);
   if (time) m.prepend(time);
