@@ -11,7 +11,7 @@ const daily=report.slice(report.indexOf('</section>'));
 const dailyRows=[...daily.matchAll(/<tr>(.*?)<\/tr>/g)].map(m=>[...m[1].matchAll(/<td\b[^>]*>(.*?)<\/td>/g)].map(x=>({textContent:x[1].replace(/<[^>]+>/g,'')})));
 assert.ok(reportRows.length>0,'published table rows contract');
 const current=Date.parse(`${stamp[1]}T${stamp[2]}:00+09:00`)+1000;
-const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:current,acc_trade_price_24h:2e9,signed_change_rate:.01,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1352,trade_timestamp:current}];
+const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:current,acc_trade_price_24h:2e9,signed_change_rate:.01,signed_change_price:1352000,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1352,trade_timestamp:current}];
 async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const nodes={},requests=[],timers=new Map(),events={};let seq=0,mutate;
  const node=id=>nodes[id]??=({innerHTML:'',textContent:'',dataset:{},hidden:false,classList:{contains:()=>hidden},addEventListener:(event,cb)=>events[id+':'+event]=cb,querySelector:()=>null,setAttribute(){},scrollIntoView(){}});
@@ -26,13 +26,21 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
 }
 (async()=>{
  let r=await run({hidden:true});assert.equal(r.requests.length,0);assert.equal(r.timers.size,0);console.log('PASS hidden tab performs no requests');
- r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(r.nodes['dm-table'].innerHTML.includes('Andy · 4h · 지지 확인'));assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
+ r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(r.nodes['dm-table'].innerHTML.includes('title="Andy 장부 · 4h · 지지 확인"'));assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
  const click=(x,attr,value)=>x.events['tab-domestic:click']({target:{closest:sel=>sel==='['+attr+']'?{dataset:{[attr.slice(5)]:value}}:null}});
- assert.equal((r.nodes['dm-head'].innerHTML.match(/<th/g)||[]).length,9);
- for(const label of ['해외 환산가','근사 김프','해외 등락','거래대금'])assert.ok(r.nodes['dm-head'].innerHTML.includes(label),label);
- assert.ok(r.nodes['dm-table'].innerHTML.includes('₩130,000,000'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+₩5,200,000'));
- assert.ok(r.nodes['dm-table'].innerHTML.includes('고가 대비'));
- console.log('PASS converted price, premium amount and full column set render');
+ assert.equal((r.nodes['dm-head'].innerHTML.match(/<th/g)||[]).length,5);
+ for(const label of ['이름','현재가','김프','전일대비','거래액(일)'])assert.ok(r.nodes['dm-head'].innerHTML.includes(label),label);
+ const html=r.nodes['dm-table'].innerHTML;
+ assert.ok(html.includes('<b>135,200,000</b><small>130,000,000</small>'),'국내가 위, 해외 환산가 아래');
+ assert.ok(html.includes('+4.00%</b><small>+5,200,000</small>'),'김프 %와 금액이 한 칸에');
+ assert.ok(html.includes('+1.00%</b><small>+1,352,000</small>'),'전일대비 %와 변동액이 한 칸에');
+ assert.ok(html.includes('<b>20억</b><small>1조 6,049억</small>'),'국내 거래액과 해외 원화 환산 거래액');
+ assert.ok(!html.includes('₩'),'표 안에서는 통화기호를 빼고 숫자만');
+ assert.ok(r.nodes['dm-count'].textContent.includes('총 2개'));
+ console.log('PASS five paired columns render domestic figure over its foreign counterpart');
+ assert.ok(r.nodes['dm-table'].innerHTML.includes('해외 비교 없음'),'비교 불가 사유는 김프 칸 아래에 남는다');
+ assert.ok(r.nodes['dm-table'].innerHTML.includes('<b class="dm-muted"></b><small class="dm-warn">해외 비교 없음</small>'),'비교 불가 종목의 김프는 값을 비우고 사유만 남긴다');
+ console.log('PASS unavailable premium is left blank with its reason beneath');
  const at=s=>r.nodes['dm-table'].innerHTML.indexOf('data-select="'+s+'"');
  click(r,'data-sort','symbol');assert.ok(r.nodes['dm-head'].innerHTML.includes('aria-sort="ascending"'));assert.ok(at('BTC')<at('USDT'));
  click(r,'data-sort','symbol');assert.ok(r.nodes['dm-head'].innerHTML.includes('aria-sort="descending"'));assert.ok(at('USDT')<at('BTC'));
@@ -42,6 +50,6 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  r.nodes['dm-andy-only'].onclick({currentTarget:{setAttribute(){}}});assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('data-select="USDT"'));console.log('PASS Andy filter preserves all matching rows');
  r.hide();assert.equal(r.timers.size,0);console.log('PASS leaving tab stops future polls');
  r=await run({fail:true});assert.ok(r.nodes['dm-status'].textContent.includes('조회 실패'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('NaN'));assert.ok([...r.timers.values()].some(x=>x.ms>=1000));console.log('PASS failure labels and bounded retry');
- r=await run({storageFail:true});assert.ok(r.nodes['dm-count'].textContent.includes('저장이 차단'));console.log('PASS blocked local storage does not break rendering');
+ r=await run({storageFail:true});assert.ok(r.nodes['dm-status'].textContent.includes('저장이 차단'));console.log('PASS blocked local storage does not break rendering');
  r=await run({reportAge:37*3600000});assert.ok(!r.nodes['dm-table'].innerHTML.includes('Andy ·'));assert.ok(r.nodes['dm-andy-at'].textContent.includes('오래된 리포트'));console.log('PASS stale report suppresses every Andy badge');
 })().catch(e=>{console.error(e);process.exitCode=1;});
