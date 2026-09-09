@@ -38,6 +38,8 @@ function candles(tf,count){const step=periods[tf]||60000,end=Math.floor(Date.now
     await page.waitForFunction(i=>chartOf(i)?.st.last?.count===320,i);
     const info=await page.evaluate(i=>({ma:chartOf(i).ma.map(s=>s.data().length),st:chartOf(i).st.series.data().length,periods:MA_DEFS.map(d=>d[0])}),i);
     assert.deepEqual(info,{ma:[316,301,261,201,121],st:311,periods:[5,20,60,120,200]}); // ATR warm-up: no line for the first 9 candles.
+    assert.deepEqual(await page.evaluate(i=>chartOf(i).osc.series.map(s=>s.data().length),i),[295,287,287,306]);
+    assert.equal(await page.locator('.caroPage[data-p="'+i+'"] .oscPane').count(),2);
    }
    await page.evaluate(async()=>{await Promise.all([setTf('1h'),setTf('4h')]);});
    assert.equal(await page.evaluate(()=>chartTf),'4h');
@@ -58,13 +60,35 @@ function candles(tf,count){const step=periods[tf]||60000,end=Math.floor(Date.now
    // At least 200 seed bars are visible after each supported timeframe switch.
    for(const tf of ['15m','1d','1w','1M','1m']){
     await page.evaluate(tf=>setTf(tf),tf);
-    assert.ok(await page.evaluate(()=>loungeCharts.every(c=>c.ma[4].data().length===121&&c.st.last.count===320)));
+    assert.ok(await page.evaluate(()=>loungeCharts.every(c=>c.ma[4].data().length===121&&c.st.last.count===320&&c.osc.last.count===320)));
    }
    await page.evaluate(()=>caroGo(0));
+   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   await page.evaluate(()=>{chartOf(0).ch.timeScale().setVisibleLogicalRange({from:80,to:230});});
+   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   let ranges=await page.evaluate(()=>chartOf(0).osc.charts.map(c=>c.timeScale().getVisibleLogicalRange()));
+   ranges.forEach(r=>{assert.ok(Math.abs(r.from-80)<.01,JSON.stringify(ranges));assert.ok(Math.abs(r.to-230)<.01,JSON.stringify(ranges));});
+   await page.evaluate(()=>chartOf(0).osc.charts[1].timeScale().setVisibleLogicalRange({from:100,to:250}));
+   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   ranges=await page.evaluate(()=>chartOf(0).osc.charts.map(c=>c.timeScale().getVisibleLogicalRange()));
+   ranges.forEach(r=>{assert.ok(Math.abs(r.from-100)<.01);assert.ok(Math.abs(r.to-250)<.01);});
+   const coords=await page.evaluate(()=>{const c=chartOf(0),t=chartSeed[0][180][0]/1000;return c.osc.charts.map(ch=>ch.timeScale().timeToCoordinate(t));});
+   assert.ok(Math.max(...coords)-Math.min(...coords)<1,'panels should align candles at the same pixel: '+coords);
+   await page.locator('#c_btc').hover({position:{x:120,y:80}});
+   await page.locator('.caroPage[data-p="0"] .oscMacd').hover({position:{x:120,y:55}});
+   await page.locator('.caroPage[data-p="0"] .oscRsi').hover({position:{x:120,y:55}});
+   assert.ok(await page.evaluate(()=>chartOf(0).osc.host.querySelector('[data-value="rsi"]').textContent!=='—'));
    assert.match(await page.locator('.caro [data-indicator-legend]').textContent(),/SMA 5 20 60 120 200/);
-   assert.match(await page.locator('.caro [data-indicator-legend]').textContent(),/슈퍼트렌드 10 × 3/);
+   assert.match(await page.locator('.caro [data-indicator-legend]').textContent(),/Supertrend 10 × 3/);
    assert.ok(await page.evaluate(()=>{const el=document.querySelector('.caro');return el.scrollWidth<=el.clientWidth+1}));
    if(process.env.LOUNGE_SCREENSHOTS)await page.locator('.caro').screenshot({path:path.join(process.env.LOUNGE_SCREENSHOTS,'indicators-'+width+'.png')});
+   await page.evaluate(()=>{
+    const c=chartOf(0),k=chartSeed[0].at(-1),before=c.ch.timeScale().getVisibleLogicalRange();
+    handleChartK('btcusdt@kline_1m',{i:'1m',t:k[0]+60000,o:k[4],h:String(+k[4]+2),l:String(+k[4]-2),c:k[4],v:'100',T:k[6]+60000,x:false});
+    const after=c.ch.timeScale().getVisibleLogicalRange();
+    if(Math.abs(before.from-after.from)>.01||Math.abs(before.to-after.to)>.01)throw Error('new candle dragged history reader');
+    if(c.osc.last.count!==321)throw Error('oscillator failed to append');
+   });
    await page.locator('.tab[data-tab="game"]').click();
    await page.waitForFunction(()=>typeof bgST!=='undefined'&&bgST);
    await page.evaluate(()=>{
@@ -72,8 +96,11 @@ function candles(tf,count){const step=periods[tf]||60000,end=Math.floor(Date.now
     bg={idx:249,norm:visible.concat([{get high(){throw Error('hidden future read')}}]),pos:null};
     bgS.setData(visible);bgMASet();bgVolSet();
     if(bgST.last.count!==250||bgMA[4].data().length!==51)throw Error('blind seed mismatch');
+    if(bgOsc.last.count!==250||bgOsc.last.time!==visible.at(-1).time)throw Error('blind oscillators read future');
+    if(bgOsc.charts.some(c=>c.timeScale().options().visible))throw Error('blind date axis exposed');
     bg.norm[250]={...visible.at(-1),time:946684800+250*86400};bgAdvanceOneDay();
     if(bgST.last.count!==251||bgST.last.time!==bg.norm[250].time)throw Error('blind reveal mismatch');
+    if(bgOsc.last.count!==251)throw Error('blind oscillator advance mismatch');
    });
    assert.deepEqual(errors,[]);
    console.log(width+'px: four live charts, timeframe races/reset, intrabar update, all intervals, legend/overflow, blind no-lookahead passed');

@@ -59,7 +59,8 @@ Each closed candle is dealt as a card; body size sets its rarity (common → unc
 - **Symbols · 종목** — BTC · ETH · BTC.D (dominance / 도미넌스) · NASDAQ (QQQB, a Nasdaq-100 ETF token / 나스닥100 ETF 토큰)
 - **Timeframes · 타임프레임** — 1m · 15m · 60m · 240m · daily · weekly · monthly / 1분·15분·60분·240분·일봉·주봉·월봉
 - **Moving averages · 이동평균선** — SMA 5 · 20 · 60 · 120 · 200 (live on lounge and blind charts / 라운지·블라인드 차트 실시간)
-- **Supertrend · 슈퍼트렌드** — Wilder ATR 10 × 3, rising green / falling red dashed line. Recalculates the current candle; no order signals are sent / 상승 초록·하락 빨강 점선, 진행봉은 변동 가능. [계산·검증 안내](docs/chart-indicators-2026-09-09.md)
+- **Supertrend** — Wilder ATR 10 × 3, rising green / falling red dashed line. Recalculates the current candle; no order signals are sent / 상승 초록·하락 빨강 점선, 진행봉은 변동 가능. [계산·검증 안내](docs/chart-indicators-2026-09-09.md)
+- **MACD / RSI panes** — MACD EMA 12/26/9 with signal/histogram, and Wilder RSI 14 on a separate 0–100 pane with 30/50/70 lines. Price, MACD and RSI share scrolling/zoom/crosshair / 가격 차트 아래 두 개 독립 패널, 실시간 값·시간축 동기화. [구현·검증](docs/chart-oscillators-2026-09-09.md)
 - **Candle Grade · 캔들 등급** — every closed BTC candle is graded in the HUD; only rare and epic candles receive chart markers / 모든 BTC 확정봉 등급은 HUD에 표시하고 레어·에픽만 차트 마커로 남김
 - **Candle Combo · 캔들 콤보** — the HUD always shows the streak, while only 5·8 combos and major breaks receive chart markers / 연속 수는 HUD에 항상 표시하되 5·8콤보와 큰 브레이크만 차트 마커로 남김
 - **Capture watermark · 캡처 워터마크** — every live chart carries a quiet `tapelounge.com` signature that stays readable in desktop and mobile screenshots without covering candles / 모든 라이브 차트에 캔들을 가리지 않는 은은한 `tapelounge.com` 출처를 넣어 PC·모바일 캡처에 남김

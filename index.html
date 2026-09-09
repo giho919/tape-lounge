@@ -260,6 +260,14 @@ body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
 .indicatorLegend .maLgd { padding:0; }
 .stLegend { color:#aeb8c8; white-space:nowrap; }
 .stLegend .up,.stLegend .dn { font-weight:700; }
+.priceChartFrame { position:relative; }
+.priceChartFrame .chartWatermark { bottom:8px; }
+.oscPane { border-top:1px solid var(--line); background:#12151c; }
+.oscHead { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; padding:7px 12px 2px; font-size:10px; color:#bac2ce; }
+.oscHead b { font-weight:600; letter-spacing:.5px; }
+.oscHead small { color:var(--dim); font-weight:400; font-size:9px; }
+.oscValues { margin-left:auto; display:flex; flex-wrap:wrap; gap:9px; font:9px Menlo,monospace; }
+.oscMacd { height:132px; }.oscRsi { height:132px; }
 .chd { display:flex; gap:12px; align-items:baseline; padding:8px 14px; font-size:11px; color:var(--dim); border-bottom:1px solid var(--line); }
 .chd .sym { color:#fff; font-weight:700; letter-spacing:1px; }
 .chd .px2 { font-size:14px; color:#fff; }
@@ -1609,7 +1617,7 @@ const MA_DEFS = [[5, '#f6d365'], [20, '#ff9f43'], [60, '#4ade80'], [120, '#38bdf
 const ST_PERIOD = 10, ST_MULTIPLIER = 3;
 const ST_UP = '#4ade80', ST_DOWN = '#f87171';
 document.querySelectorAll('[data-indicator-legend]').forEach(el => {
-  el.innerHTML = `<span class="maLgd">SMA ${MA_DEFS.map(([p,c])=>`<b style="color:${c}">${p}</b>`).join(' ')}</span><span class="stLegend" title="슈퍼트렌드 · Wilder ATR ${ST_PERIOD}, 배수 ${ST_MULTIPLIER}. 진행 중인 봉의 값은 바뀔 수 있습니다.">슈퍼트렌드 ${ST_PERIOD} × ${ST_MULTIPLIER} · <span class="up">상승</span> / <span class="dn">하락</span> (점선)</span>`;
+  el.innerHTML = `<span class="maLgd">SMA ${MA_DEFS.map(([p,c])=>`<b style="color:${c}">${p}</b>`).join(' ')}</span><span class="stLegend" title="Supertrend · Wilder ATR ${ST_PERIOD}, 배수 ${ST_MULTIPLIER}. 진행 중인 봉의 값은 바뀔 수 있습니다.">Supertrend ${ST_PERIOD} × ${ST_MULTIPLIER} · <span class="up">상승</span> / <span class="dn">하락</span> (점선)</span>`;
 });
 // Causal Wilder ATR + trailing HL2 bands. Initial ATR is the mean of the first N true ranges.
 // A live candle is always recalculated from the preceding candle, never from its own last tick.
@@ -1659,6 +1667,100 @@ function tickSupertrend(st, bar) {
   if (!changed) return;
   if (changed.redraw) st.series.setData(st.data);
   else st.series.update(changed.point);
+}
+// EMA uses SMA seeds; RSI uses Wilder's mean of the first 14 close changes.
+function oscillatorStep(prev, bar) {
+  const count=(prev?.count||0)+1, sum=count<=26?(prev?.sum||0)+bar.close:0;
+  const fast=count<12?null:count===12?sum/12:prev.fast+(bar.close-prev.fast)*2/13;
+  const slow=count<26?null:count===26?sum/26:prev.slow+(bar.close-prev.slow)*2/27;
+  const macd=slow===null?null:fast-slow, signalCount=Math.max(0,count-25);
+  const signalSum=signalCount>0&&signalCount<=9?(prev?.signalSum||0)+macd:0;
+  const signal=signalCount<9?null:signalCount===9?signalSum/9:prev.signal+(macd-prev.signal)*.2;
+  const hist=signal===null?null:macd-signal;
+  const delta=prev?bar.close-prev.close:0,gain=Math.max(0,delta),loss=Math.max(0,-delta);
+  const gainSum=count<=15?(prev?.gainSum||0)+gain:0,lossSum=count<=15?(prev?.lossSum||0)+loss:0;
+  const avgGain=count<15?null:count===15?gainSum/14:(prev.avgGain*13+gain)/14;
+  const avgLoss=count<15?null:count===15?lossSum/14:(prev.avgLoss*13+loss)/14;
+  const rsi=avgGain===null?null:avgGain===0&&avgLoss===0?50:avgLoss===0?100:100-100/(1+avgGain/avgLoss);
+  const histColor=hist===null?'transparent':hist>=0?(hist>=(prev?.hist??0)?'#26a69a':'#80cbc4'):(hist<=(prev?.hist??0)?'#ef5350':'#ef9a9a');
+  return {time:bar.time,close:bar.close,count,sum,fast,slow,macd,signalCount,signalSum,signal,hist,histColor,gainSum,lossSum,avgGain,avgLoss,rsi};
+}
+function oscillatorPoints(state) {
+  return ['macd','signal','hist','rsi'].map(key=>state[key]===null?{time:state.time}:{time:state.time,value:state[key],...(key==='hist'?{color:state.histColor}:{})});
+}
+function oscillatorLabels(osc) {
+  const val=x=>x===null||x===undefined?'—':x.toFixed(2),s=osc.last;
+  osc.macdValue.textContent='MACD '+val(s?.macd);
+  osc.signalValue.textContent='Signal '+val(s?.signal);
+  osc.histValue.textContent='Hist '+val(s?.hist);
+  osc.rsiValue.textContent=val(s?.rsi);
+}
+function seedOscillators(osc,bars) {
+  osc.suspend=true;osc.before=osc.last=null;
+  const data=[[],[],[],[]];
+  bars.forEach(bar=>{osc.before=osc.last;osc.last=oscillatorStep(osc.last,bar);oscillatorPoints(osc.last).forEach((p,i)=>data[i].push(p));});
+  osc.series.forEach((s,i)=>s.setData(data[i]));
+  oscillatorLabels(osc);osc.suspend=false;
+}
+function tickOscillators(osc,bar) {
+  if(osc.last&&bar.time<osc.last.time)return;
+  const same=osc.last?.time===bar.time,prev=same?osc.before:osc.last;
+  if(!same)osc.before=osc.last;
+  osc.last=oscillatorStep(prev,bar);
+  osc.suspend=true;oscillatorPoints(osc.last).forEach((p,i)=>osc.series[i].update(p));osc.suspend=false;
+  oscillatorLabels(osc);
+}
+function makeOscillators(main,priceSeries,el,blind=false) {
+  const parent=el.parentElement,frame=document.createElement('div');frame.className='priceChartFrame';
+  el.before(frame);frame.append(el);
+  const watermark=parent.querySelector(':scope > .chartWatermark');if(watermark)frame.append(watermark);
+  const host=document.createElement('div');host.className='oscillators';frame.after(host);
+  host.innerHTML='<section class="oscPane" aria-label="MACD 지표"><div class="oscHead"><b>MACD <small>12 · 26 · 9</small></b><span class="oscValues" title="현재 봉 · 마감 전 변동 가능"><span data-value="macd" style="color:#38bdf8"></span><span data-value="signal" style="color:#ff9f43"></span><span data-value="hist"></span></span></div><div class="oscMacd"></div></section><section class="oscPane" aria-label="RSI 지표"><div class="oscHead"><b>RSI <small>14 · Wilder · 30 / 70</small></b><span class="oscValues" data-value="rsi" style="color:#c084fc" title="현재 봉 · 마감 전 변동 가능"></span></div><div class="oscRsi"></div></section>';
+  const make=(node,timeVisible)=>LightweightCharts.createChart(node,{
+    width:el.clientWidth,height:132,layout:{background:{color:'#12151c'},textColor:'#6b7280',fontSize:10},
+    grid:{vertLines:{color:'#1a1f2b'},horzLines:{color:'#1a1f2b'}},crosshair:{mode:0},
+    rightPriceScale:{borderColor:'#232838',minimumWidth:70},
+    timeScale:{visible:timeVisible,borderColor:'#232838',timeVisible:true,secondsVisible:false,rightOffset:CHART_RIGHT_PAD,fixLeftEdge:true,minBarSpacing:.6,shiftVisibleRangeOnNewBar:false},
+    handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+    handleScale:{mouseWheel:true,pinch:true,axisPressedMouseMove:{time:true,price:false},axisDoubleClickReset:true}
+  });
+  const macdCh=make(host.querySelector('.oscMacd'),false),rsiCh=make(host.querySelector('.oscRsi'),!blind);
+  main.applyOptions({rightPriceScale:{minimumWidth:70},timeScale:{visible:false}});
+  const line={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false,priceFormat:{type:'price',precision:2,minMove:.01}};
+  const hist=macdCh.addHistogramSeries({...line}),macd=macdCh.addLineSeries({...line,color:'#38bdf8'}),signal=macdCh.addLineSeries({...line,color:'#ff9f43'});
+  macd.createPriceLine({price:0,color:'#536070',lineWidth:1,lineStyle:2,axisLabelVisible:false});
+  const rsi=rsiCh.addLineSeries({...line,color:'#c084fc',lineWidth:2,autoscaleInfoProvider:()=>({priceRange:{minValue:0,maxValue:100}})});
+  rsiCh.priceScale('right').applyOptions({scaleMargins:{top:0,bottom:0}});
+  [30,50,70].forEach(price=>rsi.createPriceLine({price,color:price===50?'#354050':'#6b597d',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:''}));
+  const osc={charts:[main,macdCh,rsiCh],series:[macd,signal,hist,rsi],before:null,last:null,suspend:false,host,
+    macdValue:host.querySelector('[data-value="macd"]'),signalValue:host.querySelector('[data-value="signal"]'),histValue:host.querySelector('[data-value="hist"]'),rsiValue:host.querySelector('[data-value="rsi"]')};
+  let syncing=false;
+  osc.syncRange=(source=main)=>{
+    if(syncing||osc.suspend||!osc.last)return;
+    const range=source.timeScale().getVisibleLogicalRange();if(!range)return;
+    syncing=true;
+    try{osc.charts.forEach(ch=>{if(ch===source)return;const r=ch.timeScale().getVisibleLogicalRange();if(!r||Math.abs(r.from-range.from)>.001||Math.abs(r.to-range.to)>.001)ch.timeScale().setVisibleLogicalRange(range);});}
+    finally{syncing=false;}
+  };
+  osc.charts.forEach(ch=>ch.timeScale().subscribeVisibleLogicalRangeChange(()=>osc.syncRange(ch)));
+  // Shared crosshair, including a price-candle fallback while an oscillator is warming up.
+  let crossSync=false;const anchors=[priceSeries,macd,rsi];
+  osc.charts.forEach((ch,i)=>ch.subscribeCrosshairMove(param=>{
+    if(crossSync)return;crossSync=true;
+    try{osc.charts.forEach((other,j)=>{if(i===j)return;const point=param.logical==null?null:anchors[j].dataByIndex(param.logical);const value=point?.value??point?.close;
+      if(param.time!=null&&value!==undefined)other.setCrosshairPosition(value,param.time,anchors[j]);else other.clearCrosshairPosition();});}
+    finally{crossSync=false;}
+  }));
+  osc.resize=()=>{
+    if(!el.clientWidth)return;
+    const range=main.timeScale().getVisibleLogicalRange();osc.suspend=true;
+    macdCh.resize(el.clientWidth,132);rsiCh.resize(el.clientWidth,132);
+    const axisWidth=Math.max(70,...osc.charts.map(ch=>ch.priceScale('right').width()));
+    osc.charts.forEach(ch=>ch.applyOptions({rightPriceScale:{minimumWidth:axisWidth}}));
+    osc.suspend=false;if(range)main.timeScale().setVisibleLogicalRange(range);osc.syncRange();
+  };
+  new ResizeObserver(osc.resize).observe(el);
+  oscillatorLabels(osc);return osc;
 }
 const LOUNGE_KL_LIMIT = 1000;      // Binance klines 1회 요청 상한
 const CHART_RIGHT_PAD = 10;        // 최신 캔들이 가격축에 붙지 않도록 오른쪽에 비워 둘 봉 수
@@ -1719,7 +1821,7 @@ function makeChart(elId) {
   const vol = ch.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: '', priceLineVisible: false, lastValueVisible: false });
   vol.priceScale().applyOptions({ scaleMargins: { top: 0.84, bottom: 0 } });   // 하단 16% 오버레이
   new ResizeObserver(() => ch.applyOptions({ width: el.clientWidth })).observe(el);
-  return { ch, s, ma, vol, st:makeSupertrend(ch), bars: 0, lastT: -Infinity };
+  return { ch, s, ma, vol, st:makeSupertrend(ch), osc:makeOscillators(ch,s,el), bars: 0, lastT: -Infinity };
 }
 const volColor = (o, c) => c >= o ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)';
 function seedMA(chart, closes, times) {
@@ -1742,10 +1844,12 @@ function hydrateLoungeChart(i) {
   const chart = chartOf(i), kl = chartSeed[i];
   if (!chart || !kl?.length) return;
   chart.bars = kl.length; chart.lastT = kl[kl.length - 1][0] / 1000;
+  chart.osc.suspend=true;
   chart.s.setData(kl.map(k => ({ time:k[0]/1000, open:+k[1], high:+k[2], low:+k[3], close:+k[4] })));
   chart.vol.setData(kl.map(k => ({ time:k[0]/1000, value:+k[5], color:volColor(+k[1],+k[4]) })));
   seedMA(chart, kl.map(k=>+k[4]), kl.map(k=>k[0]/1000));
   seedSupertrend(chart.st,kl.map(k=>({time:k[0]/1000,high:+k[2],low:+k[3],close:+k[4]})));
+  seedOscillators(chart.osc,kl.map(k=>({time:k[0]/1000,close:+k[4]})));
   const live = chartLive[i];
   if (live && live.t/1000 >= chart.lastT) {
     chartBumpBars(chart, live.t / 1000);
@@ -1753,8 +1857,10 @@ function hydrateLoungeChart(i) {
     chart.vol.update({ time:live.t/1000, value:+live.v, color:volColor(+live.o,+live.c) });
     maTick(i,live);
     tickSupertrend(chart.st,{time:live.t/1000,high:+live.h,low:+live.l,close:+live.c});
+    tickOscillators(chart.osc,{time:live.t/1000,close:+live.c});
   }
   chartShowRecent(chart.ch, chart.bars);
+  chart.osc.syncRange();
 }
 function ensureLoungeChart(i) {
   if (!loungeCharts[i]) {
@@ -1823,6 +1929,7 @@ function caroGo(i) {
   requestAnimationFrame(() => {
     const w = el.clientWidth, h = el.clientHeight || 460;
     chart.ch.resize(w, h);
+    chart.osc.resize();
     if (chartAtRightEdge(chart.ch)) chartShowRecent(chart.ch, chart.bars);
   });
   if (typeof reseedDeck === 'function') reseedDeck();   // 덱은 선택된 차트를 따라감
@@ -2015,7 +2122,11 @@ function handleChartK(stream, k) {
     chart.s.update({ time: k.t/1000, open:+k.o, high:+k.h, low:+k.l, close:+k.c });
     chart.vol.update({ time: k.t/1000, value: +k.v, color: volColor(+k.o, +k.c) });
     maTick(i, k);
-    if (chartSeed[i]) tickSupertrend(chart.st,{time:k.t/1000,high:+k.h,low:+k.l,close:+k.c});
+    if (chartSeed[i]) {
+      tickSupertrend(chart.st,{time:k.t/1000,high:+k.h,low:+k.l,close:+k.c});
+      tickOscillators(chart.osc,{time:k.t/1000,close:+k.c});
+      chart.osc.syncRange();
+    }
     if (fresh && follow) chartFollowBars(chart.ch, 1);
   }
   if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; checkTreasure(k); paperTick(+k.c); }
@@ -2095,8 +2206,10 @@ async function setTf(tf) {
   chartSeed = [null, null, null, null];
   loungeCharts.forEach(chart=>{
     if (!chart) return;
+    chart.osc.suspend=true;
     chart.s.setData([]); chart.vol.setData([]); chart.ma.forEach(s=>s.setData([]));
     seedSupertrend(chart.st,[]); chart.bars=0; chart.lastT=-Infinity;
+    seedOscillators(chart.osc,[]);
   });
   document.querySelectorAll('.tfb').forEach(b => b.classList.toggle('on', b.dataset.tf === tf));
   $('cd').textContent = '--';
@@ -3476,7 +3589,7 @@ const BG_FEE_RATE = 0.001;
 const BG_MAX_LEVERAGE = 10;
 const BG_LEV_STEPS = [1, 2, 3, 5, 10];
 const BG_MMR = 0.005;   // 유지증거금률 0.5% · 격리 마진
-let bgCh = null, bgS = null, bgMA = null, bgVol = null, bgST = null, bg = null, bgPct = 25, bgLev = 1, bgMode = 'solo';
+let bgCh = null, bgS = null, bgMA = null, bgVol = null, bgST = null, bgOsc = null, bg = null, bgPct = 25, bgLev = 1, bgMode = 'solo';
 function bgPctSync(v) {
   v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
@@ -3535,6 +3648,7 @@ function blindOpen() {
         color: c, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
       }));
       bgST = makeSupertrend(bgCh);
+      bgOsc = makeOscillators(bgCh,bgS,el,true);
       bgVol = bgCh.addHistogramSeries({
         priceFormat: { type: 'volume' }, priceScaleId: '', priceLineVisible: false, lastValueVisible: false,
       });
@@ -3570,6 +3684,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
     idx: startIdx, base: startIdx, wallet: 10000, pos: null, trades: [], markers: [], over: false, bankrupt: false, gameMode,
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
   };
+  bgOsc.suspend=true;
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
   bgMASet(); bgVolSet(); bgS.setMarkers([]);
   chartShowRecent(bgCh, bg.idx + 1, BG_VIEW_BARS);
@@ -3617,6 +3732,7 @@ async function blindStart() {
 function bgMASet() {
   const vis = bg.norm.slice(0, bg.idx + 1);
   seedSupertrend(bgST,vis); // Revealed candles only; never calculate from the hidden future.
+  seedOscillators(bgOsc,vis);
   MA_DEFS.forEach(([p], mi) => {
     const data = [];
     let sum = 0;
@@ -3814,6 +3930,7 @@ function bgAdvanceOneDay() {
   const x = bg.norm[bg.idx];
   bgS.update(x);
   tickSupertrend(bgST,x);
+  tickOscillators(bgOsc,x);bgOsc.syncRange();
   bgVol.update({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(74,222,128,.55)' : 'rgba(248,113,113,.55)' });
   MA_DEFS.forEach(([p], mi) => {
     if (bg.idx + 1 < p) return;
