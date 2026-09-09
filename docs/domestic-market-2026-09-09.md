@@ -1,5 +1,22 @@
 # 국내장 (2026-09-09)
 
+## Table-first / streaming follow-up
+
+- Removed two summary cards; complete market table is the main view. Compact rows,
+  sticky header/symbol, horizontal mobile scrolling. No top-N truncation.
+- Andy badges include all four 4h stages plus all A/B/C daily rows. Stages retain their
+  original timeframe and report timestamp; filter Andy-only combines with search/stars.
+- `domestic-stream.js`: Upbit/Bithumb public v1 ticker, Binance miniTicker array.
+  Incoming quotes batched to screen once per second; healthy sockets skip REST polling.
+  REST remains a 30-second fallback. USD/KRW and Andy cadence unchanged.
+- Upbit REST and connection attempts share a 12-second spacing gate. Reconnect uses
+  15/30/60-second backoff, 45-second no-data watchdog. Hidden/venue-switch closes sockets.
+  Merge by timestamp so late REST or stream data cannot overwrite newer quotes.
+- Additional tests: stream transport lifecycle/backoff/decoding five checks, Andy filter
+  and stale report checks. Actual public WebSocket handshake+quote received from all
+  three providers with Tape Lounge Origin. No browser visual QA or trading calls.
+- Original implementation notes below describe the first version where superseded.
+
 Existing static GitHub Pages architecture preserved. No new market-data backend, trading,
 Telegram or scheduled-task changes. `#domestic` uses the normal tab/analytics lifecycle.
 Existing live seven-argument `record_site_activity` allowlist expanded with `domestic`
