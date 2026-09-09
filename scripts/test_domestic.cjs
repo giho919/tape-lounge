@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {premium,fresh,fxValid,rowsFor}=require('../domestic.js');
+const {premium,fresh,fxValid,rowsFor,stamped}=require('../domestic.js');
 const now=Date.parse('2026-09-09T12:00:00Z');
 const fx={date:'2026-09-09',rates:{KRW:1300}};
 const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:now,acc_trade_price_24h:2e9,signed_change_rate:0.01,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1352,trade_timestamp:now}];
@@ -20,5 +20,19 @@ test('foreign change, foreign turnover and distance from 24h high',()=>{const r=
 test('stale or missing remote clears every converted column',()=>{const stale=rowsFor(ticks,{BTC:{...global.BTC,closeTime:now-121000}},fx,'fx',now)[0];for(const k of ['foreignKrw','gap','foreignChange','foreignVolume','foreignVolumeKrw'])assert.equal(stale[k],null,k);const none=rowsFor(ticks,{},fx,'fx',now)[0];for(const k of ['foreignKrw','gap','foreignChange'])assert.equal(none[k],null,k);const noRate=rowsFor(ticks,global,{...fx,date:'2026-08-01'},'fx',now)[0];assert.equal(noRate.foreignKrw,null);assert.equal(noRate.gap,null);assert.equal(noRate.foreignVolumeKrw,null);assert.ok(Math.abs(noRate.foreignChange-(100000/98000-1)*100)<1e-9);});
 test('anomalous spread hides the gap amount too',()=>{const r=rowsFor([{...ticks[0],trade_price:500000000}],global,fx,'fx',now)[0];assert.equal(r.premium,null);assert.equal(r.gap,null);assert.equal(r.foreignKrw,130000000);});
 test('sortable columns exist on every row and headers are declared',()=>{const r=rowsFor(ticks,global,fx,'fx',now)[0];const src=fs.readFileSync(require.resolve('../domestic.js'),'utf8');for(const k of ['price','change','changeKrw','foreignKrw','premium','foreignChange','volume','foreignVolumeKrw'])assert.ok(k in r,k);for(const k of ['symbol','price','change','premium','volume'])assert.ok(src.includes("key:'"+k+"'"),k);assert.ok(!src.includes("id=\"dm-sort\""));});
+test('bithumb REST timestamps are corrected, its websocket and upbit are left alone',()=>{
+ const at=Date.parse('2026-09-09T23:52:22Z');
+ const rest={market:'KRW-BTC',trade_date:'20260909',trade_time:'235222',trade_date_kst:'20260910',trade_time_kst:'085222',trade_timestamp:at+9*3600000};
+ assert.equal(fresh(rest.trade_timestamp,at),false);
+ assert.equal(stamped(rest).trade_timestamp,at);
+ assert.equal(fresh(stamped(rest).trade_timestamp,at),true);
+ const ws={market:'KRW-BTC',trade_date:'20260910',trade_time:'085222',trade_timestamp:at};
+ assert.equal(stamped(ws),ws,'_kst 쌍이 없는 웹소켓 형식은 손대지 않는다');
+ const upbit={market:'KRW-BTC',trade_date:'20260909',trade_time:'235218',trade_date_kst:'20260910',trade_time_kst:'085218',trade_timestamp:at-3108};
+ assert.equal(stamped(upbit),upbit,'몇 초 차이는 교정하지 않는다');
+ for(const bad of [{...rest,trade_time:'2352'},{...rest,trade_date:null},{...rest,trade_timestamp:null}])assert.equal(stamped(bad),bad);
+ assert.equal(rowsFor([{...rest,trade_price:1}],{},fx,'fx',at)[0].current,false,'교정 전 시세는 지연으로 처리');
+ assert.equal(rowsFor([{...stamped(rest),trade_price:1}],{},fx,'fx',at)[0].current,true,'교정 후에는 비교 대상이 된다');
+});
 test('tab integration, CSP and JS syntax',()=>{const html=fs.readFileSync(require.resolve('../index.html'),'utf8');assert.equal((html.match(/id="tab-domestic"/g)||[]).length,1);assert.ok(html.includes("domestic:'domestic'"));assert.ok(html.includes("$('tab-domestic').classList.toggle"));assert.ok(html.includes("https://api.upbit.com https://data-api.binance.vision"));for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(!m[1].includes('src=')&&!m[1].includes('application/'))new Function(m[2]);}new Function(fs.readFileSync(require.resolve('../domestic.js'),'utf8'));});
 console.log(tests+' domestic checks passed');
