@@ -92,7 +92,7 @@ declare
   v_active integer := greatest(0, least(coalesce(p_active_seconds, 0), 60));
   v_session_exists boolean;
 begin
-  if p_tab is null or p_tab not in ('lounge', 'desk', 'chain', 'macro', 'game', 'chars') then
+  if p_tab is null or p_tab not in ('lounge', 'desk', 'chain', 'macro', 'game', 'chars', 'domestic') then
     raise exception 'INVALID_TAB';
   end if;
 

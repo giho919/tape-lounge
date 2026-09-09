@@ -17,7 +17,9 @@
 <meta name="twitter:image" content="https://tapelounge.com/og.png">
 <meta name="theme-color" content="#0a0c10">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://api.bithumb.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
+<link rel="stylesheet" href="domestic.css?v=20260909">
+<script src="domestic.js?v=20260909" defer></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -745,6 +747,7 @@ body.shake { animation:shake .5s; }
   <div class="tabs" role="tablist" aria-label="라운지 섹션">
     <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge"
          title="실시간 시세·청산·채팅이 흐르는 메인 화면">🥂 라운지</div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보">🇰🇷 국내장</div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk"
          title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서">📊 데스크</div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain"
@@ -1048,6 +1051,7 @@ body.shake { animation:shake .5s; }
 </div>
 
 <!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
+<section id="tab-domestic" class="hidden" aria-label="국내장"></section>
 <div id="tab-desk" class="hidden">
   <div class="deskWrap">
     <div class="deskHero">
@@ -1433,7 +1437,7 @@ const tabLive = name => activeTab === name && !document.hidden;
 // ═══ 탭별 주소 ═══
 // 라운지는 hash 없음(루트 URL 유지), 나머지는 #슬러그.
 // hash 를 쓰면 정적 호스팅 그대로 동작하고 뒤로가기도 브라우저가 알아서 처리한다.
-const TAB_SLUG = { lounge:'', desk:'desk', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
+const TAB_SLUG = { lounge:'', domestic:'domestic', desk:'desk', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
 const SLUG_TAB = Object.fromEntries(Object.entries(TAB_SLUG).filter(([,v]) => v).map(([k,v]) => [v, k]));
 let applyingHash = false;
 
@@ -1455,6 +1459,7 @@ function selectTab(t, fromHash = false) {
   t.classList.add('on'); t.setAttribute('aria-selected', 'true');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
   $('tab-desk').classList.toggle('hidden', t.dataset.tab !== 'desk');
+  $('tab-domestic').classList.toggle('hidden', t.dataset.tab !== 'domestic');
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
   $('tab-chain').classList.toggle('hidden', t.dataset.tab !== 'chain');
