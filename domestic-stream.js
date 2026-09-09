@@ -2,7 +2,7 @@
 (function(root){
 'use strict';
 function normalize(kind,d){
- if(kind==='binance')return Array.isArray(d)?d.filter(x=>/^[A-Z0-9]+USDT$/.test(x.s)&&Number(x.c)>0).map(x=>({symbol:x.s.slice(0,-4),lastPrice:x.c,closeTime:x.E})):[];
+ if(kind==='binance')return Array.isArray(d)?d.filter(x=>/^[A-Z0-9]+USDT$/.test(x.s)&&Number(x.c)>0).map(x=>({symbol:x.s.slice(0,-4),lastPrice:x.c,openPrice:x.o,highPrice:x.h,lowPrice:x.l,quoteVolume:x.q,closeTime:x.E})):[];
  if(d?.type!=='ticker'||!/^KRW-[A-Z0-9]+$/.test(d.code)||!(Number(d.trade_price)>0))return [];
  return [{...d,market:d.code}];
 }

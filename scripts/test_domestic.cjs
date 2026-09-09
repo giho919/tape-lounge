@@ -3,8 +3,8 @@ const fs=require('node:fs');
 const {premium,fresh,fxValid,rowsFor}=require('../domestic.js');
 const now=Date.parse('2026-09-09T12:00:00Z');
 const fx={date:'2026-09-09',rates:{KRW:1300}};
-const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:now,acc_trade_price_24h:2e9,signed_change_rate:0.01},{market:'KRW-USDT',trade_price:1352,trade_timestamp:now}];
-const global={BTC:{lastPrice:'100000',closeTime:now}};
+const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:now,acc_trade_price_24h:2e9,signed_change_rate:0.01,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1352,trade_timestamp:now}];
+const global={BTC:{lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:now}};
 let tests=0;function test(label,fn){fn();tests++;console.log('PASS',label);}
 test('premium equation and missing/zero values',()=>{assert.ok(Math.abs(premium(135200000,100000,1300)-4)<1e-10);for(const value of [null,undefined,0,-1,NaN,Infinity,''])assert.equal(premium(1,1,value),null);});
 test('freshness boundaries and future timestamps',()=>{assert.equal(fresh(now-120000,now),true);assert.equal(fresh(now-120001,now),false);assert.equal(fresh(now+31000,now),false);});
@@ -15,5 +15,10 @@ test('missing or stale remote excludes premium',()=>{assert.equal(rowsFor(ticks,
 test('stale USDT does not fall back to FX',()=>{assert.equal(rowsFor([ticks[0],{...ticks[1],trade_timestamp:now-121000}],global,fx,'usdt',now)[0].premium,null);});
 test('anomalous spread not promoted',()=>{assert.equal(rowsFor([{...ticks[0],trade_price:500000000}],global,fx,'fx',now)[0].reason,'가격차 재확인');});
 test('malformed symbol filtered',()=>{assert.equal(rowsFor([{...ticks[0],market:'KRW-<script>'}],global,fx,'fx',now).length,0);});
+test('foreign price converted to KRW and gap agrees with premium',()=>{const r=rowsFor(ticks,global,fx,'fx',now)[0];assert.equal(r.foreignKrw,130000000);assert.equal(r.gap,5200000);assert.ok(Math.abs(r.price-(r.foreignKrw+r.gap))<1e-6);assert.ok(Math.abs(r.gap/r.foreignKrw*100-r.premium)<1e-9);});
+test('foreign change, foreign turnover and distance from 24h high',()=>{const r=rowsFor(ticks,global,fx,'fx',now)[0];assert.ok(Math.abs(r.foreignChange-(100000/98000-1)*100)<1e-9);assert.equal(r.foreignVolume,1234567890);assert.ok(Math.abs(r.fromHigh-(135200000/138000000-1)*100)<1e-9);assert.equal(r.high,138000000);assert.equal(r.low,134000000);});
+test('stale or missing remote clears every converted column',()=>{const stale=rowsFor(ticks,{BTC:{...global.BTC,closeTime:now-121000}},fx,'fx',now)[0];for(const k of ['foreignKrw','gap','foreignChange','foreignVolume'])assert.equal(stale[k],null,k);const none=rowsFor(ticks,{},fx,'fx',now)[0];for(const k of ['foreignKrw','gap','foreignChange'])assert.equal(none[k],null,k);const noRate=rowsFor(ticks,global,{...fx,date:'2026-08-01'},'fx',now)[0];assert.equal(noRate.foreignKrw,null);assert.equal(noRate.gap,null);assert.ok(Math.abs(noRate.foreignChange-(100000/98000-1)*100)<1e-9);});
+test('anomalous spread hides the gap amount too',()=>{const r=rowsFor([{...ticks[0],trade_price:500000000}],global,fx,'fx',now)[0];assert.equal(r.premium,null);assert.equal(r.gap,null);assert.equal(r.foreignKrw,130000000);});
+test('sortable columns exist on every row and headers are declared',()=>{const r=rowsFor(ticks,global,fx,'fx',now)[0];const src=fs.readFileSync(require.resolve('../domestic.js'),'utf8');for(const k of ['price','change','foreignKrw','premium','foreignChange','volume'])assert.ok(k in r,k);for(const k of ['symbol','price','change','foreignKrw','premium','foreignChange','volume'])assert.ok(src.includes("key:'"+k+"'"),k);assert.ok(!src.includes("id=\"dm-sort\""));});
 test('tab integration, CSP and JS syntax',()=>{const html=fs.readFileSync(require.resolve('../index.html'),'utf8');assert.equal((html.match(/id="tab-domestic"/g)||[]).length,1);assert.ok(html.includes("domestic:'domestic'"));assert.ok(html.includes("$('tab-domestic').classList.toggle"));assert.ok(html.includes("https://api.upbit.com https://data-api.binance.vision"));for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(!m[1].includes('src=')&&!m[1].includes('application/'))new Function(m[2]);}new Function(fs.readFileSync(require.resolve('../domestic.js'),'utf8'));});
 console.log(tests+' domestic checks passed');

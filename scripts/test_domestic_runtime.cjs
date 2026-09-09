@@ -11,7 +11,7 @@ const daily=report.slice(report.indexOf('</section>'));
 const dailyRows=[...daily.matchAll(/<tr>(.*?)<\/tr>/g)].map(m=>[...m[1].matchAll(/<td\b[^>]*>(.*?)<\/td>/g)].map(x=>({textContent:x[1].replace(/<[^>]+>/g,'')})));
 assert.ok(reportRows.length>0,'published table rows contract');
 const current=Date.parse(`${stamp[1]}T${stamp[2]}:00+09:00`)+1000;
-const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:current,acc_trade_price_24h:2e9,signed_change_rate:.01},{market:'KRW-USDT',trade_price:1352,trade_timestamp:current}];
+const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:current,acc_trade_price_24h:2e9,signed_change_rate:.01,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1352,trade_timestamp:current}];
 async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const nodes={},requests=[],timers=new Map(),events={};let seq=0,mutate;
  const node=id=>nodes[id]??=({innerHTML:'',textContent:'',dataset:{},hidden:false,classList:{contains:()=>hidden},addEventListener:(event,cb)=>events[id+':'+event]=cb,querySelector:()=>null,setAttribute(){},scrollIntoView(){}});
@@ -20,13 +20,24 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const context={console,Date:Clock,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
   setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),MutationObserver:class{constructor(cb){mutate=cb;}observe(){}},
   DOMParser:class{parseFromString(){return {querySelector:sel=>sel==='.hdr .ts'?{textContent:stamp[0]}:sel==='#andy-retest'?{}:null,querySelectorAll:sel=>(sel.startsWith('#andy-retest')?reportRows:dailyRows).map(t=>({querySelectorAll:()=>t}))};}},
-  fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');let data;if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',closeTime:current}];else if(url.includes('frankfurter'))data={date:stamp[1],rates:{KRW:1300}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
+  fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');let data;if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:current}];else if(url.includes('frankfurter'))data={date:stamp[1],rates:{KRW:1300}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
  vm.runInNewContext(code,context);for(let i=0;i<20;i++)await Promise.resolve();
  return {nodes,requests,timers,events,hide:()=>{hidden=true;mutate();}};
 }
 (async()=>{
  let r=await run({hidden:true});assert.equal(r.requests.length,0);assert.equal(r.timers.size,0);console.log('PASS hidden tab performs no requests');
  r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(r.nodes['dm-table'].innerHTML.includes('Andy · 4h · 지지 확인'));assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
+ const click=(x,attr,value)=>x.events['tab-domestic:click']({target:{closest:sel=>sel==='['+attr+']'?{dataset:{[attr.slice(5)]:value}}:null}});
+ assert.equal((r.nodes['dm-head'].innerHTML.match(/<th/g)||[]).length,9);
+ for(const label of ['해외 환산가','근사 김프','해외 등락','거래대금'])assert.ok(r.nodes['dm-head'].innerHTML.includes(label),label);
+ assert.ok(r.nodes['dm-table'].innerHTML.includes('₩130,000,000'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+₩5,200,000'));
+ assert.ok(r.nodes['dm-table'].innerHTML.includes('고가 대비'));
+ console.log('PASS converted price, premium amount and full column set render');
+ const at=s=>r.nodes['dm-table'].innerHTML.indexOf('data-select="'+s+'"');
+ click(r,'data-sort','symbol');assert.ok(r.nodes['dm-head'].innerHTML.includes('aria-sort="ascending"'));assert.ok(at('BTC')<at('USDT'));
+ click(r,'data-sort','symbol');assert.ok(r.nodes['dm-head'].innerHTML.includes('aria-sort="descending"'));assert.ok(at('USDT')<at('BTC'));
+ click(r,'data-sort','volume');assert.ok(at('BTC')<at('USDT'));
+ console.log('PASS header sorting toggles direction and reorders rows');
  r.nodes['dm-basis'].onchange({target:{value:'usdt'}});assert.ok(r.nodes['dm-table'].innerHTML.includes('0.00%'));assert.equal(r.requests.length,4);console.log('PASS basis change uses existing data without new requests');
  r.nodes['dm-andy-only'].onclick({currentTarget:{setAttribute(){}}});assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('data-select="USDT"'));console.log('PASS Andy filter preserves all matching rows');
  r.hide();assert.equal(r.timers.size,0);console.log('PASS leaving tab stops future polls');

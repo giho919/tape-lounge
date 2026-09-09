@@ -5,6 +5,10 @@
 #tab-domestic thead{position:sticky;top:0;z-index:3}
 #tab-domestic td:nth-child(2),#tab-domestic th:nth-child(2){position:sticky;left:0;background:var(--panel);z-index:2;box-shadow:2px 0 var(--line)}
 #tab-domestic th:nth-child(2){background:var(--panel2);z-index:4}
+#tab-domestic th button{width:100%;min-height:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-weight:500;display:flex;align-items:center;justify-content:flex-end;gap:6px;cursor:pointer}
+#tab-domestic th:nth-child(2) button{justify-content:flex-start}
+#tab-domestic th button span{font-size:11px;color:#6f7686}
+#tab-domestic th[aria-sort] button,#tab-domestic th[aria-sort] button span{color:var(--gold)}
 #tab-domestic td button{min-height:28px;padding:2px 6px;border-color:transparent;background:transparent}
 #tab-domestic .dm-badge{max-width:230px;white-space:normal;font-size:12px;line-height:1.35}
 #tab-domestic .dm-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
