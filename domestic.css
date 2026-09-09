@@ -9,8 +9,8 @@
 #tab-domestic th:nth-child(2) button{justify-content:flex-start}
 #tab-domestic th button span{font-size:11px;color:#6f7686}
 #tab-domestic th[aria-sort] button,#tab-domestic th[aria-sort] button span{color:var(--gold)}
-#tab-domestic td button{min-height:28px;padding:2px 6px;border-color:transparent;background:transparent}
-#tab-domestic .dm-badge{max-width:230px;white-space:normal;font-size:12px;line-height:1.35}
+#tab-domestic td button{min-height:24px;padding:1px 4px;border-color:transparent;background:transparent;font-size:13px;font-weight:600}
+#tab-domestic .dm-badge{font-size:11px;line-height:1.3;color:var(--gold)}
 #tab-domestic .dm-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
 #tab-domestic h1{font-size:25px;color:var(--gold);font-weight:600}
 #tab-domestic h2{font-size:17px;margin-bottom:8px}
@@ -28,17 +28,28 @@
 #tab-domestic .dm-strip span{color:#a5adbd;font-size:14px}
 #tab-domestic .dm-strip b{color:var(--tx);margin-left:8px}
 #tab-domestic .dm-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
-#tab-domestic table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:14px;background:var(--panel)}
-#tab-domestic th{text-align:right;background:var(--panel2);color:#aeb6c7;padding:12px;font-weight:500}
-#tab-domestic td{text-align:right;padding:7px 10px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+#tab-domestic table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px;background:var(--panel)}
+#tab-domestic th{text-align:right;background:var(--panel2);color:#8d95a6;padding:8px 10px;font-weight:500;font-size:12px;border-bottom:1px solid var(--line)}
+#tab-domestic td{text-align:right;padding:5px 10px;border-top:1px solid rgba(255,255,255,.045);font-variant-numeric:tabular-nums;line-height:1.3;vertical-align:middle}
 #tab-domestic th:nth-child(2),#tab-domestic td:nth-child(2){text-align:left}
-#tab-domestic td small{display:block;color:#a5adbd;font-size:12px}
+#tab-domestic td small{display:block;color:#737b8b;font-size:11px;font-weight:400}
 #tab-domestic .dm-up{color:var(--grn)}#tab-domestic .dm-down{color:var(--red)}
 #tab-domestic .dm-muted{color:#a5adbd}#tab-domestic .dm-warn{color:#e5bb66}
 #tab-domestic .dm-list{list-style:none;display:grid;gap:10px;margin:10px 0}
 #tab-domestic .dm-list li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px;font-size:14px}
 #tab-domestic .dm-list small{display:block;color:#a5adbd;font-size:12px}
-#tab-domestic .dm-badge{font-size:12px;color:var(--gold);display:block}
 #tab-domestic .dm-detail{margin:16px 0;padding:18px;border:1px solid var(--gold-dim);border-radius:12px;background:var(--panel2)}
 #tab-domestic details{margin-top:18px;color:#a5adbd;font-size:14px}#tab-domestic summary{cursor:pointer;color:var(--tx)}
+
+/* 김프 사이트식 스캔 레이아웃: 그룹 구분선·줄무늬·김프 강조 */
+#tab-domestic tbody tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+#tab-domestic tbody tr:nth-child(even) td:nth-child(2){background:color-mix(in srgb,var(--panel) 92%,#fff)}
+#tab-domestic tbody tr:hover td{background:rgba(212,175,110,.07)}
+#tab-domestic tbody tr:hover td:nth-child(2){background:color-mix(in srgb,var(--panel) 88%,var(--gold))}
+#tab-domestic th.dm-g,#tab-domestic td.dm-g{border-left:1px solid var(--line)}
+#tab-domestic td.dm-kimp{font-size:15px}
+#tab-domestic td.dm-kimp b{font-weight:700}
+#tab-domestic td.dm-num{font-weight:600;color:var(--tx)}
+#tab-domestic td.dm-state{white-space:normal;max-width:170px;text-align:left;font-size:11px}
+#tab-domestic .dm-chip{display:inline-block;padding:1px 6px;border:1px solid currentColor;border-radius:999px;line-height:1.4}
 @media(max-width:700px){#tab-domestic .dm-grid{grid-template-columns:1fr}#tab-domestic .dm-head{align-items:start}#tab-domestic .dm-tools label{flex:1 1 130px}#tab-domestic .dm-box{padding:14px}#tab-domestic .dm-strip{gap:8px 18px}#tab-domestic .dm-head p{max-width:240px}}
