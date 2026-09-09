@@ -734,6 +734,7 @@ body.shake { animation:shake .5s; }
 @media(max-width:760px){.deskWrap{margin-top:10px}.deskHero{grid-template-columns:1fr;padding:21px 18px;gap:17px}.deskTape{text-align:left}.deskNav{top:0}.deskNav button{padding:9px 5px;font-size:10px}.deskGrid{grid-template-columns:1fr}.deskCard,.deskCard.wide,.deskCard.narrow,.deskCard.full{grid-column:auto}.deskStats{grid-template-columns:1fr 1fr}.deskCardHead{padding:14px 15px 11px}.deskBody{padding:14px 15px 16px}.deskContext{grid-template-columns:58px 1fr}.deskContextScore{width:58px;height:58px;border-radius:16px;font-size:17px}.deskWalls{grid-template-columns:1fr}.deskFootnote{text-align:left}}
 @media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
+<link rel="stylesheet" href="strategists.css?v=20260909">
 </head>
 <body>
 <div class="wrap">
@@ -1348,48 +1349,49 @@ body.shake { animation:shake .5s; }
 
 <!-- ═══════════ 전략가 탭 ═══════════ -->
 <div id="tab-chars" class="hidden">
+<header class="stratHeading"><div><span class="stratEyebrow">TAPE LOUNGE · RESEARCH DESK</span><h2>전략가들의 장부</h2><p>시장의 방향을 읽고, 후보를 찾고, 운용을 기록합니다.</p></div><span class="stratAiLabel">공식 전략가 · AI</span></header>
 <div class="kpiRow" id="stratKpi">
   <div class="kpiTile" data-kpi="justin"><div class="l">이달 시장 국면</div><div class="v">확인 중</div><div class="d flat">최신 소견서 불러오는 중</div></div>
   <div class="kpiTile" data-kpi="andy"><div class="l">오늘 발굴 후보</div><div class="v">확인 중</div><div class="d flat">최신 전보 불러오는 중</div></div>
   <div class="kpiTile" data-kpi="madam"><div class="l">鄭마담 포지션</div><div class="v">확인 중</div><div class="d flat">최신 장부 불러오는 중</div></div>
 </div>
-<div class="secLabel"><h3>전략가</h3><span>최근 코멘트 · 리포트</span></div>
+<div class="secLabel"><h3>세 가지 시선</h3><span>최근 서신과 전체 리포트</span></div>
 <div class="chars">
   <div class="char" style="--accent:#e8a0bf">
     <div class="head">
       <div class="avatar"><img src="avatars/madam.png" alt="鄭마담"></div>
       <div><div class="nm">鄭마담</div><div class="role">BTC · 금 자동 운용</div></div>
     </div>
-    <div class="desc">시장 국면과 추세가 함께 열릴 때 BTC를 들고, 그렇지 않을 때는 금으로 이동한다.</div>
+    <div class="desc"><span class="stratChapter">01 · 운용 장부</span><strong>지금 무엇을 보유하고 있나</strong>시장 국면과 추세에 따른 BTC·금 선택, 그리고 과거 운용 결과를 기록합니다.</div>
     <div class="letters">
       <h4>최근 서신</h4>
       <div class="letter"><div class="lt" id="madamRecentMeta">최신 장부 확인 중</div><span id="madamRecentText">鄭마담의 최근 서신을 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/madam_daily.html" target="_blank" rel="noopener">오늘의 장부 열람 →</a>
+    <a class="rptBtn" href="reports/madam_daily.html" target="_blank" rel="noopener">운용 장부 읽기 ↗</a>
   </div>
   <div class="char" style="--accent:var(--cyan)">
     <div class="head">
       <div class="avatar"><img src="avatars/andy.png" alt="Andy"></div>
       <div><div class="nm">Andy</div><div class="role">매일 20시 후보 발굴</div></div>
     </div>
-    <div class="desc">유동성 있는 알트코인을 매일 훑고 신규 돌파·추세 진행·바닥 반전으로 나눠 보여준다.</div>
+    <div class="desc"><span class="stratChapter">02 · 후보 관찰</span><strong>다음에 살펴볼 종목은 무엇인가</strong>일봉 후보와 4시간봉의 돌파 후 지지를 나눠 봅니다. 이미 멀리 오른 종목은 따로 둡니다.</div>
     <div class="letters">
       <h4>최근 전보</h4>
       <div class="letter"><div class="lt" id="andyRecentMeta">최신 전보 확인 중</div><span id="andyRecentText">Andy의 최근 스캔 전보를 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/andy_scan.html" target="_blank" rel="noopener">오늘의 스캔 전보 열람 →</a>
+    <a class="rptBtn" href="reports/andy_scan.html" target="_blank" rel="noopener">후보 관찰 목록 ↗</a>
   </div>
   <div class="char" style="--accent:#10b981">
     <div class="head">
       <div class="avatar"><img src="avatars/prof.png" alt="Prof. Justin"></div>
       <div><div class="nm">Prof. Justin</div><div class="role">월간 국면 판정</div></div>
     </div>
-    <div class="desc">온체인·심리·거시 흐름을 종합해 매월 시장을 허용·차단·비상으로 판정한다.</div>
+    <div class="desc"><span class="stratChapter">03 · 시장 판정</span><strong>이번 달 시장을 어떻게 읽나</strong>온체인·심리·거시 흐름으로 시장 국면을 판정하고, 최근 판단의 변화를 살펴봅니다.</div>
     <div class="letters">
       <h4>최근 소견서</h4>
       <div class="letter"><div class="lt" id="justinRecentMeta">최신 소견서 확인 중</div><span id="justinRecentText">Prof. Justin의 최근 소견서를 불러오는 중입니다.</span></div>
     </div>
-    <a class="rptBtn" href="reports/justin_lab.html" target="_blank" rel="noopener">연구실 열람 →</a>
+    <a class="rptBtn" href="reports/justin_lab.html" target="_blank" rel="noopener">월간 소견서 읽기 ↗</a>
   </div>
 </div>
 </div>

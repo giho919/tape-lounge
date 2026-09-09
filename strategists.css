@@ -1,0 +1,34 @@
+/* Scoped reading-room presentation; no data or interaction changes. */
+#tab-chars{--reading-line:#303039;padding-top:8px}
+#tab-chars .stratHeading{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0 28px;border-bottom:1px solid var(--reading-line)}
+#tab-chars .stratEyebrow{font-size:12px;letter-spacing:.16em;color:var(--gold)}
+#tab-chars .stratHeading h2{font-size:clamp(26px,3.5vw,36px);font-weight:650;letter-spacing:-.045em;margin:10px 0}
+#tab-chars .stratHeading p{font-size:16px;line-height:1.65;color:#aeb4c1;margin:0}
+#tab-chars .stratAiLabel{font-size:12px;color:#b8af95;border:1px solid #4a4230;border-radius:30px;padding:8px 12px;white-space:nowrap}
+#tab-chars .kpiRow{gap:0;margin:0;border-bottom:1px solid var(--reading-line)}
+#tab-chars .kpiTile{background:none;border:0;border-radius:0;padding:22px 24px;min-width:0}
+#tab-chars .kpiTile+.kpiTile{border-left:1px solid var(--reading-line)}
+#tab-chars .kpiTile .l{font-size:14px;color:#afb5c2}
+#tab-chars .kpiTile .v{font-size:28px;overflow-wrap:anywhere}
+#tab-chars .kpiTile .d{font-size:12px;padding:4px 0;background:none}
+#tab-chars .secLabel{margin:32px 0 16px;gap:12px}
+#tab-chars .secLabel h3{font-size:16px;color:var(--tx);letter-spacing:0}
+#tab-chars .secLabel span{font-size:12px}
+#tab-chars .chars{grid-template-columns:minmax(0,1fr);gap:18px}
+#tab-chars .char{display:grid;grid-template-columns:190px minmax(0,1fr) 170px;gap:16px 28px;padding:28px;border-radius:14px;border-color:var(--reading-line);border-left:3px solid var(--accent);background:linear-gradient(115deg,#171921,#111319)}
+#tab-chars .char .head{grid-column:1;grid-row:1/3;flex-direction:column;align-items:flex-start;gap:16px}
+#tab-chars .char .avatar{width:72px;height:72px;border-radius:14px;border-color:#45454b}
+#tab-chars .char .nm{font-size:23px;letter-spacing:-.035em}
+#tab-chars .char .role{font-size:13px;color:#aeb4c1;line-height:1.5;margin-top:6px}
+#tab-chars .char .desc{grid-column:2;grid-row:1;font-size:15px;line-height:1.75;color:#adb4c1}
+#tab-chars .stratChapter{display:block;font-size:12px;color:var(--accent);letter-spacing:.05em;margin-bottom:9px}
+#tab-chars .char .desc strong{display:block;color:#eeeef1;font-size:19px;font-weight:600;line-height:1.45;margin-bottom:10px;letter-spacing:-.025em}
+#tab-chars .char .letters{grid-column:2;grid-row:2;margin:0;border:0;padding-top:0}
+#tab-chars .char .letters h4{display:none}
+#tab-chars .char .letter{font-size:14px;line-height:1.75;padding:12px 0 0;border:0;border-top:1px solid var(--reading-line);border-radius:0;background:none;margin:0;color:#d2d6df}
+#tab-chars .char .lt{font-size:12px;color:#9ba4b5;margin-bottom:5px}
+#tab-chars .char .rptBtn{grid-column:3;grid-row:1/3;align-self:end;font-size:14px;line-height:1.4;min-height:46px;padding:13px 10px;border-radius:8px;border-color:#59503a;color:#e4d3a6;background:#282319}
+#tab-chars .char .rptBtn:hover{background:#362f20;border-color:var(--gold);color:#fff}
+#tab-chars a:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+@media(max-width:950px){#tab-chars .char{grid-template-columns:155px minmax(0,1fr);padding:24px;gap:16px 22px}#tab-chars .char .rptBtn{grid-column:2;grid-row:3;justify-self:start;padding-inline:20px}}
+@media(max-width:600px){#tab-chars .stratHeading{align-items:flex-start;flex-direction:column;gap:14px;padding:18px 0 22px}#tab-chars .stratHeading h2{font-size:28px}#tab-chars .kpiRow{grid-template-columns:1fr}#tab-chars .kpiTile{display:grid;grid-template-columns:1fr auto;padding:16px 0;gap:4px 12px}#tab-chars .kpiTile+.kpiTile{border-left:0;border-top:1px solid var(--reading-line)}#tab-chars .kpiTile .v{grid-column:2;grid-row:1/3;margin:0;align-self:center;font-size:23px}#tab-chars .kpiTile .d{margin:0}#tab-chars .char{display:flex;padding:22px;gap:20px}#tab-chars .char .head{flex-direction:row;align-items:center;gap:15px}#tab-chars .char .avatar{width:60px;height:60px}#tab-chars .char .nm{font-size:22px}#tab-chars .char .rptBtn{align-self:stretch;width:100%}#tab-chars .secLabel span{max-width:50%;text-align:right}#tab-chars .char .desc{font-size:16px}}
