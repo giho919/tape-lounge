@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T22:17:01.379856Z",
+  "generated_at": "2026-09-10T12:32:01.124098Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -23,7 +23,8 @@
   ],
   "warnings": [
     "BLS 일정 조회 실패: HTTP Error 403: Forbidden",
-    "BLS 공식 2026 일정 스냅샷으로 대체"
+    "BLS 공식 2026 일정 스냅샷으로 대체",
+    "BLS 실제치 조회 실패: The read operation timed out"
   ],
   "events": [
     {
@@ -80,7 +81,7 @@
       "note": "2026-08 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {},
-      "status": "upcoming"
+      "status": "observed"
     },
     {
       "id": "25ada0e96aeaaf0c",
