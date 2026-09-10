@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T13:32:01.601463Z",
+  "generated_at": "2026-09-10T19:02:02.083406Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -451,6 +451,22 @@
       "unit": null,
       "note": "U.S. International Trade in Goods and Services",
       "source_url": "https://www.bea.gov/news/schedule",
+      "btc": {},
+      "status": "upcoming"
+    },
+    {
+      "id": "89caf100ab894808",
+      "source": "FED",
+      "code": "FOMC",
+      "title": "FOMC 금리결정",
+      "importance": "VIP",
+      "scheduled_at": "2026-12-09T19:00:00Z",
+      "previous": null,
+      "actual": null,
+      "actual_supported": false,
+      "unit": null,
+      "note": "경제전망(SEP)·기자회견",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
       "btc": {},
       "status": "upcoming"
     }
