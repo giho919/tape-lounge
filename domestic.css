@@ -54,8 +54,12 @@
 #tab-domestic .dm-warn{color:#e5bb66}
 
 /* 상세와 각주 */
-#tab-domestic .dm-detail{margin:14px 0;padding:16px;border:1px solid var(--gold-dim);border-radius:12px;background:var(--panel2);font-size:14px}
-#tab-domestic .dm-detail p{color:#a5adbd}
+/* 선택한 코인 바로 아래에서 펼쳐진다 — 화면이 위로 튀지 않게 */
+#tab-domestic tr.dm-sel td{background:var(--panel2)}
+#tab-domestic tr.dm-sel td.dm-name button[data-select]{color:var(--gold)}
+#tab-domestic tr.dm-open td{text-align:left;white-space:normal;background:var(--panel2);border-bottom:2px solid var(--gold-dim);padding:4px 10px 14px;font-size:13px;line-height:1.6;color:#a5adbd}
+#tab-domestic tr.dm-open p{margin:5px 0}
+#tab-domestic tr.dm-open b{color:var(--tx)}
 #tab-domestic .dm-foot{margin-top:14px;font-size:12px;color:#8d95a6}
 #tab-domestic .dm-foot p{margin:4px 0}
 #tab-domestic .dm-strip b{color:#b4bbc8;font-weight:500}

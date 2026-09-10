@@ -60,6 +60,19 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
   assert.ok(r.nodes['dm-table'].innerHTML.includes('135,900,000'),'전환한 거래소의 시세가 표에 들어온다');
   r.nodes['dm-venue'].onchange({target:{value:'upbit'}});for(let i=0;i<20;i++)await Promise.resolve();}
  console.log('PASS switching venue fetches at once instead of waiting for the poll');
+ {const closed=r.nodes['dm-table'].innerHTML;
+  assert.ok(!closed.includes('dm-open'),'처음에는 아무 코인도 펼쳐져 있지 않다');
+  click(r,'data-select','BTC');
+  const open=r.nodes['dm-table'].innerHTML;
+  const rowAt=open.indexOf('data-select="BTC"');
+  assert.ok(rowAt>-1);
+  assert.equal(open.indexOf('<tr class="dm-open"'),open.indexOf('</tr>',rowAt)+5,'상세는 표 위가 아니라 누른 코인 행 바로 다음에 붙는다');
+  assert.ok(open.includes('aria-expanded="true"'));
+  assert.ok(open.includes('고가 대비')&&open.includes('해외 등락'),'표에서 뺀 값들이 상세에 남아 있다');
+  assert.ok(open.includes('₩5,200,000'),'상세는 줄이지 않은 정확한 금액을 보여준다');
+  click(r,'data-select','BTC');
+  assert.ok(!r.nodes['dm-table'].innerHTML.includes('dm-open'),'같은 코인을 다시 누르면 접힌다');}
+ console.log('PASS detail opens under the row it belongs to and toggles shut');
  {const before=r.requests.length;r.nodes['dm-basis'].onchange({target:{value:'usdt'}});assert.ok(r.nodes['dm-table'].innerHTML.includes('0.00%'));assert.equal(r.requests.length,before);}console.log('PASS basis change uses existing data without new requests');
  r.nodes['dm-andy-only'].onclick({currentTarget:{setAttribute(){}}});assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('data-select="USDT"'));console.log('PASS Andy filter preserves all matching rows');
  r.hide();assert.equal(r.timers.size,0);console.log('PASS leaving tab stops future polls');
