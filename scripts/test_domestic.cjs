@@ -77,5 +77,12 @@ test('the chart is an embedded iframe, not a script we run',()=>{
  assert.ok(frame.includes('https://s.tradingview.com'),'CSP frame-src 에 있어야 iframe 이 뜬다');
  assert.ok(!/script-src[^;]*tradingview/.test(html),'script-src 에는 넣지 않는다');
 });
+test('bithumb batches go out together and the table never waits on one fetch',()=>{
+ const src=fs.readFileSync(require.resolve('../domestic.js'),'utf8');
+ assert.ok(/urls\.map\(u=>get\(u,epoch\)\)/.test(src),'빗썸 80종 배치는 순차가 아니라 동시에 보낸다');
+ assert.ok(src.includes('type=MINI'),'바이낸스는 호가·체결건수까지 오는 전체 응답 대신 MINI');
+ assert.equal((src.match(/\.then\(paintNow\)|paintNow\(\);/g)||[]).length,3,'조회 세 갈래가 각자 끝나는 대로 그린다');
+ assert.ok(src.includes('if(state.busy){if(force)state.again=true;return;}'),'조회 중 전환 요청을 버리지 않는다');
+});
 test('tab integration, CSP and JS syntax',()=>{const html=fs.readFileSync(require.resolve('../index.html'),'utf8');assert.equal((html.match(/id="tab-domestic"/g)||[]).length,1);assert.ok(html.includes("domestic:'domestic'"));assert.ok(html.includes("$('tab-domestic').classList.toggle"));assert.ok(html.includes("https://api.upbit.com https://data-api.binance.vision"));for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(!m[1].includes('src=')&&!m[1].includes('application/'))new Function(m[2]);}new Function(fs.readFileSync(require.resolve('../domestic.js'),'utf8'));});
 console.log(tests+' domestic checks passed');

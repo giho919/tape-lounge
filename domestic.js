@@ -36,7 +36,7 @@ function rowsFor(tickers,global,now=Date.now()){
 /* 해외 현물 USDT 마켓. 모두 브라우저에서 직접 부를 수 있는 공개 시세이며(CORS 확인), 한 번에 전 종목을 준다.
    closeTime 은 거래소가 주는 시각이고, 주지 않는 게이트만 응답을 받은 시각을 쓴다. */
 const FOREIGN={
- binance:{label:'바이낸스',url:'https://data-api.binance.vision/api/v3/ticker/24hr',stream:true,
+ binance:{label:'바이낸스',url:'https://data-api.binance.vision/api/v3/ticker/24hr?type=MINI',stream:true,
   parse:d=>Array.isArray(d)?d.map(x=>x.symbol?.endsWith('USDT')?{symbol:x.symbol.slice(0,-4),lastPrice:x.lastPrice,openPrice:x.openPrice,quoteVolume:x.quoteVolume,closeTime:num(x.closeTime)}:null):null},
  bybit:{label:'바이비트',url:'https://api.bybit.com/v5/market/tickers?category=spot',
   parse:d=>{const at=num(d?.time),l=d?.result?.list;return Array.isArray(l)?l.map(x=>x.symbol?.endsWith('USDT')?{symbol:x.symbol.slice(0,-4),lastPrice:x.lastPrice,openPrice:x.prevPrice24h,quoteVolume:x.turnover24h,closeTime:at}:null):null;}},
@@ -73,7 +73,7 @@ const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M
 const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
-const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
 el.innerHTML=`<div class="dm-top"><h1>국내장</h1><a href="#strategists">전략가들 ↗</a></div>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
@@ -143,7 +143,8 @@ function render(){
  $('dm-andy-at').textContent=state.andy?`${state.andy.label} · 매일 20시 갱신${andyFresh?' · 현재 신호 아님':' · 오래된 리포트, 후보 표시는 보류'}`:'리포트를 확인하지 못했습니다. 원본 장부에서 확인해 주세요.';
  const filtered=rows.filter(r=>(!state.only||favorites.has(r.symbol))&&(!state.andyOnly||stages[r.symbol])&&(!state.query||(r.symbol+' '+name(r.symbol)).toLowerCase().includes(state.query))).sort(order);
  $('dm-count').textContent=`암호화폐 총 ${filtered.length}개`;
- const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
+ const pending=!state.at.foreign;
+ const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(pending&&r.foreign===null?'해외 시세 대기':r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
  /* 차트 줄만 따로 그린다. iframe 은 다시 그리면 처음부터 읽으므로 시세 갱신에 딸려가면 안 된다. */
  const at=state.selected?filtered.findIndex(r=>r.symbol===state.selected):-1,open=at>=0?filtered[at]:null;
  $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?((state.tries[state.venue]||0)>=3?`${venueName()} 시세를 계속 불러오지 못하고 있습니다. 자동으로 다시 시도하는 중입니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
@@ -162,7 +163,10 @@ async function domestic(venue,epoch){
  if(venue==='upbit')ticks=await get('https://api.upbit.com/v1/ticker/all?quote_currencies=KRW',epoch);
  else{
   if(!state.meta.length||Date.now()-(state.at.meta||0)>3600000){const m=await get('https://api.bithumb.com/v1/market/all?isDetails=true',epoch);if(!Array.isArray(m))throw Error('Invalid markets');state.meta=m.filter(x=>/^KRW-[A-Z0-9]+$/.test(x.market));state.at.meta=Date.now();}
-  ticks=[];for(let i=0;i<state.meta.length;i+=80){if(epoch!==state.epoch)throw Error('Cancelled');const batch=await get('https://api.bithumb.com/v1/ticker?markets='+state.meta.slice(i,i+80).map(x=>x.market).join(','),epoch);if(!Array.isArray(batch))throw Error('Invalid ticks');ticks.push(...batch);}
+  const urls=[];for(let i=0;i<state.meta.length;i+=80)urls.push('https://api.bithumb.com/v1/ticker?markets='+state.meta.slice(i,i+80).map(x=>x.market).join(','));
+  const batches=await Promise.all(urls.map(u=>get(u,epoch)));
+  if(batches.some(b=>!Array.isArray(b)))throw Error('Invalid ticks');
+  ticks=batches.flat();
  }
  if(!Array.isArray(ticks)||!ticks.length)throw Error('Empty market');
  ticks=ticks.map(stamped);
@@ -181,18 +185,28 @@ async function loadAndy(epoch){
 function starving(){return !state.tickers[state.venue].length||!Object.keys(state.global).length;}
 function wait(){return starving()?Math.min(3000*2**Math.min(Math.max((state.tries[state.venue]||0),(state.tries.foreign||0))-1,3),30000):30000;}
 async function refresh(force){
- if(!visible()||state.busy)return;
+ if(!visible())return;
+ /* 조회 중에 거래소를 바꾸면 그 요청을 버리지 말고, 지금 조회가 끝나는 대로 이어서 한다. */
+ if(state.busy){if(force)state.again=true;return;}
  if(!force&&Date.now()-state.lastAttempt<wait()){schedule();return;}
  const epoch=state.epoch;state.busy=true;state.lastAttempt=Date.now();render();
+ /* 조회가 끝나는 대로 그린다. 국내 시세는 100ms 면 오는데 예전에는 해외 전 종목과 Andy 리포트까지
+    다 받은 뒤에야 표가 나왔다. 국내가 도착하면 실시간 연결도 바로 연다. */
+ const paintNow=()=>{if(visible()&&epoch===state.epoch)render();};
  await Promise.all([job(state.venue,async()=>{
   /* 받아 둔 시세가 없으면 웹소켓 연결 간격 때문에 조회를 거르지 않는다 — 거르면 빈 표가 그대로 남는다. */
   if(state.tickers[state.venue].length&&(streams?.healthy(state.venue)||streams?.canPoll(state.venue)===false))return;
-  await domestic(state.venue,epoch);}),job('foreign',async()=>{const key=state.foreign;if(Object.keys(state.global).length&&FOREIGN[key].stream&&streams?.healthy('binance'))return;
+  await domestic(state.venue,epoch);}).then(()=>{
+  if(visible()&&epoch===state.epoch&&state.tickers[state.venue].length)streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);
+  paintNow();}),job('foreign',async()=>{const key=state.foreign;if(Object.keys(state.global).length&&FOREIGN[key].stream&&streams?.healthy('binance'))return;
   const payload=await get(FOREIGN[key].url,epoch);const rows=foreignRows(key,payload,Date.now());
   if(!rows)throw Error('Invalid global');if(key!==state.foreign||epoch!==state.epoch)return;
-  state.global=rows;state.at.foreign=Date.now();}),
- job('andy',async()=>{if(Date.now()-(state.at.andy||0)<300000)return;await loadAndy(epoch);})]);
- state.busy=false;if(visible()){streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);render();}schedule();
+  state.global=rows;state.at.foreign=Date.now();}).then(paintNow),
+ job('andy',async()=>{if(Date.now()-(state.at.andy||0)<300000)return;await loadAndy(epoch);}).then(paintNow)]);
+ state.busy=false;
+ if(visible()){streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);render();}
+ if(state.again){state.again=false;if(visible())return refresh(true);}
+ schedule();
 }
 function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,wait()-(Date.now()-state.lastAttempt)));}
 function sync(){if(!visible()){clearTimeout(state.timer);clearTimeout(state.paint);state.paint=null;streams?.stop();state.epoch++;state.controllers.forEach(c=>c.abort());}else{render();refresh();}}
