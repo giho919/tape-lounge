@@ -198,11 +198,10 @@ async function refresh(force){
   if(state.tickers[state.venue].length&&(streams?.healthy(state.venue)||streams?.canPoll(state.venue)===false))return;
   await domestic(state.venue,epoch);}).then(()=>{
   if(visible()&&epoch===state.epoch&&state.tickers[state.venue].length)streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);
-  paintNow();}),job('foreign',async()=>{const key=state.foreign;if(Object.keys(state.global).length&&FOREIGN[key].stream&&streams?.healthy('binance'))return;
+  paintNow();}).then(()=>job('andy',async()=>{if(Date.now()-(state.at.andy||0)<300000)return;await loadAndy(epoch);})).then(paintNow),job('foreign',async()=>{const key=state.foreign;if(Object.keys(state.global).length&&FOREIGN[key].stream&&streams?.healthy('binance'))return;
   const payload=await get(FOREIGN[key].url,epoch);const rows=foreignRows(key,payload,Date.now());
   if(!rows)throw Error('Invalid global');if(key!==state.foreign||epoch!==state.epoch)return;
-  state.global=rows;state.at.foreign=Date.now();}).then(paintNow),
- job('andy',async()=>{if(Date.now()-(state.at.andy||0)<300000)return;await loadAndy(epoch);}).then(paintNow)]);
+  state.global=rows;state.at.foreign=Date.now();}).then(paintNow)]);
  state.busy=false;
  if(visible()){streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);render();}
  if(state.again){state.again=false;if(visible())return refresh(true);}

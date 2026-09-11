@@ -29,7 +29,7 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='
   fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');if(hang&&url.includes(hang))return new Promise(()=>{});let data;if(url.includes('/candles/minutes/')){const n=+url.match(/count=(\d+)/)[1];
    data=Array.from({length:n},(_,i)=>({candle_date_time_utc:new Date(current-i*3600000).toISOString().slice(0,19),opening_price:100+i,high_price:110+i,low_price:90+i,trade_price:105+i}));}
   else if(url.includes('bithumb/v1/market')||url.includes('bithumb.com/v1/market'))data=[{market:'KRW-BTC',korean_name:'비트코인'}];else if(url.includes('bithumb'))data=[{...ticks[0],trade_price:135900000}];else if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:current}];else if(url.includes('bybit'))data={time:current,result:{list:[{symbol:'BTCUSDT',lastPrice:'101000',prevPrice24h:'98000',turnover24h:'555000000'}]}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
- vm.runInNewContext(code,context);for(let i=0;i<20;i++)await Promise.resolve();
+ vm.runInNewContext(code,context);for(let i=0;i<60;i++)await Promise.resolve();
  /* 예약된 재시도를 실제로 돌려 본다 — 붙박이 시계라 시간도 함께 밀어 준다. */
  const fire=async ms=>{skew+=ms;const due=[...timers.entries()];timers.clear();
   for(const [,t] of due)await t.fn();for(let i=0;i<25;i++)await Promise.resolve();};
