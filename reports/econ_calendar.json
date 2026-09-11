@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T12:47:01.270794Z",
+  "generated_at": "2026-09-11T13:32:02.089260Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -81,7 +81,8 @@
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {
         "m5": 0.07,
-        "m15": 0.643
+        "m15": 0.643,
+        "m60": 0.56
       },
       "status": "waiting"
     },
@@ -450,6 +451,22 @@
       "unit": null,
       "note": "경제전망(SEP)·기자회견",
       "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "btc": {},
+      "status": "upcoming"
+    },
+    {
+      "id": "61275ef80df7e580",
+      "source": "BLS",
+      "code": "CPI",
+      "title": "소비자물가지수",
+      "importance": "VIP",
+      "scheduled_at": "2026-12-10T13:30:00Z",
+      "previous": null,
+      "actual": null,
+      "actual_supported": true,
+      "unit": "%",
+      "note": "2026-11 관측 · 공식 일정 스냅샷",
+      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {},
       "status": "upcoming"
     }
