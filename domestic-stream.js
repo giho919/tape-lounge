@@ -25,7 +25,9 @@ function createStreams({onData,onState=()=>{},WebSocket:WS=root.WebSocket,now=Da
  return {
   touch(kind){gate[kind]=now();},
   canPoll(kind){return !(gate[kind]&&now()-gate[kind]<12000);},
-  start(venue,codes){running=true;for(const k of Object.keys(slots)){if(k!==venue&&k!=='binance'){cancel(slots[k]);delete slots[k];onState(k,false);}}for(const k of [venue,'binance']){if(slots[k]||(k!=='binance'&&!codes.length))continue;const s={codes:[...codes],failures:0,last:0};slots[k]=s;connect(k,s);}},
+  start(venue,codes,withBinance=true){running=true;const keep=withBinance?[venue,'binance']:[venue];
+   for(const k of Object.keys(slots))if(!keep.includes(k)){cancel(slots[k]);delete slots[k];onState(k,false);}
+   for(const k of keep){if(slots[k]||(k!=='binance'&&!codes.length))continue;const s={codes:[...codes],failures:0,last:0};slots[k]=s;connect(k,s);}},
   healthy(kind){const s=slots[kind];return !!(s?.ws?.readyState===1&&now()-s.last<45000&&s.received);},
   stop(){running=false;for(const k of Object.keys(slots)){cancel(slots[k]);delete slots[k];onState(k,false);}}
  };
