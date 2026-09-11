@@ -2,6 +2,7 @@
 (function(root){
 'use strict';
 const MAX_AGE=120000;
+const PERIODS={'24h':{unit:60,count:24,label:'24시간 · 1시간봉'},'7d':{unit:60,count:168,label:'7일 · 1시간봉'},'30d':{unit:240,count:180,label:'30일 · 4시간봉'}};
 const num=x=>x!==null&&x!==''&&Number.isFinite(Number(x))?Number(x):null;
 const positive=x=>num(x)!==null&&num(x)>0;
 const fresh=(at,now=Date.now())=>positive(at)&&now-at>=-30000&&now-at<=MAX_AGE;
@@ -48,11 +49,19 @@ const FOREIGN={
  bitget:{label:'비트겟',url:'https://api.bitget.com/api/v2/spot/market/tickers',
   parse:d=>Array.isArray(d?.data)?d.data.map(x=>x.symbol?.endsWith('USDT')?{symbol:x.symbol.slice(0,-4),lastPrice:x.lastPr,openPrice:x.open,quoteVolume:x.quoteVolume,closeTime:num(x.ts)}:null):null}
 };
+const candleUrl=(venue,symbol,unit,count)=>`https://api.${venue==='bithumb'?'bithumb':'upbit'}.com/v1/candles/minutes/${unit}?market=KRW-${symbol}&count=${count}`;
+/* 두 거래소 모두 candle_date_time_utc 를 명시적으로 준다 — 티커 쪽 시각 문제와 무관하다. */
+function candleRows(d){
+ if(!Array.isArray(d))return [];
+ return d.map(x=>({at:Date.parse(x?.candle_date_time_utc+'Z'),open:num(x?.opening_price),high:num(x?.high_price),low:num(x?.low_price),close:num(x?.trade_price)}))
+  .filter(c=>Number.isFinite(c.at)&&[c.open,c.high,c.low,c.close].every(positive)&&c.high>=c.low)
+  .sort((a,b)=>a.at-b.at);
+}
 function foreignRows(key,payload,at){const rows=FOREIGN[key]?.parse(payload,at);if(!Array.isArray(rows))return null;
  const out={};for(const r of rows){if(!r||!safeSymbol(r.symbol)||!positive(r.lastPrice))continue;const old=out[r.symbol];
   if(!old||num(r.quoteVolume)>num(old.quoteVolume))out[r.symbol]=r;}
  return Object.keys(out).length?out:null;}
-const api={premium,fresh,rowsFor,stamped,FOREIGN,foreignRows};
+const api={premium,fresh,rowsFor,stamped,FOREIGN,foreignRows,candleRows,candleUrl,PERIODS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 if(!root.document)return;
 const el=document.getElementById('tab-domestic');if(!el)return;
@@ -73,7 +82,7 @@ const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M
 const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
-const state={venue:'upbit',foreign:'binance',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const state={venue:'upbit',foreign:'binance',chart:null,period:'7d',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
 el.innerHTML=`<div class="dm-top"><h1>국내장</h1><a href="#strategists">전략가들 ↗</a></div>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
@@ -85,7 +94,68 @@ const names={BTC:'비트코인',ETH:'이더리움',XRP:'리플',SOL:'솔라나',
 function name(s){return (state.venue==='bithumb'?state.meta.find(m=>m.market==='KRW-'+s)?.korean_name:null)||names[s]||s;}
 function visible(){return !el.classList.contains('hidden')&&!document.hidden;}
 function venueName(){return state.venue==='upbit'?'업비트':'빗썸';}
-function detail(r,stages){return `<tr class="dm-open"><td colspan="5"><p><b>${esc(name(r.symbol))} · ${r.symbol}</b> — ${venueName()} 원화마켓 ${krw(r.price)} · 전일 대비 ${pct(r.change)}${num(r.changeKrw)===null?'':` (${signedKrw(r.changeKrw)})`} · 24h 고 ${krw(r.high)} / 저 ${krw(r.low)} · 고가 대비 ${pct(r.fromHigh)}</p><p>해외 환산가 ${krw(r.foreignKrw)} · 가격차 ${pct(r.premium)}${r.gap===null?'':` (${signedKrw(r.gap)})`} · 해외 등락 ${pct(r.foreignChange)} · 해외 거래대금 ${usdt(r.foreignVolume)} USDT ${esc(r.reason)}</p><p>${stages[r.symbol]?`Andy 장부: ${esc(stages[r.symbol])} (${esc(state.andy.label)}).`:'현재 연결된 Andy 지지 확인·재출발 후보는 아닙니다.'} 입출금 상태는 미확인입니다.</p><p><a href="https://www.binance.com/en/trade/${r.symbol}_USDT?type=spot" target="_blank" rel="noopener noreferrer">해외 현물 차트 ↗</a> · <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">Andy 장부 ↗</a> · <a href="#">라운지에서 이야기하기 →</a></p></td></tr>`;}
+function chartKey(symbol){return `${state.venue}|${symbol}|${state.period}`;}
+/* 선택한 코인의 기준 거래소 원화 봉. 같은 조합이면 다시 부르지 않는다. */
+async function loadChart(symbol){
+ const key=chartKey(symbol),epoch=state.epoch,p=PERIODS[state.period];
+ if(state.chart?.key===key&&state.chart.status!=='fail')return;
+ state.chart={key,status:'loading',rows:[]};render();
+ try{
+  const rows=candleRows(await get(candleUrl(state.venue,symbol,p.unit,p.count),epoch));
+  if(state.chart?.key!==key||epoch!==state.epoch)return;
+  state.chart={key,status:rows.length>1?'ok':'none',rows};
+ }catch{if(state.chart?.key===key)state.chart={key,status:'fail',rows:[]};}
+ if(state.chart?.key===key)render();
+}
+function chartSvg(rows,up){
+ const W=640,H=150,L=6,R=6,T=8,B=8;
+ const x0=rows[0].at,x1=rows[rows.length-1].at;
+ let lo=Math.min(...rows.map(c=>c.low)),hi=Math.max(...rows.map(c=>c.high));
+ const pad=(hi-lo)*0.08||hi*0.01||1;hi+=pad;lo-=pad;
+ const px=t=>(L+(t-x0)/((x1-x0)||1)*(W-L-R)).toFixed(1),py=v=>(T+(hi-v)/((hi-lo)||1)*(H-T-B)).toFixed(1);
+ const line=rows.map((c,i)=>(i?'L':'M')+px(c.at)+','+py(c.close)).join('');
+ const last=rows[rows.length-1],stroke=up?'var(--grn)':'var(--red)';
+ return `<svg class="dm-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="기간 시세 그래프. 수치는 아래 요약에 있습니다.">`
+  +`<path d="M${px(x0)},${py(lo)}${line.replace(/^M/,'L')}L${px(x1)},${py(lo)}Z" fill="${up?'rgba(80,190,130,.12)':'rgba(214,90,90,.12)'}"/>`
+  +`<path d="${line}" fill="none" stroke="${stroke}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`
+  +`<circle cx="${px(last.at)}" cy="${py(last.close)}" r="3" fill="${stroke}"/></svg>`;
+}
+function fact(label,value,cls){return `<div><span>${label}</span><b${cls?` class="${cls}"`:''}>${value}</b></div>`;}
+function chartBlock(symbol){
+ const c=state.chart,p=PERIODS[state.period];
+ const tabs=Object.keys(PERIODS).map(k=>`<button data-period="${k}" aria-pressed="${k===state.period}">${k==='24h'?'24시간':k==='7d'?'7일':'30일'}</button>`).join('');
+ const head=`<h3>${esc(venueName())} 원화 시세 <small>${esc(p.label)}</small><span class="dm-periods">${tabs}</span></h3>`;
+ if(!c||c.key!==chartKey(symbol)||c.status==='loading')return head+`<p class="dm-note">불러오는 중입니다.</p>`;
+ if(c.status!=='ok')return head+`<p class="dm-note">${c.status==='none'?'이 기간에는 받아온 봉이 없습니다.':'봉 시세를 불러오지 못했습니다.'}</p>`;
+ const rows=c.rows,first=rows[0].open,last=rows[rows.length-1].close;
+ const change=positive(first)?(last/first-1)*100:null;
+ return head+chartSvg(rows,!(change<0))
+  +`<div class="dm-facts dm-chartsum">${fact('기간 등락',pct(change),color(change))}`
+  +`${fact('기간 최고',krw(Math.max(...rows.map(x=>x.high))))}`
+  +`${fact('기간 최저',krw(Math.min(...rows.map(x=>x.low))))}`
+  +`${fact('마지막 봉 종가',krw(last))}</div>`;
+}
+function detail(r,stages){
+ const tether=state.tickers[state.venue].find(t=>t.market==='KRW-USDT'),far=FOREIGN[state.foreign].label;
+ return `<tr class="dm-open"><td colspan="5">
+<div class="dm-openhead"><b>${esc(name(r.symbol))} <span>${r.symbol}</span></b><button data-select="${r.symbol}">닫기 ✕</button></div>
+<section>${chartBlock(r.symbol)}</section>
+<section><h3>숫자</h3><div class="dm-facts">
+${fact(esc(venueName())+' 현재가',krw(r.price))}
+${fact('전일 대비',pct(r.change)+(num(r.changeKrw)===null?'':` <em>${signedKrw(r.changeKrw)}</em>`),color(r.change))}
+${fact(esc(far)+' 환산가',krw(r.foreignKrw))}
+${fact('김프',(r.premium===null?'—':pct(r.premium))+(r.gap===null?'':` <em>${signedKrw(r.gap)}</em>`),color(r.premium))}
+${fact('24시간 고 / 저',krw(r.high)+' / '+krw(r.low))}
+${fact('고가 대비',pct(r.fromHigh),color(r.fromHigh))}
+${fact('해외 등락',pct(r.foreignChange),color(r.foreignChange))}
+${fact('거래액 · 국내 / 해외',(eok(r.volume)||'—')+' / '+(eok(r.foreignVolumeKrw)||'—'))}
+</div></section>
+<section><h3>참고</h3>
+<p class="dm-note">환산 기준은 ${esc(venueName())}의 USDT/KRW ${krw(tether?.trade_price)}이고, 해외 가격은 ${esc(far)} 현물 ${fmt(r.foreign,6)} USDT입니다.${r.reason?` 지금은 ${esc(r.reason)} 상태라 김프를 비워 두었습니다.`:''}</p>
+<p class="dm-note">${stages[r.symbol]?`Andy 장부에 ${esc(stages[r.symbol])}로 올라 있습니다 (${esc(state.andy.label)}).`:'현재 연결된 Andy 후보는 아닙니다.'} 같은 티커라는 것 외에 토큰·네트워크의 동일성과 입출금 가능 여부는 확인하지 않았고, 수수료·슬리피지·송금 지연도 반영하지 않았습니다.</p>
+<p><a href="https://www.binance.com/en/trade/${r.symbol}_USDT?type=spot" target="_blank" rel="noopener noreferrer">해외 현물 차트 ↗</a> · <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">Andy 장부 ↗</a> · <a href="#">라운지에서 이야기하기 →</a></p></section>
+</td></tr>`;
+}
 const COLUMNS=[{key:'symbol',label:'이름',first:-1},{key:'price',label:'현재가'},{key:'premium',label:'김프'},{key:'change',label:'전일대비'},{key:'volume',label:'거래액(일)'}];
 function order(a,b){const k=state.sort,d=state.dir;if(k==='symbol')return d===1?b.symbol.localeCompare(a.symbol):a.symbol.localeCompare(b.symbol);const x=num(a[k]),y=num(b[k]);if(x===null&&y===null)return a.symbol.localeCompare(b.symbol);if(x===null)return 1;if(y===null)return -1;return (d===1?y-x:x-y)||a.symbol.localeCompare(b.symbol);}
 function render(){
@@ -143,8 +213,9 @@ async function refresh(force){
 }
 function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,30000-(Date.now()-state.lastAttempt)));}
 function sync(){if(!visible()){clearTimeout(state.timer);clearTimeout(state.paint);state.paint=null;streams?.stop();state.epoch++;state.controllers.forEach(c=>c.abort());}else{render();refresh();}}
-el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]');if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;state.selected=state.selected===s?null:s;render();}});
-$('dm-venue').onchange=e=>{streams?.stop();state.venue=e.target.value;state.selected=null;render();refresh(true);};
+el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]'),period=e.target.closest('[data-period]');
+ if(period){const k=period.dataset.period;if(PERIODS[k]&&k!==state.period){state.period=k;render();if(state.selected)loadChart(state.selected);}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;const open=state.selected!==s;state.selected=open?s:null;render();if(open&&safeSymbol(s))loadChart(s);}});
+$('dm-venue').onchange=e=>{streams?.stop();state.venue=e.target.value;state.selected=null;state.chart=null;render();refresh(true);};
 $('dm-foreign').onchange=e=>{if(!FOREIGN[e.target.value])return;streams?.stop();state.foreign=e.target.value;state.global={};delete state.errors.foreign;render();refresh(true);};
 $('dm-search').oninput=e=>{state.query=e.target.value.trim().toLowerCase();render();};
 $('dm-favorites').onclick=e=>{state.only=!state.only;e.currentTarget.setAttribute('aria-pressed',String(state.only));render();};

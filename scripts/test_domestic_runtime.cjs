@@ -25,7 +25,9 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const context={console,Date:Clock,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
   setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),MutationObserver:class{constructor(cb){mutate=cb;}observe(){}},
   DOMParser:class{parseFromString(){return {querySelector:sel=>sel==='.hdr .ts'?{textContent:stamp[0]}:sel==='#andy-retest'?{}:null,querySelectorAll:sel=>(sel.startsWith('#andy-retest')?reportRows:dailyRows).map(t=>({querySelectorAll:()=>t}))};}},
-  fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');let data;if(url.includes('bithumb/v1/market')||url.includes('bithumb.com/v1/market'))data=[{market:'KRW-BTC',korean_name:'비트코인'}];else if(url.includes('bithumb'))data=[{...ticks[0],trade_price:135900000}];else if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:current}];else if(url.includes('bybit'))data={time:current,result:{list:[{symbol:'BTCUSDT',lastPrice:'101000',prevPrice24h:'98000',turnover24h:'555000000'}]}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
+  fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');let data;if(url.includes('/candles/minutes/')){const n=+url.match(/count=(\d+)/)[1];
+   data=Array.from({length:n},(_,i)=>({candle_date_time_utc:new Date(current-i*3600000).toISOString().slice(0,19),opening_price:100+i,high_price:110+i,low_price:90+i,trade_price:105+i}));}
+  else if(url.includes('bithumb/v1/market')||url.includes('bithumb.com/v1/market'))data=[{market:'KRW-BTC',korean_name:'비트코인'}];else if(url.includes('bithumb'))data=[{...ticks[0],trade_price:135900000}];else if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:current}];else if(url.includes('bybit'))data={time:current,result:{list:[{symbol:'BTCUSDT',lastPrice:'101000',prevPrice24h:'98000',turnover24h:'555000000'}]}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
  vm.runInNewContext(code,context);for(let i=0;i<20;i++)await Promise.resolve();
  return {nodes,requests,timers,events,hide:()=>{hidden=true;mutate();}};
 }
@@ -78,6 +80,31 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
   click(r,'data-select','BTC');
   assert.ok(!r.nodes['dm-table'].innerHTML.includes('dm-open'),'같은 코인을 다시 누르면 접힌다');}
  console.log('PASS detail opens under the row it belongs to and toggles shut');
+ {click(r,'data-select','BTC');
+  for(let i=0;i<20;i++)await Promise.resolve();
+  const open=r.nodes['dm-table'].innerHTML;
+  assert.ok(open.includes('<svg class="dm-chart"'),'차트가 그려진다');
+  assert.ok(/data-period="7d" aria-pressed="true"/.test(open),'기본 기간은 7일');
+  for(const label of ['기간 등락','기간 최고','기간 최저','업비트 현재가','김프','24시간 고 / 저','고가 대비','해외 등락','거래액 · 국내 / 해외'])
+   assert.ok(open.includes(label),'정리된 항목: '+label);
+  assert.ok(open.includes('₩5,200,000')&&open.includes('₩1,352,000'),'표가 줄인 금액은 여기서 정확히 보여 준다');
+  const candles=r.requests.filter(u=>u.includes('/candles/'));
+  assert.equal(candles.length,1,'코인 하나를 열 때 봉은 한 번만 부른다');
+  assert.ok(candles[0].includes('market=KRW-BTC')&&candles[0].includes('count=168'));
+
+  const before=r.requests.length;
+  click(r,'data-period','7d');await Promise.resolve();
+  assert.equal(r.requests.length,before,'같은 기간을 다시 눌러도 부르지 않는다');
+  click(r,'data-period','30d');
+  for(let i=0;i<20;i++)await Promise.resolve();
+  const later=r.requests.filter(u=>u.includes('/candles/'));
+  assert.equal(later.length,2);
+  assert.ok(later[1].includes('minutes/240')&&later[1].includes('count=180'),'30일은 4시간봉으로 다시 부른다');
+  assert.ok(r.nodes['dm-table'].innerHTML.includes('30일 · 4시간봉'));
+  click(r,'data-select','BTC');
+  assert.ok(!r.nodes['dm-table'].innerHTML.includes('dm-chart'),'접으면 차트도 사라진다');
+  click(r,'data-period','7d');}
+ console.log('PASS the panel charts the coin and switches period without refetching the same one');
  {const before=r.requests.length;
   r.nodes['dm-foreign'].onchange({target:{value:'bybit'}});
   for(let i=0;i<20;i++)await Promise.resolve();

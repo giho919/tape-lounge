@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {premium,fresh,rowsFor,stamped,FOREIGN,foreignRows}=require('../domestic.js');
+const {premium,fresh,rowsFor,stamped,FOREIGN,foreignRows,candleRows,candleUrl,PERIODS}=require('../domestic.js');
 const now=Date.parse('2026-09-09T12:00:00Z');
 const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:now,acc_trade_price_24h:2e9,signed_change_rate:0.01,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1300,trade_timestamp:now}];
 const global={BTC:{lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:now}};
@@ -64,6 +64,18 @@ test('every foreign host is declared in the CSP',()=>{
  }
  assert.ok(connect.includes('https://api.frankfurter.dev'),'라운지 USD/KRW 타일이 쓰는 호스트는 남겨 둔다');
  assert.ok(html.includes('id="dm-foreign"')===false,'해외 거래소 선택은 domestic.js가 그린다');
+});
+test('candles are ordered, complete and venue-specific',()=>{
+ const c=(t,o,h,l,p)=>({candle_date_time_utc:t,opening_price:o,high_price:h,low_price:l,trade_price:p});
+ const rows=candleRows([c('2026-09-11T05:00:00',3,4,2,3.5),c('2026-09-11T03:00:00',1,2,0.5,2),c('2026-09-11T04:00:00',2,3,1,3)]);
+ assert.deepEqual(rows.map(r=>r.close),[2,3,3.5],'과거→현재 순으로 세운다');
+ assert.equal(rows[0].at,Date.parse('2026-09-11T03:00:00Z'),'candle_date_time_utc 를 UTC 로 읽는다');
+ for(const bad of [c('2026-09-11T05:00:00',1,2,0.5,null),c('2026-09-11T05:00:00',1,2,0.5,0),c('nope',1,2,0.5,2),c('2026-09-11T05:00:00',1,0.5,2,1),{}])
+  assert.equal(candleRows([bad]).length,0,'값이 빠졌거나 앞뒤가 안 맞는 봉은 버린다: '+JSON.stringify(bad));
+ for(const d of [null,{},'x',undefined])assert.deepEqual(candleRows(d),[]);
+ assert.ok(candleUrl('upbit','BTC',60,168).startsWith('https://api.upbit.com/v1/candles/minutes/60?market=KRW-BTC&count=168'));
+ assert.ok(candleUrl('bithumb','ETH',240,180).startsWith('https://api.bithumb.com/v1/candles/minutes/240?market=KRW-ETH&count=180'));
+ for(const [k,v] of Object.entries(PERIODS)){assert.ok(v.count>1&&v.count<=200,k+' 은 업비트 count 상한 200 안이어야 한다');assert.ok([60,240].includes(v.unit),k);}
 });
 test('tab integration, CSP and JS syntax',()=>{const html=fs.readFileSync(require.resolve('../index.html'),'utf8');assert.equal((html.match(/id="tab-domestic"/g)||[]).length,1);assert.ok(html.includes("domestic:'domestic'"));assert.ok(html.includes("$('tab-domestic').classList.toggle"));assert.ok(html.includes("https://api.upbit.com https://data-api.binance.vision"));for(const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(!m[1].includes('src=')&&!m[1].includes('application/'))new Function(m[2]);}new Function(fs.readFileSync(require.resolve('../domestic.js'),'utf8'));});
 console.log(tests+' domestic checks passed');
