@@ -2,7 +2,6 @@
 (function(root){
 'use strict';
 const MAX_AGE=120000;
-const PERIODS={'24h':{unit:60,count:24,label:'24시간 · 1시간봉'},'7d':{unit:60,count:168,label:'7일 · 1시간봉'},'30d':{unit:240,count:180,label:'30일 · 4시간봉'}};
 const num=x=>x!==null&&x!==''&&Number.isFinite(Number(x))?Number(x):null;
 const positive=x=>num(x)!==null&&num(x)>0;
 const fresh=(at,now=Date.now())=>positive(at)&&now-at>=-30000&&now-at<=MAX_AGE;
@@ -49,19 +48,11 @@ const FOREIGN={
  bitget:{label:'비트겟',url:'https://api.bitget.com/api/v2/spot/market/tickers',
   parse:d=>Array.isArray(d?.data)?d.data.map(x=>x.symbol?.endsWith('USDT')?{symbol:x.symbol.slice(0,-4),lastPrice:x.lastPr,openPrice:x.open,quoteVolume:x.quoteVolume,closeTime:num(x.ts)}:null):null}
 };
-const candleUrl=(venue,symbol,unit,count)=>`https://api.${venue==='bithumb'?'bithumb':'upbit'}.com/v1/candles/minutes/${unit}?market=KRW-${symbol}&count=${count}`;
-/* 두 거래소 모두 candle_date_time_utc 를 명시적으로 준다 — 티커 쪽 시각 문제와 무관하다. */
-function candleRows(d){
- if(!Array.isArray(d))return [];
- return d.map(x=>({at:Date.parse(x?.candle_date_time_utc+'Z'),open:num(x?.opening_price),high:num(x?.high_price),low:num(x?.low_price),close:num(x?.trade_price)}))
-  .filter(c=>Number.isFinite(c.at)&&[c.open,c.high,c.low,c.close].every(positive)&&c.high>=c.low)
-  .sort((a,b)=>a.at-b.at);
-}
 function foreignRows(key,payload,at){const rows=FOREIGN[key]?.parse(payload,at);if(!Array.isArray(rows))return null;
  const out={};for(const r of rows){if(!r||!safeSymbol(r.symbol)||!positive(r.lastPrice))continue;const old=out[r.symbol];
   if(!old||num(r.quoteVolume)>num(old.quoteVolume))out[r.symbol]=r;}
  return Object.keys(out).length?out:null;}
-const api={premium,fresh,rowsFor,stamped,FOREIGN,foreignRows,candleRows,candleUrl,PERIODS};
+const api={premium,fresh,rowsFor,stamped,FOREIGN,foreignRows};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 if(!root.document)return;
 const el=document.getElementById('tab-domestic');if(!el)return;
@@ -82,11 +73,11 @@ const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M
 const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
-const state={venue:'upbit',foreign:'binance',chart:null,period:'7d',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
 el.innerHTML=`<div class="dm-top"><h1>국내장</h1><a href="#strategists">전략가들 ↗</a></div>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
-<div class="dm-scroll"><table><thead><tr id="dm-head"></tr></thead><tbody id="dm-table"></tbody></table></div>
+<div class="dm-scroll"><table><thead><tr id="dm-head"></tr></thead><tbody id="dm-table"></tbody><tbody id="dm-chart"></tbody><tbody id="dm-rest"></tbody></table></div>
 <div class="dm-foot"><p id="dm-status" role="status" aria-live="polite">국내 시세를 불러오는 중입니다.</p><p class="dm-strip" id="dm-rates"></p><p class="dm-strip"><span id="dm-andy-at">Andy 장부 확인 중…</span> <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">장부 ↗</a></p></div>
 <details><summary>계산 기준과 데이터 주의사항</summary><p>표 읽는 법: 칸마다 위가 국내(기준 거래소), 아래 작은 숫자가 그에 대응하는 값입니다. 현재가 아래는 해외 환산가, 김프 아래는 국내 가격에서 환산가를 뺀 금액, 전일대비 아래는 변동 금액(좁은 화면을 위해 만·억으로 줄이며 정확한 값은 이름을 누르면 나옵니다), 거래액 아래는 해외 24시간 거래대금을 같은 환산 기준으로 원화로 옮긴 값입니다. 비교할 수 없는 종목은 김프를 비우고 그 아래에 이유를 적습니다. 머리글을 누르면 정렬 기준과 오름·내림 방향이 바뀌고, 이름을 누르면 24시간 고가 대비·해외 등락을 포함한 자세한 값이 열립니다.</p><p>김프 = (국내 원화 가격 ÷ (해외 USDT 가격 × 기준 거래소의 USDT/KRW 가격) − 1) × 100. 원달러 환율이 아니라 국내에서 실제로 USDT를 사고파는 가격으로 환산하므로, 테더 자체의 달러 가격차는 김프에 섞이지 않습니다. 양쪽 가격은 같은 순간의 호가가 아닌 최근 체결가입니다.</p><p>해외 거래소는 모두 USDT 현물 마켓이고 같은 티커끼리 짝지어 비교합니다. 바이낸스만 실시간 수신이며 나머지는 30초 조회입니다. 바이낸스·바이비트·OKX·비트겟은 거래소가 준 시각으로, 시각을 주지 않는 게이트는 응답을 받은 시각으로 지연을 판단합니다.</p><p>시세는 WebSocket으로 수신해 화면에 1초 단위로 묶어 반영합니다. 연결이 끊기면 30초 주기 조회로 전환하며, 국내장을 떠나면 연결을 닫습니다. 최초 연결이나 재연결은 요청 제한 때문에 수 초 이상 걸릴 수 있습니다. 마지막 국내 체결·해외 시세가 2분을 넘거나 기준 거래소의 USDT/KRW 체결이 2분을 넘으면 가격차 계산에서 제외합니다. 이전 가격은 지연 표시로 남을 수 있습니다.</p><p>동일 티커 기준 비교이며 토큰·네트워크의 동일성과 입출금 가능 여부를 보증하지 않습니다. 입출금 상태는 미확인입니다. 수수료·슬리피지·송금 지연을 반영한 차익거래 수익이 아니며, 큰 가격차만 보고 거래하지 마세요. ±50% 초과 값은 재확인 대상으로 계산값을 숨깁니다.</p><p>출처: Upbit·Bithumb 공개 시세, Binance·Bybit·OKX·Gate·Bitget 현물, Tape Lounge Andy 리포트. 관심 코인은 이 브라우저에만 저장됩니다.</p></details>`;
 const $=id=>document.getElementById(id);
@@ -94,52 +85,31 @@ const names={BTC:'비트코인',ETH:'이더리움',XRP:'리플',SOL:'솔라나',
 function name(s){return (state.venue==='bithumb'?state.meta.find(m=>m.market==='KRW-'+s)?.korean_name:null)||names[s]||s;}
 function visible(){return !el.classList.contains('hidden')&&!document.hidden;}
 function venueName(){return state.venue==='upbit'?'업비트':'빗썸';}
-function chartKey(symbol){return `${state.venue}|${symbol}|${state.period}`;}
-/* 선택한 코인의 기준 거래소 원화 봉. 같은 조합이면 다시 부르지 않는다. */
-async function loadChart(symbol){
- const key=chartKey(symbol),epoch=state.epoch,p=PERIODS[state.period];
- if(state.chart?.key===key&&state.chart.status!=='fail')return;
- state.chart={key,status:'loading',rows:[]};render();
- try{
-  const rows=candleRows(await get(candleUrl(state.venue,symbol,p.unit,p.count),epoch));
-  if(state.chart?.key!==key||epoch!==state.epoch)return;
-  state.chart={key,status:rows.length>1?'ok':'none',rows};
- }catch{if(state.chart?.key===key)state.chart={key,status:'fail',rows:[]};}
- if(state.chart?.key===key)render();
+const TV={upbit:'UPBIT',bithumb:'BITHUMB'};
+const INTERVALS={'60':'1시간','240':'4시간','D':'1일'};
+let mounted='';
+function chartKey(symbol){return `${state.venue}|${symbol}|${state.interval}`;}
+/* TradingView 임베드는 iframe 으로만 넣는다 — 위젯 로더 스크립트를 이 페이지에서 실행시키지 않기 위해서다.
+   iframe 은 DOM 에서 옮기거나 다시 그리면 통째로 새로 읽으므로, 이 줄만 별도 tbody 에 두고
+   시세 갱신 때 건드리지 않는다(render 참고). */
+function chartUrl(symbol){
+ const q=new URLSearchParams({symbol:`${TV[state.venue]}:${symbol}KRW`,interval:state.interval,theme:'dark',style:'1',
+  locale:'kr',timezone:'Asia/Seoul',hide_side_toolbar:'1',allow_symbol_change:'0',save_image:'0',withdateranges:'0',
+  utm_source:'tapelounge.com'});
+ return 'https://s.tradingview.com/widgetembed/?'+q;
 }
-function chartSvg(rows,up){
- const W=640,H=150,L=6,R=6,T=8,B=8;
- const x0=rows[0].at,x1=rows[rows.length-1].at;
- let lo=Math.min(...rows.map(c=>c.low)),hi=Math.max(...rows.map(c=>c.high));
- const pad=(hi-lo)*0.08||hi*0.01||1;hi+=pad;lo-=pad;
- const px=t=>(L+(t-x0)/((x1-x0)||1)*(W-L-R)).toFixed(1),py=v=>(T+(hi-v)/((hi-lo)||1)*(H-T-B)).toFixed(1);
- const line=rows.map((c,i)=>(i?'L':'M')+px(c.at)+','+py(c.close)).join('');
- const last=rows[rows.length-1],stroke=up?'var(--grn)':'var(--red)';
- return `<svg class="dm-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="기간 시세 그래프. 수치는 아래 요약에 있습니다.">`
-  +`<path d="M${px(x0)},${py(lo)}${line.replace(/^M/,'L')}L${px(x1)},${py(lo)}Z" fill="${up?'rgba(80,190,130,.12)':'rgba(214,90,90,.12)'}"/>`
-  +`<path d="${line}" fill="none" stroke="${stroke}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`
-  +`<circle cx="${px(last.at)}" cy="${py(last.close)}" r="3" fill="${stroke}"/></svg>`;
+function chartRow(symbol){
+ const tabs=Object.entries(INTERVALS).map(([k,v])=>`<button data-interval="${k}" aria-pressed="${k===state.interval}">${v}</button>`).join('');
+ return `<tr class="dm-open dm-open-chart"><td colspan="5">
+<div class="dm-openhead"><b>${esc(name(symbol))} <span>${symbol}</span></b><button data-select="${symbol}">닫기 ✕</button></div>
+<section><h3>${esc(venueName())} 원화 차트 <small>TradingView · ${esc(TV[state.venue])}:${esc(symbol)}KRW</small><span class="dm-periods">${tabs}</span></h3>
+<iframe class="dm-chart" src="${esc(chartUrl(symbol))}" title="${esc(name(symbol))} ${symbol}/KRW 차트" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+<p class="dm-note">차트는 TradingView가 그리며 이 페이지의 시세와 별개로 받아옵니다. 거래소에 상장돼 있어도 TradingView에 없는 종목은 빈 화면이 나올 수 있습니다.</p></section></td></tr>`;
 }
 function fact(label,value,cls){return `<div><span>${label}</span><b${cls?` class="${cls}"`:''}>${value}</b></div>`;}
-function chartBlock(symbol){
- const c=state.chart,p=PERIODS[state.period];
- const tabs=Object.keys(PERIODS).map(k=>`<button data-period="${k}" aria-pressed="${k===state.period}">${k==='24h'?'24시간':k==='7d'?'7일':'30일'}</button>`).join('');
- const head=`<h3>${esc(venueName())} 원화 시세 <small>${esc(p.label)}</small><span class="dm-periods">${tabs}</span></h3>`;
- if(!c||c.key!==chartKey(symbol)||c.status==='loading')return head+`<p class="dm-note">불러오는 중입니다.</p>`;
- if(c.status!=='ok')return head+`<p class="dm-note">${c.status==='none'?'이 기간에는 받아온 봉이 없습니다.':'봉 시세를 불러오지 못했습니다.'}</p>`;
- const rows=c.rows,first=rows[0].open,last=rows[rows.length-1].close;
- const change=positive(first)?(last/first-1)*100:null;
- return head+chartSvg(rows,!(change<0))
-  +`<div class="dm-facts dm-chartsum">${fact('기간 등락',pct(change),color(change))}`
-  +`${fact('기간 최고',krw(Math.max(...rows.map(x=>x.high))))}`
-  +`${fact('기간 최저',krw(Math.min(...rows.map(x=>x.low))))}`
-  +`${fact('마지막 봉 종가',krw(last))}</div>`;
-}
 function detail(r,stages){
  const tether=state.tickers[state.venue].find(t=>t.market==='KRW-USDT'),far=FOREIGN[state.foreign].label;
  return `<tr class="dm-open"><td colspan="5">
-<div class="dm-openhead"><b>${esc(name(r.symbol))} <span>${r.symbol}</span></b><button data-select="${r.symbol}">닫기 ✕</button></div>
-<section>${chartBlock(r.symbol)}</section>
 <section><h3>숫자</h3><div class="dm-facts">
 ${fact(esc(venueName())+' 현재가',krw(r.price))}
 ${fact('전일 대비',pct(r.change)+(num(r.changeKrw)===null?'':` <em>${signedKrw(r.changeKrw)}</em>`),color(r.change))}
@@ -173,7 +143,13 @@ function render(){
  $('dm-andy-at').textContent=state.andy?`${state.andy.label} · 매일 20시 갱신${andyFresh?' · 현재 신호 아님':' · 오래된 리포트, 후보 표시는 보류'}`:'리포트를 확인하지 못했습니다. 원본 장부에서 확인해 주세요.';
  const filtered=rows.filter(r=>(!state.only||favorites.has(r.symbol))&&(!state.andyOnly||stages[r.symbol])&&(!state.query||(r.symbol+' '+name(r.symbol)).toLowerCase().includes(state.query))).sort(order);
  $('dm-count').textContent=`암호화폐 총 ${filtered.length}개`;
- $('dm-table').innerHTML=filtered.length?filtered.map(r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>${r.symbol===state.selected?detail(r,stages):''}`).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?(state.errors[state.venue]?`${venueName()} 시세를 불러오지 못했습니다. 잠시 후 다시 시도합니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
+ const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
+ /* 차트 줄만 따로 그린다. iframe 은 다시 그리면 처음부터 읽으므로 시세 갱신에 딸려가면 안 된다. */
+ const at=state.selected?filtered.findIndex(r=>r.symbol===state.selected):-1,open=at>=0?filtered[at]:null;
+ $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?(state.errors[state.venue]?`${venueName()} 시세를 불러오지 못했습니다. 잠시 후 다시 시도합니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
+ const key=open?chartKey(open.symbol):'';
+ if(mounted!==key){$('dm-chart').innerHTML=open?chartRow(open.symbol):'';mounted=key;}
+ $('dm-rest').innerHTML=(open?detail(open,stages):'')+(at>=0?filtered.slice(at+1).map(row).join(''):'');
  if(restore&&safeSymbol(restore[1]))el.querySelector(`[data-${restore[0]}="${restore[1]}"]`)?.focus({preventScroll:true});
 }
 async function get(url,epoch,asText=false){
@@ -213,9 +189,9 @@ async function refresh(force){
 }
 function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,30000-(Date.now()-state.lastAttempt)));}
 function sync(){if(!visible()){clearTimeout(state.timer);clearTimeout(state.paint);state.paint=null;streams?.stop();state.epoch++;state.controllers.forEach(c=>c.abort());}else{render();refresh();}}
-el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]'),period=e.target.closest('[data-period]');
- if(period){const k=period.dataset.period;if(PERIODS[k]&&k!==state.period){state.period=k;render();if(state.selected)loadChart(state.selected);}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;const open=state.selected!==s;state.selected=open?s:null;render();if(open&&safeSymbol(s))loadChart(s);}});
-$('dm-venue').onchange=e=>{streams?.stop();state.venue=e.target.value;state.selected=null;state.chart=null;render();refresh(true);};
+el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]'),interval=e.target.closest('[data-interval]');
+ if(interval){const k=interval.dataset.interval;if(INTERVALS[k]&&k!==state.interval){state.interval=k;render();}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;state.selected=state.selected===s?null:s;render();}});
+$('dm-venue').onchange=e=>{streams?.stop();state.venue=e.target.value;state.selected=null;render();refresh(true);};
 $('dm-foreign').onchange=e=>{if(!FOREIGN[e.target.value])return;streams?.stop();state.foreign=e.target.value;state.global={};delete state.errors.foreign;render();refresh(true);};
 $('dm-search').oninput=e=>{state.query=e.target.value.trim().toLowerCase();render();};
 $('dm-favorites').onclick=e=>{state.only=!state.only;e.currentTarget.setAttribute('aria-pressed',String(state.only));render();};

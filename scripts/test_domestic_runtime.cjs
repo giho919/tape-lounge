@@ -22,7 +22,7 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const node=id=>nodes[id]??=({innerHTML:'',textContent:'',dataset:{},hidden:false,classList:{contains:()=>hidden},addEventListener:(event,cb)=>events[id+':'+event]=cb,querySelector:()=>null,setAttribute(){},scrollIntoView(){}});
  const doc={hidden:false,getElementById:node,activeElement:null,addEventListener:(event,cb)=>events[event]=cb};
  class Clock extends Date{constructor(...a){super(...(a.length?a:[current+reportAge]));}static now(){return current+reportAge;}}
- const context={console,Date:Clock,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
+ const context={console,Date:Clock,URLSearchParams,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
   setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),MutationObserver:class{constructor(cb){mutate=cb;}observe(){}},
   DOMParser:class{parseFromString(){return {querySelector:sel=>sel==='.hdr .ts'?{textContent:stamp[0]}:sel==='#andy-retest'?{}:null,querySelectorAll:sel=>(sel.startsWith('#andy-retest')?reportRows:dailyRows).map(t=>({querySelectorAll:()=>t}))};}},
   fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');let data;if(url.includes('/candles/minutes/')){const n=+url.match(/count=(\d+)/)[1];
@@ -67,44 +67,44 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
   assert.ok(r.nodes['dm-table'].innerHTML.includes('135,900,000'),'전환한 거래소의 시세가 표에 들어온다');
   r.nodes['dm-venue'].onchange({target:{value:'upbit'}});for(let i=0;i<20;i++)await Promise.resolve();}
  console.log('PASS switching venue fetches at once instead of waiting for the poll');
- {const closed=r.nodes['dm-table'].innerHTML;
-  assert.ok(!closed.includes('dm-open'),'처음에는 아무 코인도 펼쳐져 있지 않다');
+ {for(const id of ['dm-chart','dm-rest'])assert.ok(!(r.nodes[id]?.innerHTML||'').includes('dm-open'),'처음에는 아무 코인도 펼쳐져 있지 않다');
   click(r,'data-select','BTC');
-  const open=r.nodes['dm-table'].innerHTML;
-  const rowAt=open.indexOf('data-select="BTC"');
-  assert.ok(rowAt>-1);
-  assert.equal(open.indexOf('<tr class="dm-open"'),open.indexOf('</tr>',rowAt)+5,'상세는 표 위가 아니라 누른 코인 행 바로 다음에 붙는다');
-  assert.ok(open.includes('aria-expanded="true"'));
-  assert.ok(open.includes('고가 대비')&&open.includes('해외 등락'),'표에서 뺀 값들이 상세에 남아 있다');
-  assert.ok(open.includes('₩5,200,000'),'상세는 줄이지 않은 정확한 금액을 보여준다');
+  const rows=r.nodes['dm-table'].innerHTML,rest=r.nodes['dm-rest'].innerHTML;
+  /* 세 tbody 가 이 순서로 이어 붙는다: …행 · 누른 행 | 차트 | 상세 · 나머지 행 */
+  assert.ok(rows.trimEnd().endsWith('</tr>')&&rows.lastIndexOf('data-select="BTC"')>rows.lastIndexOf('<tr',rows.lastIndexOf('data-select="BTC"'))-1,'누른 행이 첫 tbody 의 마지막');
+  assert.equal(rows.slice(rows.lastIndexOf('data-select="BTC"')).match(/<tr/g),null,'누른 행 뒤에 다른 행이 붙지 않는다');
+  assert.ok(r.nodes['dm-chart'].innerHTML.startsWith('<tr class="dm-open dm-open-chart">'),'차트가 바로 다음 줄');
+  assert.ok(rest.startsWith('<tr class="dm-open">'),'상세가 그다음 줄');
+  assert.ok(rows.includes('aria-expanded="true"'));
+  assert.ok(rest.includes('고가 대비')&&rest.includes('해외 등락'),'표에서 뺀 값들이 상세에 남아 있다');
+  assert.ok(rest.includes('₩5,200,000'),'상세는 줄이지 않은 정확한 금액을 보여준다');
+  assert.ok(rest.includes('data-select="USDT"'),'나머지 행은 상세 아래로 이어진다');
   click(r,'data-select','BTC');
-  assert.ok(!r.nodes['dm-table'].innerHTML.includes('dm-open'),'같은 코인을 다시 누르면 접힌다');}
+  for(const id of ['dm-chart','dm-rest'])assert.ok(!r.nodes[id].innerHTML.includes('dm-open'),'같은 코인을 다시 누르면 접힌다');}
  console.log('PASS detail opens under the row it belongs to and toggles shut');
- {click(r,'data-select','BTC');
-  for(let i=0;i<20;i++)await Promise.resolve();
-  const open=r.nodes['dm-table'].innerHTML;
-  assert.ok(open.includes('<svg class="dm-chart"'),'차트가 그려진다');
-  assert.ok(/data-period="7d" aria-pressed="true"/.test(open),'기본 기간은 7일');
-  for(const label of ['기간 등락','기간 최고','기간 최저','업비트 현재가','김프','24시간 고 / 저','고가 대비','해외 등락','거래액 · 국내 / 해외'])
-   assert.ok(open.includes(label),'정리된 항목: '+label);
-  assert.ok(open.includes('₩5,200,000')&&open.includes('₩1,352,000'),'표가 줄인 금액은 여기서 정확히 보여 준다');
-  const candles=r.requests.filter(u=>u.includes('/candles/'));
-  assert.equal(candles.length,1,'코인 하나를 열 때 봉은 한 번만 부른다');
-  assert.ok(candles[0].includes('market=KRW-BTC')&&candles[0].includes('count=168'));
 
-  const before=r.requests.length;
-  click(r,'data-period','7d');await Promise.resolve();
-  assert.equal(r.requests.length,before,'같은 기간을 다시 눌러도 부르지 않는다');
-  click(r,'data-period','30d');
-  for(let i=0;i<20;i++)await Promise.resolve();
-  const later=r.requests.filter(u=>u.includes('/candles/'));
-  assert.equal(later.length,2);
-  assert.ok(later[1].includes('minutes/240')&&later[1].includes('count=180'),'30일은 4시간봉으로 다시 부른다');
-  assert.ok(r.nodes['dm-table'].innerHTML.includes('30일 · 4시간봉'));
+ {click(r,'data-select','BTC');
+  const chart=r.nodes['dm-chart'].innerHTML,facts=r.nodes['dm-rest'].innerHTML;
+  assert.ok(chart.includes('<iframe class="dm-chart"'),'차트가 붙는다');
+  assert.ok(chart.includes('symbol=UPBIT%3ABTCKRW'),'기준 거래소 심볼로 연다');
+  assert.ok(chart.includes('interval=60')&&chart.includes('data-interval="60" aria-pressed="true"'),'기본은 1시간봉');
+  assert.ok(!r.requests.some(u=>u.includes('tradingview')),'차트 때문에 우리가 부르는 요청은 없다');
+  for(const label of ['업비트 현재가','김프','24시간 고 / 저','고가 대비','해외 등락','거래액 · 국내 / 해외'])
+   assert.ok(facts.includes(label),'정리된 항목: '+label);
+  assert.ok(facts.includes('₩5,200,000')&&facts.includes('₩1,352,000'),'표가 줄인 금액은 여기서 정확히 보여 준다');
+
+  const frame=r.nodes['dm-chart'].innerHTML,before=r.nodes['dm-rest'].innerHTML;
+  /* 시세가 바뀌어 표를 다시 그려도 iframe 이 든 줄은 건드리면 안 된다 — 건드리면 차트가 처음부터 다시 읽힌다. */
+  r.events['tab-domestic:click']({target:{closest:sel=>sel==='[data-star]'?{dataset:{star:'USDT'}}:null}});
+  assert.notEqual(r.nodes['dm-rest'].innerHTML,before,'다른 줄은 실제로 다시 그려졌다');
+  assert.equal(r.nodes['dm-chart'].innerHTML,frame,'그래도 차트 줄은 그대로다');
+  click(r,'data-interval','240');
+  assert.ok(r.nodes['dm-chart'].innerHTML.includes('interval=240'),'봉 주기를 바꾸면 다시 연다');
+  assert.notEqual(r.nodes['dm-chart'].innerHTML,frame);
   click(r,'data-select','BTC');
-  assert.ok(!r.nodes['dm-table'].innerHTML.includes('dm-chart'),'접으면 차트도 사라진다');
-  click(r,'data-period','7d');}
- console.log('PASS the panel charts the coin and switches period without refetching the same one');
+  assert.equal(r.nodes['dm-chart'].innerHTML,'','접으면 차트도 사라진다');
+  click(r,'data-interval','60');}
+ console.log('PASS the panel embeds the chart once and reopens it only on a period change');
  {const before=r.requests.length;
   r.nodes['dm-foreign'].onchange({target:{value:'bybit'}});
   for(let i=0;i<20;i++)await Promise.resolve();
