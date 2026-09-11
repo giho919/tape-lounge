@@ -21,7 +21,8 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  const nodes={},requests=[],timers=new Map(),events={};let seq=0,mutate;
  const node=id=>nodes[id]??=({innerHTML:'',textContent:'',dataset:{},hidden:false,classList:{contains:()=>hidden},addEventListener:(event,cb)=>events[id+':'+event]=cb,querySelector:()=>null,setAttribute(){},scrollIntoView(){}});
  const doc={hidden:false,getElementById:node,activeElement:null,addEventListener:(event,cb)=>events[event]=cb};
- class Clock extends Date{constructor(...a){super(...(a.length?a:[current+reportAge]));}static now(){return current+reportAge;}}
+ let skew=0;
+ class Clock extends Date{constructor(...a){super(...(a.length?a:[current+reportAge+skew]));}static now(){return current+reportAge+skew;}}
  const context={console,Date:Clock,URLSearchParams,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
   setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),MutationObserver:class{constructor(cb){mutate=cb;}observe(){}},
   DOMParser:class{parseFromString(){return {querySelector:sel=>sel==='.hdr .ts'?{textContent:stamp[0]}:sel==='#andy-retest'?{}:null,querySelectorAll:sel=>(sel.startsWith('#andy-retest')?reportRows:dailyRows).map(t=>({querySelectorAll:()=>t}))};}},
@@ -29,7 +30,10 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
    data=Array.from({length:n},(_,i)=>({candle_date_time_utc:new Date(current-i*3600000).toISOString().slice(0,19),opening_price:100+i,high_price:110+i,low_price:90+i,trade_price:105+i}));}
   else if(url.includes('bithumb/v1/market')||url.includes('bithumb.com/v1/market'))data=[{market:'KRW-BTC',korean_name:'비트코인'}];else if(url.includes('bithumb'))data=[{...ticks[0],trade_price:135900000}];else if(url.includes('upbit'))data=ticks;else if(url.includes('binance'))data=[{symbol:'BTCUSDT',lastPrice:'100000',openPrice:'98000',quoteVolume:'1234567890',closeTime:current}];else if(url.includes('bybit'))data={time:current,result:{list:[{symbol:'BTCUSDT',lastPrice:'101000',prevPrice24h:'98000',turnover24h:'555000000'}]}};else data=report;return {ok:true,json:async()=>data,text:async()=>data};}};
  vm.runInNewContext(code,context);for(let i=0;i<20;i++)await Promise.resolve();
- return {nodes,requests,timers,events,hide:()=>{hidden=true;mutate();}};
+ /* 예약된 재시도를 실제로 돌려 본다 — 붙박이 시계라 시간도 함께 밀어 준다. */
+ const fire=async ms=>{skew+=ms;const due=[...timers.entries()];timers.clear();
+  for(const [,t] of due)await t.fn();for(let i=0;i<25;i++)await Promise.resolve();};
+ return {nodes,requests,timers,events,fire,hide:()=>{hidden=true;mutate();}};
 }
 (async()=>{
  {const css=fs.readFileSync(require.resolve('../domestic.css'),'utf8');
@@ -118,7 +122,20 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0}={}){
  console.log('PASS switching the foreign exchange refetches and reprices');
  r.nodes['dm-andy-only'].onclick({currentTarget:{setAttribute(){}}});assert.ok(r.nodes['dm-table'].innerHTML.includes('data-select="'+andySymbol+'"'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('data-select="USDT"'));console.log('PASS Andy filter preserves all matching rows');
  r.hide();assert.equal(r.timers.size,0);console.log('PASS leaving tab stops future polls');
- r=await run({fail:true});assert.ok(r.nodes['dm-status'].textContent.includes('조회 실패'));assert.ok(!r.nodes['dm-table'].innerHTML.includes('NaN'));assert.ok([...r.timers.values()].some(x=>x.ms>=1000));console.log('PASS failure labels and bounded retry');
+ {r=await run({fail:true});
+  assert.ok(r.nodes['dm-table'].innerHTML.includes('불러오는 중'),'한 번 걸렀다고 실패라고 말하지 않는다');
+  assert.ok(!r.nodes['dm-status'].textContent.includes('다시 시도 중'),'한 번 실패는 알리지 않는다');
+  const soon=[...r.timers.values()].map(t=>t.ms);
+  assert.ok(soon.length&&soon.every(ms=>ms>=1000&&ms<=6000),'시세가 하나도 없으면 30초를 기다리지 않고 곧 다시 시도한다: '+soon);
+  const before=r.requests.length;
+  for(let i=0;i<4;i++)await r.fire(8000);
+  assert.ok(r.requests.length>before,'예약된 재시도가 실제로 다시 조회한다');
+  assert.ok(r.nodes['dm-status'].textContent.includes('다시 시도 중'),'계속 실패하면 그때 알린다');
+  assert.ok(r.nodes['dm-table'].innerHTML.includes('계속 불러오지 못하고'));
+  assert.ok(!r.nodes['dm-table'].innerHTML.includes('NaN'));
+  const later=[...r.timers.values()].map(t=>t.ms);
+  assert.ok(later.length&&later.every(ms=>ms>=1000&&ms<=30000),'재시도 간격은 30초를 넘지 않는다: '+later);}
+ console.log('PASS a single miss stays quiet, repeated misses are announced and retried sooner');
  r=await run({storageFail:true});assert.ok(r.nodes['dm-status'].textContent.includes('저장이 차단'));console.log('PASS blocked local storage does not break rendering');
  r=await run({reportAge:37*3600000});assert.ok(!r.nodes['dm-table'].innerHTML.includes('Andy ·'));assert.ok(r.nodes['dm-andy-at'].textContent.includes('오래된 리포트'));console.log('PASS stale report suppresses every Andy badge');
 })().catch(e=>{console.error(e);process.exitCode=1;});

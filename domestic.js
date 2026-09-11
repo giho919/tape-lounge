@@ -73,7 +73,7 @@ const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M
 const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
-const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
 el.innerHTML=`<div class="dm-top"><h1>국내장</h1><a href="#strategists">전략가들 ↗</a></div>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
@@ -137,8 +137,8 @@ function render(){
  const u=state.tickers[state.venue].find(t=>t.market==='KRW-USDT');
  $('dm-rates').innerHTML=`<span>환산 기준 ${venueName()} USDT/KRW <b>${krw(u?.trade_price)}</b> ${fresh(u?.trade_timestamp)?'최근 체결':'체결 지연·미확인'}</span><span>해외 <b>${esc(FOREIGN[state.foreign].label)} USDT 현물</b> ${Object.keys(state.global).length}종</span>`;
  const relevant=[state.venue,'foreign'];
- const failures=relevant.filter(k=>state.errors[k]);
- $('dm-status').textContent=`국내 ${live[state.venue]?'실시간 수신':'연결 대기·30초 조회'} · 해외 ${FOREIGN[state.foreign].stream?(live.binance?'실시간 수신':'연결 대기·30초 조회'):'30초 조회'} · 화면 1초 반영`+(state.at[state.venue]?` · ${time(state.at[state.venue])} KST`:'')+(failures.length?' · 일부 조회 실패: '+failures.map(k=>k==='foreign'?FOREIGN[state.foreign].label:venueName()).join(', '):'')+(storageWarning?' · 브라우저 저장이 차단되어 관심 목록은 이번 방문 동안만 유지됩니다.':'');
+ const failures=relevant.filter(k=>(state.tries[k]||0)>=2);
+ $('dm-status').textContent=`국내 ${live[state.venue]?'실시간 수신':'연결 대기·30초 조회'} · 해외 ${FOREIGN[state.foreign].stream?(live.binance?'실시간 수신':'연결 대기·30초 조회'):'30초 조회'} · 화면 1초 반영`+(state.at[state.venue]?` · ${time(state.at[state.venue])} KST`:'')+(failures.length?' · 다시 시도 중: '+failures.map(k=>k==='foreign'?FOREIGN[state.foreign].label:venueName()).join(', '):'')+(storageWarning?' · 브라우저 저장이 차단되어 관심 목록은 이번 방문 동안만 유지됩니다.':'');
  $('dm-head').innerHTML=COLUMNS.map(c=>{const t=esc(c.label),on=state.sort===c.key;return `<th${on?` aria-sort="${state.dir===1?'descending':'ascending'}"`:''}><button data-sort="${c.key}" title="${t} 기준 정렬">${t}<span aria-hidden="true">${on?(state.dir===1?'▼':'▲'):'⇅'}</span></button></th>`;}).join('');
  $('dm-andy-at').textContent=state.andy?`${state.andy.label} · 매일 20시 갱신${andyFresh?' · 현재 신호 아님':' · 오래된 리포트, 후보 표시는 보류'}`:'리포트를 확인하지 못했습니다. 원본 장부에서 확인해 주세요.';
  const filtered=rows.filter(r=>(!state.only||favorites.has(r.symbol))&&(!state.andyOnly||stages[r.symbol])&&(!state.query||(r.symbol+' '+name(r.symbol)).toLowerCase().includes(state.query))).sort(order);
@@ -146,7 +146,7 @@ function render(){
  const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
  /* 차트 줄만 따로 그린다. iframe 은 다시 그리면 처음부터 읽으므로 시세 갱신에 딸려가면 안 된다. */
  const at=state.selected?filtered.findIndex(r=>r.symbol===state.selected):-1,open=at>=0?filtered[at]:null;
- $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?(state.errors[state.venue]?`${venueName()} 시세를 불러오지 못했습니다. 잠시 후 다시 시도합니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
+ $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?((state.tries[state.venue]||0)>=3?`${venueName()} 시세를 계속 불러오지 못하고 있습니다. 자동으로 다시 시도하는 중입니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
  const key=open?chartKey(open.symbol):'';
  if(mounted!==key){$('dm-chart').innerHTML=open?chartRow(open.symbol):'';mounted=key;}
  $('dm-rest').innerHTML=(open?detail(open,stages):'')+(at>=0?filtered.slice(at+1).map(row).join(''):'');
@@ -156,7 +156,7 @@ async function get(url,epoch,asText=false){
  const c=new AbortController();state.controllers.add(c);const t=setTimeout(()=>c.abort(),12000);
  try{const r=await fetch(url,{signal:c.signal,cache:'no-store',credentials:'omit'});if(!r.ok)throw Error('HTTP '+r.status);const data=asText?await r.text():await r.json();if(epoch!==state.epoch)throw Error('Cancelled');return data;}finally{clearTimeout(t);state.controllers.delete(c);}
 }
-async function job(key,fn){try{await fn();delete state.errors[key];}catch(e){if(e.name!=='AbortError'&&e.message!=='Cancelled')state.errors[key]=true;}}
+async function job(key,fn){try{await fn();delete state.errors[key];state.tries[key]=0;}catch(e){if(e.name!=='AbortError'&&e.message!=='Cancelled'){state.errors[key]=true;state.tries[key]=(state.tries[key]||0)+1;}}}
 async function domestic(venue,epoch){
  let ticks;
  if(venue==='upbit')ticks=await get('https://api.upbit.com/v1/ticker/all?quote_currencies=KRW',epoch);
@@ -176,23 +176,30 @@ async function loadAndy(epoch){
  doc.querySelectorAll('table tr').forEach(tr=>{if(tr.closest?.('#andy-retest'))return;const t=tr.querySelectorAll('td');if(t.length<3)return;const s=t[1].textContent.trim(),m=t[2].textContent.trim().match(/^[ABC] · (신규 돌파|추세 진행|바닥 반전)$/);if(safeSymbol(s)&&m)stages[s]=(stages[s]?stages[s]+' / ':'')+'일봉 · '+m[1];});
  state.andy={label:label[0],at:Date.parse(`${label[1]}T${label[2]}:00+09:00`),stages};state.at.andy=Date.now();
 }
+/* 아직 한 줄도 못 받은 상태에서는 30초를 기다리지 않고 짧게 다시 시도한다.
+   한 번 실패했다고 표를 비우거나 실패라고 단정하지 않는다 — 이미 받아 둔 시세는 그대로 두고 조용히 재시도한다. */
+function starving(){return !state.tickers[state.venue].length||!Object.keys(state.global).length;}
+function wait(){return starving()?Math.min(3000*2**Math.min(Math.max((state.tries[state.venue]||0),(state.tries.foreign||0))-1,3),30000):30000;}
 async function refresh(force){
  if(!visible()||state.busy)return;
- if(!force&&Date.now()-state.lastAttempt<30000){schedule();return;}
+ if(!force&&Date.now()-state.lastAttempt<wait()){schedule();return;}
  const epoch=state.epoch;state.busy=true;state.lastAttempt=Date.now();render();
- await Promise.all([job(state.venue,async()=>{if(streams?.healthy(state.venue)||streams?.canPoll(state.venue)===false)return;streams?.touch(state.venue);await domestic(state.venue,epoch);}),job('foreign',async()=>{const key=state.foreign;if(FOREIGN[key].stream&&streams?.healthy('binance'))return;
+ await Promise.all([job(state.venue,async()=>{
+  /* 받아 둔 시세가 없으면 웹소켓 연결 간격 때문에 조회를 거르지 않는다 — 거르면 빈 표가 그대로 남는다. */
+  if(state.tickers[state.venue].length&&(streams?.healthy(state.venue)||streams?.canPoll(state.venue)===false))return;
+  await domestic(state.venue,epoch);}),job('foreign',async()=>{const key=state.foreign;if(Object.keys(state.global).length&&FOREIGN[key].stream&&streams?.healthy('binance'))return;
   const payload=await get(FOREIGN[key].url,epoch);const rows=foreignRows(key,payload,Date.now());
   if(!rows)throw Error('Invalid global');if(key!==state.foreign||epoch!==state.epoch)return;
   state.global=rows;state.at.foreign=Date.now();}),
  job('andy',async()=>{if(Date.now()-(state.at.andy||0)<300000)return;await loadAndy(epoch);})]);
  state.busy=false;if(visible()){streams?.start(state.venue,state.tickers[state.venue].map(x=>x.market),!!FOREIGN[state.foreign].stream);render();}schedule();
 }
-function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,30000-(Date.now()-state.lastAttempt)));}
+function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,wait()-(Date.now()-state.lastAttempt)));}
 function sync(){if(!visible()){clearTimeout(state.timer);clearTimeout(state.paint);state.paint=null;streams?.stop();state.epoch++;state.controllers.forEach(c=>c.abort());}else{render();refresh();}}
 el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]'),interval=e.target.closest('[data-interval]');
  if(interval){const k=interval.dataset.interval;if(INTERVALS[k]&&k!==state.interval){state.interval=k;render();}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;state.selected=state.selected===s?null:s;render();}});
-$('dm-venue').onchange=e=>{streams?.stop();state.venue=e.target.value;state.selected=null;render();refresh(true);};
-$('dm-foreign').onchange=e=>{if(!FOREIGN[e.target.value])return;streams?.stop();state.foreign=e.target.value;state.global={};delete state.errors.foreign;render();refresh(true);};
+$('dm-venue').onchange=e=>{state.venue=e.target.value;state.selected=null;render();refresh(true);};
+$('dm-foreign').onchange=e=>{if(!FOREIGN[e.target.value])return;state.foreign=e.target.value;state.global={};delete state.errors.foreign;render();refresh(true);};
 $('dm-search').oninput=e=>{state.query=e.target.value.trim().toLowerCase();render();};
 $('dm-favorites').onclick=e=>{state.only=!state.only;e.currentTarget.setAttribute('aria-pressed',String(state.only));render();};
 $('dm-andy-only').onclick=e=>{state.andyOnly=!state.andyOnly;e.currentTarget.setAttribute('aria-pressed',String(state.andyOnly));render();};

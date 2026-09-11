@@ -23,7 +23,8 @@ function createStreams({onData,onState=()=>{},WebSocket:WS=root.WebSocket,now=Da
   function watch(){if(!running||slots[kind]!==s)return;if(now()-s.last>45000){retry();return;}s.watch=setTimer(watch,10000);}s.watch=setTimer(watch,10000);
  }
  return {
-  touch(kind){gate[kind]=now();},
+  /* 연결 시도 직후 12초는 REST 조회를 거른다 — 웹소켓이 먼저 채울 기회를 준다. 반대로 REST 조회는
+     연결을 늦추지 않는다: 늦추면 탭을 다시 열 때마다 실시간 수신이 12초씩 밀린다. */
   canPoll(kind){return !(gate[kind]&&now()-gate[kind]<12000);},
   start(venue,codes,withBinance=true){running=true;const keep=withBinance?[venue,'binance']:[venue];
    for(const k of Object.keys(slots))if(!keep.includes(k)){cancel(slots[k]);delete slots[k];onState(k,false);}

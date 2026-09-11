@@ -6,12 +6,14 @@ class WS{constructor(url){this.url=url;this.readyState=0;sockets.push(this);}sen
 const streams=createStreams({WebSocket:WS,now:()=>at,setTimer:(fn,ms)=>{timers.set(++id,{fn,at:at+ms});return id;},clearTimer:i=>timers.delete(i),onData:(k,d)=>events.push([k,d]),onState:(k,on)=>status.push([k,on])});
 assert.equal(normalize('upbit',{type:'ticker',code:'KRW-BTC',trade_price:0}).length,0);
 assert.deepEqual(normalize('binance',[{s:'BTCUSDT',c:'1',o:'0.8',h:'1.2',l:'0.7',q:'900',E:123}]),[{symbol:'BTC',lastPrice:'1',openPrice:'0.8',highPrice:'1.2',lowPrice:'0.7',quoteVolume:'900',closeTime:123}]);
-streams.touch('upbit');streams.start('upbit',['KRW-BTC','KRW-USDT']);
-assert.equal(sockets.length,1);assert.ok(sockets[0].url.includes('miniTicker'));assert.equal(streams.canPoll('upbit'),false);
-advance(11999);assert.equal(sockets.length,1);advance(1);assert.equal(sockets.length,2);const up=sockets[1];up.open();assert.equal(up.sent[1].type,'ticker');assert.deepEqual(up.sent[1].codes,['KRW-BTC','KRW-USDT']);
+streams.start('upbit',['KRW-BTC','KRW-USDT']);
+/* 국내와 해외 연결은 서로를 기다리지 않고 바로 열린다. REST 조회도 연결을 미루지 않는다. */
+assert.equal(sockets.length,2);assert.ok(sockets.some(x=>x.url.includes('miniTicker')));assert.equal(streams.canPoll('upbit'),false);
+assert.equal(typeof streams.touch,'undefined','REST 조회가 연결 간격을 밀지 않도록 touch 는 없앴다');
+const up=sockets.find(x=>x.url.includes('api.upbit.com'));up.open();assert.equal(up.sent[1].type,'ticker');assert.deepEqual(up.sent[1].codes,['KRW-BTC','KRW-USDT']);
 assert.equal(streams.healthy('upbit'),false);up.data({type:'ticker',code:'KRW-BTC',trade_price:20,trade_timestamp:at},true);assert.equal(streams.healthy('upbit'),true);assert.equal(events.at(-1)[1][0].market,'KRW-BTC');
 streams.start('upbit',['KRW-BTC']);assert.equal(sockets.length,2);console.log('PASS subscription, binary decoding, rate spacing and duplicate prevention');
-up.close();const count=sockets.length;advance(14999);assert.equal(sockets.length,count);advance(1);assert.equal(sockets.length,count+1);assert.equal(streams.canPoll('upbit'),false);console.log('PASS reconnect backoff and REST/connection shared gate');
+up.close();const count=sockets.length;advance(14999);assert.equal(sockets.length,count);advance(1);assert.equal(sockets.length,count+1);assert.equal(streams.canPoll('upbit'),false);console.log('PASS reconnect backoff and the poll gate after a connection attempt');
 streams.start('bithumb',['KRW-ETH']);const bt=sockets.at(-1);assert.ok(bt.url.includes('ws-api.bithumb'));bt.open();bt.data({type:'ticker',code:'KRW-ETH',trade_price:2,trade_timestamp:at});assert.equal(streams.healthy('bithumb'),true);assert.equal(streams.healthy('upbit'),false);console.log('PASS venue switch closes old stream');
 streams.stop();assert.equal(timers.size,0);assert.ok(sockets.every(x=>x.readyState===3));const before=events.length;up.data({type:'ticker',code:'KRW-BTC',trade_price:99});assert.equal(events.length,before);console.log('PASS stop closes sockets and rejects late data');
 streams.start('bithumb',['KRW-ETH']);advance(12000);const last=sockets.at(-1);last.open();advance(60000);assert.equal(last.readyState,3);streams.stop();assert.equal(timers.size,0);console.log('PASS silent socket watchdog');
