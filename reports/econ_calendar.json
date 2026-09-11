@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-10T22:22:01.608190Z",
+  "generated_at": "2026-09-11T12:32:01.591392Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "8761481cf74c248d",
-      "source": "BEA",
-      "code": "TRADE",
-      "title": "미국 무역수지",
-      "importance": "SIDE",
-      "scheduled_at": "2026-09-03T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "U.S. International Trade in Goods and Services",
-      "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {
-        "m5": 0.413,
-        "m15": 0.433,
-        "m60": 0.673
-      },
-      "status": "observed"
-    },
     {
       "id": "586443d53082090b",
       "source": "BLS",
@@ -100,7 +80,7 @@
       "note": "2026-08 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {},
-      "status": "upcoming"
+      "status": "waiting"
     },
     {
       "id": "cab8aded0ac9f9b4",
