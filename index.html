@@ -3163,9 +3163,17 @@ function syncMarketHighlights() {
   renderHighlights();
 }
 
-function liquidationBucketTime(timestamp) {
-  const seconds = { '1m':60, '15m':900, '1h':3600, '4h':14400, '1d':86400 }[chartTf];
-  return seconds ? Math.floor(timestamp / 1000 / seconds) * seconds : null;
+// 청산을 실제 캔들 시각에 맞춰 붙인다. 예전에는 시간대별 초 단위로 직접 나눠 버킷을 만들었는데,
+// 그 표에 주봉·월봉이 없어 두 시간대에서는 청산 마커가 통째로 사라졌고(길이가 일정하지 않아 초로 못 나눈다),
+// 한 캔들에 여러 버킷이 겹쳐 같은 자리에 점이 포개지기도 했다. 캔들에 직접 맞추면 둘 다 생기지 않는다.
+function snapToBar(timestamp) {
+  const bars = chartSeed[0];
+  if (!Array.isArray(bars) || !bars.length) return null;
+  const t = Math.floor(timestamp / 1000);
+  if (t < bars[0][0] / 1000) return null;
+  let lo = 0, hi = bars.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (bars[mid][0] / 1000 <= t) lo = mid; else hi = mid - 1; }
+  return bars[lo][0] / 1000;
 }
 function rebuildLiquidationMarkers() {
   const grouped = new Map(), cutoff = Date.now() - 24 * 3600000;
@@ -3173,15 +3181,22 @@ function rebuildLiquidationMarkers() {
     if (row.event_type !== 'liquidation') return;
     const timestamp = +new Date(row.event_time);
     if (timestamp < cutoff) return;
-    const time = liquidationBucketTime(timestamp); if (time === null) return;
-    const meta = row.metadata || {}, current = grouped.get(time) || { time, long:0, short:0 };
+    const time = snapToBar(timestamp); if (time === null) return;
+    const current = grouped.get(time) || { time, long:0, short:0 };
+    const meta = row.metadata || {};
     current.long += +meta.long_usd || 0; current.short += +meta.short_usd || 0;
     grouped.set(time, current);
   });
-  liquidationMarkers = [...grouped.values()].sort((a,b)=>a.time-b.time).slice(-10).map(item => {
-    const longWipeout = item.long >= item.short, total = item.long + item.short;
-    return { time:item.time, position:longWipeout?'aboveBar':'belowBar', color:longWipeout?'#f87171':'#4ade80', shape:'circle', tier:3, text:`${longWipeout?'🩸':'⚡'} ${moneyShort(total)}` };
-  });
+  // 최근 10개가 아니라 24시간 중 가장 큰 10개를 남긴다. 최근순으로 자르면 1분봉에서
+  // 마커가 오른쪽 끝 몇 분에만 몰렸다. 큰 청산이 어차피 보고 싶은 쪽이기도 하다.
+  liquidationMarkers = [...grouped.values()]
+    .filter(item => item.long + item.short > 0)
+    .sort((a,b) => (b.long + b.short) - (a.long + a.short)).slice(0,10)
+    .sort((a,b) => a.time - b.time)
+    .map(item => {
+      const longWipeout = item.long >= item.short, total = item.long + item.short;
+      return { time:item.time, position:longWipeout?'aboveBar':'belowBar', color:longWipeout?'#f87171':'#4ade80', shape:'circle', tier:3, text:`${longWipeout?'🩸':'⚡'} ${moneyShort(total)}` };
+    });
 }
 
 function appendHydratedLiqBlock(isLong, value, title) {
