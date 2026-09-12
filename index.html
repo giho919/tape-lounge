@@ -3173,23 +3173,33 @@ function snapToBar(timestamp) {
   while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (bars[mid][0] / 1000 <= t) lo = mid; else hi = mid - 1; }
   return bars[lo][0] / 1000;
 }
+// 청산 마커 전용 장부. 하이라이트 쪽 marketEventRows 는 24시간이 지나면 지워지므로,
+// 차트에서 과거까지 보려면 따로 들고 있어야 한다.
+const MARKER_HISTORY_DAYS = 30;      // 수집기가 쌓아 둔 만큼
+const MARKER_ROW_FLOOR = 1000000;    // 이보다 작은 전표는 받아오지 않는다 (합계에 거의 영향 없음)
+const MARKER_MIN_USD = 10000000;     // 한 캔들에 이만큼 모여야 마커를 찍는다
+const liquidationLedger = new Map();
+function recordLiquidationForChart(row) {
+  if (row?.event_type !== 'liquidation' || !row.event_key) return false;
+  const meta = row.metadata || {};
+  const long = +meta.long_usd || 0, short = +meta.short_usd || 0;
+  if (long + short <= 0) return false;
+  liquidationLedger.set(row.event_key, { at:+new Date(row.event_time), long, short });
+  return true;
+}
 function rebuildLiquidationMarkers() {
-  const grouped = new Map(), cutoff = Date.now() - 24 * 3600000;
-  marketEventRows.forEach(row => {
-    if (row.event_type !== 'liquidation') return;
-    const timestamp = +new Date(row.event_time);
-    if (timestamp < cutoff) return;
-    const time = snapToBar(timestamp); if (time === null) return;
+  const grouped = new Map();
+  liquidationLedger.forEach(item => {
+    const time = snapToBar(item.at); if (time === null) return;
     const current = grouped.get(time) || { time, long:0, short:0 };
-    const meta = row.metadata || {};
-    current.long += +meta.long_usd || 0; current.short += +meta.short_usd || 0;
+    current.long += item.long; current.short += item.short;
     grouped.set(time, current);
   });
-  // 최근 10개가 아니라 24시간 중 가장 큰 10개를 남긴다. 최근순으로 자르면 1분봉에서
-  // 마커가 오른쪽 끝 몇 분에만 몰렸다. 큰 청산이 어차피 보고 싶은 쪽이기도 하다.
+  // 개수는 제한하지 않는다 — 화면에 들어오는 만큼 과거까지 보여 준다. 대신 한 캔들에
+  // 모인 금액이 기준을 넘어야 찍는다. 캔들이 길수록 더 쉽게 넘으므로 긴 시간대에서
+  // 자연히 더 많이 보이고, 1분봉에서는 정말 큰 순간만 남는다.
   liquidationMarkers = [...grouped.values()]
-    .filter(item => item.long + item.short > 0)
-    .sort((a,b) => (b.long + b.short) - (a.long + a.short)).slice(0,24)
+    .filter(item => item.long + item.short >= MARKER_MIN_USD)
     .sort((a,b) => a.time - b.time)
     .map(item => {
       const longWipeout = item.long >= item.short, total = item.long + item.short;
@@ -3237,12 +3247,27 @@ function applyMarketEvent(row) {
   const becameHighlight = row.is_highlight && !previous?.is_highlight;
   marketEventRows.set(row.event_key, row);
   syncMarketHighlights();
+  if (recordLiquidationForChart(row)) { rebuildLiquidationMarkers(); renderBtcMarkers(); }
   if (row.event_type === 'liquidation' || row.event_type === 'jackpot') hydrateLiquidationHistory();
   if (row.event_type === 'liquidation' && becameHighlight) towerBurst(row);
   if (row.event_type === 'jackpot' && !previous) {
     const meta = row.metadata || {};
     jackpotFire({ total:+row.amount_usd||0, long:+meta.long_usd||0, short:+meta.short_usd||0 });
   }
+}
+
+// 차트 마커용 청산 이력 — 하이라이트와 달리 24시간이 아니라 수집기가 쌓아 둔 만큼 받는다.
+// 표시 기준보다 훨씬 작은 전표는 서버에서 걸러 받는 양을 줄인다.
+async function loadLiquidationLedger() {
+  if (!sbc) return;
+  const since = new Date(Date.now() - MARKER_HISTORY_DAYS * 86400000).toISOString();
+  const { data, error } = await sbc.from('market_events')
+    .select('event_key,event_type,event_time,metadata')
+    .eq('event_type','liquidation').gte('amount_usd', MARKER_ROW_FLOOR)
+    .gte('event_time', since).order('event_time', {ascending:false}).limit(5000);
+  if (error) { console.warn('liquidation history unavailable'); return; }
+  (data || []).forEach(recordLiquidationForChart);
+  rebuildLiquidationMarkers(); renderBtcMarkers();
 }
 
 async function loadMarketEvents() {
@@ -3256,6 +3281,7 @@ async function loadMarketEvents() {
   marketHistoryReady = true; marketHistoryError = false;
   (data || []).forEach(row => marketEventRows.set(row.event_key, row));
   syncMarketHighlights(); hydrateLiquidationHistory();
+  loadLiquidationLedger();
   marketEventChannel = sbc.channel('market-events-' + Math.random().toString(36).slice(2))
     .on('postgres_changes', {event:'*', schema:'public', table:'market_events'}, payload => applyMarketEvent(payload.new))
     .subscribe(status => {
