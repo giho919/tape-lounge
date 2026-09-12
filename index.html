@@ -1891,31 +1891,29 @@ function ensureLoungeChart(i) {
 let liquidationMarkers = [];
 const whaleBuckets = new Map();
 
-// 마커 등급: 3 = 에픽·청산, 2 = 레어·콤보·보물상자, 1 = 고래
-// 봉이 좁아질수록 낮은 등급부터 숨기고, 더 좁아지면 라벨을 떼어 점만 남긴다.
-function chartPxPerBar(ch) {
-  const r = ch.timeScale().getVisibleLogicalRange();
-  if (!r) return 99;
-  const span = r.to - r.from;
-  return span > 0 ? ch.timeScale().width() / span : 99;
-}
-const MARKER_LABEL_PX = 110;   // 라벨 하나가 가로로 차지하는 대략적 폭
+// 마커는 어느 배율에서든 그대로 남는다. 예전에는 봉이 좁아지면 등급 낮은 마커를 통째로
+// 숨겨서 확대·축소할 때마다 보였다 안 보였다 했다. 지금은 점은 항상 두고, 라벨만 금액이
+// 큰 것부터 자리를 잡는다 — 축소해도 큰 건은 숫자를 유지하고, 확대하면 틈이 벌어지면서
+// 작은 것들의 숫자가 더해질 뿐 이미 있던 숫자가 사라지지 않는다.
+const MARKER_LABEL_PX = 96;    // 라벨 하나가 가로로 차지하는 대략적 폭
 function renderBtcMarkers() {
   const chart = chartOf(0); if (!chart) return;
-  const whales = chartTf === '1m' ? [...whaleBuckets.values()].map(w => {
+  // 고래도 청산과 같은 방식으로 실제 캔들에 맞춘다. 예전에는 분 단위 키라 1분봉에서만 보였다.
+  const whaleBars = new Map();
+  whaleBuckets.forEach(w => {
+    const time = snapToBar(w.time * 1000); if (time === null) return;
+    const cur = whaleBars.get(time) || { time, buy:0, sell:0, count:0 };
+    cur.buy += w.buy; cur.sell += w.sell; cur.count += w.count;
+    whaleBars.set(time, cur);
+  });
+  const whales = [...whaleBars.values()].map(w => {
     const buy = w.buy >= w.sell, total = w.buy + w.sell;
-    return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle', tier:1, text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
-  }) : [];
-  const ts = chart.ch.timeScale();
-  // 봉이 아주 좁아지면 고래는 빼고 청산만 남긴다
-  const minTier = chartPxPerBar(chart.ch) >= 3 ? 1 : 3;
-  const all = [...liquidationMarkers.slice(-10), ...whales.slice(-6)]
-    .filter(m => (m.tier || 2) >= minTier)
-    .sort((a, b) => a.time - b.time);
-  // 라벨은 화면 좌표에서 서로 겹치지 않을 때만 붙인다. 등급 높은 쪽이 먼저 자리를
-  // 잡고, 남는 틈을 낮은 등급이 채운다 — 확대하면 간격이 벌어져 자연히 다 보인다.
-  const labeled = new Set(), taken = [];
-  for (const m of all.slice().sort((a, b) => (b.tier || 2) - (a.tier || 2) || b.time - a.time)) {
+    return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle',
+             weight:total, text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
+  });
+  const all = [...liquidationMarkers, ...whales].sort((a, b) => a.time - b.time);
+  const ts = chart.ch.timeScale(), labeled = new Set(), taken = [];
+  for (const m of [...all].sort((a, b) => (b.weight || 0) - (a.weight || 0))) {
     const x = ts.timeToCoordinate(m.time);   // 화면 밖이면 null
     if (x === null || taken.some(t => Math.abs(t - x) < MARKER_LABEL_PX)) continue;
     taken.push(x); labeled.add(m);
@@ -2054,7 +2052,7 @@ function recordWhaleFootprint(val, isBuy, tradeTime) {
   const w = whaleBuckets.get(time) || {time,buy:0,sell:0,count:0};
   if (isBuy) w.buy += val; else w.sell += val;
   w.count++; whaleBuckets.set(time, w);
-  while (whaleBuckets.size > 24) whaleBuckets.delete(whaleBuckets.keys().next().value);
+  while (whaleBuckets.size > 60) whaleBuckets.delete(whaleBuckets.keys().next().value);
   $('whaleHud').textContent = `🐋 ${isBuy?'BUY':'SELL'} ${moneyShort(val)}`;
   $('whaleHud').classList.add('hot'); setTimeout(()=>$('whaleHud').classList.remove('hot'), 1400);
   if (!whaleMarkerTimer) whaleMarkerTimer = setTimeout(() => {
@@ -3191,11 +3189,12 @@ function rebuildLiquidationMarkers() {
   // 마커가 오른쪽 끝 몇 분에만 몰렸다. 큰 청산이 어차피 보고 싶은 쪽이기도 하다.
   liquidationMarkers = [...grouped.values()]
     .filter(item => item.long + item.short > 0)
-    .sort((a,b) => (b.long + b.short) - (a.long + a.short)).slice(0,10)
+    .sort((a,b) => (b.long + b.short) - (a.long + a.short)).slice(0,24)
     .sort((a,b) => a.time - b.time)
     .map(item => {
       const longWipeout = item.long >= item.short, total = item.long + item.short;
-      return { time:item.time, position:longWipeout?'aboveBar':'belowBar', color:longWipeout?'#f87171':'#4ade80', shape:'circle', tier:3, text:`${longWipeout?'🩸':'⚡'} ${moneyShort(total)}` };
+      return { time:item.time, position:longWipeout?'aboveBar':'belowBar', color:longWipeout?'#f87171':'#4ade80', shape:'circle',
+               weight:total, text:`${longWipeout?'🩸':'⚡'} ${moneyShort(total)}` };
     });
 }
 

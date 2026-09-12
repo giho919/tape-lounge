@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
 const src=html.slice(html.indexOf('function snapToBar('), html.indexOf('function appendHydratedLiqBlock('));
+const renderSrc=html.slice(html.indexOf('const MARKER_LABEL_PX'), html.indexOf('// 확대·이동하면 들어갈 수 있는 라벨 수가 달라지므로'));
 assert.ok(src.includes('rebuildLiquidationMarkers'),'대상 함수를 찾지 못했다');
 assert.ok(!html.includes('liquidationBucketTime'),'초 단위로 직접 나누던 옛 버킷 계산은 남아 있으면 안 된다');
 
@@ -40,11 +41,15 @@ test('주봉·월봉에서도 24시간 청산이 마지막 봉에 하나로 합�
   assert.equal(out[0].time,bar[bar.length-1][0]/1000,name+': 마지막 봉에 붙어야 한다');
  }
 });
-test('최근순이 아니라 큰 청산 10개를 남긴다',()=>{
+test('최근순이 아니라 큰 청산을 남기고, 캔들을 가리지 않는 선에서 넉넉히 보여 준다',()=>{
  // 1시간 차트에서 서로 다른 봉에 떨어지도록 61분씩 벌린다
  const rows=[liq(1400,9_000_000,0),...Array.from({length:20},(_,i)=>liq(i*61+1,1000*(i+1),0))];
  const out=run(bars(HOUR),rows);
- assert.equal(out.length,10);
+ assert.equal(out.length,21,'21개 봉이면 21개 다 보여 준다');
+ // 1시간 차트는 24시간 안에 봉이 24개뿐이라 상한은 1분 차트에서 확인한다
+ const many=run(bars(60000),Array.from({length:40},(_,i)=>liq(i*5+1,1000*(i+1),0)));
+ assert.equal(many.length,24,'상한은 24개');
+ assert.ok(many.every(m=>+m.text.replace(/\D/g,'')>=17),'남은 24개는 작은 것이 아니라 금액이 큰 쪽이다');
  assert.ok(out.some(m=>m.text.includes('9000K')),'24시간 중 가장 큰 청산이 빠졌다');
  const span=out[out.length-1].time-out[0].time;
  assert.ok(span>=3600,'마커가 한곳에 몰려 있다: '+span+'초');
@@ -62,5 +67,49 @@ test('24시간 밖·캔들 시작 이전·차트 미준비는 조용히 건너�
  assert.equal(run(bars(60000),[liq(1000,999,0)]).length,0,'캔들 범위보다 과거');
  for(const bad of [null,[],undefined])assert.equal(run(bad,[liq(30,999,0)]).length,0,'차트가 아직 없을 때');
  assert.equal(run(bars(HOUR),[{event_type:'whale',event_time:new Date(now).toISOString(),metadata:{long_usd:1}}]).length,0,'청산이 아닌 전표');
+});
+
+// ── 확대·축소해도 마커가 사라지지 않는지 ──
+function draw(pxPerBar, liqMarkers, whales){
+  let drawn=null;
+  const times=[...liqMarkers.map(m=>m.time), ...[...whales.values()].map(w=>Math.floor(w.time))];
+  const first=Math.min(...times);
+  const ctx={ chartOf:()=>({ ch:{ timeScale:()=>({ timeToCoordinate:t=>(t-first)/60*pxPerBar }) },
+                              s:{ setMarkers:m=>{drawn=m;} } }),
+    snapToBar:ms=>Math.floor(ms/1000), moneyShort:v=>'$'+Math.round(v/1000)+'K',
+    liquidationMarkers:liqMarkers, whaleBuckets:whales, Map, Math, Set, Array };
+  vm.createContext(ctx); vm.runInContext(renderSrc+'\nrenderBtcMarkers();',ctx);
+  return drawn;
+}
+test('배율을 바꿔도 마커는 그대로 남고, 큰 금액의 숫자는 계속 보인다',()=>{
+  const liq=[{time:1000,weight:9e8,text:'🩸 $900000K',shape:'circle'},
+             {time:1060,weight:5e5,text:'🩸 $500K',shape:'circle'},
+             {time:1120,weight:3e5,text:'🩸 $300K',shape:'circle'},
+             {time:1180,weight:2e5,text:'🩸 $200K',shape:'circle'}];
+  const whales=new Map([[1240,{time:1240,buy:4e5,sell:0,count:2}]]);
+  const zoomOut=draw(1,liq,whales), zoomIn=draw(40,liq,whales);
+  assert.equal(zoomOut.length,5,'축소해도 마커 개수는 그대로');
+  assert.equal(zoomIn.length,5,'확대해도 마커 개수는 그대로');
+  const big=m=>m.find(x=>x.text.includes('900000K'));
+  assert.ok(big(zoomOut),'가장 큰 청산의 숫자는 축소해도 남는다');
+  assert.ok(big(zoomIn),'확대해도 남는다');
+  const labels=m=>m.filter(x=>x.text).length;
+  assert.ok(labels(zoomIn)>=labels(zoomOut),'확대하면 숫자가 줄지 않고 늘어난다');
+  assert.ok(labels(zoomIn)>labels(zoomOut),'확대했는데 더 보이지 않는다');
+  assert.ok(zoomOut.every(m=>m.shape==='circle'),'점 자체는 항상 그린다');
+  for(let i=1;i<zoomOut.length;i++)assert.ok(zoomOut[i].time>=zoomOut[i-1].time,'시간순');
+});
+test('고래도 실제 캔들에 붙어 모든 시간대에서 함께 그려진다',()=>{
+  const out=draw(30,[{time:1000,weight:1e6,text:'🩸 $1000K',shape:'circle'}],
+    new Map([[1300,{time:1300,buy:9e5,sell:1e5,count:3}]]));
+  assert.equal(out.length,2,'청산과 고래가 함께 그려진다');
+  const whale=out.find(m=>m.text.includes('🐋'));
+  assert.ok(whale,'고래 마커가 없다');
+  assert.equal(whale.time,1300,'고래도 실제 캔들 시각에 붙는다');
+  assert.equal(whale.position,'belowBar'); assert.equal(whale.color,'#4ade80');
+  assert.ok(whale.text.includes('×3'),'같은 캔들에 모인 건수를 적는다');
+  const src2=fs.readFileSync(require.resolve('../index.html'),'utf8');
+  assert.ok(!/chartPxPerBar|minTier/.test(src2),'배율로 마커를 숨기던 코드는 남아 있으면 안 된다');
+  assert.ok(!/chartTf === '1m' \?/.test(src2),'고래를 1분봉에서만 그리던 조건도 없어야 한다');
 });
 console.log(tests+' liquidation marker checks passed');
