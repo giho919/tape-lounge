@@ -1900,18 +1900,21 @@ function renderBtcMarkers() {
   const chart = chartOf(0); if (!chart) return;
   // 고래도 청산과 같은 방식으로 실제 캔들에 맞춘다. 예전에는 분 단위 키라 1분봉에서만 보였다.
   const whaleBars = new Map();
-  whaleBuckets.forEach(w => {
-    const time = snapToBar(w.time * 1000); if (time === null) return;
+  const addWhale = (time, buy, sell, count) => {
+    if (time === null) return;
     const cur = whaleBars.get(time) || { time, buy:0, sell:0, count:0 };
-    cur.buy += w.buy; cur.sell += w.sell; cur.count += w.count;
+    cur.buy += buy; cur.sell += sell; cur.count += count;
     whaleBars.set(time, cur);
-  });
+  };
+  // 접속 전 기록(장부)과 접속 후 실시간 기록을 같은 캔들 위에서 합친다.
+  whaleLedger.forEach(w => addWhale(snapToBar(w.at), w.buy ? w.usd : 0, w.buy ? 0 : w.usd, 1));
+  whaleBuckets.forEach(w => addWhale(snapToBar(w.time * 1000), w.buy, w.sell, w.count));
   const whales = [...whaleBars.values()].map(w => {
     const buy = w.buy >= w.sell, total = w.buy + w.sell;
     return { time:w.time, position:buy?'belowBar':'aboveBar', color:buy?'#4ade80':'#f87171', shape:'circle',
              weight:total, text:`🐋 ${moneyShort(total)}${w.count>1?' ×'+w.count:''}` };
   });
-  const all = [...liquidationMarkers, ...whales].sort((a, b) => a.time - b.time);
+  const all = [...liquidationMarkers, ...whales, ...macroMarkers].sort((a, b) => a.time - b.time);
   const ts = chart.ch.timeScale(), labeled = new Set(), taken = [];
   for (const m of [...all].sort((a, b) => (b.weight || 0) - (a.weight || 0))) {
     const x = ts.timeToCoordinate(m.time);   // 화면 밖이면 null
@@ -2227,6 +2230,7 @@ async function setTf(tf) {
   await seedAll();
   if (tf !== chartTf) return;
   rebuildLiquidationMarkers();
+  rebuildMacroMarkers();
   renderBtcMarkers();
   connectChartWS();
   reseedDeck();
@@ -3179,6 +3183,13 @@ const MARKER_HISTORY_DAYS = 30;      // 수집기가 쌓아 둔 만큼
 const MARKER_ROW_FLOOR = 1000000;    // 이보다 작은 전표는 받아오지 않는다 (합계에 거의 영향 없음)
 const MARKER_MIN_USD = 10000000;     // 한 캔들에 이만큼 모여야 마커를 찍는다
 const liquidationLedger = new Map();
+const whaleLedger = new Map();       // 접속 전에 지나간 고래까지 (실시간 whaleBuckets 과 합쳐 쓴다)
+function recordWhaleForChart(row) {
+  if (row?.event_type !== 'whale' || !row.event_key) return false;
+  const usd = +row.amount_usd || 0; if (usd <= 0) return false;
+  whaleLedger.set(row.event_key, { at:+new Date(row.event_time), usd, buy:String(row.side||'').toLowerCase() === 'buy' });
+  return true;
+}
 function recordLiquidationForChart(row) {
   if (row?.event_type !== 'liquidation' || !row.event_key) return false;
   const meta = row.metadata || {};
@@ -3186,6 +3197,22 @@ function recordLiquidationForChart(row) {
   if (long + short <= 0) return false;
   liquidationLedger.set(row.event_key, { at:+new Date(row.event_time), long, short });
   return true;
+}
+// 지표 발표. reports/econ_calendar.json 은 발표장 탭이 쓰는 같은 파일이고,
+// 이미 관측된 발표에는 발표 직후 BTC 가 얼마나 움직였는지(m5/m15/m60)가 들어 있다.
+const MACRO_GRADES = { VIP:4e12, MAIN:2e12 };   // 라벨 우선순위 — 드물고 중요하므로 청산보다 앞세운다
+let macroMarkers = [];
+function rebuildMacroMarkers() {
+  const events = Array.isArray(macroData?.events) ? macroData.events : [];
+  macroMarkers = events.map(e => {
+    const weight = MACRO_GRADES[e?.importance]; if (!weight) return null;      // SIDE 는 찍지 않는다
+    const at = +new Date(e.scheduled_at); if (!Number.isFinite(at) || at > Date.now()) return null;
+    const time = snapToBar(at); if (time === null) return null;
+    const btc = e.btc || {}, move = [btc.m60, btc.m15, btc.m5].find(v => Number.isFinite(+v));
+    const label = `📅 ${e.code || e.title || ''}`;
+    return { time, position:'aboveBar', color:'#d4af37', shape:'square', weight,
+             text: move === undefined ? label : `${label} ${move>0?'+':''}${(+move).toFixed(2)}%` };
+  }).filter(Boolean).sort((a,b) => a.time - b.time);
 }
 function rebuildLiquidationMarkers() {
   const grouped = new Map();
@@ -3248,6 +3275,7 @@ function applyMarketEvent(row) {
   marketEventRows.set(row.event_key, row);
   syncMarketHighlights();
   if (recordLiquidationForChart(row)) { rebuildLiquidationMarkers(); renderBtcMarkers(); }
+  if (recordWhaleForChart(row)) renderBtcMarkers();
   if (row.event_type === 'liquidation' || row.event_type === 'jackpot') hydrateLiquidationHistory();
   if (row.event_type === 'liquidation' && becameHighlight) towerBurst(row);
   if (row.event_type === 'jackpot' && !previous) {
@@ -3268,6 +3296,25 @@ async function loadLiquidationLedger() {
   if (error) { console.warn('liquidation history unavailable'); return; }
   (data || []).forEach(recordLiquidationForChart);
   rebuildLiquidationMarkers(); renderBtcMarkers();
+  loadWhaleLedger(); loadMacroMarkers();
+}
+
+// 고래 이력 — 실시간 회선은 접속한 뒤의 체결만 주므로 지나간 것은 따로 받는다.
+async function loadWhaleLedger() {
+  if (!sbc) return;
+  const since = new Date(Date.now() - MARKER_HISTORY_DAYS * 86400000).toISOString();
+  const { data, error } = await sbc.from('market_events')
+    .select('event_key,event_type,event_time,side,amount_usd')
+    .eq('event_type','whale').gte('event_time', since).order('event_time', {ascending:false}).limit(2000);
+  if (error) { console.warn('whale history unavailable'); return; }
+  (data || []).forEach(recordWhaleForChart);
+  renderBtcMarkers();
+}
+
+// 지표 발표 — 발표장 탭과 같은 파일. 라운지에서도 한 번은 받아야 차트에 찍을 수 있다.
+async function loadMacroMarkers() {
+  if (!macroData) { try { await macroLoad(); } catch(e) { return; } }
+  rebuildMacroMarkers(); renderBtcMarkers();
 }
 
 async function loadMarketEvents() {

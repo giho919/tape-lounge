@@ -76,12 +76,12 @@ test('캔들 시작 이전·차트 미준비는 조용히 건너뛴다',()=>{
 });
 
 // ── 확대·축소해도 마커가 사라지지 않는지 ──
-function draw(pxPerBar, liqMarkers, whales){
+function draw(pxPerBar, liqMarkers, whales, ledger=new Map(), macro=[]){
   let drawn=null;
-  const first=Math.min(...liqMarkers.map(m=>m.time), ...[...whales.values()].map(w=>w.time));
+  const first=Math.min(...liqMarkers.map(m=>m.time), ...[...whales.values()].map(w=>w.time), ...macro.map(m=>m.time));
   const ctx={ chartOf:()=>({ ch:{ timeScale:()=>({ timeToCoordinate:t=>(t-first)/60*pxPerBar }) }, s:{ setMarkers:m=>{drawn=m;} } }),
     snapToBar:ms=>Math.floor(ms/1000), moneyShort:v=>'$'+Math.round(v/1000)+'K',
-    liquidationMarkers:liqMarkers, whaleBuckets:whales, Map, Math, Set, Array };
+    liquidationMarkers:liqMarkers, whaleBuckets:whales, whaleLedger:ledger, macroMarkers:macro, Map, Math, Set, Array };
   vm.createContext(ctx); vm.runInContext(renderSrc+'\nrenderBtcMarkers();',ctx);
   return drawn;
 }
@@ -115,5 +115,61 @@ test('차트용 청산 장부는 하이라이트와 분리돼 24시간 정리에
   assert.ok(!/rebuildLiquidationMarkers[\s\S]{0,400}marketEventRows/.test(src),'마커가 24시간짜리 marketEventRows 를 다시 참조한다');
   assert.ok(/loadLiquidationLedger[\s\S]{0,600}gte\('amount_usd', MARKER_ROW_FLOOR\)/.test(html),'작은 전표를 서버에서 걸러야 한다');
   assert.ok(/MARKER_HISTORY_DAYS \* 86400000/.test(html),'24시간이 아니라 여러 날을 받아야 한다');
+});
+
+// ── 지표 발표 ──
+function macroRun(barArray, events){
+  // src 안에 let macroMarkers 선언이 있어 컨텍스트 속성에 안 잡힌다 — 완료값으로 받는다
+  const ctx={chartSeed:[barArray],macroData:{events},Date,Math,Array,Map,Number};
+  vm.createContext(ctx);
+  return vm.runInContext(src+'\nrebuildMacroMarkers(); macroMarkers;',ctx);
+}
+const ev=(minutesAgo,code,importance,btc)=>({code,importance,title:code,
+  scheduled_at:new Date(now-minutesAgo*60000).toISOString(),btc:btc||{}});
+
+test('지표 발표는 관측된 VIP·MAIN 만 찍고, 라벨에 발표 후 BTC 움직임을 적는다',()=>{
+  const out=macroRun(bars(HOUR),[
+    ev(120,'CPI','VIP',{m5:0.07,m15:0.643,m60:0.56}),
+    ev(300,'PPI','MAIN',{m5:-0.547,m15:-0.857,m60:-1.109}),
+    ev(400,'TRADE','SIDE',{m60:9}),
+    ev(-600,'FOMC','VIP'),                     // 아직 안 온 발표
+  ]);
+  assert.equal(out.length,2,'SIDE 와 미래 일정은 빼야 한다');
+  const cpi=out.find(m=>m.text.includes('CPI'));
+  assert.ok(cpi.text.includes('+0.56%'),'60분 움직임을 쓴다: '+cpi.text);
+  assert.ok(out.find(m=>m.text.includes('PPI')).text.includes('-1.11%'));
+  assert.ok(out.every(m=>m.shape==='square'&&m.color==='#d4af37'),'청산·고래와 구분되는 모양·색');
+  assert.ok(out.every(m=>m.weight>1e10),'청산 금액보다 앞서 라벨을 받는다');
+  const times=new Set(bars(HOUR).map(b=>b[0]/1000));
+  for(const m of out)assert.ok(times.has(m.time),'실제 캔들 시각에 붙는다');
+  assert.equal(macroRun(bars(HOUR),[ev(120,'CPI','VIP')])[0].text,'📅 CPI','움직임을 모르면 이름만');
+  for(const bad of [null,undefined,{},{events:'x'}])
+    assert.equal(vm.runInNewContext(src+'\nrebuildMacroMarkers(); macroMarkers.length;',
+      {chartSeed:[bars(HOUR)],macroData:bad,Date,Math,Array,Map,Number}),0,'달력이 없어도 죽지 않는다');
+});
+test('지표 발표는 청산을 밀어내지 않고 함께, 라벨은 발표가 먼저 가져간다',()=>{
+  const macro=[{time:1000,weight:4e12,text:'📅 CPI +0.56%',shape:'square',color:'#d4af37',position:'aboveBar'}];
+  const liqM=[{time:1002,weight:6e9,text:'🩸 $6000000K',shape:'circle'}];
+  const out=draw(1,liqM,new Map(),new Map(),macro);
+  assert.equal(out.length,2,'둘 다 그린다');
+  assert.ok(out.find(m=>m.text.includes('CPI')),'좁아도 발표 라벨은 남는다');
+  assert.equal(out.find(m=>m.shape==='circle').text,'','같은 자리라 청산 라벨은 양보');
+});
+test('고래는 접속 전 기록과 접속 중 기록을 같은 캔들에서 합친다',()=>{
+  const out=draw(30,[],new Map([[1000,{time:1000,buy:2e5,sell:0,count:1}]]),
+    new Map([['w1',{at:1000*1000,usd:3e5,buy:true}],['w2',{at:1000*1000,usd:1e5,buy:false}]]));
+  assert.equal(out.length,1,'한 캔들에 하나로 합쳐진다');
+  assert.ok(out[0].text.includes('×3'),'건수는 3건: '+out[0].text);
+  assert.ok(out[0].text.includes('600K'),'금액은 60만: '+out[0].text);
+  assert.equal(out[0].position,'belowBar','매수가 더 많으면 아래');
+  const sellHeavy=draw(30,[],new Map(),new Map([['w1',{at:1000*1000,usd:9e5,buy:false}]]));
+  assert.equal(sellHeavy[0].position,'aboveBar'); assert.equal(sellHeavy[0].color,'#f87171');
+});
+test('두 정책과 두 조회가 실제로 배선돼 있다',()=>{
+  assert.ok(/loadWhaleLedger[\s\S]{0,400}eq\('event_type','whale'\)/.test(html),'고래 이력 조회 없음');
+  assert.ok(/loadMacroMarkers[\s\S]{0,300}macroLoad\(\)/.test(html),'발표장과 같은 파일을 쓰지 않는다');
+  assert.ok(/loadWhaleLedger\(\); loadMacroMarkers\(\);/.test(html),'적재가 호출되지 않는다');
+  assert.ok(/rebuildMacroMarkers\(\);\n  renderBtcMarkers\(\);\n  connectChartWS/.test(html),'시간대 변경 시 발표 마커를 다시 스냅하지 않는다');
+  assert.ok(/recordWhaleForChart\(row\)/.test(html),'실시간 고래가 장부에 안 들어간다');
 });
 console.log(tests+' liquidation marker checks passed');
