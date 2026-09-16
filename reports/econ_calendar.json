@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T18:17:01.373127Z",
+  "generated_at": "2026-09-16T19:02:01.726286Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -81,7 +81,8 @@
       "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
       "btc": {
         "m5": 0.095,
-        "m15": 0.036
+        "m15": 0.036,
+        "m60": -0.183
       },
       "status": "observed"
     },
