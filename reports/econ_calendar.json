@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T18:02:01.310011Z",
+  "generated_at": "2026-09-16T18:07:02.002573Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -79,7 +79,9 @@
       "unit": null,
       "note": "경제전망(SEP)·기자회견",
       "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-      "btc": {},
+      "btc": {
+        "m5": 0.095
+      },
       "status": "observed"
     },
     {
