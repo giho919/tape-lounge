@@ -42,7 +42,7 @@
 * { box-sizing:border-box; margin:0; min-width:0; }
 body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif; overflow-x:hidden; }
 .num { font-family:'SF Mono',Menlo,monospace; }
-.wrap { max-width:1500px; margin:0 auto; padding:0 22px 40px; }
+.wrap { max-width:1500px; margin:0 auto; padding:0 22px 40px; padding-right:158px; }
 
 .hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 0 12px; border-bottom:1px solid var(--gold-dim); }
 .brand { font-family:Georgia,serif; font-size:22px; letter-spacing:6px; color:var(--gold); }
@@ -62,13 +62,29 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 @media(max-width:900px){ .roomGrid{ grid-template-columns:repeat(2,1fr); } }
 @media(max-width:420px){ .roomGrid{ grid-template-columns:1fr; } }
 
-.tabsWrap { position:relative; min-width:0; }
-.tabsWrap.scrollable::after { content:''; position:absolute; top:0; right:0; bottom:0; width:26px; pointer-events:none;
-  background:linear-gradient(to right, transparent, var(--bg)); }
-.tabs { display:flex; gap:4px; align-items:flex-end; }
-.tab { padding:8px 22px; font-size:12px; line-height:1.4; letter-spacing:2px; color:var(--dim); cursor:pointer; border:1px solid transparent; border-radius:8px 8px 0 0; }
-.tab.on { color:var(--gold); border-color:var(--gold-dim); border-bottom-color:var(--bg); background:var(--panel); }
-.tab:focus-visible { outline:1px solid var(--gold); outline-offset:-1px; }
+/* 측면 인덱스 — 서류첩 책갈피. 화면 오른쪽에 고정돼 스크롤과 무관하게 늘 같은 자리에 있다.
+   상단 탭바는 라운지를 보는 동안 시야 밖으로 밀려났고, 라운지 맨 아래 "다른 자리" 안내는
+   그 위의 카지노·차트·채팅·캔버스를 다 지나야 나와서 실제로 도달한 사람이 없었다. */
+.tabsWrap { position:fixed; top:50%; right:max(0px, calc((100vw - 1500px) / 2));
+  transform:translateY(-50%); z-index:34; }
+.tabs { display:flex; flex-direction:column; gap:2px; align-items:stretch; }
+.tab { position:relative; display:flex; align-items:center; gap:9px; width:134px;
+  padding:9px 12px 9px 13px; font-size:11.5px; line-height:1.35; letter-spacing:.6px;
+  white-space:nowrap; color:var(--dim); cursor:pointer;
+  background:var(--panel); border:1px solid var(--line); border-right:0;
+  border-radius:10px 0 0 10px; box-shadow:-5px 0 13px rgba(0,0,0,.3);
+  transition:transform .16s ease, color .16s ease, background .16s ease; }
+.tab .ic { flex:none; width:18px; font-size:14px; line-height:1; text-align:center; }
+.tab .nm { overflow:hidden; text-overflow:ellipsis; }
+.tab:hover { transform:translateX(-7px); color:#d7dce4; }
+.tab.on { color:var(--gold); background:var(--bg); border-color:var(--gold-dim);
+  transform:translateX(-11px); box-shadow:-8px 0 18px rgba(0,0,0,.38); }
+.tab.on::after { content:''; position:absolute; right:-1px; top:0; bottom:0; width:2px; background:var(--bg); }
+.tab:focus-visible { outline:1px solid var(--gold); outline-offset:-2px; }
+.tabBadge { flex:none; margin-left:auto; font:600 9.5px Menlo,monospace; letter-spacing:0;
+  color:var(--gold); background:rgba(212,175,110,.15); border:1px solid var(--gold-dim);
+  border-radius:999px; padding:1px 5px; }
+@media (prefers-reduced-motion:reduce){ .tab{transition:none} }
 .hdr .live { display:flex; align-items:center; padding:5px 9px; border:1px solid rgba(74,222,128,.22); border-radius:999px; background:rgba(74,222,128,.055); font-size:10px; color:#9ca3af; letter-spacing:.7px; white-space:nowrap; }
 .hdr .live b { margin-left:4px; color:#d7dce4; font:700 10px Menlo,monospace; }
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--grn); margin-right:5px; animation:blink 2s infinite; }
@@ -523,7 +539,7 @@ body.shake { animation:shake .5s; }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
-  .wrap{padding:0 10px 28px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}.tabsWrap{width:100%;order:3}
+  .wrap{padding:0 10px 28px;padding-right:56px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   /* 모바일 시세 스트립 — 7개 타일이 같은 무게로 4줄을 먹던 것을 위계에 맞게 재배치.
      BTC는 전폭으로 키우고, 보조 지표 4개(환율·도미넌스·펀딩)는 촘촘하게 접는다. */
@@ -540,7 +556,7 @@ body.shake { animation:shake .5s; }
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
 }
-@media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{padding-left:10px;padding-right:10px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
+@media(max-width:380px){.wrap{padding-left:7px;padding-right:52px}.tab{width:42px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
 @media(max-width:760px){
   .chartFunHud span,#rainIntro,#bgOver{backdrop-filter:none}
   .panel,.tile,.char{box-shadow:none}
@@ -634,7 +650,7 @@ body.shake { animation:shake .5s; }
 .sourceLedger { padding:10px 14px 14px; display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
 .sourceChip { display:flex; justify-content:space-between; gap:8px; padding:9px; border:1px solid var(--line); border-radius:7px; font-size:9px; color:var(--dim); background:var(--bg); }.sourceChip b { color:#cfd5df; }.sourceChip span { color:var(--grn); }
 .macroRule { padding:0 15px 14px; font-size:9.5px; line-height:1.65; color:var(--dim); }
-@media(max-width:760px){.tabs{overflow-x:auto;scrollbar-width:none}.tab{flex:0 0 auto;padding:8px 13px}.macroHero{grid-template-columns:1fr}.macroNext{min-width:0}.macroGrid{grid-template-columns:1fr}.macroDay{grid-template-columns:64px 54px 1fr 62px}.macroSource{display:none}.shockRow{grid-template-columns:38px 1fr repeat(3,43px);padding:8px 5px}.sourceLedger{grid-template-columns:1fr}}
+@media(max-width:760px){.tab{width:46px;padding:10px 0;justify-content:center;gap:0}.tab .nm{display:none}.tab .ic{width:auto;font-size:16px}.tab.on{transform:translateX(-4px)}.tab:hover{transform:none}.tabBadge{position:absolute;top:2px;right:3px;margin:0;padding:0;width:6px;height:6px;border-radius:50%;font-size:0;line-height:0;overflow:hidden;background:var(--gold)}.macroHero{grid-template-columns:1fr}.macroNext{min-width:0}.macroGrid{grid-template-columns:1fr}.macroDay{grid-template-columns:64px 54px 1fr 62px}.macroSource{display:none}.shockRow{grid-template-columns:38px 1fr repeat(3,43px);padding:8px 5px}.sourceLedger{grid-template-columns:1fr}}
 #bookAsks { justify-content:flex-end; }
 .bookRow { position:relative; display:flex; justify-content:space-between; align-items:center; height:16px; padding:0 11px; font-size:10.5px; }
 .bookRow .bar { position:absolute; top:1px; bottom:1px; right:0; opacity:.20; border-radius:2px 0 0 2px; transition:width .1s linear; }
@@ -738,7 +754,7 @@ body.shake { animation:shake .5s; }
 .deskRiskBands { display:flex; flex-direction:column; gap:9px; }
 .deskRiskBand { display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; padding:11px 12px; border:1px solid #222a37; border-radius:10px; background:#0c1117; }.deskRiskBand span { color:var(--cyan); font:700 9px Menlo,monospace; }.deskRiskBand b { color:#e7ebf0; font:700 11px Menlo,monospace; }.deskRiskBand em { color:var(--dim); font:700 9px Menlo,monospace; font-style:normal; }
 .deskFootnote { margin:12px 2px 0; color:#697486; font-size:9px; line-height:1.65; text-align:center; }
-@media(max-width:1320px) and (min-width:761px){.tab{padding-left:13px;padding-right:13px;letter-spacing:1px}.brand{font-size:19px;letter-spacing:4px}.tabs{overflow-x:auto;scrollbar-width:none}}
+@media(max-width:1320px) and (min-width:761px){.brand{font-size:19px;letter-spacing:4px}}
 @media(max-width:760px){.deskWrap{margin-top:10px}.deskHero{grid-template-columns:1fr;padding:21px 18px;gap:17px}.deskTape{text-align:left}.deskNav{top:0}.deskNav button{padding:9px 5px;font-size:10px}.deskGrid{grid-template-columns:1fr}.deskCard,.deskCard.wide,.deskCard.narrow,.deskCard.full{grid-column:auto}.deskStats{grid-template-columns:1fr 1fr}.deskCardHead{padding:14px 15px 11px}.deskBody{padding:14px 15px 16px}.deskContext{grid-template-columns:58px 1fr}.deskContextScore{width:58px;height:58px;border-radius:16px;font-size:17px}.deskWalls{grid-template-columns:1fr}.deskFootnote{text-align:left}}
 @media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
@@ -750,20 +766,14 @@ body.shake { animation:shake .5s; }
 <div class="hdr">
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
   <div class="tabsWrap">
-  <div class="tabs" role="tablist" aria-label="라운지 섹션">
-    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge"
-         title="실시간 시세·청산·채팅이 흐르는 메인 화면">🥂 라운지</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보">🇰🇷 국내장</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk"
-         title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서">📊 데스크</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain"
-         title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표">⛓ 온체인</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro"
-         title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과">📣 발표장</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game"
-         title="블라인드 — 종목명을 가린 실제 차트 맞히기">🎰 블라인드</div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars"
-         title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부">🎩 전략가들</div>
+  <div class="tabs" role="tablist" aria-orientation="vertical" aria-label="라운지 섹션">
+    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge" title="실시간 시세·청산·채팅이 흐르는 메인 화면"><i class="ic" aria-hidden="true">🥂</i><span class="nm">라운지</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보"><i class="ic" aria-hidden="true">🇰🇷</i><span class="nm">국내장</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk" title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서"><i class="ic" aria-hidden="true">📊</i><span class="nm">데스크</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain" title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표"><i class="ic" aria-hidden="true">⛓</i><span class="nm">온체인</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro" title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과"><i class="ic" aria-hidden="true">📣</i><span class="nm">발표장</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game" title="블라인드 — 종목명을 가린 실제 차트 맞히기"><i class="ic" aria-hidden="true">🎰</i><span class="nm">블라인드</span></div>
+    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars" title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부"><i class="ic" aria-hidden="true">🎩</i><span class="nm">전략가들</span></div>
   </div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
@@ -4888,9 +4898,34 @@ function macroTick() {
   macroEvents().filter(e=>e.actual!==null&&now-+macroDate(e.scheduled_at)<21600000).forEach(e=>{const key=`macro-settled-${e.id}`;if(macroFlags.has(key))return;macroFlags.add(key);addHighlight('📣',`${e.code} 실제 ${macroValue(e)}`,`이전 ${macroPrevious(e)} → 실제 ${macroValue(e)}`,'gold');pitSignal(key,96,'📣','OFFICIAL SETTLED',`${e.code} ${macroValue(e)}`,`이전 ${macroPrevious(e)}에서 실제 ${macroValue(e)}로 확정됐습니다.`,'#d4af37');});
 }
 async function macroLoad() {
-  try{const response=await fetch(`reports/econ_calendar.json?v=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);macroData=await response.json();macroRender();}
+  try{const response=await fetch(`reports/econ_calendar.json?v=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);macroData=await response.json();macroRender();refreshTabBadges();}
   catch(e){const board=$('macroBoard');board.replaceChildren();const empty=document.createElement('div');empty.className='macroEmpty';empty.textContent='발표 전보를 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.';board.append(empty);$('macroNextTitle').textContent='공식 전보 연결 대기';$('macroNextTime').textContent='데이터가 복구되면 자동 갱신됩니다.';}
 }
+// ── 인덱스 탭 배지 ──
+// 라운지가 이미 들고 있는 데이터로만 만든다. 숨은 탭을 위해 따로 조회하지 않는다는
+// 기존 원칙을 깨지 않으려는 것이라, 배지가 붙는 건 발표장 하나뿐이다.
+function setTabBadge(tab, text, note){
+  const el = document.querySelector(`.tab[data-tab="${tab}"]`); if (!el) return;
+  let b = el.querySelector('.tabBadge');
+  if (!text) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('b'); b.className = 'tabBadge'; el.appendChild(b); }
+  b.textContent = text; b.title = note || '';
+}
+function refreshTabBadges(){
+  const now = Date.now();
+  const next = (Array.isArray(macroData?.events) ? macroData.events : [])
+    .filter(e => e?.importance === 'VIP' || e?.importance === 'MAIN')
+    .map(e => ({ e, at: +new Date(e.scheduled_at) }))
+    .filter(x => Number.isFinite(x.at) && x.at > now)
+    .sort((a, b) => a.at - b.at)[0];
+  // 하루 안으로 다가온 발표만 알린다. 늘 켜져 있는 숫자는 배지가 아니라 장식이다.
+  const mins = next ? Math.round((next.at - now) / 60000) : null;
+  if (mins === null || mins > 1440) { setTabBadge('macro', ''); return; }
+  setTabBadge('macro', mins <= 90 ? `${Math.max(1, mins)}분` : `${Math.round(mins / 60)}시간`,
+    `${next.e.code} · ${next.e.title}`);
+}
+setInterval(refreshTabBadges, 60000);
+
 function macroOpen(){macroLoad();if(!macroStarted){macroStarted=true;macroClockTimer=setInterval(macroTick,1000);macroRefreshTimer=setInterval(macroLoad,300000);}}
 function macroClose(){clearInterval(macroClockTimer);clearInterval(macroRefreshTimer);macroClockTimer=macroRefreshTimer=null;macroStarted=false;}
 window.macroOpen=macroOpen;
