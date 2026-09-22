@@ -8,12 +8,16 @@ assert.ok(!html.includes('liquidationBucketTime'),'초 단위로 직접 나누�
 assert.ok(!/chartPxPerBar|minTier/.test(html),'배율로 마커를 숨기던 코드는 남아 있으면 안 된다');
 
 let tests=0; const test=(label,fn)=>{fn();tests++;console.log('PASS',label);};
-const HOUR=3600000, DAY=24*HOUR, now=Date.parse('2026-09-12T03:30:00Z');
+const HOUR=3600000, DAY=24*HOUR;
+// rebuildMacroMarkers 는 실제 Date.now() 로 '아직 안 온 발표'를 가르므로 픽스처도 현재 시각 기준이어야 한다.
+// 고정 날짜를 쓰면 그 날짜가 과거가 되는 순간 미래 일정 검사가 뒤집힌다.
+const now=Date.now();
 const MIN_USD=+src.match(/MARKER_MIN_USD\s*=\s*(\d+)/)[1];
 assert.ok(MIN_USD>=1e6,'표시 기준이 너무 낮다');
 // 마지막 봉은 아직 형성 중 — 봉 시작은 현재보다 조금 과거다
 const bars=step=>{const last=now-Math.floor(step*0.9);return Array.from({length:1000},(_,i)=>[last-(999-i)*step,'1','1','1','1']);};
-const MONTH=[Date.UTC(2026,5,1),Date.UTC(2026,6,1),Date.UTC(2026,7,1),Date.UTC(2026,8,1)].map(t=>[t,'1','1','1','1']);
+const thisMonth=new Date(now); // 이번 달을 마지막 봉으로 하는 월봉 4개
+const MONTH=[3,2,1,0].map(back=>[Date.UTC(thisMonth.getUTCFullYear(), thisMonth.getUTCMonth()-back, 1),'1','1','1','1']);
 const big=MIN_USD*1.2;
 const liq=(minutesAgo,long,short=0)=>({event_type:'liquidation',
   event_time:new Date(now-minutesAgo*60000).toISOString(),metadata:{long_usd:long,short_usd:short}});
