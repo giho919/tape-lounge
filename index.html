@@ -539,7 +539,7 @@ body.shake { animation:shake .5s; }
 .studyResults { margin-top:13px; text-align:left; }.studyResultRow { display:grid; grid-template-columns:1fr 72px 58px; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:10px; color:#cfd4dd; }.studyResultRow b,.studyResultRow span:last-child { text-align:right; font-family:Menlo,monospace; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
-  .wrap{padding:0 10px 28px;padding-right:56px}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}
+  .wrap{padding:0 10px calc(70px + env(safe-area-inset-bottom))}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}
   .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   /* 모바일 시세 스트립 — 7개 타일이 같은 무게로 4줄을 먹던 것을 위계에 맞게 재배치.
      BTC는 전폭으로 키우고, 보조 지표 4개(환율·도미넌스·펀딩)는 촘촘하게 접는다. */
@@ -556,7 +556,7 @@ body.shake { animation:shake .5s; }
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
 }
-@media(max-width:380px){.wrap{padding-left:7px;padding-right:52px}.tab{width:42px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
+@media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{font-size:8px}.tab .ic{font-size:16px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
 @media(max-width:760px){
   .chartFunHud span,#rainIntro,#bgOver{backdrop-filter:none}
   .panel,.tile,.char{box-shadow:none}
@@ -650,7 +650,21 @@ body.shake { animation:shake .5s; }
 .sourceLedger { padding:10px 14px 14px; display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
 .sourceChip { display:flex; justify-content:space-between; gap:8px; padding:9px; border:1px solid var(--line); border-radius:7px; font-size:9px; color:var(--dim); background:var(--bg); }.sourceChip b { color:#cfd5df; }.sourceChip span { color:var(--grn); }
 .macroRule { padding:0 15px 14px; font-size:9.5px; line-height:1.65; color:var(--dim); }
-@media(max-width:760px){.tab{width:46px;padding:10px 0;justify-content:center;gap:0}.tab .nm{display:none}.tab .ic{width:auto;font-size:16px}.tab.on{transform:translateX(-4px)}.tab:hover{transform:none}.tabBadge{position:absolute;top:2px;right:3px;margin:0;padding:0;width:6px;height:6px;border-radius:50%;font-size:0;line-height:0;overflow:hidden;background:var(--gold)}.macroHero{grid-template-columns:1fr}.macroNext{min-width:0}.macroGrid{grid-template-columns:1fr}.macroDay{grid-template-columns:64px 54px 1fr 62px}.macroSource{display:none}.shockRow{grid-template-columns:38px 1fr repeat(3,43px);padding:8px 5px}.sourceLedger{grid-template-columns:1fr}}
+@media(max-width:760px){
+.tabsWrap{top:auto;left:0;right:0;bottom:0;transform:none;z-index:40;
+  padding:5px 2px calc(5px + env(safe-area-inset-bottom));
+  background:rgba(10,12,16,.94);backdrop-filter:blur(14px);border-top:1px solid var(--gold-dim)}
+.tabs{flex-direction:row;gap:0;justify-content:space-around}
+.tab{flex:1 1 0;width:auto;min-width:0;flex-direction:column;gap:2px;padding:6px 1px;
+  font-size:8.5px;letter-spacing:0;text-align:center;
+  background:transparent;border:0;border-radius:9px;box-shadow:none;transform:none}
+.tab .ic{width:auto;font-size:17px}
+.tab .nm{max-width:100%}
+.tab:hover{transform:none}
+.tab.on{transform:none;background:rgba(212,175,110,.13);border:0;box-shadow:none}
+.tab.on::after{display:none}
+.tabBadge{position:absolute;top:3px;left:50%;margin:0 0 0 6px;padding:0;width:7px;height:7px;
+  border-radius:50%;font-size:0;line-height:0;overflow:hidden;background:var(--gold);border-color:var(--gold)}.macroHero{grid-template-columns:1fr}.macroNext{min-width:0}.macroGrid{grid-template-columns:1fr}.macroDay{grid-template-columns:64px 54px 1fr 62px}.macroSource{display:none}.shockRow{grid-template-columns:38px 1fr repeat(3,43px);padding:8px 5px}.sourceLedger{grid-template-columns:1fr}}
 #bookAsks { justify-content:flex-end; }
 .bookRow { position:relative; display:flex; justify-content:space-between; align-items:center; height:16px; padding:0 11px; font-size:10.5px; }
 .bookRow .bar { position:absolute; top:1px; bottom:1px; right:0; opacity:.20; border-radius:2px 0 0 2px; transition:width .1s linear; }
