@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T12:32:01.827728Z",
+  "generated_at": "2026-09-30T12:37:01.978838Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -59,7 +59,9 @@
       "unit": null,
       "note": "Gross Domestic Product",
       "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {},
+      "btc": {
+        "m5": 0.662
+      },
       "status": "observed"
     },
     {
@@ -75,7 +77,9 @@
       "unit": null,
       "note": "Personal Income and Outlays",
       "source_url": "https://www.bea.gov/news/schedule",
-      "btc": {},
+      "btc": {
+        "m5": 0.662
+      },
       "status": "observed"
     },
     {
