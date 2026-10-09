@@ -25,10 +25,10 @@ test('진행봉 반복 갱신은 같은 시각이며 새 봉만 추가한다',()
  s.series.forEach(x=>assert.equal(x.data.length,1));api.tick(s,t+60);s.series.forEach(x=>assert.equal(x.data.length,2));
  api.tick(s,t);api.tick(s,NaN);s.series.forEach(x=>assert.equal(x.data.length,2));
 });
-test('OFF는 선을 비우고 재개는 기존 캔들만 복원한다',()=>{
- const s=api.attach(make()),t=Date.UTC(2026,9,10)/1000;api.seed(s,[t]);api.setEnabled(s,false,[t]);api.tick(s,t+60);
- assert.equal(store.get('tapeBtcLongChannel'),'off');s.series.forEach(x=>assert.equal(x.data.length,0));
- api.setEnabled(s,true,[t,t+60]);s.series.forEach(x=>assert.equal(x.data.length,2));
+test('이전 OFF 설정과 관계없이 빗각을 항상 표시한다',()=>{
+ store.set('tapeBtcLongChannel','off');const s=api.attach(make()),t=Date.UTC(2026,9,10)/1000;
+ api.seed(s,[t]);s.series.forEach(x=>{assert.equal(x.options.visible,true);assert.equal(x.data.length,1);});
+ assert(!source.includes('localStorage'));assert.equal(api.setEnabled,undefined);
 });
 test('시간봉 전환은 옛 시각을 지운 뒤 다시 시딩한다',()=>{
  const s=api.attach(make()),t=Date.UTC(2026,9,10)/1000;api.seed(s,[t]);api.clear(s);assert.equal(s.lastTime,null);s.series.forEach(x=>assert.equal(x.data.length,0));
@@ -37,7 +37,8 @@ test('시간봉 전환은 옛 시각을 지운 뒤 다시 시딩한다',()=>{
 test('BTC만 연결되고 실시간/시간봉 전환 훅이 존재한다',()=>{
  assert(html.includes("elId === 'c_btc'"));assert(html.includes('BtcLongChannel.seed(chart.longChannel'));
  assert(html.includes('BtcLongChannel.tick(chart.longChannel,k.t/1000)'));assert(html.includes('BtcLongChannel.clear(chart.longChannel)'));
- assert(html.includes('href="/analysis/" target="_blank"'));assert(html.includes('id="btcLongWeekly"'));
+ assert.equal((html.match(/data-analysis-open/g)||[]).length,1);
+ assert(!/btcLongWeekly|btcLongToggle|btcLongHint|btc-long-tools/.test(html));
 });
 test('가격조회·주문·DB 호출을 추가하지 않는다',()=>{
  assert(!/\bfetch\s*\(|new WebSocket|\.rpc\s*\(|\b(?:sbc|supabase)\.from\s*\(/.test(source));

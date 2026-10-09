@@ -23,9 +23,9 @@
 <link rel="dns-prefetch" href="https://api.upbit.com">
 <link rel="dns-prefetch" href="https://data-api.binance.vision">
 <link rel="stylesheet" href="domestic.css?v=20260911f">
-<link rel="stylesheet" href="chart-analysis.css?v=20261010">
+<link rel="stylesheet" href="chart-analysis.css?v=20261010b">
 <script src="chart-analysis.js?v=20261009" defer></script>
-<script src="btc-long-channel.js?v=20261010"></script>
+<script src="btc-long-channel.js?v=20261010b"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
 <script src="domestic.js?v=20260911f" defer></script>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://s.tradingview.com; connect-src 'self' wss://api.upbit.com wss://ws-api.bithumb.com https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.bybit.com https://www.okx.com https://api.gateio.ws https://api.bitget.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
@@ -943,12 +943,6 @@ body.shake { animation:shake .5s; }
         <button type="button" class="ca-open-link" data-analysis-open>장기 빗각 보기</button>
       </div>
       <div class="indicatorLegend" data-indicator-legend></div>
-      <div class="btc-long-tools" aria-label="BTC 장기 빗각 표시">
-        <button type="button" id="btcLongToggle" aria-pressed="true">장기 빗각 ON</button>
-        <button type="button" id="btcLongWeekly">장기 주봉 보기</button>
-        <a href="/analysis/" target="_blank" rel="noopener">차트 분석 별도 열기</a>
-        <span id="btcLongHint">기준점은 고정 · 주·월봉 권장</span>
-      </div>
       <div class="caroPage" data-p="0">
         <div class="chd"><span class="sym">BTC/USDT</span><span class="px2 num" id="livePx">—</span><span class="num" id="liveChg">—</span><span style="margin-left:auto">마감 <b class="num" id="cd">--</b></span></div>
         <div class="chartFunHud"><span id="gradeHud">CANDLE · —</span><span id="comboHud">COMBO · —</span><span id="chestHud">🧰 CHEST SCAN</span><span id="whaleHud">🐋 ≥ $500K</span></div>
@@ -2006,7 +2000,6 @@ function caroGo(i) {
     if (chartAtRightEdge(chart.ch)) chartShowRecent(chart.ch, chart.bars);
   });
   if (typeof reseedDeck === 'function') reseedDeck();   // 덱은 선택된 차트를 따라감
-  if (typeof window.syncBtcLongChannelControls === 'function') window.syncBtcLongChannelControls();
 }
 function caroMove(d) { caroGo(caroIdx + d); }
 window.caroGo = caroGo; window.caroMove = caroMove;
@@ -5520,11 +5513,6 @@ function syncRuntimeState() {
   else if (activeTab === 'game') blindOpen();
 }
 document.addEventListener('visibilitychange', syncRuntimeState);
-if (window.BtcLongChannel) window.BtcLongChannel.bind({
-  getChart:()=>chartOf(0), getSymbol:()=>caroIdx, getTf:()=>chartTf,
-  getTimes:()=>[...(chartSeed[0]||[]).map(k=>k[0]/1000),...(chartLive[0]?[chartLive[0].t/1000]:[])],
-  selectBtc:()=>caroGo(0), setTf:tf=>setTf(tf),
-});
 syncRuntimeState();
 </script>
 </body>

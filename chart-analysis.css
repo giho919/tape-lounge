@@ -1,13 +1,6 @@
 /* Chart study shares the lounge palette; live chart styling stays unchanged. */
 .ca-open-link{margin-left:auto;border:1px solid var(--gold-dim);border-radius:6px;padding:5px 9px;background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
 .ca-open-link:focus-visible,.ca-actions button:focus-visible,.ca-actions a:focus-visible,.ca-scroll:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.btc-long-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
-.btc-long-tools button{min-height:40px;padding:7px 10px;border:1px solid var(--gold-dim);border-radius:6px;background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer}
-.btc-long-tools button[aria-pressed="true"]{background:rgba(212,175,55,.13)}
-.btc-long-tools button:disabled{opacity:.5;cursor:default}
-.btc-long-tools a{font-size:12px;color:var(--gold);text-underline-offset:3px}
-.btc-long-tools span{flex-basis:100%;font-size:12px;color:#a8b1c0;line-height:1.6}
-.btc-long-tools button:focus-visible,.btc-long-tools a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 #tab-analysis{padding-top:22px}
 .ca-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
 .ca-kicker{color:var(--gold);font-size:12px;letter-spacing:2px;margin:0 0 8px}

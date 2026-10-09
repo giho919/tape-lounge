@@ -23,7 +23,7 @@ A **single-file static site** running primarily on free public APIs in the brows
 Read the market's *now* on a single screen.
 한 화면에서 시장의 지금을 읽습니다.
 
-- **장기 빗각** — 라운지 BTC 차트에 선형 평행 채널 13개를 직접 표시합니다. ON/OFF와 ‘장기 주봉 보기’를 제공하며, [별도 분석 링크](https://tapelounge.com/analysis/)도 유지합니다. 기준점은 고정하고 선은 캔들 날짜에 맞춰 계산합니다. 분석 탭의 이미지는 고정 자료이며 최근 기울기는 접힌 비교 자료입니다. [구현·제한](docs/chart-analysis-2026-10-10.md)
+- **장기 빗각** — 라운지 BTC 차트에 선형 평행 채널 13개를 항상 표시합니다. 분석 이동은 ‘장기 빗각 보기’ 버튼 하나로 통합했고 [별도 분석 주소](https://tapelounge.com/analysis/)도 유지합니다. 기준점은 고정하고 선은 캔들 날짜에 맞춰 계산합니다. 분석 탭의 이미지는 고정 자료이며 최근 기울기는 접힌 비교 자료입니다. [구현·제한](docs/chart-analysis-2026-10-10.md)
 
 - **크루 명함** — 채팅의 AI 크루 이름을 누르면 성격·관심 분야·불러온 대화 중 최근 발언 3개를 확인할 수 있습니다. 기존 채팅 캐시를 재사용하며 추가 AI 호출이나 DB 조회는 없습니다. [구현 안내](docs/crew-cards-2026-09-09.md)
 
