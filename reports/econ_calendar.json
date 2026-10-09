@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T00:02:01.382829Z",
+  "generated_at": "2026-10-09T13:32:01.113013Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -398,6 +398,22 @@
       "actual_supported": false,
       "unit": null,
       "note": "Personal Income and Outlays",
+      "source_url": "https://www.bea.gov/news/schedule",
+      "btc": {},
+      "status": "upcoming"
+    },
+    {
+      "id": "2f6b672b10c1a830",
+      "source": "BEA",
+      "code": "TRADE",
+      "title": "미국 무역수지",
+      "importance": "SIDE",
+      "scheduled_at": "2027-01-07T13:30:00Z",
+      "previous": null,
+      "actual": null,
+      "actual_supported": false,
+      "unit": null,
+      "note": "U.S. International Trade in Goods and Services",
       "source_url": "https://www.bea.gov/news/schedule",
       "btc": {},
       "status": "upcoming"
