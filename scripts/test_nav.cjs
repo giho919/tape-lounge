@@ -3,9 +3,9 @@ const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('n
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
-const TABS=['lounge','domestic','desk','chain','macro','game','chars'];
+const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
 
-test('탭 일곱 개가 아이콘과 이름을 따로 들고, 기존 선택 로직 계약을 지킨다',()=>{
+test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로직 계약을 지킨다',()=>{
  const block=html.slice(html.indexOf('<div class="tabs"'), html.indexOf('</div>',html.indexOf('data-tab="chars"'))+6);
  for(const t of TABS){
   const re=new RegExp(`data-tab="${t}"[^>]*>\\s*<i class="ic" aria-hidden="true">([^<]+)</i><span class="nm">([^<]+)</span>`);
@@ -13,7 +13,7 @@ test('탭 일곱 개가 아이콘과 이름을 따로 들고, 기존 선택 로�
   assert.ok(m,`${t} 탭이 아이콘/이름 구조가 아니다`);
   assert.ok(m[1].trim()&&m[2].trim(),t);
  }
- assert.equal((block.match(/role="tab"/g)||[]).length,7);
+ assert.equal((block.match(/role="tab"/g)||[]).length,8);
  assert.ok(block.includes('aria-orientation="vertical"'),'세로 탭임을 알려야 한다');
  assert.equal((block.match(/class="tab on"/g)||[]).length,1,'처음 선택된 탭은 하나');
  // 기존 스크립트가 쓰는 선택자를 그대로 유지하는지

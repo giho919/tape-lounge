@@ -23,6 +23,8 @@
 <link rel="dns-prefetch" href="https://api.upbit.com">
 <link rel="dns-prefetch" href="https://data-api.binance.vision">
 <link rel="stylesheet" href="domestic.css?v=20260911f">
+<link rel="stylesheet" href="chart-analysis.css?v=20261009">
+<script src="chart-analysis.js?v=20261009" defer></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
 <script src="domestic.js?v=20260911f" defer></script>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://s.tradingview.com; connect-src 'self' wss://api.upbit.com wss://ws-api.bithumb.com https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.bybit.com https://www.okx.com https://api.gateio.ws https://api.bitget.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
@@ -784,6 +786,7 @@ body.shake { animation:shake .5s; }
     <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge" title="실시간 시세·청산·채팅이 흐르는 메인 화면"><i class="ic" aria-hidden="true">🥂</i><span class="nm">라운지</span></div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보"><i class="ic" aria-hidden="true">🇰🇷</i><span class="nm">국내장</span></div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk" title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서"><i class="ic" aria-hidden="true">📊</i><span class="nm">데스크</span></div>
+    <div class="tab" id="analysis-tab" role="tab" tabindex="0" aria-controls="tab-analysis" aria-selected="false" data-tab="analysis" title="차트 분석 — BTC 장기 빗각과 선형 평행 채널"><i class="ic" aria-hidden="true">📐</i><span class="nm">차트 분석</span></div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain" title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표"><i class="ic" aria-hidden="true">⛓</i><span class="nm">온체인</span></div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro" title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과"><i class="ic" aria-hidden="true">📣</i><span class="nm">발표장</span></div>
     <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game" title="블라인드 — 종목명을 가린 실제 차트 맞히기"><i class="ic" aria-hidden="true">🎰</i><span class="nm">블라인드</span></div>
@@ -936,6 +939,7 @@ body.shake { animation:shake .5s; }
         <span class="tfb" data-tf="1d" onclick="setTf('1d')">일봉</span>
         <span class="tfb" data-tf="1w" onclick="setTf('1w')">주봉</span>
         <span class="tfb" data-tf="1M" onclick="setTf('1M')">월봉</span>
+        <button type="button" class="ca-open-link" data-analysis-open>장기 빗각 보기</button>
       </div>
       <div class="indicatorLegend" data-indicator-legend></div>
       <div class="caroPage" data-p="0">
@@ -1081,6 +1085,24 @@ body.shake { animation:shake .5s; }
 </div>
 
 <!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
+<section id="tab-analysis" class="hidden" role="tabpanel" aria-labelledby="analysis-tab">
+  <header class="ca-header">
+    <div><p class="ca-kicker">CHART STUDY · BTC / USDT</p><h2>장기 빗각</h2><p class="ca-meta">2017.08–2026.10.09 · 주봉 · 선형 가격축 · 고정 분석 자료</p></div>
+    <div class="ca-actions"><button type="button" id="caZoom" aria-pressed="false">확대해서 보기</button><a href="reports/btc-channels-2026-10-09.html" target="_blank" rel="noopener">분석 원본</a></div>
+  </header>
+  <div class="panel ca-panel">
+    <div class="ca-panel-head"><h3>📐 장기 평행 채널</h3><p>2018년 12월 저점과 2022년 11월 저점을 잇는 빗각. 2021년 고점을 지나는 평행선으로 폭을 정하고, 같은 간격으로 나눈 13개 선을 표시했다.</p></div>
+    <p id="caStatus" class="ca-status" role="status">분석 탭을 열면 차트를 불러옵니다.</p>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다."><img id="caLongImage" data-ca-image data-src="reports/btc-channels-2026-10-09-linear-long.svg" width="1600" height="940" alt="2017년 이후 BTC 주봉의 선형 장기 평행 채널. 2018년과 2022년 저점을 연결한 기준선 및 평행선 13개."></div>
+    <p class="ca-caption">금색은 채널 기준선, 흰색은 분할·확장선. 보라색 수평선은 75k 참고선이다. 확대 후에는 차트를 좌우로 밀어 볼 수 있다.</p>
+  </div>
+  <details class="ca-recent" id="caRecent">
+    <summary>2022년 이후 빗각과 비교</summary>
+    <p>2022년 저점과 2024년 8월 저점을 잇는 별도 기울기다. 장기 채널과 같은 선으로 해석하지 않는다.</p>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="2022년 이후 선형 채널 비교 차트"><img data-ca-image data-src="reports/btc-channels-2026-10-09-linear-recent.svg" width="1600" height="940" alt="2022년 이후 BTC 주봉과 선형 평행 채널 13개."></div>
+  </details>
+  <aside class="ca-note"><b>선은 참고 기준이지 매매 신호가 아니다.</b><p>기준점은 과거를 보고 선택했다. 선이 많다고 지지·저항의 신뢰도가 높아지는 것은 아니다. 미래 점선은 단순 연장이며 가격 예측이 아니다. 이 자료는 실시간으로 갱신되지 않으며, 2010–2017년은 포함하지 않았다.</p></aside>
+</section>
 <section id="tab-domestic" class="hidden" aria-label="국내장"></section>
 <div id="tab-desk" class="hidden">
   <div class="deskWrap">
@@ -1467,7 +1489,7 @@ const tabLive = name => activeTab === name && !document.hidden;
 // ═══ 탭별 주소 ═══
 // 라운지는 hash 없음(루트 URL 유지), 나머지는 #슬러그.
 // hash 를 쓰면 정적 호스팅 그대로 동작하고 뒤로가기도 브라우저가 알아서 처리한다.
-const TAB_SLUG = { lounge:'', domestic:'domestic', desk:'desk', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
+const TAB_SLUG = { lounge:'', domestic:'domestic', desk:'desk', analysis:'analysis', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
 const SLUG_TAB = Object.fromEntries(Object.entries(TAB_SLUG).filter(([,v]) => v).map(([k,v]) => [v, k]));
 let applyingHash = false;
 
@@ -1489,6 +1511,8 @@ function selectTab(t, fromHash = false) {
   t.classList.add('on'); t.setAttribute('aria-selected', 'true');
   $('tab-lounge').classList.toggle('hidden', t.dataset.tab !== 'lounge');
   $('tab-desk').classList.toggle('hidden', t.dataset.tab !== 'desk');
+  $('tab-analysis').classList.toggle('hidden', t.dataset.tab !== 'analysis');
+  if (t.dataset.tab === 'analysis' && typeof window.initChartAnalysis === 'function') window.initChartAnalysis();
   $('tab-domestic').classList.toggle('hidden', t.dataset.tab !== 'domestic');
   $('tab-chars').classList.toggle('hidden', t.dataset.tab !== 'chars');
   $('tab-game').classList.toggle('hidden', t.dataset.tab !== 'game');
@@ -2593,6 +2617,8 @@ function analyticsPayload(activeSeconds = 0, isView = false) {
   };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
+  // 분석 탭은 기존 RPC의 허용 목록 밖이므로 DB를 확장하기 전까지 보내지 않는다.
+  if (activeTab === 'analysis') return;
   if (!sbc || !analyticsVisitorId) return;
   const body = analyticsPayload(activeSeconds, isView);
   try {
