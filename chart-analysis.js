@@ -40,12 +40,6 @@
   recent.addEventListener('toggle', () => {
     if (recent.open && !section.classList.contains('hidden')) load(recent.querySelector('img'));
   });
-  document.querySelectorAll('[data-analysis-open]').forEach(button => {
-    button.addEventListener('click', () => {
-      document.querySelector('.tab[data-tab="analysis"]')?.click();
-      window.scrollTo({top:0,behavior:'auto'});
-    });
-  });
   // Hash selection can run before this deferred script finishes loading.
   if (!section.classList.contains('hidden')) init();
 })();

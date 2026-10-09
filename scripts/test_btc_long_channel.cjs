@@ -37,7 +37,7 @@ test('시간봉 전환은 옛 시각을 지운 뒤 다시 시딩한다',()=>{
 test('BTC만 연결되고 실시간/시간봉 전환 훅이 존재한다',()=>{
  assert(html.includes("elId === 'c_btc'"));assert(html.includes('BtcLongChannel.seed(chart.longChannel'));
  assert(html.includes('BtcLongChannel.tick(chart.longChannel,k.t/1000)'));assert(html.includes('BtcLongChannel.clear(chart.longChannel)'));
- assert.equal((html.match(/data-analysis-open/g)||[]).length,1);
+ assert.equal((html.match(/data-analysis-open/g)||[]).length,0);
  assert(!/btcLongWeekly|btcLongToggle|btcLongHint|btc-long-tools/.test(html));
 });
 test('가격조회·주문·DB 호출을 추가하지 않는다',()=>{

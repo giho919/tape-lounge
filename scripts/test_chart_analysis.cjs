@@ -3,9 +3,9 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const js=fs.readFileSync(path.join(root,'chart-analysis.js'),'utf8');
 let tests=0;function test(label,fn){fn();tests++;console.log('PASS',label);}
-test('분석 탭과 라운지 버튼이 같은 hash 경로를 사용한다',()=>{
+test('분석 탭은 유지하고 라운지 바로가기 버튼은 제거한다',()=>{
  assert(html.includes('data-tab="analysis"'));assert(html.includes('analysis:\'analysis\''));
- assert(html.includes('data-analysis-open'));assert(html.includes("$('tab-analysis').classList.toggle('hidden'"));
+ assert(!html.includes('data-analysis-open'));assert(html.includes("$('tab-analysis').classList.toggle('hidden'"));
  assert(html.includes("window.initChartAnalysis()"));
 });
 test('장기 차트가 기본이고 최근 차트는 접힌 비교 자료다',()=>{

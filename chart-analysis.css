@@ -1,6 +1,5 @@
 /* Chart study shares the lounge palette; live chart styling stays unchanged. */
-.ca-open-link{margin-left:auto;border:1px solid var(--gold-dim);border-radius:6px;padding:5px 9px;background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
-.ca-open-link:focus-visible,.ca-actions button:focus-visible,.ca-actions a:focus-visible,.ca-scroll:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.ca-actions button:focus-visible,.ca-actions a:focus-visible,.ca-scroll:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 #tab-analysis{padding-top:22px}
 .ca-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
 .ca-kicker{color:var(--gold);font-size:12px;letter-spacing:2px;margin:0 0 8px}
@@ -20,4 +19,4 @@
 .ca-recent summary{padding:15px 18px;font-size:15px;color:var(--gold);cursor:pointer}
 .ca-note{margin:20px 0;padding:16px 18px;border-left:2px solid var(--gold-dim);background:var(--panel);font-size:14px;line-height:1.8;color:#a8b1c0}
 .ca-note b{color:var(--tx);font-weight:500}.ca-note p{margin-top:6px}
-@media(max-width:760px){.ca-header{align-items:flex-start;flex-direction:column}.ca-header h2{font-size:24px}.ca-actions{width:100%}.ca-open-link{font-size:11px;min-height:34px}.tfRow{flex-wrap:wrap}}
+@media(max-width:760px){.ca-header{align-items:flex-start;flex-direction:column}.ca-header h2{font-size:24px}.ca-actions{width:100%}.tfRow{flex-wrap:wrap}}
