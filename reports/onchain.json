@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "asset": "btc",
-  "generated_at": "2026-10-16T23:10:01.172423Z",
-  "as_of": "2026-10-15",
+  "generated_at": "2026-10-17T23:10:01.254338Z",
+  "as_of": "2026-10-16",
   "source": {
     "name": "Coin Metrics Community API",
     "url": "https://community-api.coinmetrics.io/v4",
@@ -10,24 +10,6 @@
     "license_note": "Community data; attribution required"
   },
   "history": [
-    {
-      "date": "2026-05-09",
-      "price": 80663.6296519579,
-      "market_cap_usd": 1615455141384.5083,
-      "mvrv": 1.4875564619691928,
-      "active_addresses": 818423,
-      "transactions": 830362,
-      "hash_rate": 1126072515.539159,
-      "issuance_btc": 534.375,
-      "fees_btc": 7.20904316,
-      "blocks": 171,
-      "addresses_with_balance": 56185647,
-      "exchange_inflow_btc": 8699.16895535,
-      "exchange_outflow_btc": 11927.12969308,
-      "exchange_balance_btc": 2591952.23916542,
-      "supply_btc": 20027057.40312911,
-      "roi_1y": -21.64076115515398
-    },
     {
       "date": "2026-05-10",
       "price": 82256.781137931,
@@ -2889,6 +2871,24 @@
       "exchange_balance_btc": 2676909.60861932,
       "supply_btc": 20098747.99782891,
       "roi_1y": -25.929906619163344
+    },
+    {
+      "date": "2026-10-16",
+      "price": 81538.2951464407,
+      "market_cap_usd": 1638855102937.6907,
+      "mvrv": 1.5138037609795767,
+      "active_addresses": 657965,
+      "transactions": 697763,
+      "hash_rate": 999511456.0947528,
+      "issuance_btc": 459.375,
+      "fees_btc": 2.66813205,
+      "blocks": 147,
+      "addresses_with_balance": 57273532,
+      "exchange_inflow_btc": 21875.55039989,
+      "exchange_outflow_btc": 23600.30263574,
+      "exchange_balance_btc": 2677737.47849399,
+      "supply_btc": 20099207.37236839,
+      "roi_1y": -24.59586836673739
     }
   ]
 }
