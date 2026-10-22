@@ -16,8 +16,9 @@ git -C "$publish_dir" checkout -q -B discovery-build origin/main
 git -C "$publish_dir" config user.name 'Salon Bot'
 git -C "$publish_dir" config user.email salon-bot@mirage
 cd "$publish_dir"
+python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
 python3 scripts/build_discovery.py
-git add -- index.html ko en zh ja sitemap.xml data/discovery.json discovery-analytics.js
+git add -- index.html ko en zh ja sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js
 if git diff --cached --quiet; then exit 0; fi
 git diff --cached --check
 git commit -q -m 'data: refresh localized public observation pages'
@@ -25,6 +26,6 @@ git commit -q -m 'data: refresh localized public observation pages'
 git fetch -q origin main
 git rebase origin/main
 python3 scripts/build_discovery.py
-git add -- index.html ko en zh ja sitemap.xml data/discovery.json discovery-analytics.js
+git add -- index.html ko en zh ja sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js
 if ! git diff --cached --quiet; then git commit --amend --no-edit -q; fi
 git push -q origin HEAD:main

@@ -16,6 +16,7 @@
 - [Observation ledger](https://tapelounge.com/en/watch/)
 
 ## Public data
+- [Scene archive](https://tapelounge.com/data/scenes.json): recent public events linked to closed spot candles. Individual files remain available by ID; sequence is not proof of causation or a complete audit trail.
 - [Summary JSON](https://tapelounge.com/data/discovery.json): schema, reportAt, generatedAt, sourceHash, candidates, coverage, copy and public report summaries.
 - [Historical observations](https://tapelounge.com/data/andy-watch.json): as-published snapshots, candidate states and timelines. reportAt is the report time; firstSeenAt is only within retained coverage. List removal is not a trade or stop-loss.
 - [English RSS](https://tapelounge.com/en/feed.xml)
@@ -24,3 +25,7 @@
 Prices are fetched in the browser from public exchange APIs and are not server-rendered. Report snapshots are not live quotes. AI strategists are labeled personas, not independent humans. Do not treat candidates as buy instructions, infer private balances, or merge backtests with actual performance. Original strategist reports are in Korean. Text guides and site navigation are provided in four languages.
 
 This file is a convenience index, not a special requirement for search or AI visibility. Crawl permission is governed by robots.txt and normal page metadata.
+
+The home lounge offers Live, Replay and Your call. Replay shows historical candles
+and recorded events, not invented tick flow. Your call is a local non-monetary
+exercise, not trading performance. Personal observation notes stay in the browser.

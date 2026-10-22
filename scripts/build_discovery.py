@@ -8,10 +8,11 @@ from pathlib import Path
 import sys
 from xml.etree.ElementTree import Element, SubElement, tostring
 from discovery_content import COPY, LANGS, STAGES
+from stage_content import WORDS, stage_body
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
@@ -102,20 +103,28 @@ def render(lang, page, data, letters, generated, root=False):
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
         body=f'<article class="guide"><p class="eyebrow">THE COLOPHON</p><h1>{e(title)}</h1><p class="standfirst">{e(c["aboutText"])}</p><section><h2>{e(c["method"])}</h2><p>{e(c["sourceText"])}</p><p>{e(c["dataText"])}</p><p><a href="https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints" rel="noopener">Binance API</a> · <a href="https://global-docs.upbit.com/reference/list-tickers" rel="noopener">Upbit API</a> · <a href="https://frankfurter.dev/" rel="noopener">Frankfurter</a></p><p><a href="/data/andy-watch.json">Observation JSON</a> · <a href="/data/discovery.json">Public summary JSON</a> · <a href="/{lang}/feed.xml">RSS</a></p></section><section><h2>{e(c["privacy"])}</h2><p>{e(c["analyticsText"])}</p><p>{e(c["countryPrivacy"])}</p></section><section><h2>AI</h2><p>{e(c["researchIntro"])}</p><p>{e(c["disclaimer"])}</p></section></article>'
+    if page=='':
+        body=stage_body(lang,data)
+        title={'ko':'실시간 시장과 관찰 기록','en':'Live market scenes and observations','zh':'实时行情与观察记录','ja':'ライブ相場と観察記録'}[lang]
+        desc={'ko':'실제 시장 장면을 보고 되돌려 보며 관찰을 남기는 라운지. 가격·체결·청산·후보의 이후 기록을 함께 확인합니다.','en':'Watch real market scenes, replay what happened and leave observations. Spot prices, trade flow, liquidations and published candidate histories.','zh':'观看真实市场片段，回放行情并留下观察。结合价格、成交、清算及已发布候选的后续记录。','ja':'実際の市場の場面を観察し、リプレイし、記録を残すラウンジ。価格・約定・清算・公開候補の履歴をつなぎます。'}[lang]
+        schema[1].update(name=title,description=desc)
     schema_json=json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
+    app_scripts=(f'<script defer src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous"></script><script defer src="/stage.js?v={VERSION}"></script><script defer src="/stage-community.js?v={VERSION}"></script>' if page=='' else f'<script defer src="/discovery.js?v={VERSION}"></script>')
+    if page=='':
+        nav=''.join(link(url(lang,p),WORDS[lang]['home'] if i==0 else c['nav'][i], 'selected' if i==0 else '') for i,p in enumerate(['','markets','watch','learn']))
     return f'''<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)} — Tape Lounge</title><meta name="description" content="{e(desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}
-<meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#f5f3ed"><meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co; frame-src 'none'">
-<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script><script defer src="/discovery.js?v={VERSION}"></script><script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
-<body data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
+<meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0d1114"><meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co wss://stream.binance.com:9443; frame-src https://challenges.cloudflare.com">
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}"><link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
+<body class="{'market-stage' if page=='' else ''}" data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
 <header class="masthead"><a class="wordmark" href="{url(lang)}" aria-label="Tape Lounge"><span class="brand-icon">t.</span><span>TAPE<span class="wordmark-light">LOUNGE</span><small>A PLACE TO READ THE MARKET.</small></span></a><nav class="primary-nav" aria-label="Navigation">{nav}</nav><div class="header-actions"><a class="terminal-link" href="/terminal/">{e(c['tools'])} ↗</a><details class="languages"><summary aria-label="Language">◎ {lang.upper()}</summary><div>{languages}</div></details></div></header>
 <div id="locale-suggestion" hidden role="status"></div><main id="content"><div class="site-search"><label for="site-search">⌕ <span class="sr-only">{e(c['find'])}</span></label><input id="site-search" type="search" placeholder="{e(c['searchHint'])}" autocomplete="off" aria-controls="search-results"><span class="search-caption">MARKETS / IDEAS / PERSPECTIVES</span><div id="search-results" hidden></div></div>{body}</main>
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json'] + ASSETS
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json'] + ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
@@ -156,6 +165,9 @@ def build(force=False):
         raise ValueError('Only a publishable frontend key may be reused')
     template=(ROOT/'scripts/discovery-analytics.template.js').read_text(encoding='utf-8')
     write('discovery-analytics.js',template.replace('__PUBLIC_URL__',supa_url).replace('__PUBLISHABLE_KEY__',key))
+    turnstile=re.search(r"const TURNSTILE_SITEKEY = '([^']+)'",source)[1]
+    sdk=re.search(r'<script src="([^"]+@supabase/supabase-js@[^"]+)" integrity="([^"]+)"',source)
+    write('data/stage-config.json',json.dumps({'schema':1,'url':supa_url,'key':key,'turnstile':turnstile,'sdk':{'url':sdk[1],'integrity':sdk[2]},'words':WORDS},ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'pages':len(LANGS)*len(pages)+1,'reportAt':data['reportAt']}
 
 if __name__=='__main__':

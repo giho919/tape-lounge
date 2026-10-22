@@ -5,18 +5,21 @@
 
 **Live** → https://tapelounge.com
 
-**2026-10-22 discovery redesign:** the public front door is a paper/ink editorial
-reading room with **Today / Markets / Radar / Read**, real static content in Korean,
-English, Chinese and Japanese, country-aware language suggestions, public observation
-records, saved assets and original field notes. Existing charts, community and games
-remain at [Terminal](https://tapelounge.com/terminal/); original report URLs are stable.
+**2026-10-22 market-stage redesign:** the public front door is a dark, chart-first
+lounge with **Live / Replay / Your call**, actual trades, archived public scenes,
+local observation notes and contextual conversation. Korean, English, Chinese and
+Japanese static pages, language suggestions and search discovery remain intact.
+The paper/ink front door was superseded following owner review.
+Existing indicator charts and games remain at [Terminal](https://tapelounge.com/terminal/);
+original report URLs are stable. [Market-stage architecture](docs/market-stage-2026-10-22.md).
 [Current architecture, publishing and verification limits](docs/discovery-redesign-2026-10-22.md).
 
 A **buildless static frontend with a stdlib static-page generator**. Live data use
 public browser APIs. Supabase continues to provide the original terminal's chat,
 shared market events and privacy-first aggregate analytics. The detailed terminal
-feature documentation below remains relevant; the new public pages do not initialize
-its games, presence, authentication or notification paths.
+feature documentation below remains relevant to the terminal. The new lounge does
+not initialize its games, presence or notifications; chat authentication runs only
+when a visitor chooses to send, with the existing CAPTCHA/RLS contract.
 
 ### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
 

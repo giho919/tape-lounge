@@ -1,5 +1,8 @@
 # Discovery-led redesign · 2026-10-22
 
+Presentation superseded after owner review by [the market stage](market-stage-2026-10-22.md).
+This document retains the earlier research and SEO architecture history.
+
 This supersedes the earlier same-day presentation at the site front door. Existing
 tools remain at `/terminal/` with a root base URL; published report URLs do not move.
 No strategy, order, training, Telegram or crew scheduling changes are involved.

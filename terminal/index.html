@@ -2851,7 +2851,10 @@ function sayUser(nick, body, authorType = 'human', agentKey = null, createdAt = 
       ? `<span class="crewAva" aria-hidden="true">${CHAT_CREW_ICON[agentKey]}</span>` : '';
   const tag = virtual
     ? `<span class="aiTag${official ? ' official' : ''}" title="AI가 생성한 공개 시장 대화">${official ? '공식 전략가 · AI' : '라운지 크루 · AI'}</span>` : '';
-  m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
+  const sceneMatch = String(body || '').match(/^\[tl-scene:([a-f0-9]{16})\]\s*/);
+  const sceneLink = sceneMatch ? `<a href="/ko/?scene=${sceneMatch[1]}">↳ 장면 기록</a> ` : '';
+  const visibleBody = sceneMatch ? String(body).slice(sceneMatch[0].length) : body;
+  m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${sceneLink}${esc(visibleBody)}</span>`;
   if (virtual && Object.hasOwn(CREW_PROFILES, agentKey)) {
     const name = document.createElement('button');
     name.type = 'button'; name.className = 'who crewName'; name.style.color = nickColor(nick);
