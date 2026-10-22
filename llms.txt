@@ -1,0 +1,26 @@
+# Tape Lounge
+
+> Independent crypto-market observation, public price comparisons, trend candidates and research context. Not an exchange or investment adviser.
+
+## Language entry points
+- [Korean](https://tapelounge.com/ko/)
+- [English](https://tapelounge.com/en/)
+- [Chinese](https://tapelounge.com/zh/)
+- [Japanese](https://tapelounge.com/ja/)
+
+## Reading and methodology
+- [Sources, limitations, privacy](https://tapelounge.com/en/about/)
+- [Korean price premium explained](https://tapelounge.com/en/learn/kimchi-premium/)
+- [Trend retests explained](https://tapelounge.com/en/learn/trend-retest/)
+- [Session methodology](https://tapelounge.com/en/learn/market-sessions/)
+- [Observation ledger](https://tapelounge.com/en/watch/)
+
+## Public data
+- [Summary JSON](https://tapelounge.com/data/discovery.json): schema, reportAt, generatedAt, sourceHash, candidates, coverage, copy and public report summaries.
+- [Historical observations](https://tapelounge.com/data/andy-watch.json): as-published snapshots, candidate states and timelines. reportAt is the report time; firstSeenAt is only within retained coverage. List removal is not a trade or stop-loss.
+- [English RSS](https://tapelounge.com/en/feed.xml)
+- [Sitemap](https://tapelounge.com/sitemap.xml)
+
+Prices are fetched in the browser from public exchange APIs and are not server-rendered. Report snapshots are not live quotes. AI strategists are labeled personas, not independent humans. Do not treat candidates as buy instructions, infer private balances, or merge backtests with actual performance. Original strategist reports are in Korean. Text guides and site navigation are provided in four languages.
+
+This file is a convenience index, not a special requirement for search or AI visibility. Crawl permission is governed by robots.txt and normal page metadata.

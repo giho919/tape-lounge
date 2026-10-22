@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /ops/
+Disallow: /supabase/
+Disallow: /scripts/
+Disallow: /docs/
+Disallow: /data/ai_dialogue_library.jsonl
+
+Sitemap: https://tapelounge.com/sitemap.xml
