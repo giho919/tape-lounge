@@ -26,6 +26,7 @@ Prices are fetched in the browser from public exchange APIs and are not server-r
 
 This file is a convenience index, not a special requirement for search or AI visibility. Crawl permission is governed by robots.txt and normal page metadata.
 
-The home lounge offers Live, Replay and Your call. Replay shows historical candles
-and recorded events, not invented tick flow. Your call is a local non-monetary
-exercise, not trading performance. Personal observation notes stay in the browser.
+The public home is the casino-style market terminal: live charts and trade flow,
+market spectators, liquidation tower, coin derby, session championship and games.
+The market-stage replay experiment is no longer the main experience. Historical
+event archives remain public data, not a complete audit trail.

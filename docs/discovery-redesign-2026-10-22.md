@@ -1,7 +1,8 @@
 # Discovery-led redesign · 2026-10-22
 
-Presentation superseded after owner review by [the market stage](market-stage-2026-10-22.md).
-This document retains the earlier research and SEO architecture history.
+The editorial presentation was superseded by a chart-first market stage, then the
+owner asked to restore the casino-style terminal at the public root. This document
+retains the research and SEO architecture history; the casino terminal is current.
 
 This supersedes the earlier same-day presentation at the site front door. Existing
 tools remain at `/terminal/` with a root base URL; published report URLs do not move.

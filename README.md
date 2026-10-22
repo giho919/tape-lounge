@@ -5,25 +5,21 @@
 
 **Live** → https://tapelounge.com
 
-**2026-10-22 market-stage redesign:** the public front door is a dark, chart-first
-lounge with **Live / Replay / Your call**, actual trades, archived public scenes,
-local observation notes and contextual conversation. Korean, English, Chinese and
-Japanese static pages, language suggestions and search discovery remain intact.
-The paper/ink front door was superseded following owner review.
-Existing indicator charts and games remain at [Terminal](https://tapelounge.com/terminal/);
-original report URLs are stable. [Market-stage architecture](docs/market-stage-2026-10-22.md).
-[Current architecture, publishing and verification limits](docs/discovery-redesign-2026-10-22.md).
+**2026-10-22 rollback:** the public root is the original casino-style market terminal
+with spectators, liquidation tower, coin derby, session championship, live charts
+and games. The localized research pages and report URLs remain available. The market
+stage is no longer the main entry point and the hourly publisher will preserve this.
 
-A **buildless static frontend with a stdlib static-page generator**. Live data use
-public browser APIs. Supabase continues to provide the original terminal's chat,
-shared market events and privacy-first aggregate analytics. The detailed terminal
-feature documentation below remains relevant to the terminal. The new lounge does
-not initialize its games, presence or notifications; chat authentication runs only
-when a visitor chooses to send, with the existing CAPTCHA/RLS contract.
+A **buildless static frontend with a stdlib static-page generator**. The casino
+terminal runs at `/` and `/terminal/`; localized discovery and research pages remain
+at their existing routes. Live data use public browser APIs. Supabase continues to
+provide chat, shared market events and privacy-first aggregate analytics. Chat
+authentication runs only when a visitor chooses to send, under the existing
+CAPTCHA/RLS contract.
 
 ### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
 
-- Anonymous Presence remains connected, but the audience counter is no longer emphasized in the redesigned header; Presence state is not written to the database / 익명 Presence는 유지하며 개편 헤더에는 관전 인원을 표시하지 않음. Presence 상태는 DB에 저장하지 않음
+- Anonymous Presence remains connected; Presence state is not written to the database / 익명 Presence 유지, Presence 상태는 DB에 저장하지 않음
 - No IP address, device fingerprint, nickname, or user-agent is collected / IP·기기 지문·닉네임·브라우저 정보는 수집하지 않음
 - A random browser ID is hashed inside Postgres; raw sessions are retained for 14 days, then only daily aggregates remain / 브라우저 무작위 ID는 DB에서 해시하며 원본 세션은 14일 뒤 삭제하고 일별 집계만 유지
 - Admin-only views live in the private schema: `site_analytics_today`, `site_analytics_tabs_today`, `site_analytics_daily`, and `site_analytics_tabs_daily` / 관리자 통계는 Supabase의 private 스키마에서만 조회
