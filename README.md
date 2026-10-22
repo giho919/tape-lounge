@@ -5,6 +5,12 @@
 
 **Live** → https://tapelounge.com
 
+**2026-10-22 redesign:** primary navigation is now **라운지 / 마켓 / 리서치**.
+The lounge brings charts, Andy observations and a shared browser-local watchlist to
+the front; spectator effects and paper trading are opt-in sections. Published Andy
+reports feed a historical observation ledger, with a return-visit summary based on
+this browser's actual saved observations. [Architecture and update path](docs/redesign-2026-10-22.md).
+
 A **single-file static site** running primarily on free public APIs in the browser (Supabase provides chat, blind-study rooms, shared market events, anonymous Presence, and privacy-first aggregate analytics). The concept: a members' hideaway for people who like to *read the tape*.
 브라우저의 무료 공개 API를 중심으로 돌아가는 **단일 파일 정적 사이트**입니다 (Supabase는 채팅·블라인드 스터디방·공용 시장 이벤트·익명 Presence·최소 방문 통계를 담당). "시세를 읽는" 사람들의 아지트라는 콘셉트.
 

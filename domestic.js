@@ -74,7 +74,7 @@ const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
 const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
-el.innerHTML=`<div class="dm-top"><h1>국내장</h1><a href="#strategists">전략가들 ↗</a></div>
+el.innerHTML=`<div class="dm-top"><h1>마켓</h1><a href="#research">후보 관찰 · 리서치 ↗</a></div>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
 <div class="dm-scroll"><table><thead><tr id="dm-head"></tr></thead><tbody id="dm-table"></tbody><tbody id="dm-chart"></tbody><tbody id="dm-rest"></tbody></table></div>
@@ -173,6 +173,13 @@ async function domestic(venue,epoch){
  const previous=new Map(state.tickers[venue].map(x=>[x.market,x]));state.tickers[venue]=ticks.map(x=>{const old=previous.get(x.market);return old&&old.trade_timestamp>x.trade_timestamp?old:x;});state.at[venue]=Date.now();
 }
 async function loadAndy(epoch){
+ try{
+  const data=await get('data/andy-watch.json',epoch),at=Date.parse(data.reportAt);
+  if(data.schema!==1||!Number.isFinite(at)||!Array.isArray(data.candidates))throw Error('Invalid ledger');
+  const stages={};for(const x of data.candidates){if(!safeSymbol(x.symbol)||!['4h','1d'].includes(x.timeframe)||typeof x.stage!=='string')continue;
+   const label=(x.timeframe==='4h'?'4h':'일봉')+' · '+x.stage;stages[x.symbol]=stages[x.symbol]?stages[x.symbol]+' / '+label:label;}
+  state.andy={label:new Date(at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})+' KST',at,stages};state.at.andy=Date.now();return;
+ }catch(e){if(e.name==='AbortError'||e.message==='Cancelled')throw e;}
  const html=await get('reports/andy_scan.html',epoch,true),doc=new DOMParser().parseFromString(html,'text/html');
  const label=doc.querySelector('.hdr .ts')?.textContent?.match(/(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) KST/);
  if(!label||!doc.querySelector('#andy-retest'))throw Error('Invalid report');
@@ -210,7 +217,7 @@ async function refresh(force){
 function schedule(){clearTimeout(state.timer);if(visible())state.timer=setTimeout(refresh,Math.max(1000,wait()-(Date.now()-state.lastAttempt)));}
 function sync(){if(!visible()){clearTimeout(state.timer);clearTimeout(state.paint);state.paint=null;streams?.stop();state.epoch++;state.controllers.forEach(c=>c.abort());}else{render();refresh();}}
 el.addEventListener('click',e=>{const star=e.target.closest('[data-star]'),select=e.target.closest('[data-select]'),sort=e.target.closest('[data-sort]'),interval=e.target.closest('[data-interval]');
- if(interval){const k=interval.dataset.interval;if(INTERVALS[k]&&k!==state.interval){state.interval=k;render();}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}render();}if(select){const s=select.dataset.select;state.selected=state.selected===s?null:s;render();}});
+ if(interval){const k=interval.dataset.interval;if(INTERVALS[k]&&k!==state.interval){state.interval=k;render();}return;}if(sort){const k=sort.dataset.sort;state.dir=state.sort===k?-state.dir:(COLUMNS.find(c=>c.key===k)?.first??1);state.sort=k;render();}if(star){const s=star.dataset.star;favorites.has(s)?favorites.delete(s):favorites.add(s);try{localStorage.setItem('tl_domestic_favorites',JSON.stringify([...favorites]));}catch{storageWarning=true;}window.dispatchEvent(new CustomEvent('tl:favorites',{detail:{symbols:[...favorites]}}));render();}if(select){const s=select.dataset.select;state.selected=state.selected===s?null:s;render();}});
 $('dm-venue').onchange=e=>{state.venue=e.target.value;state.selected=null;render();refresh(true);};
 $('dm-foreign').onchange=e=>{if(!FOREIGN[e.target.value])return;state.foreign=e.target.value;state.global={};delete state.errors.foreign;render();refresh(true);};
 $('dm-search').oninput=e=>{state.query=e.target.value.trim().toLowerCase();render();};
@@ -222,5 +229,8 @@ const streams=root.DomesticStreams?.createStreams({onState:(kind,on)=>{live[kind
  if(kind==='binance'){if(state.foreign!=='binance')return;for(const x of updates){if(!state.global[x.symbol]||x.closeTime>=state.global[x.symbol].closeTime)state.global[x.symbol]={...state.global[x.symbol],...x};}}
  else {const map=new Map(state.tickers[kind].map(x=>[x.market,x]));for(const x of updates){const old=map.get(x.market);if(!old||x.trade_timestamp>=old.trade_timestamp)map.set(x.market,{...old,...x});}state.tickers[kind]=[...map.values()];state.at[kind]=Date.now();}
  delete state.errors[kind==='binance'?'foreign':kind];paint();}});
+root.TapeMarket={open(symbol){if(!safeSymbol(symbol))return;state.query=symbol.toLowerCase();state.selected=symbol;state.only=state.andyOnly=false;$('dm-search').value=symbol;$('dm-favorites').setAttribute('aria-pressed','false');$('dm-andy-only').setAttribute('aria-pressed','false');render();refresh(true);}};
+window.addEventListener('tl:favorites',e=>{if(!Array.isArray(e.detail?.symbols))return;favorites=new Set(e.detail.symbols.filter(safeSymbol).slice(0,500));if(visible())render();});
+window.addEventListener('storage',e=>{if(e.key!=='tl_domestic_favorites')return;try{const s=JSON.parse(e.newValue||'[]');if(Array.isArray(s))favorites=new Set(s.filter(safeSymbol).slice(0,500));}catch{}if(visible())render();});
 new MutationObserver(sync).observe(el,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',sync);sync();
 })(typeof window!=='undefined'?window:globalThis);
