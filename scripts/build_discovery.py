@@ -11,7 +11,8 @@ from discovery_content import COPY, LANGS, STAGES
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-VERSION = '20261022-discovery1'
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js']
+VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
 
@@ -114,7 +115,7 @@ def render(lang, page, data, letters, generated, root=False):
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json']
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json'] + ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:

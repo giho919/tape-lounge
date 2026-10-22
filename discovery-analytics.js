@@ -2,8 +2,8 @@
 (()=>{'use strict';
 const random=()=>crypto.randomUUID(),params=new URLSearchParams(location.search);
 if(document.body.dataset.entry==='root'&&['desk','analysis','onchain','calendar','blind','game','market','domestic','research','strategists','chars'].includes(location.hash.slice(1)))return;
-let id=random(),internal=false;
-try{if(params.get('internal')==='1')localStorage.setItem('tapeInternal','1');else if(params.get('internal')==='0')localStorage.removeItem('tapeInternal');internal=localStorage.getItem('tapeInternal')==='1';id=localStorage.getItem('tapeVisitorId')||id;localStorage.setItem('tapeVisitorId',id);}catch{}
+let id=random(),internal=params.get('internal')==='1';
+try{if(params.get('internal')==='1')localStorage.setItem('tapeInternal','1');else if(params.get('internal')==='0')localStorage.removeItem('tapeInternal');internal=params.get('internal')==='1'||(params.get('internal')!=='0'&&localStorage.getItem('tapeInternal')==='1');id=localStorage.getItem('tapeVisitorId')||id;localStorage.setItem('tapeVisitorId',id);}catch{}
 const session=random(),page=document.body.dataset.page||'',tab=page==='markets'?'domestic':page===''?'lounge':'chars';
 let input=performance.now(),last=input,hidden=document.hidden,ended=false;
 let ref=null;try{const h=new URL(document.referrer).hostname;if(h!==location.hostname)ref=h;}catch{}

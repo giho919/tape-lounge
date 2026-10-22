@@ -2643,7 +2643,7 @@ const analyticsReferrerHost = (() => {
 
 // ── 운영자/내부 트래픽 표시 ──
 // ?internal=1 로 한 번 켜두면 이 브라우저는 계속 내부로 집계된다 (?internal=0 으로 해제).
-let analyticsInternal = false;
+let analyticsInternal = new URLSearchParams(location.search).get('internal') === '1';
 try {
   const q = new URLSearchParams(location.search).get('internal');
   if (q === '1') localStorage.setItem('tapeInternal', '1');
