@@ -194,7 +194,8 @@ function init() {
   window.addEventListener('tl:favorites',e=>{favorites=new Set((e.detail?.symbols||[]).filter(validSymbol).slice(0,500));renderWatch();if(modalSymbol)renderDialogBody();});
   window.addEventListener('storage',e=>{if(e.key==='tl_domestic_favorites'){const stored=read(e.key,[]);favorites=new Set((Array.isArray(stored)?stored:[]).filter(validSymbol));renderWatch();}});
   window.addEventListener('tl:tab',e=>{
-    const group=e.detail?.tab;document.querySelector('.tab[data-tab="chars"]').classList.toggle('v2-group-on',['desk','chain','macro','analysis'].includes(group));
+    const group=e.detail?.tab,detail=['desk','chain','macro','analysis'].includes(group),researchTab=document.querySelector('.tab[data-tab="chars"]');
+    researchTab.classList.toggle('on',group==='chars'||detail);researchTab.setAttribute('aria-selected',String(group==='chars'||detail));
     sync();
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)snapshot();sync();});window.addEventListener('pagehide',()=>{snapshot();controller?.abort();clearInterval(timer);});
