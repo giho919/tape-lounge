@@ -16,7 +16,7 @@ A **single-file static site** running primarily on free public APIs in the brows
 
 ### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
 
-- The header shows the live number of visible page sessions through Supabase Presence; Presence state is not written to the database / 헤더의 현재 관전 인원은 Supabase Presence로 계산하며 DB에는 저장하지 않음
+- Anonymous Presence remains connected, but the audience counter is no longer emphasized in the redesigned header; Presence state is not written to the database / 익명 Presence는 유지하며 개편 헤더에는 관전 인원을 표시하지 않음. Presence 상태는 DB에 저장하지 않음
 - No IP address, device fingerprint, nickname, or user-agent is collected / IP·기기 지문·닉네임·브라우저 정보는 수집하지 않음
 - A random browser ID is hashed inside Postgres; raw sessions are retained for 14 days, then only daily aggregates remain / 브라우저 무작위 ID는 DB에서 해시하며 원본 세션은 14일 뒤 삭제하고 일별 집계만 유지
 - Admin-only views live in the private schema: `site_analytics_today`, `site_analytics_tabs_today`, `site_analytics_daily`, and `site_analytics_tabs_daily` / 관리자 통계는 Supabase의 private 스키마에서만 조회
@@ -44,7 +44,7 @@ Read the market's *now* on a single screen.
 | **BTC Dominance · 도미넌스** | Bitcoin's share of total market cap | 전체 시총 중 비트코인 점유율 |
 | **Funding Rate · 펀딩비** | Perpetual-futures 8h funding — a gauge of futures-market heat | 무기한 선물 8시간 펀딩 — 선물 시장 과열 온도 |
 
-### Spectator casino · 관전 카지노
+### Spectator floor · 접어서 보관하는 관전석
 
 The market plays the game; visitors watch the tension build and the result settle.
 시장이 스스로 판을 벌이고, 방문자는 긴장과 결과 확정의 순간을 관전합니다.
@@ -100,8 +100,8 @@ Big bullish/bearish candle bursts · 60-minute breakout / breakdown · neon flic
 
 ### Paper trading · 모의투자
 
-Trade live BTC perpetuals with fake money, right under the lounge chart — no separate screen.
-라운지 차트 바로 아래에서 가짜 돈으로 BTC 무기한을 매매합니다. 별도 화면으로 나가지 않습니다.
+Trade live BTC perpetuals with fake money by expanding the lounge's Playroom.
+라운지 하단의 플레이룸을 펼쳐 가짜 돈으로 BTC 무기한을 연습합니다.
 
 - **Same margin engine as the blind chart · 블라인드 차트와 같은 엔진** — isolated margin at 1–10×, holding `margin = notional ÷ leverage`; changing leverage re-margins the open position / 1~10배 격리 마진, `증거금 = 명목가 ÷ 레버리지` 항등식 유지, 배수 변경 시 포지션 전체 재산정
 - **Server-judged fills · 서버 판정 체결** — the Edge Function reads the price from Binance itself, so a client-supplied price is never trusted / 체결가를 Edge Function이 바이낸스에서 직접 읽어 클라이언트가 보낸 가격은 신뢰하지 않음
