@@ -16,7 +16,7 @@ const tone=n=>n>=0?'positive':'negative';
 const cache=new Map(),requests=new Set(),sceneCache=new Map();
 let config,t,watch,chart,series,volumeSeries,priceLine,selectedLine,resizeObserver;
 let mode='live',asset='BTC',bars=[],cursor=0,scene=null,selectedPrice=null,generation=0,noteDraft=null;
-let quoteAt=0,quotes={},fx=null,fxAt=0,won={},wonAt=0,events=[],eventsAt=0,archive=null,archiveAt=0,eventFilter='all';
+let quoteAt=0,quotes={},fx=null,fxAt=0,won={},wonAt=0,events=[],eventsAt=0,archive=null,archiveAt=0;
 let ws=null,wsRetry=null,retries=0,lastStreamAt=0,trades=[],flowSince=0,lastTradeId=null,tradeRenderAt=0,liveFetchAt=0;
 let playTimer=null,tickTimer=null,playing=false,sceneLoading=false,archiveBusy=false,eventBusy=false,quoteBusy=false,caseRevealed=false,caseReference=null,caseEnd=null;
 let particles=[],animation=0,lastFrame=0,quiet=read('tl_stage_quiet',false),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -205,19 +205,14 @@ function openNote(){const price=noteReference();if(!number(price)||price<=0){sta
 function saveNote(event){event.preventDefault();if(!noteDraft)return;notes.push({id:crypto.randomUUID(),...noteDraft,text:$('stage-note-input').value.trim(),recordedAt:new Date().toISOString()});noteDraft=null;notes=notes.slice(-100);save(observedKey,notes);$('stage-note-input').value='';$('stage-note-dialog').close();renderNotes();showPanel('observations');status(storageOK?t.saved:t.storageFail);}
 async function fetchEvents(){
  if(eventBusy||document.hidden)return;eventBusy=true;
- try{const query=new URLSearchParams({select:'event_key,event_type,event_time,symbol,side,price,amount_usd,title,detail,tone,metadata',is_highlight:'eq.true',event_time:'gte.'+new Date(Date.now()-24*3600000).toISOString(),order:'event_time.desc',limit:'120'});const rows=await pub('market_events?'+query);if(!Array.isArray(rows))throw Error('Events');const next=await Promise.all(rows.filter(r=>typeof r.event_key==='string'&&Date.parse(r.event_time)<=Date.now()+60000).map(async row=>({id:await shortID(row.event_key),event:row,symbol:sourceSymbol(row),eventAt:row.event_time})));events=next;eventsAt=Date.now();renderFilm();if(mode==='live'){showSceneInfo(events[0]?.event);draw();}}
+ try{const query=new URLSearchParams({select:'event_key,event_type,event_time,symbol,side,price,amount_usd,title,detail,tone,metadata',is_highlight:'eq.true',event_time:'gte.'+new Date(Date.now()-24*3600000).toISOString(),order:'event_time.desc',limit:'120'});const rows=await pub('market_events?'+query);if(!Array.isArray(rows))throw Error('Events');const next=await Promise.all(rows.filter(r=>typeof r.event_key==='string'&&Date.parse(r.event_time)<=Date.now()+60000).map(async row=>({id:await shortID(row.event_key),event:row,symbol:sourceSymbol(row),eventAt:row.event_time})));events=next;eventsAt=Date.now();if(mode==='live'){showSceneInfo(events[0]?.event);draw();}}
  catch{if(!events.length)$('stage-scene-title').textContent=t.unavailable;}finally{eventBusy=false;}
 }
 function allScenes(){const merged=new Map((archive?.scenes||[]).map(s=>[s.id,s]));events.forEach(s=>merged.set(s.id,{...merged.get(s.id),...s}));return [...merged.values()].sort((a,b)=>Date.parse(b.eventAt)-Date.parse(a.eventAt));}
-function renderFilm(){
- const list=allScenes().filter(s=>eventFilter==='all'||eventFilter==='price'&&['breakout','breakdown','candle'].includes(s.event.event_type)||eventFilter==='liquidation'&&['liquidation','jackpot'].includes(s.event.event_type)).slice(0,30);
- $('stage-film').innerHTML=list.length?list.map(s=>`<button type="button" class="stage-film-item" data-open-scene="${s.id}" aria-pressed="${scene?.id===s.id}"><time>${esc(at(s.eventAt))}</time><b>${esc(sceneTitle(s.event))}</b><small>${esc(sceneDetail(s.event))}</small><span>${s.complete?'↗':'↳'} ${esc(s.archivedAt?t.record:t.latest)}</span></button>`).join(''):`<p class="stage-footnote">${esc(t.emptyScenes)}</p>`;
- $('stage-archive-state').textContent=archive?.fetchedAt?`${t.archive}: ${at(archive.fetchedAt)}${Date.now()-Date.parse(archive.fetchedAt)>3*3600000?' · '+t.staleArchive:''}`:t.loading;
-}
 async function fetchArchive(){
  if(archiveBusy||document.hidden)return;archiveBusy=true;
- try{const value=await getJSON('/data/scenes.json');if(value.schema!==1||!Array.isArray(value.scenes))throw Error('Archive');archive=value;archiveAt=Date.now();renderFilm();}
- catch{if(!archive)$('stage-archive-state').textContent=t.unavailable;}finally{archiveBusy=false;}
+ try{const value=await getJSON('/data/scenes.json');if(value.schema!==1||!Array.isArray(value.scenes))throw Error('Archive');archive=value;archiveAt=Date.now();}
+ catch{if(!archive)status(t.unavailable);}finally{archiveBusy=false;}
 }
 async function loadScene(id){
  if(!idOK(id))throw Error('Invalid scene');if(sceneCache.has(id))return sceneCache.get(id);
@@ -230,7 +225,7 @@ async function openScene(id,daily=false){
  const cut=Date.parse(scene.eventAt),pre=bars.findLastIndex(b=>b.closeTime<=cut);cursor=Math.max(0,pre);caseReference=Number(scene.reference);caseEnd=bars.findLastIndex(b=>b.closeTime<=cut+15*60000);
  $('stage-scrub').max=String(mode==='daily'?cursor:bars.length-1);$('stage-scrub').min='0';$('stage-case-date').textContent=archive?.daily?.date||scene.eventAt.slice(0,10);$('stage-case-status').textContent=mode==='daily'?t.futureHidden:'';
  const stored=read('tl_stage_calls_v1',{}),call=stored[id];document.querySelectorAll('[data-choice]').forEach(b=>{b.disabled=!!call;b.setAttribute('aria-pressed',String(call?.choice===b.dataset.choice));});
- updateMode();showSceneInfo(scene.event);draw(true);setReferenceLine();renderFilm();$('stage-data-state').textContent=`${t.source}: Binance spot · 1m · ${scene.archivedAt?t.archive+' '+at(scene.archivedAt):t.partial}`;
+ updateMode();showSceneInfo(scene.event);draw(true);setReferenceLine();$('stage-data-state').textContent=`${t.source}: Binance spot · 1m · ${scene.archivedAt?t.archive+' '+at(scene.archivedAt):t.partial}`;
  const url=new URL(location.href);url.searchParams.set('scene',id);if(daily)url.searchParams.set('practice','1');else url.searchParams.delete('practice');history.replaceState(null,'',url);
  if(mode==='daily'&&call)revealCase(call,false);
  }catch{if(token===generation){$('stage-chart-empty').hidden=!!bars.length;$('stage-chart-empty').textContent=t.unavailable;status(t.unavailable);if(mode==='live')openSocket();}}
@@ -267,7 +262,6 @@ function bind(){
   if(button.dataset.openAsset)goLive(button.dataset.openAsset);
   if(button.dataset.candidate)openCandidate(button.dataset.candidate);
   if(button.dataset.viewCandidate){$('stage-candidate-dialog').close();goLive(button.dataset.viewCandidate);}
-  if(button.dataset.eventFilter){eventFilter=button.dataset.eventFilter;document.querySelectorAll('[data-event-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));renderFilm();}
   if(button.dataset.choice)makeCall(button.dataset.choice);
   if(button.dataset.noteDelete){notes=notes.filter(n=>n.id!==button.dataset.noteDelete);save(observedKey,notes);renderNotes();}
   if(button.dataset.noteOpen){const n=notes.find(x=>x.id===button.dataset.noteOpen);if(n){if(n.sceneId)openScene(n.sceneId);else goLive(n.asset);}}

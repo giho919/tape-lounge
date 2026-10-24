@@ -1,7 +1,7 @@
 // 라운지 차트의 청산·고래 마커. 브라우저 없이 index.html 에서 함수만 떼어내 검사한다.
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
-const src=html.slice(html.indexOf('function snapToBar('), html.indexOf('\nfunction appendHydratedLiqBlock('));
+const src=html.slice(html.indexOf('function snapToBar('), html.indexOf('\nasync function loadLiquidationLedger('));
 const renderSrc=html.slice(html.indexOf('const MARKER_LABEL_PX'), html.indexOf('// 확대·이동하면 들어갈 수 있는 라벨 수가 달라지므로'));
 assert.ok(src.includes('rebuildLiquidationMarkers')&&renderSrc.includes('renderBtcMarkers'),'대상 함수를 찾지 못했다');
 assert.ok(!html.includes('liquidationBucketTime'),'초 단위로 직접 나누던 옛 버킷 계산은 남아 있으면 안 된다');
@@ -114,9 +114,9 @@ test('고래도 실제 캔들에 붙어 모든 시간대에서 함께 그려진�
   assert.ok(whale.text.includes('×3'),'같은 캔들에 모인 건수를 적는다');
   assert.ok(!/chartTf === '1m' \?/.test(html),'고래를 1분봉에서만 그리던 조건도 없어야 한다');
 });
-test('차트용 청산 장부는 하이라이트와 분리돼 24시간 정리에 지워지지 않는다',()=>{
+test('차트용 청산 장부는 삭제된 라운지 패널과 분리돼 여러 날의 기록을 보존한다',()=>{
   assert.ok(/liquidationLedger/.test(html),'전용 장부가 없다');
-  assert.ok(!/rebuildLiquidationMarkers[\s\S]{0,400}marketEventRows/.test(src),'마커가 24시간짜리 marketEventRows 를 다시 참조한다');
+  assert.ok(/function applyMarketEvent\(row\)[\s\S]{0,240}recordLiquidationForChart\(row\)/.test(html),'실시간 장부 이벤트가 차트용 청산 기록에 직접 반영되어야 한다');
   assert.ok(/loadLiquidationLedger[\s\S]{0,600}gte\('amount_usd', MARKER_ROW_FLOOR\)/.test(html),'작은 전표를 서버에서 걸러야 한다');
   assert.ok(/MARKER_HISTORY_DAYS \* 86400000/.test(html),'24시간이 아니라 여러 날을 받아야 한다');
 });

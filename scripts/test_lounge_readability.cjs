@@ -6,14 +6,13 @@ const html = fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 function extract(start,end){return html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));}
 const chat = extract("const feed = $('feed');","// 전략가 서신");
 const people = extract("function nickColor(", "function chatWanted()");
-const highlights = extract('let highlights = [];','function liquidationBucketTime(');
 const bootstrap = [
   "const $=id=>document.getElementById(id);",
   "const esc=s=>{const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML};",
   "let myNick='테스트',myUid='test-only',sbc=null;",
   "async function ensureAuth(){} function setNick(){}",
   "function setPit(p){$('pitTitle').textContent=p.title;$('pitCopy').textContent=p.copy;$('pitTag').textContent=p.tag;}",
-  chat,people,highlights
+  chat,people
 ].join('\n');
 (async()=>{
  const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
@@ -24,35 +23,10 @@ const bootstrap = [
    await page.route('**/*',route=>route.abort());
    await page.setContent(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,''));
    await page.addScriptTag({content:bootstrap});
-   await page.evaluate(()=>{
-    marketHistoryReady=true;
-    ['liquidation','breakout','whale','macro','jackpot','candle'].forEach((type,i)=>marketEventRows.set('e'+i,{
-     event_key:'e'+i,event_type:type,is_highlight:true,event_time:new Date(Date.now()-(i+1)*600000).toISOString(),
-     icon:'◈',title:['롱 청산이 이어진 구간','최근 고점을 넘긴 순간','큰 현물 체결이 나온 장면','경제지표 발표 기록','청산 누적이 커진 구간','폭이 커진 확정봉'][i],
-     detail:'격리된 UI 테스트 전표 · 실제 시장 기록으로 게시되지 않음',tone:'flat'}));
-    marketEventRows.set('old',{event_key:'old',event_type:'whale',is_highlight:true,event_time:new Date(Date.now()-3*3600000).toISOString(),icon:'◈',title:'오래된 테스트',detail:'3시간 전',tone:'flat'});
-    syncMarketHighlights();
-   });
-   assert.equal(await page.locator('.highlightRow').count(),7);
-   await page.locator('[data-highlight-kind="whale"]').click();
-   assert.equal(await page.locator('.highlightRow').count(),2);
-   await page.selectOption('#highlightPeriod','1');
-   assert.equal(await page.locator('.highlightRow').count(),1);
-   await page.locator('.highlightRow').focus();await page.keyboard.press('Enter');
-   assert.match(await page.locator('#pitTitle').textContent(),/큰 현물/);
-   assert.equal(await page.locator('#pitTag').textContent(),'REPLAY');
-   assert.match(await page.locator('#pitCopy').textContent(),/한국시간/);
-   await page.evaluate(()=>{marketHistoryError=true;renderHighlights();});
-   assert.match(await page.locator('#highlightStatus').textContent(),/연결 지연/);
-   await page.evaluate(()=>{marketHistoryError=false;marketEventRows.clear();syncMarketHighlights();});
-   assert.match(await page.locator('#highlightList').textContent(),/해당 전표가 없어요/);
-   await page.evaluate(()=>{
-    setHighlightKind('all');setHighlightWindow(24);
-    for(let i=0;i<25;i++)marketEventRows.set('page'+i,{event_key:'page'+i,event_type:'breakout',is_highlight:true,event_time:new Date(Date.now()-i*60000).toISOString(),icon:'◈',title:'테스트 전표 '+i,detail:'UI 테스트',tone:'up'});
-    syncMarketHighlights();
-   });
-   assert.equal(await page.locator('.highlightRow').count(),12);
-   await page.locator('#highlightMore').click();assert.equal(await page.locator('.highlightRow').count(),24);
+   assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
+   assert.equal(await page.locator('.spectatorCard').count(),1,'the coin race remains in the observatory');
+   assert.equal(await page.locator('#raceRows').count(),1);
+   assert.equal(await page.locator('#deckPanel').count(),1,'the candle deck remains available');
    await page.evaluate(()=>{
     for(let i=1;i<=60;i++)renderChatRow({id:i,nick:i%3?'참가자':'관망이',body:'UI 테스트 대화입니다. 새 메시지가 와도 읽던 자리를 지킵니다. '+i,
      author_type:i%3?'human':'virtual',agent_key:i%3?null:'watcher',created_at:new Date(Date.now()-i*60000).toISOString()});
@@ -91,11 +65,11 @@ const bootstrap = [
    assert.equal(await page.locator('.loungeGuide').getAttribute('open'),'');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'page overflow at '+width);
    if(process.env.LOUNGE_SCREENSHOTS){
-    for(const [label,selector] of [['guide','.loungeGuide'],['highlights','.spectatorCard:last-child'],['chat','#chatPanel']])
+    for(const [label,selector] of [['guide','.loungeGuide'],['race','.spectatorCard'],['chat','#chatPanel']])
      await page.locator(selector).screenshot({path:path.join(process.env.LOUNGE_SCREENSHOTS,label+'-'+width+'.png')});
    }
    assert.deepEqual(errors,[]);
-   console.log(width+'px: filter/replay/paging/unread/scroll/time/race/escaping/guide/overflow passed');
+   console.log(width+'px: removed panels/race/deck/unread/scroll/time/escaping/guide/overflow passed');
    await page.close();
   }
  }finally{await browser.close();}

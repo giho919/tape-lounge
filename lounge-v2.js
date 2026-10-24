@@ -41,11 +41,10 @@ sidebar.innerHTML=`<section class="v2-section" aria-labelledby="v2-andy-title"><
 workspace.append(chartColumn,sidebar); returnBox.after(workspace);
 const context=node('section','v2-context-grid',`<article class="v2-context-item"><h2>세션 흐름</h2><strong id="v2-session-title">최근 세션을 확인 중</strong><p id="v2-session-copy">아시아 · 유럽 · 미국장의 최근 회차를 비교합니다.</p><a href="#v2-observatory" data-observatory-link>관전석 펼치기 ↗</a></article><article class="v2-context-item"><h2>다음 주요 일정</h2><strong id="v2-event-title">공식 일정을 확인 중</strong><p id="v2-event-copy">발표 시각은 한국시간 기준입니다.</p><a href="#calendar" data-open-tab="macro">발표 일정 전체 ↗</a></article>`); workspace.after(context);
 const reading=node('section','v2-reading');reading.setAttribute('aria-label','전략가들의 최근 기록');context.after(reading);
-const bottom=node('div','v2-bottom'), highlights=byId('highlightList')?.closest('.panel');
-if(highlights)bottom.append(highlights);bottom.append(chat);reading.after(bottom);
+const bottom=node('div','v2-bottom');bottom.append(chat);reading.after(bottom);
 const chatFilters=node('div','v2-chat-filter','<button type="button" data-chat-filter="all" aria-pressed="true">전체 대화</button><button type="button" data-chat-filter="human" aria-pressed="false">사람 대화</button>'); chat.querySelector('h3').after(chatFilters);
 const humanEmpty=node('p','v2-empty','불러온 최근 대화에는 사람 메시지가 없어요. 시장을 보며 든 생각을 먼저 남겨도 좋아요.');humanEmpty.hidden=true;byId('feed').after(humanEmpty);
-const observatory=node('details','v2-observatory','<summary>관전석 <span>체결의 비 · 청산 · 세션 · 코인 레이스</span></summary>');observatory.id='v2-observatory';
+const observatory=node('details','v2-observatory','<summary>관전석 <span>체결의 비 · 세션 · 코인 레이스</span></summary>');observatory.id='v2-observatory';
 observatory.append(lounge.querySelector('.spectatorFloor'),lounge.querySelector('.flowRow'));bottom.after(observatory);
 const play=node('details','v2-play','<summary>플레이룸 <span>가짜 돈으로 연습하거나, 이름을 가린 과거 차트를 읽어보세요.</span></summary><p class="v2-backlink"><a href="#blind" data-open-tab="game">블라인드 차트 시작 ↗</a></p>');play.id='v2-play';play.append(paper);observatory.after(play);
 window.loungeSpectating=()=>observatory.open;

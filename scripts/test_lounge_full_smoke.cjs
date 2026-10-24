@@ -39,13 +39,14 @@ const root=path.resolve(__dirname,'..');
   await page.locator('#crewClose').click();
   await page.locator('.loungeGuide summary').click();
   assert.ok(await page.locator('.loungeGuide').getAttribute('open')!==null);
-  await page.locator('[data-highlight-kind="price"]').click();
-  await page.selectOption('#highlightPeriod','6');
+  assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
+  assert.ok(await page.locator('#raceRows').count(),'coin race remains available');
+  assert.ok(await page.locator('#deckPanel').count(),'candle deck remains available');
   await page.locator('.tab[data-tab="desk"]').click();
   assert.equal(await page.locator('#tab-lounge').isVisible(),false);
   await page.locator('.tab[data-tab="lounge"]').click();
   assert.equal(await page.locator('#tab-lounge').isVisible(),true);
   assert.deepEqual(errors,[]);
-  console.log('Full application initialized; live read-only chat, filters, guide, tab lifecycle passed. Blocked writes: '+blocked.length);
+  console.log('Full application initialized; live read-only chat, removed panels, race/deck, guide and tab lifecycle passed. Blocked writes: '+blocked.length);
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});
