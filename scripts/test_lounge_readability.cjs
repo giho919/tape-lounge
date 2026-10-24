@@ -24,6 +24,7 @@ const bootstrap = [
    await page.setContent(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link\b[^>]*>/g,''));
    await page.addScriptTag({content:bootstrap});
    assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
+   assert.equal(await page.locator('.loungeGuide').count(),0,'lounge guide must stay absent');
    assert.equal(await page.locator('.spectatorCard').count(),1,'the coin race remains in the observatory');
    assert.equal(await page.locator('#raceRows').count(),1);
    assert.equal(await page.locator('#deckPanel').count(),1,'the candle deck remains available');
@@ -61,15 +62,13 @@ const bootstrap = [
    await page.evaluate(()=>renderChatRow({id:63,nick:'<img src=x onerror=alert(1)>',body:'<script>alert(1)</script>',created_at:'invalid'}));
    assert.equal(await page.locator('[data-chat-id="63"] img').count(),0);
    assert.equal(await page.locator('[data-chat-id="63"] time').count(),0);
-   await page.locator('.loungeGuide summary').click();
-   assert.equal(await page.locator('.loungeGuide').getAttribute('open'),'');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'page overflow at '+width);
    if(process.env.LOUNGE_SCREENSHOTS){
-    for(const [label,selector] of [['guide','.loungeGuide'],['race','.spectatorCard'],['chat','#chatPanel']])
+    for(const [label,selector] of [['race','.spectatorCard'],['chat','#chatPanel']])
      await page.locator(selector).screenshot({path:path.join(process.env.LOUNGE_SCREENSHOTS,label+'-'+width+'.png')});
    }
    assert.deepEqual(errors,[]);
-   console.log(width+'px: removed panels/race/deck/unread/scroll/time/escaping/guide/overflow passed');
+   console.log(width+'px: removed panels/guide, race/deck/unread/scroll/time/escaping/overflow passed');
    await page.close();
   }
  }finally{await browser.close();}

@@ -37,8 +37,7 @@ const root=path.resolve(__dirname,'..');
   await page.locator('#crewRecent summary').click();
   assert.ok(await page.locator('#crewQuotes li').count()>0,'profile uses loaded public messages');
   await page.locator('#crewClose').click();
-  await page.locator('.loungeGuide summary').click();
-  assert.ok(await page.locator('.loungeGuide').getAttribute('open')!==null);
+  assert.equal(await page.locator('.loungeGuide').count(),0,'lounge guide must stay absent');
   assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
   assert.ok(await page.locator('#raceRows').count(),'coin race remains available');
   assert.ok(await page.locator('#deckPanel').count(),'candle deck remains available');
@@ -47,6 +46,6 @@ const root=path.resolve(__dirname,'..');
   await page.locator('.tab[data-tab="lounge"]').click();
   assert.equal(await page.locator('#tab-lounge').isVisible(),true);
   assert.deepEqual(errors,[]);
-  console.log('Full application initialized; live read-only chat, removed panels, race/deck, guide and tab lifecycle passed. Blocked writes: '+blocked.length);
+  console.log('Full application initialized; live read-only chat, removed panels/guide, race/deck and tab lifecycle passed. Blocked writes: '+blocked.length);
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});

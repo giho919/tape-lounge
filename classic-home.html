@@ -132,7 +132,7 @@ canvas { display:block; }
 .chatTime { float:right; margin:3px 0 2px 9px; color:#929aa9; font:10px Menlo,monospace; }
 #chatJump { align-self:center; margin:4px 12px 8px; padding:7px 15px; border:1px solid var(--gold-dim); border-radius:20px; background:rgba(212,175,55,.08); color:var(--gold); font-size:11px; cursor:pointer; }
 #chatJump[hidden] { display:none; }
-#chatJump:focus-visible,.loungeGuide summary:focus-visible { outline:2px solid var(--gold); outline-offset:-3px; }
+#chatJump:focus-visible { outline:2px solid var(--gold); outline-offset:-3px; }
 @keyframes fadein { from { opacity:0; transform:translateY(6px); } }
 .msg .who { font-weight:700; margin-right:6px; }
 .msg button.crewName { appearance:none; background:none; border:0; border-bottom:1px dotted currentColor; border-radius:0; padding:2px 0; font:inherit; font-weight:700; line-height:inherit; cursor:pointer; }
@@ -433,13 +433,6 @@ body.shake { animation:shake .5s; }
 .racePct { text-align:right; font:700 10.5px Menlo,monospace; }
 .raceFoot { display:flex; justify-content:space-between; padding:6px 14px 12px; border-top:1px solid var(--line); font-size:9.5px; color:var(--dim); }
 
-.loungeGuide { margin:0 0 12px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:#aeb6c5; }
-.loungeGuide summary { padding:11px 14px; font-size:11px; cursor:pointer; color:var(--gold); }
-.loungeGuide summary span { margin-left:10px; color:var(--dim); font-size:10px; }
-.loungeGuideGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; padding:2px 15px 14px; }
-.loungeGuideGrid b { display:block; color:#d9dde7; font-size:12px; margin-bottom:5px; font-weight:600; }
-.loungeGuideGrid p { font-size:11px; line-height:1.75; margin:0; }
-@media(max-width:600px){ .loungeGuideGrid{grid-template-columns:1fr;gap:12px}.loungeGuide summary span{margin-left:5px} }
 @media (max-width:900px){ .pitStage{grid-template-columns:78px 1fr 118px}.pitScene{width:68px;height:68px;font-size:35px} }
 @media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorCard{min-height:0} }
 
@@ -777,15 +770,6 @@ body.shake { animation:shake .5s; }
   <div class="tile"><div class="l">BTC 도미넌스</div><div class="v num" id="dom">—</div><div class="s">시총 점유율</div></div>
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
-
-<details class="loungeGuide">
-  <summary>라운지 안내 <span>처음 오셨다면, 이 세 가지만</span></summary>
-  <div class="loungeGuideGrid">
-    <div><b>01 · 레이스부터</b><p>코인 경마장에서 여러 종목의 5분 움직임을 비교하고, 세션 챔피언십에서 아시아·유럽·미국장을 확인해 보세요.</p></div>
-    <div><b>02 · 숫자보다 맥락</b><p>청산은 빌린 돈으로 잡은 포지션이 강제로 정리된 금액이에요. 체결의 비는 실제 거래, 호가창은 아직 체결되지 않은 주문이에요. 큰 움직임 하나만으로 다음 방향이 정해지지는 않아요.</p></div>
-    <div><b>03 · 편하게 참여하기</b><p>채팅의 AI 배지는 라운지 크루를 뜻해요. 궁금한 점이나 시장을 보며 든 생각을 남겨도 좋아요. 모의투자는 가짜 돈으로 하는 연습이며, 실제 주문은 나가지 않아요.</p></div>
-  </div>
-</details>
 
 <section class="spectatorFloor" aria-label="실시간 시장 관전 카지노">
   <div class="pitStage" id="pitStage">

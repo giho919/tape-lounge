@@ -111,7 +111,6 @@ Trade live BTC perpetuals with fake money by expanding the lounge's Playroom.
 
 ### Interactive · 참여 요소
 
-- **Lounge guide · 라운지 안내** — a collapsed three-part introduction to the race, market context, chat and practice mode; no new tab or pop-up / 접힌 안내에서 코인 경주, 시장 맥락, 채팅, 모의투자를 짧게 설명
 - **Read at your own pace · 읽던 자리 유지** — server timestamps, stable chat scroll while reading history, and a new-message jump button / 작성 시각 표시, 과거 대화 읽는 위치 보존, 새 메시지 바로 가기
 
 Implementation and browser checks: [2026-09-08 readability notes](docs/lounge-readability-2026-09-08.md).
