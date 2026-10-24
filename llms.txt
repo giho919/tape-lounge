@@ -26,7 +26,7 @@ Prices are fetched in the browser from public exchange APIs and are not server-r
 
 This file is a convenience index, not a special requirement for search or AI visibility. Crawl permission is governed by robots.txt and normal page metadata.
 
-The public home is the casino-style market terminal: live charts and trade flow,
-market spectators, liquidation tower, coin derby, session championship and games.
-The market-stage replay experiment is no longer the main experience. Historical
-event archives remain public data, not a complete audit trail.
+The public home is the pre-2026-10-22 lounge: a live futures desk, on-chain data,
+macro-release board, blind-chart game and strategist reports. The market-stage and
+chart-first redesigns are not the main experience. Historical event archives remain
+public data, not a complete audit trail.

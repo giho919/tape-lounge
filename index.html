@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
 <base href="/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://tapelounge.com/">
-<script src="/terminal-nav.js" defer></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tape Lounge — 실시간 시장 라운지</title>
-<meta name="description" content="실시간 시장과 체결을 관전하고, 차트·청산 타워·세션 챔피언십·블라인드 게임을 즐기는 Tape Lounge.">
+<title>Tape Lounge</title>
+<meta name="description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
 <meta property="og:site_name" content="Tape Lounge">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tapelounge.com/">
-<meta property="og:title" content="Tape Lounge — 실시간 시장 라운지">
-<meta property="og:description" content="실시간 체결을 관전하고 차트와 시장 게임을 즐기는 암호화폐 라운지.">
+<meta property="og:title" content="Tape Lounge">
+<meta property="og:description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
 <meta property="og:image" content="https://tapelounge.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -31,7 +30,7 @@
 <script src="chart-analysis.js?v=20261010c" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
-<script src="domestic.js?v=20261022a" defer></script>
+<script src="domestic.js?v=20260911f" defer></script>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://s.tradingview.com; connect-src 'self' wss://api.upbit.com wss://ws-api.bithumb.com https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.bybit.com https://www.okx.com https://api.gateio.ws https://api.bitget.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -780,7 +779,6 @@ body.shake { animation:shake .5s; }
 @media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
 <link rel="stylesheet" href="strategists.css?v=20260909">
-<link rel="stylesheet" href="lounge-v2.css?v=20261022a">
 </head>
 <body>
 <div class="wrap">
@@ -1484,7 +1482,6 @@ body.shake { animation:shake .5s; }
   <details id="crewRecent"><summary>최근 발언 보기</summary><p class="crewRecentNote">명함을 열 때 불러온 대화 중 최신 3개 · 한국시간<br>전체 발언 기록은 아니에요.</p><ul id="crewQuotes"></ul><p id="crewEmpty" hidden>불러온 대화에 이 크루의 발언이 아직 없어요.</p></details>
   <p class="crewDisclaimer" id="crewDisclaimer">공개 자료를 바탕으로 대화하는 AI예요. 실제 투자자나 투자 자문가가 아니며, 발언에 오류가 있을 수 있어요.</p>
 </dialog>
-<script src="lounge-v2.js?v=20261022a"></script>
 <script>
 const $ = id => document.getElementById(id);
 const fmt = (n, d=0) => n.toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d});
@@ -1495,9 +1492,8 @@ const tabLive = name => activeTab === name && !document.hidden;
 // ═══ 탭별 주소 ═══
 // 라운지는 hash 없음(루트 URL 유지), 나머지는 #슬러그.
 // hash 를 쓰면 정적 호스팅 그대로 동작하고 뒤로가기도 브라우저가 알아서 처리한다.
-const TAB_SLUG = { lounge:'', domestic:'market', desk:'desk', analysis:'analysis', chain:'onchain', macro:'calendar', game:'blind', chars:'research' };
+const TAB_SLUG = { lounge:'', domestic:'domestic', desk:'desk', analysis:'analysis', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
 const SLUG_TAB = Object.fromEntries(Object.entries(TAB_SLUG).filter(([,v]) => v).map(([k,v]) => [v, k]));
-Object.assign(SLUG_TAB, {domestic:'domestic',strategists:'chars'});
 let applyingHash = false;
 
 function selectTab(t, fromHash = false) {
@@ -1534,7 +1530,6 @@ function selectTab(t, fromHash = false) {
   if (typeof syncChat === 'function') syncChat();   // 라운지 이탈/복귀 시 채팅 회선 정리
   if (typeof siteAnalyticsTabEntered === 'function') siteAnalyticsTabEntered();
   if (typeof syncRuntimeState === 'function') syncRuntimeState();
-  window.dispatchEvent(new CustomEvent('tl:tab', {detail:{tab:activeTab}}));
 }
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => selectTab(t);
@@ -1573,26 +1568,6 @@ setTimeout(applyTabFromHash, 0);
 })();
 
 let usd = 0, krw = 0, usdKrw = 0, usdtKrw = 0, kimchi = null;
-let lastBtcDisplayQuoteAt = 0, lastEthDisplayQuoteAt = 0;
-window.addEventListener('tl:quotes', event => {
-  const {quotes, at} = event.detail || {};
-  if (!quotes || !Number.isFinite(at) || Date.now()-at > 120000 || !tabLive('lounge')) return;
-  const btc = quotes.BTC, eth = quotes.ETH;
-  if (btc && Date.now()-lastBtcDisplayQuoteAt > 10000) {
-    usd = btc.price;
-    $('btcUsd').textContent = '$ ' + fmt(btc.price,0);
-    $('btcUsd').title = 'Binance 현물 · 60초 조회 · '+new Date(at).toLocaleTimeString('ko-KR');
-    setFlap(fmt(btc.price,1));
-    $('liveChg').textContent = (btc.change>=0?'+':'')+btc.change.toFixed(2)+'% (24h)';
-    $('liveChg').className = 'num '+(btc.change>=0?'up':'dn');
-    updateKimchi();
-  }
-  if (eth && Date.now()-lastEthDisplayQuoteAt > 10000) {
-    $('ethPx').textContent = fmt(eth.price,2);
-    $('ethChg').textContent = (eth.change>=0?'+':'')+eth.change.toFixed(2)+'% (24h)';
-    $('ethChg').className = 'num '+(eth.change>=0?'up':'dn');
-  }
-});
 
 // ═══ 김프 게이지 ═══
 const gctx = $('gauge').getContext('2d');
@@ -1626,7 +1601,7 @@ function drawGauges() {
   drawArcGauge(fngCtx, fngNeedleNow, 0, 100, [[0,'0'],[25,'25'],[50,'50'],[75,'75'],[100,'100']], [[0,'#f87171'],[.48,'#d4af37'],[1,'#4ade80']]);
   if (Math.abs(needleTarget-needleNow)>.01 || Math.abs(fngNeedleTarget-fngNeedleNow)>.01) gaugeRaf = requestAnimationFrame(drawGauges);
 }
-function startGauges() { if (!document.body.classList.contains('lounge-v2') && !gaugeRaf && tabLive('lounge')) gaugeRaf = requestAnimationFrame(drawGauges); }
+function startGauges() { if (!gaugeRaf && tabLive('lounge')) gaugeRaf = requestAnimationFrame(drawGauges); }
 startGauges();
 function updateKimchi() {
   if (!usd || !krw || !usdKrw) return;
@@ -2165,23 +2140,16 @@ async function seedAll() {
   renderBtcMarkers();
 }
 
-let wsChart = null, wsChartF = null, spotChartTickAt = 0, futuresChartTickAt = 0, chartFallbackAt = Date.now();
-window.addEventListener('tl:quotes', () => {
-  if (!tabLive('lounge') || Date.now()-chartFallbackAt<55000) return;
-  const last = caroIdx===2 ? futuresChartTickAt : spotChartTickAt;
-  if (Date.now()-last<20000) return;
-  chartFallbackAt=Date.now();
-  seedChart(caroIdx);
-});
+let wsChart = null, wsChartF = null;
 function connectChartWS() {
   if (!tabLive('lounge')) return;
   if (wsChart) { wsChart.onmessage = null; try { wsChart.close(); } catch(e) {} }
   if (wsChartF) { wsChartF.onmessage = null; try { wsChartF.close(); } catch(e) {} }
   const tf = chartTf;
   wsChart = new WebSocket(`wss://stream.binance.com:9443/stream?streams=btcusdt@kline_${tf}/ethusdt@kline_${tf}/qqqbusdt@kline_${tf}`);
-  wsChart.onmessage = ev => { if (!tabLive('lounge')) return; spotChartTickAt=Date.now(); const { stream, data } = JSON.parse(ev.data); handleChartK(stream, data.k); };
+  wsChart.onmessage = ev => { if (!tabLive('lounge')) return; const { stream, data } = JSON.parse(ev.data); handleChartK(stream, data.k); };
   wsChartF = new WebSocket(`wss://fstream.binance.com/stream?streams=btcdomusdt@kline_${tf}`);
-  wsChartF.onmessage = ev => { if (!tabLive('lounge')) return; futuresChartTickAt=Date.now(); const { stream, data } = JSON.parse(ev.data); handleChartK(stream, data.k); };
+  wsChartF.onmessage = ev => { if (!tabLive('lounge')) return; const { stream, data } = JSON.parse(ev.data); handleChartK(stream, data.k); };
 }
 function disconnectChartWS() {
   for (const socket of [wsChart, wsChartF]) if (socket) { socket.onmessage = null; socket.onclose = null; try { socket.close(); } catch(e) {} }
@@ -2233,7 +2201,6 @@ function handleChartK(stream, k) {
   }
   if (i === 0) { $('cd').textContent = cdTxt(k.T - Date.now()); lastBtcKt = k.t; lastBtcClose = +k.c; checkTreasure(k); paperTick(+k.c); }
   if (i === 1) {
-    lastEthDisplayQuoteAt=Date.now();
     $('ethPx').textContent = fmt(+k.c, 1);
     if (ethOpen) {
       const chg = (+k.c/ethOpen - 1) * 100;
@@ -2372,10 +2339,9 @@ function sampleEffectLoad(now) {
 const drops = [], rings = [];
 let rainRaf = null;
 let buyVol = 0, sellVol = 0;  // 60초 수급
-function startRain() { if (window.loungeSpectating?.() && !rainRaf && tabLive('lounge')) rainRaf = requestAnimationFrame(drawRain); }
-function addRainRing(ring) { if (!window.loungeSpectating?.()) return; rings.push(ring); startRain(); }
+function startRain() { if (!rainRaf && tabLive('lounge')) rainRaf = requestAnimationFrame(drawRain); }
+function addRainRing(ring) { rings.push(ring); startRain(); }
 function spawnDrop(valUsd, isBuy, isWhale = valUsd >= 500000) {
-  if (!window.loungeSpectating?.()) return;
   if (!tabLive('lounge')) return;
   const r = Math.max(1.5, Math.min(30, Math.pow(valUsd, 0.38) / 5));
   const half = rain.width / 2;
@@ -2409,7 +2375,7 @@ function rainIntroClose() {
 window.rainIntroClose = rainIntroClose;
 function drawRain() {
   rainRaf = null;
-  if (!tabLive('lounge') || !window.loungeSpectating?.()) return;
+  if (!tabLive('lounge')) return;
   rctx.clearRect(0,0,rain.width,rain.height);
   // 중앙 분리선
   rctx.strokeStyle = 'rgba(35,40,56,.8)'; rctx.setLineDash([3,5]);
@@ -2644,7 +2610,7 @@ const analyticsReferrerHost = (() => {
 
 // ── 운영자/내부 트래픽 표시 ──
 // ?internal=1 로 한 번 켜두면 이 브라우저는 계속 내부로 집계된다 (?internal=0 으로 해제).
-let analyticsInternal = new URLSearchParams(location.search).get('internal') === '1';
+let analyticsInternal = false;
 try {
   const q = new URLSearchParams(location.search).get('internal');
   if (q === '1') localStorage.setItem('tapeInternal', '1');
@@ -2852,10 +2818,7 @@ function sayUser(nick, body, authorType = 'human', agentKey = null, createdAt = 
       ? `<span class="crewAva" aria-hidden="true">${CHAT_CREW_ICON[agentKey]}</span>` : '';
   const tag = virtual
     ? `<span class="aiTag${official ? ' official' : ''}" title="AI가 생성한 공개 시장 대화">${official ? '공식 전략가 · AI' : '라운지 크루 · AI'}</span>` : '';
-  const sceneMatch = String(body || '').match(/^\[tl-scene:([a-f0-9]{16})\]\s*/);
-  const sceneLink = sceneMatch ? `<a href="/ko/?scene=${sceneMatch[1]}">↳ 장면 기록</a> ` : '';
-  const visibleBody = sceneMatch ? String(body).slice(sceneMatch[0].length) : body;
-  m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${sceneLink}${esc(visibleBody)}</span>`;
+  m.innerHTML = `${ava}<span class="who" style="color:${nickColor(nick)}">${esc(nick)}</span>${tag}<span class="body">${esc(body)}</span>`;
   if (virtual && Object.hasOwn(CREW_PROFILES, agentKey)) {
     const name = document.createElement('button');
     name.type = 'button'; name.className = 'who crewName'; name.style.color = nickColor(nick);
@@ -2979,7 +2942,7 @@ syncChat();
 renderNick();
 
 
-function spotlight(){ if (!window.loungeSpectating?.()) return; const s=$('spot'); s.classList.remove('go'); void s.offsetWidth; s.classList.add('go'); }
+function spotlight(){ const s=$('spot'); s.classList.remove('go'); void s.offsetWidth; s.classList.add('go'); }
 
 // ═══ split-flap 가격 ═══
 let lastFlap = '', lastFlapT = 0;
@@ -3005,9 +2968,9 @@ const fxP = [];
 function sizeFx(){ fx.width = innerWidth; fx.height = innerHeight; if (typeof startFx === 'function' && fxP?.length) startFx(); }
 sizeFx(); window.addEventListener('resize', sizeFx);
 let fxRaf = null;
-function startFx() { if (window.loungeSpectating?.() && !fxRaf && tabLive('lounge') && fxP.length) fxRaf = requestAnimationFrame(drawFx); }
+function startFx() { if (!fxRaf && tabLive('lounge') && fxP.length) fxRaf = requestAnimationFrame(drawFx); }
 function fxBurst({up=true, count=80, colors=['74,222,128'], gravity=0.12, speed=9}) {
-  if (!tabLive('lounge') || !window.loungeSpectating?.()) return;
+  if (!tabLive('lounge')) return;
   count = Math.max(12, Math.round(count * effectQuality));
   for (let i=0; i<count; i++) {
     fxP.push({
@@ -3027,7 +2990,7 @@ function fxBurst({up=true, count=80, colors=['74,222,128'], gravity=0.12, speed=
 }
 function drawFx(now = performance.now()){
   fxRaf = null;
-  if (!tabLive('lounge') || !window.loungeSpectating?.()) return;
+  if (!tabLive('lounge')) return;
   sampleEffectLoad(now);
   fctx.clearRect(0,0,fx.width,fx.height);
   for (let i=fxP.length-1; i>=0; i--) {
@@ -3045,7 +3008,6 @@ function drawFx(now = performance.now()){
 }
 let bannerTimer = null;
 function fxBanner(html, color) {
-  if (!window.loungeSpectating?.()) return;
   const b = $('fxBanner');
   b.innerHTML = html; b.style.color = color;
   b.classList.add('show');
@@ -3053,14 +3015,13 @@ function fxBanner(html, color) {
   bannerTimer = setTimeout(()=>b.classList.remove('show'), 2000);
 }
 function vign(color) {
-  if (!window.loungeSpectating?.()) return;
   const v = $('vign');
   v.style.background = `radial-gradient(ellipse at center, transparent 55%, ${color} 130%)`;
   v.style.opacity = .8;
   setTimeout(()=>v.style.opacity = 0, 600);
 }
-function shakeScreen(){ if (!window.loungeSpectating?.()) return; document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'), 550); }
-function neonBlast(){ if (!window.loungeSpectating?.()) return; document.body.classList.remove('neon'); void document.body.offsetWidth; document.body.classList.add('neon'); setTimeout(()=>document.body.classList.remove('neon'),1900); }
+function shakeScreen(){ document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'), 550); }
+function neonBlast(){ document.body.classList.remove('neon'); void document.body.offsetWidth; document.body.classList.add('neon'); setTimeout(()=>document.body.classList.remove('neon'),1900); }
 
 // 장대봉/돌파 감지 상태
 const bodyHist = [], hiHist = [], loHist = [];
@@ -3577,7 +3538,7 @@ function finishRace() {
 buildRace(); renderRace();
 let wsRace = null;
 function connectRaceWS() {
-  if (!tabLive('lounge') || !window.loungeSpectating?.() || wsRace) return;
+  if (!tabLive('lounge') || wsRace) return;
   wsRace = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
   wsRace.onmessage = ev => {
     if (!tabLive('lounge')) return;
@@ -3682,9 +3643,7 @@ function queueMarketUi(px, isBuy) {
     const next = pendingMarketUi; pendingMarketUi = null;
     if (!next || !tabLive('lounge')) return;
     const {px,isBuy} = next;
-    lastBtcDisplayQuoteAt=Date.now();
     $('btcUsd').textContent = '$ ' + fmt(px, 0);
-    $('btcUsd').title = 'Binance 현물 · 실시간 체결';
     setFlap(fmt(px, 1));
     $('livePx').style.color = isBuy ? 'var(--grn)' : 'var(--red)';
     if (dayOpen) {

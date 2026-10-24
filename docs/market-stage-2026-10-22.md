@@ -1,8 +1,7 @@
 # Market stage — 2026-10-22 (superseded)
 
-The owner later asked to roll the public homepage back to the casino-style terminal.
-The root now mirrors `/terminal/`; this experiment remains in git history and the
-localized discovery pages, but is no longer the main experience.
+The owner later asked to restore the pre-redesign homepage. This experiment remains
+in git history and the localized discovery pages, but is no longer the main experience.
 
 Supersedes the paper/ink home reviewed earlier today. No trading, model, messaging,
 account/order services or database policies were changed.

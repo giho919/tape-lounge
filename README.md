@@ -5,17 +5,16 @@
 
 **Live** → https://tapelounge.com
 
-**2026-10-22 rollback:** the public root is the original casino-style market terminal
-with spectators, liquidation tower, coin derby, session championship, live charts
-and games. The localized research pages and report URLs remain available. The market
-stage is no longer the main entry point and the hourly publisher will preserve this.
+**2026-10-25 rollback:** the public root is restored to the lounge that preceded the
+2026-10-22 redesign: live futures desk, on-chain data, macro-release board, blind-chart
+game and strategist reports. The locale research pages and report URLs remain available.
+The hourly publisher reads `classic-home.html`, so it cannot replace the original lounge.
 
-A **buildless static frontend with a stdlib static-page generator**. The casino
-terminal runs at `/` and `/terminal/`; localized discovery and research pages remain
-at their existing routes. Live data use public browser APIs. Supabase continues to
-provide chat, shared market events and privacy-first aggregate analytics. Chat
-authentication runs only when a visitor chooses to send, under the existing
-CAPTCHA/RLS contract.
+A **buildless static frontend with a stdlib static-page generator**. The pre-redesign
+lounge runs at `/`, `/ko/`, and `/terminal/` (the latter is a non-indexed copy); localized
+discovery pages remain available. Live data use public browser APIs. Supabase continues
+to provide chat, shared market events and privacy-first aggregate analytics. Chat
+authentication runs only when a visitor chooses to send, under the existing CAPTCHA/RLS contract.
 
 ### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
 

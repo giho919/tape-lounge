@@ -1,11 +1,13 @@
 # Discovery-led redesign · 2026-10-22
 
-The editorial presentation was superseded by a chart-first market stage, then the
-owner asked to restore the casino-style terminal at the public root. This document
-retains the research and SEO architecture history; the casino terminal is current.
+The editorial presentation and chart-first market stage were superseded after the
+owner asked to restore the pre-redesign lounge at `/`, `/ko/`, and `/terminal/`. The
+original page is preserved as `classic-home.html`; this document retains the redesign
+research and SEO architecture history.
 
-This supersedes the earlier same-day presentation at the site front door. Existing
-tools remain at `/terminal/` with a root base URL; published report URLs do not move.
+This supersedes the earlier same-day presentation at the site front door. The previous
+lounge is served at `/` and `/ko/`, with a non-indexed copy at `/terminal/`; published
+report URLs do not move.
 No strategy, order, training, Telegram or crew scheduling changes are involved.
 
 ## Reference review, not an imitation or a traffic claim

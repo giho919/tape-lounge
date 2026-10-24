@@ -124,7 +124,7 @@ def render(lang, page, data, letters, generated, root=False):
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','terminal/index.html'] + ASSETS
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
@@ -134,6 +134,7 @@ def build(force=False):
     pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
     for lang in LANGS:
         for page in pages:
+            if lang=='ko' and page=='':continue
             write(url(lang,page).strip('/')+'/index.html',render(lang,page,data,letters,generated))
         rss=Element('rss',version='2.0'); channel=SubElement(rss,'channel')
         for key,val in [('title','Tape Lounge'),('link',BASE+url(lang)),('description',COPY[lang]['intro']),('language',lang)]:
@@ -146,17 +147,18 @@ def build(force=False):
             for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate','Thu, 22 Oct 2026 00:00:00 +0000')]:
                 SubElement(item,key).text=val
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
-    # The public root is the existing casino-style terminal. Localized discovery
-    # routes stay available; an hourly content build must not replace the main lounge.
-    terminal=(ROOT/'terminal/index.html').read_text(encoding='utf-8')
-    terminal=terminal.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
-    terminal=terminal.replace('<title>Tape Lounge Terminal — Charts & Community</title>','<title>Tape Lounge — 실시간 시장 라운지</title>',1)
-    terminal=terminal.replace('<meta name="description" content="시장에 없던 사이 달라진 것부터. 실시간 차트와 관심 코인, Andy의 후보 발굴과 이후 관찰 기록을 한 곳에서 확인하세요.">','<meta name="description" content="실시간 시장과 체결을 관전하고, 차트·청산 타워·세션 챔피언십·블라인드 게임을 즐기는 Tape Lounge.">',1)
-    terminal=terminal.replace('<meta property="og:title" content="Tape Lounge">','<meta property="og:title" content="Tape Lounge — 실시간 시장 라운지">',1)
-    terminal=terminal.replace('<meta property="og:description" content="시장의 변화와 다음 관찰. 관심 코인, 실시간 차트, Andy 후보의 이후 기록을 확인하는 크립토 라운지.">','<meta property="og:description" content="실시간 체결을 관전하고 차트와 시장 게임을 즐기는 암호화폐 라운지.">',1)
-    terminal=terminal.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="index,follow">\n<link rel="canonical" href="https://tapelounge.com/">',1)
-    write('index.html',terminal)
-    write('ko/index.html',terminal)
+    # Keep the pre-redesign lounge as the public home while the hourly discovery
+    # build refreshes localized research pages. The source snapshot is intentional.
+    classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
+    viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
+    if '<head>' not in classic or viewport not in classic:
+        raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
+    classic=classic.replace('<head>','<head>\n<base href="/">',1)
+    classic=classic.replace(viewport,viewport+'\n<meta name="robots" content="index,follow">\n<link rel="canonical" href="https://tapelounge.com/">',1)
+    write('index.html',classic)
+    write('ko/index.html',classic)
+    terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
+    write('terminal/index.html',terminal)
     write('data/discovery.json',json.dumps({'schema':1,'sourceHash':fingerprint,'generatedAt':generated,'reportAt':data['reportAt'],'coverage':data['coverage'],'candidates':data['candidates'],'letters':letters,'copy':COPY,'stages':STAGES},ensure_ascii=False,separators=(',',':'))+'\n')
     sitemap=Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     root_entry=SubElement(sitemap,'url');SubElement(root_entry,'loc').text=BASE+'/'
