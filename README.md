@@ -51,7 +51,7 @@ Read the market's *now* on a single screen.
 The market plays the game; visitors watch the tension build and the result settle.
 시장이 스스로 판을 벌이고, 방문자는 긴장과 결과 확정의 순간을 관전합니다.
 
-- **Pit Boss · 핏 보스** — automatically promotes the hottest live scene among tape pressure, whale fills, liquidations, breakouts, and the coin race / 체결 압력·고래·청산·돌파·경마 중 가장 뜨거운 판을 자동으로 메인 무대에 올림
+- **Market Context · 주요 시장 정보** — slowly rotates between BTC global/KRW price, KRW basis, sentiment with BTC dominance, and funding; values reuse the lounge's existing feeds, with manual controls and pause-on-focus / BTC 글로벌·원화 가격, 원화 프리미엄, 심리·도미넌스, 펀딩비를 15초마다 순환 표시하며 기존 데이터만 재사용하고 직접 넘기기·포커스 시 정지 지원
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
 - **Session Championship · 세션 챔피언십** — Asia (08–16 KST), Europe (16–22), and U.S. (22–08) ranked by signed session return, with realized range used only as a tie-breaker; a five-minute REST snapshot with no socket of its own / 아시아·유럽·미국장을 부호 있는 세션 수익률로 비교하고 동률일 때만 변동폭으로 순위를 정하며, 전용 회선 없이 5분 REST 스냅샷으로 갱신
 - **Market event ledger · 시장 이벤트 장부** — the 24/7 collector retains events in Supabase for chart annotations and operational history; recent liquidation clusters remain visible on the BTC chart / 24시간 수집기가 Supabase에 이벤트를 보관해 차트 표식과 운영 이력에 사용합니다. 최근 청산 묶음은 BTC 차트에 표시합니다.
@@ -162,7 +162,6 @@ Major U.S. releases become a watchable sequence: countdown, official settlement,
 - **Official countdown · 공식 카운트다운** — BLS, BEA, and Federal Reserve schedules rendered in KST / BLS·BEA·Fed 일정을 한국시간으로 표시
 - **Previous → actual · 이전 → 실제** — BLS actuals are confirmed only after the official series updates; no paid consensus data / BLS 공식 시계열 갱신 후에만 실제치 확정, 유료 컨센서스 미사용
 - **BTC aftershock · BTC 여진계** — 5, 15, and 60-minute BTC returns from the scheduled release minute / 발표 예정 시각 기준 BTC 5·15·60분 반응
-- **Pit Boss integration · 핏 보스 연동** — live tape, whale, liquidation, breakout and race alerts / 체결·고래·청산·돌파·레이스 실시간 알림
 - **Static data pipeline · 정적 데이터 파이프라인** — `econ_calendar_report.py` builds `reports/econ_calendar.json`; server cron may publish it without exposing any secret key / 스크립트가 정적 JSON을 만들며 시크릿 키 없이 자동 발행 가능
 
 Official free sources do not provide a market-consensus estimate, so the Lounge intentionally shows previous versus actual instead of scraping a commercial calendar.

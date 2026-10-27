@@ -53,24 +53,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 0 12px; border-bottom:1px solid var(--gold-dim); }
 .brand { font-family:Georgia,serif; font-size:22px; letter-spacing:6px; color:var(--gold); }
 .brand small { display:block; font-size:9px; letter-spacing:4px; color:var(--dim); margin-top:2px; }
-/* 다른 자리 안내 — 탭 바를 거의 누르지 않는다는 이용 분석 결과에 대한 대응 */
-.rooms { margin-top:14px; }
-.rooms h3 { font-size:11px; letter-spacing:3px; color:var(--gold); font-weight:600; margin:0 0 3px; }
-.rooms .roomsLead { font-size:11.5px; color:var(--dim); margin:0 0 11px; }
-.roomGrid { display:grid; grid-template-columns:repeat(5,1fr); gap:9px; }
-.roomCard { display:flex; flex-direction:column; gap:5px; text-align:left; padding:13px 14px;
-  background:var(--panel); border:1px solid var(--line); border-radius:10px; cursor:pointer;
-  font:inherit; color:inherit; transition:border-color .15s; }
-.roomCard:hover, .roomCard:focus-visible { border-color:var(--gold-dim); outline:none; }
-.roomCard b { font-size:13px; color:#e7ebf2; font-weight:650; }
-.roomCard span { font-size:11.5px; color:var(--dim); line-height:1.5; }
-.roomCard em { font-style:normal; font-size:10.5px; color:var(--gold); letter-spacing:.5px; }
-@media(max-width:900px){ .roomGrid{ grid-template-columns:repeat(2,1fr); } }
-@media(max-width:420px){ .roomGrid{ grid-template-columns:1fr; } }
-
-/* 측면 인덱스 — 서류첩 책갈피. 화면 오른쪽에 고정돼 스크롤과 무관하게 늘 같은 자리에 있다.
-   상단 탭바는 라운지를 보는 동안 시야 밖으로 밀려났고, 라운지 맨 아래 "다른 자리" 안내는
-   그 위의 카지노·차트·채팅·캔버스를 다 지나야 나와서 실제로 도달한 사람이 없었다. */
+/* 측면 인덱스 — 화면 오른쪽에 고정돼 스크롤 중에도 탭을 바로 전환한다. */
 .tabsWrap { position:fixed; top:50%; right:max(0px, calc((100vw - 1500px) / 2));
   transform:translateY(-50%); z-index:34; }
 .tabs { display:flex; flex-direction:column; gap:2px; align-items:stretch; }
@@ -401,22 +384,25 @@ body.shake { animation:shake .5s; }
 .gbtn.sell.solid { background:linear-gradient(160deg,#f87171,#d43f3f); border-color:transparent; color:#2a0a0a; font-weight:800; }
 .gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 
-/* ═══ 관전 카지노 ═══ */
+/* ═══ 주요 시장 정보 로테이션 · 세션 관전석 ═══ */
 .spectatorFloor { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
-.pitStage { position:relative; min-height:142px; display:grid; grid-template-columns:118px 1fr 180px; align-items:center; gap:18px; padding:18px 20px; overflow:hidden;
-  border:1px solid var(--gold-dim); border-radius:14px; background:radial-gradient(circle at 7% 45%,rgba(212,175,55,.16),transparent 25%),linear-gradient(115deg,#171510,#12151c 52%,#10141c); }
-.pitStage:after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.55; background:linear-gradient(90deg,transparent 0 46%,rgba(255,255,255,.025) 50%,transparent 54% 100%); transform:translateX(-100%); animation:pitSweep 6s linear infinite; }
-@keyframes pitSweep { to { transform:translateX(100%); } }
-.pitScene { position:relative; z-index:1; width:96px; height:96px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:48px; border:1px solid var(--gold-dim); background:rgba(10,12,16,.75); box-shadow:0 0 28px rgba(212,175,55,.12); }
-.pitKicker { font-size:9.5px; letter-spacing:3px; color:var(--gold); }
-.pitTitle { margin-top:5px; font:700 clamp(19px,2.1vw,29px) Georgia,serif; color:#f4e6b6; }
-.pitCopy { margin-top:7px; font-size:12.5px; line-height:1.6; color:#bfc3cd; }
-.pitMeta { position:relative; z-index:1; text-align:right; }
-.pitTag { display:inline-block; padding:5px 10px; border:1px solid var(--gold-dim); border-radius:20px; font-size:9px; letter-spacing:1.5px; color:var(--gold); background:#0a0c10; }
-.pitClock { margin-top:9px; font:700 24px Menlo,monospace; color:#fff; }
-.pitClock small { display:block; margin-top:2px; font:400 9px sans-serif; letter-spacing:1px; color:var(--dim); }
-.pitGauge { height:4px; margin-top:10px; border-radius:3px; overflow:hidden; background:var(--line); }
-.pitGauge i { display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold)); transition:width .6s linear; }
+.marketContext { padding:16px 19px 13px; border:1px solid var(--gold-dim); border-radius:14px;
+  background:linear-gradient(112deg,rgba(212,175,55,.075),var(--panel) 43%,#10141c); }
+.marketContextHead { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.contextKicker { color:var(--gold); font-size:9px; letter-spacing:2.4px; }
+.contextTitle { margin:5px 0 0; color:#e8dfc4; font-size:15px; font-weight:600; letter-spacing:.3px; }
+.contextBody { display:grid; grid-template-columns:minmax(170px,.65fr) minmax(0,1.35fr); align-items:end; gap:22px; margin-top:15px; }
+.contextMetricLabel { display:block; margin-bottom:4px; color:var(--dim); font-size:10px; letter-spacing:1px; }
+.contextMetricValue { display:block; color:#f1e7c9; font-size:clamp(24px,3vw,34px); font-weight:650; line-height:1.15; }
+.contextMetricDetail { display:block; margin-top:5px; color:#9ba2b0; font-size:11px; line-height:1.45; }
+.contextCopy { margin:0; color:#b8bdc7; font-size:12px; line-height:1.65; }
+.contextControls { display:flex; align-items:center; justify-content:flex-end; gap:7px; color:var(--dim); font:10px Menlo,monospace; }
+.contextNav { width:27px; height:27px; padding:0; border:1px solid var(--line); border-radius:7px; color:#d6d9df; background:#11151d; cursor:pointer; font:18px/1 sans-serif; }
+.contextNav:hover,.contextNav:focus-visible { color:var(--gold); border-color:var(--gold-dim); outline:none; }
+.contextDots { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:11px; }
+.contextDot { width:6px; height:6px; padding:0; border:0; border-radius:8px; background:#505564; cursor:pointer; transition:width .18s ease,background .18s ease; }
+.contextDot[aria-pressed="true"] { width:18px; background:var(--gold); }
+.contextDot:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .spectatorGrid { display:grid; grid-template-columns:1fr; gap:12px; }
 .spectatorCard { min-height:288px; }
 .spectatorCard h3 small { white-space:nowrap; }
@@ -436,8 +422,8 @@ body.shake { animation:shake .5s; }
 .racePct { text-align:right; font:700 10.5px Menlo,monospace; }
 .raceFoot { display:flex; justify-content:space-between; padding:6px 14px 12px; border-top:1px solid var(--line); font-size:9.5px; color:var(--dim); }
 
-@media (max-width:900px){ .pitStage{grid-template-columns:78px 1fr 118px}.pitScene{width:68px;height:68px;font-size:35px} }
-@media (max-width:620px){ .pitStage{grid-template-columns:54px 1fr;padding:15px}.pitScene{width:48px;height:48px;font-size:27px}.pitMeta{grid-column:1/-1;text-align:left;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.pitClock{margin:0;font-size:18px}.pitGauge{grid-column:1/-1;margin:0}.spectatorCard{min-height:0} }
+@media (max-width:620px){ .marketContext{padding:14px 14px 12px}.contextBody{grid-template-columns:1fr;gap:8px;margin-top:12px}.contextCopy{font-size:11.5px}.spectatorCard{min-height:0} }
+@media(prefers-reduced-motion:reduce){.contextDot{transition:none}}
 
 /* ═══ 오늘의 판 (공용 데일리 챌린지) ═══ */
 .bgModeRow { position:relative; z-index:8; display:flex; align-items:center; gap:6px; padding:0 15px 10px; background:var(--panel); }
@@ -774,20 +760,27 @@ body.shake { animation:shake .5s; }
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
 
-<section class="spectatorFloor" aria-label="실시간 시장 관전 카지노">
-  <div class="pitStage" id="pitStage">
-    <div class="pitScene" id="pitScene" aria-hidden="true">🎩</div>
-    <div style="position:relative;z-index:1">
-      <div class="pitKicker">PIT BOSS · LIVE TABLE DIRECTOR</div>
-      <div class="pitTitle" id="pitTitle">메인 테이블을 고르는 중</div>
-      <div class="pitCopy" id="pitCopy">체결 흐름과 코인 레이스를 훑고 있습니다.</div>
+<section class="spectatorFloor" aria-label="주요 시장 정보와 세션 관전석">
+  <section class="marketContext" id="marketContext" aria-roledescription="carousel" aria-label="주요 시장 정보">
+    <div class="marketContextHead">
+      <div><div class="contextKicker">MARKET CONTEXT · 주요 시장 정보</div><h3 class="contextTitle" id="marketContextTitle">비트코인 기준점</h3></div>
+      <div class="contextControls" aria-label="정보 넘기기">
+        <button type="button" class="contextNav" id="marketContextPrev" aria-label="이전 정보">‹</button>
+        <span id="marketContextPosition">1 / 4</span>
+        <button type="button" class="contextNav" id="marketContextNext" aria-label="다음 정보">›</button>
+      </div>
     </div>
-    <div class="pitMeta">
-      <span class="pitTag" id="pitTag">SCANNING</span>
-      <div class="pitClock num" id="pitClock">--<small>다음 판정까지</small></div>
-      <div class="pitGauge"><i id="pitGauge"></i></div>
+    <div class="contextBody" id="marketContextSlide">
+      <div><span class="contextMetricLabel" id="marketContextLabel">BTC / USDT</span><strong class="contextMetricValue num" id="marketContextValue">—</strong><span class="contextMetricDetail" id="marketContextDetail">원화 환산 —</span></div>
+      <p class="contextCopy" id="marketContextCopy">글로벌 달러 가격과 국내 원화 가격을 함께 봅니다.</p>
     </div>
-  </div>
+    <div class="contextDots" role="group" aria-label="주요 시장 정보 선택">
+      <button type="button" class="contextDot" data-context-index="0" aria-label="1. 비트코인 기준점" aria-pressed="true"></button>
+      <button type="button" class="contextDot" data-context-index="1" aria-label="2. 원화 시장 가격차" aria-pressed="false"></button>
+      <button type="button" class="contextDot" data-context-index="2" aria-label="3. 시장 위험 선호" aria-pressed="false"></button>
+      <button type="button" class="contextDot" data-context-index="3" aria-label="4. 선물 포지셔닝 비용" aria-pressed="false"></button>
+    </div>
+  </section>
 
   <div class="panel sessionPanel" id="sessionPanel">
     <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 최근 한 바퀴 비교</small><b class="deckTrack" id="sessionBadge">LATEST</b></h3>
@@ -952,32 +945,6 @@ body.shake { animation:shake .5s; }
   </div>
   </div>
 
-  <nav class="rooms" aria-label="다른 자리">
-    <h3>다른 자리</h3>
-    <p class="roomsLead">라운지 말고도 방이 더 있습니다. 상단 탭으로도 갈 수 있습니다.</p>
-    <div class="roomGrid">
-      <button type="button" class="roomCard" data-goto="desk">
-        <em>📊 데스크</em><b>선물 시장을 뜯어봅니다</b>
-        <span>추세 정렬·주요 가격대·펀딩·호가까지 한 화면에서 교차 확인</span>
-      </button>
-      <button type="button" class="roomCard" data-goto="chain">
-        <em>⛓ 온체인</em><b>블록체인 위의 흔적</b>
-        <span>수수료·미결제·고래 이동 등 거래소 밖에서 벌어지는 일</span>
-      </button>
-      <button type="button" class="roomCard" data-goto="macro">
-        <em>📣 발표장</em><b>지표 발표 일정과 결과</b>
-        <span>CPI·고용·FOMC 등 시장을 흔드는 발표를 시간순으로</span>
-      </button>
-      <button type="button" class="roomCard" data-goto="game">
-        <em>🎰 블라인드</em><b>차트만 보고 맞혀보기</b>
-        <span>종목명을 가린 실제 과거 차트로 혼자 또는 여럿이</span>
-      </button>
-      <button type="button" class="roomCard" data-goto="chars">
-        <em>🎩 전략가들</em><b>세 명의 시장 의견</b>
-        <span>월간 국면 판정·매일 후보 발굴·자동 운용 장부를 매일 갱신</span>
-      </button>
-    </div>
-  </nav>
 </div>
 
 <!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
@@ -1427,12 +1394,6 @@ function selectTab(t, fromHash = false) {
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => selectTab(t);
   t.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTab(t); } };
-});
-
-// 라운지 하단 "다른 자리" 카드 → 해당 탭으로 (button 이라 키보드는 기본 동작)
-document.querySelectorAll('.roomCard[data-goto]').forEach(c => c.onclick = () => {
-  const t = document.querySelector(`.tab[data-tab="${c.dataset.goto}"]`);
-  if (t) { selectTab(t); window.scrollTo({ top:0, behavior:'smooth' }); }
 });
 
 // 주소의 hash → 탭. 첫 진입과 뒤로/앞으로 모두 여기로 들어온다.
@@ -2310,11 +2271,6 @@ setInterval(() => {
   if (tot > 0) {
     $('pB').style.width = (buyVol/tot*100) + '%';
     $('pS').style.width = (sellVol/tot*100) + '%';
-    const bp = buyVol/tot, edge = Math.abs(bp-.5);
-    if (edge >= .12) {
-      const buy = bp > .5;
-      pitSignal('pressure', Math.min(58,34+edge*80), buy?'🐂':'🐻', 'TAPE PRESSURE', `${buy?'매수':'매도'} 체결 압력 우세`, `최근 수급의 ${(Math.max(bp,1-bp)*100).toFixed(0)}%가 ${buy?'매수':'매도'} 쪽입니다.`, buy?'#4ade80':'#f87171');
-    }
   }
 }, 500);
 
@@ -2988,7 +2944,6 @@ function onCandleClose(k) {
       fxBanner(`▼ 장대음봉<small class="num">-${bodyPct.toFixed(2)}% / 1분</small>`, '#f87171');
       say('sys','', `🔻 <b class="dn">장대음봉</b> -${bodyPct.toFixed(2)}% (1분)`);
     }
-    pitSignal('candle', 94, up?'🚀':'🕳', 'CANDLE TABLE', `BTC 장대${up?'양봉':'음봉'} 출현`, `1분 몸통 ${up?'+':'-'}${bodyPct.toFixed(2)}% — 캔들 덱으로 카메라를 돌립니다.`, up?'#4ade80':'#f87171');
   }
   bodyHist.push(bodyPct); if (bodyHist.length > 30) bodyHist.shift();
   hiHist.push(h); if (hiHist.length > 60) hiHist.shift();
@@ -3004,7 +2959,6 @@ function checkBreakout(px) {
     vign('rgba(212,175,55,.35)');
     fxBanner(`▲ 60분 고점 돌파<small class="num">${fmt(px,0)}</small>`, '#d4af37');
     say('sys','', `⚡ <b class="gold">60분 고점 돌파</b> <span class="num">${fmt(px,0)}</span>`);
-    pitSignal('breakout', 92, '⚡', 'BREAKOUT', 'BTC 60분 고점 돌파', `${fmt(px,0)} — 돌파 테이블이 열렸습니다.`, '#d4af37');
   } else if (px < lo && now > bkDnCool) {
     bkDnCool = now + 180000;
     fxBurst({up:false, count:160, colors:['248,113,113','120,20,20'], speed:13});
@@ -3012,7 +2966,6 @@ function checkBreakout(px) {
     shakeScreen();
     fxBanner(`▼ 60분 저점 붕괴<small class="num">${fmt(px,0)}</small>`, '#f87171');
     say('sys','', `🕳 <b class="dn">60분 저점 붕괴</b> <span class="num">${fmt(px,0)}</span>`);
-    pitSignal('breakdown', 92, '🕳', 'BREAKDOWN', 'BTC 60분 저점 붕괴', `${fmt(px,0)} — 붕괴 테이블이 열렸습니다.`, '#f87171');
   }
 }
 
@@ -3139,40 +3092,52 @@ function subscribeMarketEvents() {
     .subscribe();
 }
 
-let pitCurrent = null, pitStarted = Date.now(), pitEnds = Date.now() + 45000;
-function setPit(p, duration=45000) {
-  pitCurrent = p; pitStarted = Date.now(); pitEnds = pitStarted + duration;
-  $('pitScene').textContent = p.icon;
-  $('pitTag').textContent = p.tag;
-  $('pitTitle').textContent = p.title;
-  $('pitCopy').textContent = p.copy;
-  $('pitStage').style.borderColor = p.color;
-  $('pitScene').style.borderColor = p.color;
+const marketContextSlides = [
+  { title:'비트코인 기준점', label:'BTC / USDT', value:()=>marketText('btcUsd'), detail:()=>`원화 환산 ${marketText('btcKrw')}`,
+    copy:'글로벌 BTC 가격과 국내 원화 환산 가격을 함께 봅니다. 원화 가치는 환율에 따라 움직입니다.' },
+  { title:'원화 시장 가격차', label:'김치 프리미엄', value:()=>marketText('kimchi'), detail:()=>`USD/KRW ${marketText('usdKrw')} · USDT/KRW ${marketText('usdtKrwPx')} (${marketText('usdtKrwBasis')})`,
+    copy:'국내 BTC 가격과 글로벌 BTC의 환율 환산 가격 차이입니다. 테더 가격차는 별도로 표시합니다.' },
+  { title:'시장 위험 선호', label:'공포 · 탐욕', value:()=>{const v=marketText('fng');return v==='—'?'—':`${v} / 100`;}, detail:()=>`${marketText('fngW')} · BTC 점유율 ${marketText('dom')}`,
+    copy:'시장 심리 지표와 BTC 점유율을 함께 보여줍니다. 한 지표만으로 시장 방향을 단정하지 않습니다.' },
+  { title:'선물 포지셔닝 비용', label:'BTC 펀딩비', value:()=>marketText('fund'), detail:()=> '무기한 선물 · 8시간 기준',
+    copy:'양수면 롱이 숏에, 음수면 숏이 롱에 펀딩을 지급합니다. 포지션 쏠림을 살피는 참고값입니다.' },
+];
+let marketContextIndex = 0, marketContextPaused = false, marketContextLastAdvance = Date.now();
+function marketText(id) { return $(id)?.textContent?.trim() || '—'; }
+function renderMarketContext() {
+  const slide = marketContextSlides[marketContextIndex];
+  $('marketContextTitle').textContent = slide.title;
+  $('marketContextLabel').textContent = slide.label;
+  $('marketContextValue').textContent = slide.value();
+  $('marketContextDetail').textContent = slide.detail();
+  $('marketContextCopy').textContent = slide.copy;
+  $('marketContextPosition').textContent = `${marketContextIndex+1} / ${marketContextSlides.length}`;
+  document.querySelectorAll('.contextDot').forEach((dot,i)=>dot.setAttribute('aria-pressed',String(i===marketContextIndex)));
 }
-function pitSignal(key, score, icon, tag, title, copy, color) {
-  const p = { key, score, icon, tag, title, copy, color };
-  if (!pitCurrent || Date.now() >= pitEnds || score >= pitCurrent.score + 12) setPit(p);
+function setMarketContext(index) {
+  marketContextIndex = (index + marketContextSlides.length) % marketContextSlides.length;
+  marketContextLastAdvance = Date.now();
+  renderMarketContext();
 }
-function selectAmbientTable() {
-  const total = buyVol + sellVol;
-  if (total > 0) {
-    const bp = buyVol / total;
-    if (Math.abs(bp-.5) > .08) {
-      const buy = bp > .5;
-      setPit({ key:'tape', score:36, icon:buy?'🐂':'🐻', tag:'TAPE FLOW', title:buy?'매수 체결이 판을 장악':'매도 체결이 판을 장악', copy:`최근 체결 흐름 ${buy?'매수':'매도'} ${(Math.max(bp,1-bp)*100).toFixed(0)}% — 체결의 비를 메인으로 올립니다.`, color:buy?'#4ade80':'#f87171' });
-      return;
-    }
-  }
-  setPit({ key:'scan', score:20, icon:'🎩', tag:'PIT BOSS', title:'다음 큰 판을 탐색 중', copy:'체결 흐름과 코인 레이스를 살펴보고 있습니다.', color:'#d4af37' });
+function refreshMarketContextValue() {
+  const slide = marketContextSlides[marketContextIndex];
+  $('marketContextValue').textContent = slide.value();
+  $('marketContextDetail').textContent = slide.detail();
 }
-selectAmbientTable();
-setInterval(() => {
-  if (!tabLive('lounge')) return;
-  if (Date.now() >= pitEnds) selectAmbientTable();
-  const left = Math.max(0, pitEnds-Date.now()), span = Math.max(1,pitEnds-pitStarted);
-  $('pitClock').childNodes[0].nodeValue = Math.ceil(left/1000) + '초';
-  $('pitGauge').style.width = Math.max(0, left/span*100) + '%';
-}, 500);
+renderMarketContext();
+$('marketContextPrev').addEventListener('click',()=>setMarketContext(marketContextIndex-1));
+$('marketContextNext').addEventListener('click',()=>setMarketContext(marketContextIndex+1));
+document.querySelectorAll('.contextDot').forEach(dot=>dot.addEventListener('click',()=>setMarketContext(+dot.dataset.contextIndex)));
+const marketContext = $('marketContext');
+marketContext.addEventListener('pointerenter',()=>{marketContextPaused=true;});
+marketContext.addEventListener('pointerleave',()=>{marketContextPaused=false;marketContextLastAdvance=Date.now();});
+marketContext.addEventListener('focusin',()=>{marketContextPaused=true;});
+marketContext.addEventListener('focusout',event=>{if(!marketContext.contains(event.relatedTarget)){marketContextPaused=false;marketContextLastAdvance=Date.now();}});
+setInterval(()=>{
+  if(tabLive('lounge')&&!document.hidden)refreshMarketContextValue();
+  if(marketContextPaused||document.hidden||!tabLive('lounge')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(Date.now()-marketContextLastAdvance>=15000)setMarketContext(marketContextIndex+1);
+},1000);
 
 subscribeMarketEvents();
 
@@ -3205,10 +3170,9 @@ function renderRace() {
     $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
     return;
   }
-  const lead = vals[0], tail = vals[vals.length-1], spread = lead.pct-tail.pct;
+  const lead = vals[0];
   $('raceLeader').textContent = `${lead.sym} 선두 · 격차 ${spread.toFixed(2)}%p`;
   $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
-  if (spread >= .18) pitSignal('race', Math.min(78,40+spread*25), '🏁', 'COIN DERBY', `${lead.sym} 선두 질주`, `8마리 5분 레이스에서 ${spread.toFixed(2)}%p 차이로 앞섭니다.`, '#d4af37');
 }
 function finishRace() { Object.values(race).forEach(x => { x.start = x.last; }); }
 buildRace(); renderRace();
@@ -3350,7 +3314,6 @@ function connectMainWS() {
     if (val >= 500000) {
       recordWhaleFootprint(val, isBuy, data.T || Date.now());
       say('sys', '', `🐳 ${isBuy?'매수':'매도'} <b class="num ${isBuy?'up':'dn'}">$${fmt(val/1000)}K</b> — 큰손 등장`);
-      pitSignal('whale', Math.min(88,70+Math.log10(val/500000)*18), '🐳', 'WHALE TABLE', `BTC 고래 ${isBuy?'매수':'매도'}`, `${moneyShort(val)} 단일 체결 — VIP 테이블을 비춥니다.`, isBuy?'#4ade80':'#f87171');
     }
   } else if (stream.endsWith('depth20@100ms')) {
     bookAsks = data.asks; bookBids = data.bids; queueDepthUi();
@@ -4559,7 +4522,6 @@ if (STUDY_INVITE_CODE) setTimeout(() => {
 
 // ═══ 📣 거시 발표장 ═══
 let macroData = null, macroStarted = false, macroClockTimer = null, macroRefreshTimer = null;
-const macroFlags = new Set();
 const macroDate = iso => new Date(iso);
 const macroKst = (iso, withDate=true) => macroDate(iso).toLocaleString('ko-KR', {
   timeZone:'Asia/Seoul', month:withDate?'numeric':undefined, day:withDate?'numeric':undefined,
@@ -4616,10 +4578,8 @@ function macroRender() {
 }
 function macroTick() {
   if(!macroData)return;const now=Date.now(),next=macroEvents().find(e=>+macroDate(e.scheduled_at)>now);
-  if(next){const at=+macroDate(next.scheduled_at),left=at-now;$('macroNextGrade').textContent=next.importance;$('macroNextTitle').textContent=`${next.code} · ${next.title}`;$('macroNextTime').textContent=`${macroKst(next.scheduled_at)} KST · ${next.source}`;$('macroCountdown').textContent=macroRemaining(left);
-    if(left<=1800000){const urgent=left<=300000,key=`macro-${next.id}-${urgent?'5':'30'}`;if(!macroFlags.has(key)){macroFlags.add(key);pitSignal(key,urgent?94:82,'📣',urgent?'FIVE MINUTES':'MACRO WIRE',`${next.code} 발표 ${urgent?'5분 전':'30분 전'}`,`${next.title} 공식 전표를 기다립니다.`,urgent?'#d4af37':'#22d3ee');}}
+  if(next){const left=+macroDate(next.scheduled_at)-now;$('macroNextGrade').textContent=next.importance;$('macroNextTitle').textContent=`${next.code} · ${next.title}`;$('macroNextTime').textContent=`${macroKst(next.scheduled_at)} KST · ${next.source}`;$('macroCountdown').textContent=macroRemaining(left);
   }else{$('macroNextGrade').textContent='CLEAR';$('macroNextTitle').textContent='예정된 발표 없음';$('macroNextTime').textContent='공식 전보 대기';$('macroCountdown').textContent='--:--:--';}
-  macroEvents().filter(e=>e.actual!==null&&now-+macroDate(e.scheduled_at)<21600000).forEach(e=>{const key=`macro-settled-${e.id}`;if(macroFlags.has(key))return;macroFlags.add(key);pitSignal(key,96,'📣','OFFICIAL SETTLED',`${e.code} ${macroValue(e)}`,`이전 ${macroPrevious(e)}에서 실제 ${macroValue(e)}로 확정됐습니다.`,'#d4af37');});
 }
 async function macroLoad() {
   try{const response=await fetch(`reports/econ_calendar.json?v=${Date.now()}`,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);macroData=await response.json();macroRender();refreshTabBadges();}
@@ -4805,11 +4765,6 @@ function connectLiquidations() {
   if (seenLiquidations.size > 500) seenLiquidations.delete(seenLiquidations.values().next().value);
   const val = +(o.z || o.q) * +(o.ap || o.p), longLiq = o.S === 'SELL';
   if (!Number.isFinite(val) || val <= 0) return;
-  // 누계·차트 마커는 24시간 서버 수집기의 Supabase 장부를 정본으로 사용한다.
-  // 이 회선은 즉시 화면 이펙트만 담당해 방문자별 중복 집계를 만들지 않는다.
-  if (val >= 100000) {
-    pitSignal('liquidation', Math.min(92,65+Math.log10(val/100000)*20), longLiq?'🩸':'⚡', 'LIQUIDATION', `${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산`, `${moneyShort(val)} 규모의 강제 청산이 포착됐습니다.`, longLiq?'#f87171':'#4ade80');
-  }
   if (o.s !== 'BTCUSDT') {
     if (val >= 200000) say('sys','', `💥 ${o.s.replace('USDT','')} ${longLiq?'롱':'숏'} 청산 <b class="num ${longLiq?'dn':'up'}">$${fmt(val/1000)}K</b>`);
     return;
