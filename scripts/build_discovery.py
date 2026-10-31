@@ -19,8 +19,9 @@ VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdig
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
-               'chart-analysis.js', 'chart-analysis.css', 'btc-long-channel.js',
-               'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js', 'site-campaign.js']
+               'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
+               'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
+               'site-campaign.js', 'blind-og-20261101.png']
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
@@ -48,6 +49,17 @@ def tool_page(classic, slug, selected, title, description):
                               ('property', 'og:url', BASE+'/'+slug+'/')]:
         text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
+    if slug == 'blind':
+        image = BASE + '/blind-og-20261101.png'
+        image_alt = '종목과 날짜를 숨긴 과거 차트 모의 매매 게임'
+        text = re.sub(r'<meta property="og:image" content="[^"]*">',
+                      f'<meta property="og:image" content="{image}">', text, count=1)
+        text = text.replace('<meta property="og:image:width" content="1200">',
+                            '<meta property="og:image:width" content="1200">\n'
+                            f'<meta property="og:image:alt" content="{image_alt}">', 1)
+        text = re.sub(r'<meta name="twitter:image" content="[^"]*">',
+                      f'<meta name="twitter:image" content="{image}">\n'
+                      f'<meta name="twitter:image:alt" content="{image_alt}">', text, count=1)
     text = text.replace(f'<link rel="canonical" href="{BASE}/">',
                         f'<link rel="canonical" href="{BASE}/{slug}/">', 1)
 

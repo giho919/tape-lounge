@@ -117,9 +117,15 @@ request retrieves 1,000 complete daily candles. Validate the full expected date
 range and OHLCV before playing; errors retry the same puzzle, without substituting
 a random market. Generation guards stop late responses from replacing a new mode.
 
+The direct blind-game route has a dedicated 1200×630 social preview image. Keep its
+Open Graph/Twitter image metadata in `scripts/build_discovery.py`'s `tool_page()`
+and include the image in `TOOL_ASSETS` so generated routes and freshness hashes stay
+in sync. The lounge homepage keeps the separate general `og.png`.
+
 The existing engine reveals only the available candles to price and indicators.
 Daily starts at 100, with $10,000 simulated funds, 1x leverage, 25% order size and
-4x playback (~2 minutes for 200 days). Users may adjust the controls. P&L is marked
+3x playback (~3 minutes for 200 days). Its speed can be adjusted from 0.5x to 4x
+in 0.5x steps. Users may adjust the controls. P&L is marked
 to the last revealed close; an open position is not assumed closed free of cost.
 Early settlement shows the actual revealed end date. There are no real orders,
 new database tables, uploads, public rankings or automatic social posts.
@@ -143,8 +149,9 @@ not proof of Threads iOS behavior; report that limitation until checked in the
 actual app.
 
 Blind-round pause and speed controls stay directly above the chart so mobile players
-can reach them without scrolling to the account/order panel. The speed button keeps
-the existing 1× → 2× → 4× cycle and does not change the shared room's host controls.
+can reach them without scrolling to the account/order panel. Daily mode starts at 3×
+and adjusts in 0.5× steps from 0.5× to 4×. Shared-table mode keeps the host-controlled
+1× → 2× → 4× cycle.
 
 The bottom navigation keeps the lounge first and the blind game second because
 the game currently earns the longest sessions. Leave the remaining tabs in place;
