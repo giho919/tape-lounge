@@ -3645,7 +3645,7 @@ function bgShowDailyOverlay() {
     <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
     ${archive}
     <a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
-    <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 오늘의 판 링크"></textarea>`;
+    <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 판 초대 문구와 링크"></textarea>`;
 }
 async function bgShareDailyChallenge() {
   const day = bgDailySelection?.day || window.BlindDaily.requestedDay(bgDailyQuery);
@@ -3653,6 +3653,7 @@ async function bgShareDailyChallenge() {
   const url = window.BlindDaily.url(day,version);
   const current = day === window.BlindDaily.dayKey(), title = `Tape Lounge · ${day} ${current?'오늘의 판':'지난 판'}`;
   const text = `${current?'오늘의 판':'지난 판'} 같이 해볼래? 같은 과거 ${version===2?'미국 주식':'코인'} 차트로 200${version===2?'거래일':'일'} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.`;
+  const invite = `${text}\n${url}`;
   const msg = $('bgDailyInviteStatus'), copy = $('bgDailyInviteCopy');
   if (navigator.share) {
     try {
@@ -3664,12 +3665,12 @@ async function bgShareDailyChallenge() {
     }
   }
   try {
-    await navigator.clipboard.writeText(url);
-    if (msg?.isConnected) msg.textContent = '오늘의 판 링크를 복사했어요.';
+    await navigator.clipboard.writeText(invite);
+    if (msg?.isConnected) msg.textContent = '초대 문구와 판 링크를 복사했어요.';
   } catch {
     if (copy?.isConnected) {
-      copy.value = url; copy.hidden = false; copy.focus(); copy.select();
-      if (msg) msg.textContent = '아래 링크를 선택해 복사해 주세요.';
+      copy.value = invite; copy.hidden = false; copy.focus(); copy.select();
+      if (msg) msg.textContent = '아래 초대 문구와 링크를 선택해 복사해 주세요.';
     }
   }
 }
