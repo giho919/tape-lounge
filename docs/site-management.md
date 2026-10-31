@@ -106,3 +106,35 @@ and WebSockets are blocked. Artifacts go to `TAPE_TEST_ARTIFACTS` or a temporary
 directory, never to published pages. Both new assets are included in the discovery
 generator's fingerprint. Broader site navigation remains covered by the existing
 route and full-lounge smoke tests.
+
+## Daily blind practice
+
+`blind-daily.js` adds a date-keyed local practice mode beside solo and group play.
+`/blind/?daily=YYYY-MM-DD` reopens that day's puzzle; `?daily=1` selects the current
+KST day. The v1 hash, symbol pool and historical date bounds are frozen. Never
+change old date selections when adding a future version. One fixed public Binance
+request retrieves 1,000 complete daily candles. Validate the full expected date
+range and OHLCV before playing; errors retry the same puzzle, without substituting
+a random market. Generation guards stop late responses from replacing a new mode.
+
+The existing engine reveals only the available candles to price and indicators.
+Daily starts at 100, with $10,000 simulated funds, 1x leverage, 25% order size and
+4x playback (~2 minutes for 200 days). Users may adjust the controls. P&L is marked
+to the last revealed close; an open position is not assumed closed free of cost.
+Early settlement shows the actual revealed end date. There are no real orders,
+new database tables, uploads, public rankings or automatic social posts.
+
+The first 200-day completion for each date is stored locally (at most 30 records).
+Replays do not replace it; early settlement does not create a completion record.
+Storage failure must not prevent playing or showing the result. Copying a result
+includes its date, completion status, simulated P&L, same-period holding return and
+clean public puzzle link. Other query parameters are excluded. It is a client-side
+practice game, not a tamper-proof competition; hidden data can be inspected by a
+determined user. Do not present its local records as audited performance.
+
+Run `node scripts/test_blind_daily.cjs` and `node scripts/test_blind_daily_ui.cjs`.
+They cover deterministic/KST selection, candle integrity, local persistence and
+retention, real chart/indicator visibility, a local simulated trade, full finish,
+reload, share text, clipboard fallback, unavailable data, stale network replies,
+and normal solo play at desktop/mobile widths. Block writes with
+`scripts/browser_read_only.cjs`; mock clipboard and all practice candle responses.

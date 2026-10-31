@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="chart-analysis.css?v=20261010c">
 <link rel="stylesheet" href="chart-share.css?v=20261031a">
 <script src="chart-share.js?v=20261031a" defer></script>
+<script src="blind-daily.js?v=20261031a"></script>
 <script src="chart-analysis.js?v=20261010c" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -430,6 +431,17 @@ body.shake { animation:shake .5s; }
 .bgModeBtn { appearance:none; display:inline-flex; align-items:center; justify-content:center; min-height:30px; margin:0; line-height:1; font:600 11px/1 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; letter-spacing:.5px; padding:6px 14px; border:1px solid var(--line); border-radius:7px; color:var(--dim); cursor:pointer; background:var(--panel2); user-select:none; }
 .bgModeBtn.on { color:var(--gold); border-color:var(--gold-dim); background:rgba(212,175,55,.09); }
 .bgModeBtn:hover { color:var(--gold); }
+.bgModeRow.hidden { display:none; }
+#bgGameModeRow { flex-wrap:wrap; }
+#bgGameModeRow .bgModeBtn { padding-inline:6px; white-space:nowrap; letter-spacing:0; }
+.bgGameHeading { flex-wrap:wrap; gap:4px 12px; }
+.bgGameHeading > span { white-space:nowrap; }
+.bgGameHeading small { flex:1 1 180px; line-height:1.6; }
+.bgDailyInfo { color:var(--dim); font-size:11px; line-height:1.7; margin-top:10px; }
+.bgDailyActions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+#bgOver .bgDailyActions .go { padding:9px 14px; letter-spacing:.5px; background:transparent; font-family:inherit; }
+#bgDailyCopyText { width:100%; margin-top:10px; min-height:128px; padding:10px; color:var(--tx); background:var(--bg); border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:11px; line-height:1.6; resize:vertical; }
+#bgDailyCopyText[hidden] { display:none; }
 .bgModeLabel { flex:0 0 auto; margin-right:2px; color:var(--dim); font-size:9px; letter-spacing:1px; }
 #bgTrackRow { padding-top:0; }
 #bgTrackRow .bgModeBtn { min-height:24px; padding:4px 10px; border-radius:6px; font-size:9.5px; font-weight:500; }
@@ -451,8 +463,8 @@ body.shake { animation:shake .5s; }
 #bgOver h4 { font-family:Georgia,serif; color:var(--gold); font-size:17px; letter-spacing:2px; margin-bottom:12px; }
 #bgOver p { font-size:12.5px; line-height:1.9; color:#c6cad3; }
 #bgOver .big { font-size:30px; font-weight:800; margin:10px 0; }
-#bgOver .go { display:inline-block; margin-top:16px; padding:10px 34px; border:1px solid var(--gold); border-radius:8px; color:var(--gold); font-size:13px; letter-spacing:2px; cursor:pointer; }
-#bgOver .go:hover { background:var(--gold-dim); }
+#bgOver .go { display:inline-block; margin-top:16px; padding:10px 34px; border:1px solid var(--gold); border-radius:8px; background:transparent; color:var(--gold); font-family:inherit; font-size:13px; letter-spacing:2px; cursor:pointer; }
+#bgOver .go:hover { background:var(--gold-dim); color:#fff; }
 .studyHome { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:17px; text-align:left; }
 .studyAction { padding:14px; border:1px solid var(--line); border-radius:9px; background:#0d1016; }
 .studyAction b { display:block; font:700 12px Georgia,serif; color:#e9ddbd; }.studyAction span { display:block; margin-top:5px; font-size:9.5px; line-height:1.55; color:var(--dim); }
@@ -1071,9 +1083,10 @@ body.shake { animation:shake .5s; }
 <div id="tab-game" class="hidden">
 <div class="bgWrap">
   <div class="panel" style="position:relative">
-    <h3>🎰 블라인드 차트 <small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
+    <h3 class="bgGameHeading"><span>🎰 블라인드 차트</span><small id="bgModeDesc">정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다</small></h3>
     <div class="bgModeRow" id="bgGameModeRow">
       <button class="bgModeBtn blindModeBtn on" data-m="solo" onclick="bgSetMode('solo')">🎲 나만의 판</button>
+      <button class="bgModeBtn blindModeBtn" data-m="daily" onclick="bgSetMode('daily')">🎴 오늘의 판</button>
       <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">👥 함께 보는 판</button>
     </div>
     <div class="bgModeRow" id="bgTrackRow">
@@ -3410,6 +3423,9 @@ const BG_MAX_LEVERAGE = 10;
 const BG_LEV_STEPS = [1, 2, 3, 5, 10];
 const BG_MMR = 0.005;   // 유지증거금률 0.5% · 격리 마진
 let bgCh = null, bgS = null, bgMA = null, bgVol = null, bgST = null, bgOsc = null, bg = null, bgPct = 25, bgLev = 1, bgMode = 'solo';
+let bgLoadGeneration = 0;
+const bgDailyQuery = new URLSearchParams(location.search).get('daily');
+let bgDailySelection = null;
 function bgPctSync(v) {
   v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
@@ -3482,9 +3498,9 @@ function blindOpen() {
   bgLevRender();
   if (bgMode === 'study') { studyOpen(); return; }
   $('bgStudyPanel').classList.add('hidden');
-  $('bgTrackRow').classList.remove('hidden');
+  $('bgTrackRow').classList.toggle('hidden', bgMode === 'daily');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
-  $('bgModeDesc').textContent = '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다';
+  $('bgModeDesc').textContent = bgMode === 'daily' ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다';
   // 게임 탭 복귀: 진행 중이면 재개, 없으면 시작 인트로
   if (bg && !bg.over) { if (bg.playing) soloTickStart(); soloStatus(); }
   else if (!bg) bgShowSoloOverlay();
@@ -3503,6 +3519,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
     norm: kl.map((k, i) => ({ time: 946684800 + i * 86400, open: +k[1]/base*100, high: +k[2]/base*100, low: +k[3]/base*100, close: +k[4]/base*100, volume: +k[5] })),
     idx: startIdx, base: startIdx, wallet: 10000, pos: null, trades: [], markers: [], over: false, bankrupt: false, gameMode,
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
+    daily: gameMode === 'daily' ? bgDailySelection : null,
   };
   bgOsc.suspend=true;
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
@@ -3518,11 +3535,14 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
 }
 
 async function blindStart() {
+  const generation = ++bgLoadGeneration;
+  if (bgMode === 'daily') { await bgStartDaily(generation); return; }
   const track = bgTrack;
   $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>과거의 판을 뒤지는 중…</p>';
   if (track === 'stock') {
     try {
       const b = await loadStockBundle();
+      if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
       const syms = Object.keys(b);
       for (let t = 0; t < 12; t++) {
         const sym = syms[Math.floor(Math.random() * syms.length)];
@@ -3532,6 +3552,7 @@ async function blindStart() {
         if (kl.length === BG_TOTAL) { bgSetupSolo(kl, sym, 'stock'); return; }
       }
     } catch (e) { /* 아래 실패 메시지 */ }
+    if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
     $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
     return;
   }
@@ -3541,13 +3562,52 @@ async function blindStart() {
     const endTime = minEnd + Math.floor(Math.random() * (maxEnd - minEnd));
     try {
       const kl = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
+      if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
       if (!Array.isArray(kl) || kl.length < BG_MIN_TOTAL) continue;
       bgSetupSolo(kl, sym, 'crypto');
       return;
     } catch (e) { /* 다른 종목 재시도 */ }
+    if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
   }
   $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
 }
+
+function bgShowDailyOverlay() {
+  const day = window.BlindDaily.requestedDay(bgDailyQuery);
+  bgDailySelection = window.BlindDaily.selection(day);
+  let first = null;
+  try { first = window.BlindDaily.read(localStorage).find(r => r.day === day); } catch {}
+  $('bgTrackRow').classList.add('hidden');
+  $('bgModeDesc').textContent = '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체';
+  $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>밑천 $10,000 · 200일 · 기본 속도 4×로 약 2분.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
+    <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}첫 완주 기록은 이 브라우저에만 저장됩니다.</p>
+    <button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':'오늘의 판 시작'} →</button>`;
+}
+async function bgStartDaily(generation) {
+  const chosen = bgDailySelection || window.BlindDaily.selection(window.BlindDaily.requestedDay(bgDailyQuery));
+  bgDailySelection = chosen;
+  $('bgOverBox').innerHTML = '<h4>🎴 오늘의 판</h4><p>오늘의 과거 차트를 준비하고 있습니다…</p>';
+  try {
+    const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${chosen.symbol}&interval=1d&limit=${BG_TOTAL}&endTime=${chosen.endTime}`);
+    if (!response.ok) throw new Error('오늘의 차트에 연결하지 못했습니다. 같은 판으로 다시 시도해 주세요.');
+    const kl = window.BlindDaily.validate(await response.json(), chosen);
+    if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
+    bgSpeed = 4; bgLev = 1; bgPct = 25; bgLevRender();
+    $('bgSpeedBtn').textContent = '속도 4×';
+    bgSetupSolo(kl, chosen.symbol, 'crypto', 'daily');
+  } catch (error) {
+    if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
+    $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p>${esc(error.message)}</p><button type="button" class="go" onclick="blindStart()">같은 판 재시도</button>`;
+  }
+}
+async function bgCopyDailyResult() {
+  if (!bg?.daily || !bg.over) return;
+  const result = {roi:(bgTotal()/10000-1)*100,bh:(bg.norm[bg.idx].close/bg.norm[bg.base].close-1)*100,days:bg.idx-bg.base,completed:bg.idx===bg.norm.length-1,bankrupt:bg.bankrupt};
+  const text = window.BlindDaily.shareText(bg.daily,result), target = $('bgDailyCopyText'), msg = $('bgDailyCopyStatus');
+  try { await navigator.clipboard.writeText(text); if (msg?.isConnected) msg.textContent = '결과와 같은 판의 링크를 복사했습니다.'; }
+  catch { if (target?.isConnected) { target.value=text;target.hidden=false;target.focus();target.select();if(msg)msg.textContent='아래 내용을 선택해 복사해 주세요.'; } }
+}
+window.bgCopyDailyResult = bgCopyDailyResult;
 
 function bgMASet() {
   const vis = bg.norm.slice(0, bg.idx + 1);
@@ -3777,6 +3837,21 @@ async function blindFinish(early) {
     await studyFinishRound();
     return;
   }
+  if (bg.daily) {
+    const completed = bg.idx === bg.norm.length - 1;
+    let recorded = {saved:false,first:null};
+    try { recorded = window.BlindDaily.record(localStorage, bg.daily.day, {roi,bh,completed,finishedAt:new Date().toISOString()}); } catch {}
+    const first = recorded.first;
+    $('bgOverBox').innerHTML = `<h4>🎴 ${bg.daily.day} · ${completed?'완주':bg.bankrupt?'파산 정산':'중간 정산'}</h4>
+      <p>이 판의 정체는 <b style="color:var(--gold)">${name}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${bg.realDates[bg.idx]} · ${bg.idx-bg.base}일</span></p>
+      <div class="big num" style="color:${roi>=0?'var(--grn)':'var(--red)'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
+      <p>같은 기간 보유 <b>${bh>=0?'+':''}${bh.toFixed(2)}%</b> <small>(수수료 전)</small><br>${roi>=bh?'이번 판에서는 보유 수익률을 앞섰습니다.':'이번 판에서는 보유 수익률이 더 높았습니다.'}</p>
+      <p class="bgDailyInfo">${recorded.saved?'첫 완주 기록을 이 브라우저에 저장했습니다.':first?`이 브라우저의 첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}%` : completed?'브라우저 기록을 저장하지 못했습니다.':'200일을 끝까지 마치면 첫 완주 기록이 남습니다.'}<br>남아 있는 포지션은 마지막 종가로 평가합니다.</p>
+      <div class="resultWatermark">tapelounge.com</div><div class="bgDailyActions"><button type="button" class="go" onclick="bgCopyDailyResult()">결과·도전 링크 복사</button><button type="button" class="go" onclick="blindStart()">같은 판 연습</button></div>
+      <p class="bgDailyInfo" id="bgDailyCopyStatus" role="status"></p><textarea readonly hidden id="bgDailyCopyText" aria-label="복사할 모의 결과와 도전 링크"></textarea>`;
+    $('bgOver').classList.remove('hidden');
+    return;
+  }
   const prevBest = localStorage.getItem('salonBlindBest');
   const isBest = prevBest === null || roi > +prevBest;
   if (isBest) { localStorage.setItem('salonBlindBest', roi.toFixed(2)); $('bgBest').textContent = `최고 기록 ${(roi>=0?'+':'')}${roi.toFixed(1)}%`; }
@@ -3790,7 +3865,7 @@ async function blindFinish(early) {
   $('bgOverBox').innerHTML = `
     <h4>${bg.bankrupt ? '💀 파산' : early ? '🏳 중간 정산' : '🎰 정체 공개'}</h4>
     <p>이 판의 정체는 <b style="color:var(--gold);font-size:16px">${name}</b><br>
-    <span style="color:var(--dim)">${bg.realStart} ~ ${bg.realEnd} 실제 시세</span></p>
+    <span style="color:var(--dim)">${bg.realStart} ~ ${bg.realDates[bg.idx]} 실제 시세</span></p>
     <div class="big num" style="color:${roi>0?'var(--grn)':roi<0?'var(--red)':'#c6cad3'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
     <p>같은 기간 존버: <b class="num" style="color:${bh>0?'var(--grn)':'var(--red)'}">${bh>=0?'+':''}${bh.toFixed(2)}%</b>
     ${isBest ? ' · <b style="color:var(--gold)">🏆 신기록!</b>' : ''}
@@ -3821,6 +3896,7 @@ function bgShowSoloOverlay() {
     <div class="go" onclick="blindStart()">판에 앉는다 →</div>`;
   $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgOver').classList.remove('hidden');
+  if (bgMode === 'daily') bgShowDailyOverlay();
 }
 
 // 자동 진행 시작 (blindStart → bgSetupSolo 끝에서 호출)
@@ -3886,9 +3962,11 @@ window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed
 
 let bgTrack = 'crypto';
 function bgSetTrack(track) {
+  if (bgMode === 'daily') return;
   if (bgTrack === track) return;
   if (bgMode === 'study' && studyRoom) return;
   bgTrack = track;
+  bgLoadGeneration++;
   document.querySelectorAll('.bgTrackBtn').forEach(b => b.classList.toggle('on', b.dataset.t === track));
   clearInterval(bgTimer); bgTimer = null;
   if (bg) bg.over = true;
@@ -3937,16 +4015,17 @@ function studyHomeOverlay(message = '') {
 }
 function studyErrorEl() { return $('studyLobbyErr') || $('studyHomeErr'); }
 function bgSetMode(mode) {
-  if (!['solo','study'].includes(mode) || mode === bgMode) { if (mode === 'study') studyOpen(); return; }
+  if (!['solo','daily','study'].includes(mode) || mode === bgMode) { if (mode === 'study') studyOpen(); return; }
   if (bgMode === 'study' && studyRoom?.status === 'running') {
     const e = studyErrorEl(); if (e) e.textContent = '진행 중인 테이블은 정산 뒤에 나갈 수 있습니다.';
     return;
   }
   clearInterval(bgTimer); bgTimer = null; bg = null;
+  bgLoadGeneration++;
   bgMode = mode;
   document.querySelectorAll('.blindModeBtn').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
   if (mode === 'study') studyOpen();
-  else { studyDisconnect(); $('bgStudyPanel').classList.add('hidden'); bgShowSoloOverlay(); }
+  else { studyDisconnect(); $('bgStudyPanel').classList.add('hidden'); $('bgModeDesc').textContent = '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다'; bgShowSoloOverlay(); }
 }
 window.bgSetMode = bgSetMode;
 
@@ -4541,6 +4620,10 @@ window.blindTrade = blindTrade; window.blindFinish = blindFinish;
 if (STUDY_INVITE_CODE) setTimeout(() => {
   document.querySelector('.tab[data-tab="game"]')?.click();
   bgSetMode('study');
+}, 0);
+else if (bgDailyQuery !== null) setTimeout(() => {
+  document.querySelector('.tab[data-tab="game"]')?.click();
+  bgSetMode('daily');
 }, 0);
 
 // ═══ 📣 거시 발표장 ═══

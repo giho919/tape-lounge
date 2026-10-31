@@ -1,0 +1,35 @@
+const assert=require('node:assert/strict');
+const daily=require('../blind-daily.js');
+const day='2026-10-31', chosen=daily.selection(day), DAY=86400000;
+assert.deepEqual(chosen,{version:1,id:'v1-2026-10-31',day,symbol:'BNBUSDT',endTime:1711670399999},'v1 date links must remain reproducible');
+assert.equal(daily.dayKey(new Date('2026-10-31T14:59:59Z')),'2026-10-31');
+assert.equal(daily.dayKey(new Date('2026-10-31T15:00:00Z')),'2026-11-01');
+for(const value of ['2026-02-30','2026-13-01','<script>','2026-1-01',null])assert.equal(daily.validDay(value),false);
+for(const value of ['1','2020-01-01','2026-11-01','bad'])assert.equal(daily.requestedDay(value,day),day);
+assert.equal(daily.requestedDay(day,'2026-11-01'),day);
+assert.deepEqual(daily.selection(day),chosen);
+assert.notDeepEqual(daily.selection('2026-11-01'),chosen);
+assert.ok(chosen.endTime<Date.parse('2026-01-01T00:00:00Z'));
+const bars=Array.from({length:1000},(_,i)=>{const t=chosen.endTime-DAY+1-(999-i)*DAY;return[t,'100','110','90','105','20',t+DAY-1];});
+assert.equal(daily.validate(bars,chosen),bars);
+for(const mutate of [a=>a.pop(),a=>{a[6][0]++;},a=>{a[5][4]='111';},a=>{a[2][1]='NaN';},a=>{a[4][5]='-1';},a=>{a[3][6]++;}]){
+ const bad=structuredClone(bars);mutate(bad);assert.throws(()=>daily.validate(bad,chosen));
+}
+const memory=new Map(),storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};
+const result={roi:0,bh:5.25,completed:true,finishedAt:'2026-10-31T08:00:00Z'};
+assert.deepEqual(daily.record(storage,day,{...result,completed:false}),{saved:false,first:null});
+assert.equal(daily.read(storage).length,0);
+assert.equal(daily.record(storage,day,result).saved,true);
+assert.equal(daily.record(storage,day,{...result,roi:99}).saved,false);
+assert.equal(daily.read(storage)[0].roi,0,'retries cannot replace the first completed result');
+assert.deepEqual(daily.record({getItem(){throw Error('denied');},setItem(){throw Error('denied');}},day,result),{saved:false,first:null});
+assert.deepEqual(daily.read({getItem:()=>'{broken'}),[]);
+for(let i=0;i<35;i++)daily.record(storage,new Date(Date.UTC(2026,10,1+i)).toISOString().slice(0,10),result);
+assert.equal(daily.read(storage).length,30);
+const shared=daily.shareText(chosen,{...result,days:200});
+assert.ok(shared.includes('200일 완주'));assert.ok(shared.includes('과거 차트 모의 연습'));
+assert.equal(shared.split('\n').at(-1),'https://tapelounge.com/blind/?daily=2026-10-31');
+assert.ok(daily.shareText(chosen,{...result,completed:false,days:12}).includes('12일 중간 정산'));
+assert.ok(daily.shareText(chosen,{...result,completed:false,bankrupt:true,days:12}).includes('파산 정산'));
+console.log(JSON.stringify({selection:chosen}));
+console.log('Daily blind: fixed historical selection, KST rollover, full-candle validation, first-completion storage, retention cap and clean share text passed.');
