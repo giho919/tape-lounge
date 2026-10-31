@@ -444,6 +444,9 @@ body.shake { animation:shake .5s; }
 .bgDailyInfo { color:var(--dim); font-size:11px; line-height:1.7; margin-top:10px; }
 .bgDailyActions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
 #bgOver .bgDailyActions .go { padding:9px 14px; letter-spacing:.5px; background:transparent; font-family:inherit; }
+#bgOver .bgDailyActions .bgDailyInvite { border-color:var(--line); color:var(--dim); }
+#bgDailyInviteCopy { width:100%; margin-top:10px; min-height:54px; padding:10px; color:var(--tx); background:var(--bg); border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:11px; line-height:1.6; resize:vertical; }
+#bgDailyInviteCopy[hidden] { display:none; }
 #bgDailyCopyText { width:100%; margin-top:10px; min-height:128px; padding:10px; color:var(--tx); background:var(--bg); border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:11px; line-height:1.6; resize:vertical; }
 #bgDailyCopyText[hidden] { display:none; }
 #bgDailyShareDialog { width:min(680px,calc(100% - 24px)); max-height:calc(100dvh - 30px); margin:auto; padding:18px; overflow:auto; border:1px solid var(--gold-dim); border-radius:14px; background:var(--panel); color:var(--tx); box-shadow:0 20px 80px #000b; }
@@ -3672,7 +3675,33 @@ function bgShowDailyOverlay() {
   $('bgModeDesc').textContent = '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체';
   $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>밑천 $10,000 · 200일 · 기본 속도 4×로 약 2분.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
     <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}첫 완주 기록은 이 브라우저에만 저장됩니다.</p>
-    <button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':'오늘의 판 시작'} →</button>`;
+    <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':'오늘의 판 시작'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
+    <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 오늘의 판 링크"></textarea>`;
+}
+async function bgShareDailyChallenge() {
+  const day = bgDailySelection?.day || window.BlindDaily.requestedDay(bgDailyQuery);
+  const url = window.BlindDaily.url(day);
+  const title = `Tape Lounge · ${day} 오늘의 판`;
+  const text = '오늘의 판 같이 해볼래? 같은 과거 차트로 200일 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.';
+  const msg = $('bgDailyInviteStatus'), copy = $('bgDailyInviteCopy');
+  if (navigator.share) {
+    try {
+      await navigator.share({title,text,url});
+      if (msg?.isConnected) msg.textContent = '공유할 앱을 선택했어요.';
+      return;
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    if (msg?.isConnected) msg.textContent = '오늘의 판 링크를 복사했어요.';
+  } catch {
+    if (copy?.isConnected) {
+      copy.value = url; copy.hidden = false; copy.focus(); copy.select();
+      if (msg) msg.textContent = '아래 링크를 선택해 복사해 주세요.';
+    }
+  }
 }
 async function bgStartDaily(generation) {
   const chosen = bgDailySelection || window.BlindDaily.selection(window.BlindDaily.requestedDay(bgDailyQuery));
