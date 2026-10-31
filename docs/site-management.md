@@ -146,6 +146,10 @@ Blind-round pause and speed controls stay directly above the chart so mobile pla
 can reach them without scrolling to the account/order panel. The speed button keeps
 the existing 1× → 2× → 4× cycle and does not change the shared room's host controls.
 
+The bottom navigation keeps the lounge first and the blind game second because
+the game currently earns the longest sessions. Leave the remaining tabs in place;
+review this priority against later visitor and engagement data before moving it.
+
 Completed daily rounds also offer a 1200×630 branded result card for local PNG
 download or the device's native share sheet. The card labels the result as
 simulation, includes the same-period holding comparison and the date-keyed public
