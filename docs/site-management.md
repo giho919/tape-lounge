@@ -120,7 +120,9 @@ a random market. Generation guards stop late responses from replacing a new mode
 The direct blind-game route has a dedicated 1200×630 social preview image. Keep its
 Open Graph/Twitter image metadata in `scripts/build_discovery.py`'s `tool_page()`
 and include the image in `TOOL_ASSETS` so generated routes and freshness hashes stay
-in sync. The lounge homepage keeps the separate general `og.png`.
+in sync. Its search title and description are defined in `TOOL_PAGES`; keep those
+keywords aligned with the visible US-stock/crypto historical-chart simulation. The
+lounge homepage keeps the separate general `og.png`.
 
 The existing engine reveals only the available candles to price and indicators.
 Daily starts at 100, with $10,000 simulated funds, 1x leverage, 25% order size and
