@@ -50,7 +50,7 @@ def tool_page(classic, slug, selected, title, description):
         text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
     if slug == 'blind':
-        image = BASE + '/blind-og-20261101.png'
+        image = BASE + '/blind-og-20261101.png?v=20261101a'
         image_alt = '종목과 날짜를 숨긴 과거 차트 모의 매매 게임'
         text = re.sub(r'<meta property="og:image" content="[^"]*">',
                       f'<meta property="og:image" content="{image}">', text, count=1)
