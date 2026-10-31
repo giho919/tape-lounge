@@ -424,6 +424,7 @@ body.shake { animation:shake .5s; }
 .bgGameHeading > span { white-space:nowrap; }
 .bgGameHeading small { flex:1 1 180px; line-height:1.6; }
 .bgDailyInfo { color:var(--dim); font-size:11px; line-height:1.7; margin-top:10px; }
+.bgStreakBadge { display:inline-flex; align-items:center; margin-top:4px; padding:4px 8px; border:1px solid rgba(212,175,55,.34); border-radius:999px; background:rgba(212,175,55,.08); color:#f0d77a; font-size:10px; font-weight:700; line-height:1.45; }
 .bgGuideLink { display:block; width:max-content; max-width:100%; margin:11px auto 0; color:var(--gold); font-size:10px; line-height:1.5; text-decoration:underline; text-underline-offset:3px; }
 .bgGuideLink:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .bgDailyActions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
@@ -3596,10 +3597,14 @@ function bgShowDailyOverlay() {
   const stockRound = bgDailySelection.version === 2, marketName = stockRound ? '미국 주식' : '코인', unit = stockRound ? '거래일' : '일';
   let first = null;
   try { first = window.BlindDaily.read(localStorage,bgDailySelection.version).find(r => r.day === day); } catch {}
+  let run = {days:0,playedToday:false};
+  try { run = window.BlindDaily.streak(localStorage); } catch {}
+  const runCopy = day !== window.BlindDaily.dayKey() ? '연속 출전은 당일 오늘의 판 완주로 기록됩니다.' : run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : run.days ? `어제까지 ${run.days}일 연속 · 오늘 완주하면 이어집니다.` : '오늘 완주하면 연속 출전 기록이 시작됩니다.';
+  const runBadge = `<span class="bgStreakBadge">♠ ${runCopy}</span>`;
   $('bgTrackRow').classList.add('hidden');
   $('bgModeDesc').textContent = '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체';
   $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 ${marketName} 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>가상 자금 $10,000 · 실제 주문 없음 · 200${unit} · 기본 속도 3×로 약 3분.<br>차트 위에서 속도를 0.5×씩 조절하거나 잠시 멈출 수 있어요.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
-    <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}첫 완주 기록은 이 브라우저에만 저장됩니다.</p>
+    <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.</p>
     <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':'오늘의 판 시작'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
     <a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
     <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 오늘의 판 링크"></textarea>`;
@@ -3907,15 +3912,18 @@ async function blindFinish(early) {
   }
   if (bg.daily) {
     const completed = bg.idx === bg.norm.length - 1;
-    let recorded = {saved:false,first:null};
+    let recorded = {saved:false,first:null,streak:{days:0,playedToday:false}};
     try { recorded = window.BlindDaily.record(localStorage, bg.daily.day, {roi,bh,completed,finishedAt:new Date().toISOString()},bg.daily.version); } catch {}
     const first = recorded.first;
+    const run = recorded.streak || {days:0,playedToday:false};
+    const runCopy = bg.daily.day===window.BlindDaily.dayKey() ? run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : '오늘 판을 완주하면 연속 출전 기록이 갱신됩니다.' : '';
+    const runBadge = runCopy ? `<span class="bgStreakBadge">♠ ${runCopy}</span>` : '';
     const unit = bg.daily.version===2 ? '거래일' : '일';
     $('bgOverBox').innerHTML = `<h4>🎴 ${bg.daily.day} · ${completed?'완주':bg.bankrupt?'파산 정산':'중간 정산'}</h4>
       <p>이 판의 정체는 <b style="color:var(--gold)">${name}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${bg.realDates[bg.idx]} · ${bg.idx-bg.base}${unit}</span></p>
       <div class="big num" style="color:${roi>=0?'var(--grn)':'var(--red)'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
       <p>같은 기간 보유 <b>${bh>=0?'+':''}${bh.toFixed(2)}%</b> <small>(수수료 전)</small><br>${roi>=bh?'이번 판에서는 보유 수익률을 앞섰습니다.':'이번 판에서는 보유 수익률이 더 높았습니다.'}</p>
-      <p class="bgDailyInfo">${recorded.saved?'첫 완주 기록을 이 브라우저에 저장했습니다.':first?`이 브라우저의 첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}%` : completed?'브라우저 기록을 저장하지 못했습니다.':'200일을 끝까지 마치면 첫 완주 기록이 남습니다.'}<br>남아 있는 포지션은 마지막 종가로 평가합니다.</p>
+      <p class="bgDailyInfo">${recorded.saved?'첫 완주 기록을 이 브라우저에 저장했습니다.':first?`이 브라우저의 첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}%` : completed?'브라우저 기록을 저장하지 못했습니다.':'200일을 끝까지 마치면 첫 완주 기록이 남습니다.'}${runBadge?`<br>${runBadge}`:''}<br>남아 있는 포지션은 마지막 종가로 평가합니다.</p>
       <div class="resultWatermark">tapelounge.com</div><div class="bgDailyActions"><button type="button" class="go" onclick="bgOpenDailyShare()">결과 카드 저장·공유</button><button type="button" class="go" onclick="bgCopyDailyResult()">결과·도전 링크 복사</button><button type="button" class="go" onclick="blindStart()">같은 판 연습</button></div>
       <p class="bgDailyInfo" id="bgDailyCopyStatus" role="status"></p><textarea readonly hidden id="bgDailyCopyText" aria-label="복사할 모의 결과와 도전 링크"></textarea>`;
     $('bgOver').classList.remove('hidden');
