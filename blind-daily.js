@@ -3,6 +3,7 @@
   'use strict';
   const VERSION = 1, STOCK_VERSION = 2, LAUNCH = '2026-10-31', STOCK_LAUNCH = '2026-11-02';
   const STORES = {1:'tapeBlindDailyV1',2:'tapeBlindDailyV2'};
+  const STREAK_STORE = 'tapeBlindDailyStreakV1';
   const DAY = 86400000, TOTAL = 1000;
   const POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','LTCUSDT'];
   const STOCK_POOL = ['AAPL','MSFT','NVDA','AMZN','GOOGL','META','AVGO','TSLA','JPM','V','MA','COST','NFLX','XOM','WMT','AMD'];
@@ -46,19 +47,44 @@
   function read(storage,version=VERSION) {
     try { const value=JSON.parse(storage.getItem(STORES[version]));return value?.version===version && Array.isArray(value.records) ? value.records.filter(r=>validDay(r.day)&&Number.isFinite(r.roi)&&Number.isFinite(r.bh)).slice(-30) : []; } catch { return []; }
   }
+  function previousDay(day) { return new Date(Date.parse(day+'T00:00:00Z')-DAY).toISOString().slice(0,10); }
+  function streak(storage,today=dayKey()) {
+    if (!validDay(today)) today=dayKey();
+    try {
+      const value=JSON.parse(storage.getItem(STREAK_STORE));
+      if (value?.version===1 && validDay(value.day) && Number.isSafeInteger(value.days) && value.days>0 && value.days<=36500) {
+        if (value.day===today) return {days:value.days,playedToday:true,lastDay:value.day};
+        if (value.day===previousDay(today)) return {days:value.days,playedToday:false,lastDay:value.day};
+        return {days:0,playedToday:false,lastDay:value.day};
+      }
+    } catch {}
+    return {days:0,playedToday:false,lastDay:null};
+  }
+  function updateStreak(storage,day) {
+    if (day!==dayKey()) return streak(storage);
+    let previous=null;
+    try { previous=JSON.parse(storage.getItem(STREAK_STORE)); } catch {}
+    let days=1;
+    if (previous?.version===1 && validDay(previous.day) && Number.isSafeInteger(previous.days) && previous.days>0 && previous.days<=36500) {
+      if (previous.day===day) days=previous.days;
+      else if (previous.day===previousDay(day)) days=previous.days+1;
+    }
+    try { storage.setItem(STREAK_STORE,JSON.stringify({version:1,day,days})); } catch {}
+    return {days,playedToday:true,lastDay:day};
+  }
   function record(storage, day, result,version=VERSION) {
     const records=read(storage,version), old=records.find(r=>r.day===day);
-    if (old || !result.completed || !validDay(day) || ![result.roi,result.bh].every(Number.isFinite)) return {saved:false,first:old||null};
+    if (old || !result.completed || !validDay(day) || ![result.roi,result.bh].every(Number.isFinite)) return {saved:false,first:old||null,streak:old&&day===dayKey()?updateStreak(storage,day):streak(storage)};
     const first={day,roi:result.roi,bh:result.bh,finishedAt:result.finishedAt};
-    try { storage.setItem(STORES[version],JSON.stringify({version,records:[...records,first].sort((a,b)=>a.day.localeCompare(b.day)).slice(-30)}));return {saved:true,first}; }
-    catch { return {saved:false,first:null}; }
+    try { storage.setItem(STORES[version],JSON.stringify({version,records:[...records,first].sort((a,b)=>a.day.localeCompare(b.day)).slice(-30)}));return {saved:true,first,streak:day===dayKey()?updateStreak(storage,day):streak(storage)}; }
+    catch { return {saved:false,first:null,streak:streak(storage)}; }
   }
   function shareText(chosen,result) {
     const pct = value => `${value>=0?'+':''}${value.toFixed(2)}%`;
     const unit=chosen.version===STOCK_VERSION?'거래일':'일';
     return `Tape Lounge · ${chosen.day} 오늘의 판\n${result.completed?`200${unit} 완주`:result.bankrupt?'파산 정산':`${result.days}${unit} 중간 정산`} · 내 수익률 ${pct(result.roi)}\n같은 기간 보유 ${pct(result.bh)} (수수료 전)\n과거 차트 모의 연습 · 잔여 포지션은 마지막 종가 평가\n${url(chosen.day,chosen.version)}`;
   }
-  const api=Object.freeze({dayKey,validDay,requestedDay,selection,validate,validateStock,url,read,record,shareText});
+  const api=Object.freeze({dayKey,validDay,requestedDay,selection,validate,validateStock,url,read,streak,record,shareText});
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.BlindDaily=api;
 })(typeof window === 'undefined' ? globalThis : window);

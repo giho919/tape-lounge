@@ -31,6 +31,16 @@ The sitemap's tool dates follow the source hash instead of changing hourly when
 only a report refreshes. This enables discovery; it does not prove indexing or
 promise a ranking. Check search-console evidence when available.
 
+## Daily blind-chart return loop
+
+The daily challenge records a first completed result and a consecutive-day
+completion count in browser-local storage. The count advances once per KST
+challenge day, only after finishing that day's official round; replaying an old
+date does not extend it. Crypto and U.S.-stock rounds share the streak key across
+the version change. No account, public ranking, analytics write or server-side
+record is introduced. Keep the local-only wording visible wherever the streak
+is shown.
+
 Route checks:
 
 ```
