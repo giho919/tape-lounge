@@ -389,25 +389,8 @@ body.shake { animation:shake .5s; }
 .gbtn.sell.solid { background:linear-gradient(160deg,#f87171,#d43f3f); border-color:transparent; color:#2a0a0a; font-weight:800; }
 .gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 
-/* ═══ 주요 시장 정보 로테이션 · 세션 관전석 ═══ */
+/* ═══ 세션 관전석 ═══ */
 .spectatorFloor { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
-.marketContext { padding:16px 19px 13px; border:1px solid var(--gold-dim); border-radius:14px;
-  background:linear-gradient(112deg,rgba(212,175,55,.075),var(--panel) 43%,#10141c); }
-.marketContextHead { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-.contextKicker { color:var(--gold); font-size:9px; letter-spacing:2.4px; }
-.contextTitle { margin:5px 0 0; color:#e8dfc4; font-size:15px; font-weight:600; letter-spacing:.3px; }
-.contextBody { display:grid; grid-template-columns:minmax(170px,.65fr) minmax(0,1.35fr); align-items:end; gap:22px; margin-top:15px; }
-.contextMetricLabel { display:block; margin-bottom:4px; color:var(--dim); font-size:10px; letter-spacing:1px; }
-.contextMetricValue { display:block; color:#f1e7c9; font-size:clamp(24px,3vw,34px); font-weight:650; line-height:1.15; }
-.contextMetricDetail { display:block; margin-top:5px; color:#9ba2b0; font-size:11px; line-height:1.45; }
-.contextCopy { margin:0; color:#b8bdc7; font-size:12px; line-height:1.65; }
-.contextControls { display:flex; align-items:center; justify-content:flex-end; gap:7px; color:var(--dim); font:10px Menlo,monospace; }
-.contextNav { width:27px; height:27px; padding:0; border:1px solid var(--line); border-radius:7px; color:#d6d9df; background:#11151d; cursor:pointer; font:18px/1 sans-serif; }
-.contextNav:hover,.contextNav:focus-visible { color:var(--gold); border-color:var(--gold-dim); outline:none; }
-.contextDots { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:11px; }
-.contextDot { width:6px; height:6px; padding:0; border:0; border-radius:8px; background:#505564; cursor:pointer; transition:width .18s ease,background .18s ease; }
-.contextDot[aria-pressed="true"] { width:18px; background:var(--gold); }
-.contextDot:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .spectatorGrid { display:grid; grid-template-columns:1fr; gap:12px; }
 .spectatorCard { min-height:288px; }
 .spectatorCard h3 small { white-space:nowrap; }
@@ -427,8 +410,7 @@ body.shake { animation:shake .5s; }
 .racePct { text-align:right; font:700 10.5px Menlo,monospace; }
 .raceFoot { display:flex; justify-content:space-between; padding:6px 14px 12px; border-top:1px solid var(--line); font-size:9.5px; color:var(--dim); }
 
-@media (max-width:620px){ .marketContext{padding:14px 14px 12px}.contextBody{grid-template-columns:1fr;gap:8px;margin-top:12px}.contextCopy{font-size:11.5px}.spectatorCard{min-height:0} }
-@media(prefers-reduced-motion:reduce){.contextDot{transition:none}}
+@media (max-width:620px){ .spectatorCard{min-height:0} }
 
 /* ═══ 오늘의 판 (공용 데일리 챌린지) ═══ */
 .bgModeRow { position:relative; z-index:8; display:flex; align-items:center; gap:6px; padding:0 15px 10px; background:var(--panel); }
@@ -804,28 +786,7 @@ body.shake { animation:shake .5s; }
   <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
 </div>
 
-<section class="spectatorFloor" aria-label="주요 시장 정보와 세션 관전석">
-  <section class="marketContext" id="marketContext" aria-roledescription="carousel" aria-label="주요 시장 정보">
-    <div class="marketContextHead">
-      <div><div class="contextKicker">MARKET CONTEXT · 주요 시장 정보</div><h3 class="contextTitle" id="marketContextTitle">비트코인 기준점</h3></div>
-      <div class="contextControls" aria-label="정보 넘기기">
-        <button type="button" class="contextNav" id="marketContextPrev" aria-label="이전 정보">‹</button>
-        <span id="marketContextPosition">1 / 4</span>
-        <button type="button" class="contextNav" id="marketContextNext" aria-label="다음 정보">›</button>
-      </div>
-    </div>
-    <div class="contextBody" id="marketContextSlide">
-      <div><span class="contextMetricLabel" id="marketContextLabel">BTC / USDT</span><strong class="contextMetricValue num" id="marketContextValue">—</strong><span class="contextMetricDetail" id="marketContextDetail">원화 환산 —</span></div>
-      <p class="contextCopy" id="marketContextCopy">글로벌 달러 가격과 국내 원화 가격을 함께 봅니다.</p>
-    </div>
-    <div class="contextDots" role="group" aria-label="주요 시장 정보 선택">
-      <button type="button" class="contextDot" data-context-index="0" aria-label="1. 비트코인 기준점" aria-pressed="true"></button>
-      <button type="button" class="contextDot" data-context-index="1" aria-label="2. 원화 시장 가격차" aria-pressed="false"></button>
-      <button type="button" class="contextDot" data-context-index="2" aria-label="3. 시장 위험 선호" aria-pressed="false"></button>
-      <button type="button" class="contextDot" data-context-index="3" aria-label="4. 선물 포지셔닝 비용" aria-pressed="false"></button>
-    </div>
-  </section>
-
+<section class="spectatorFloor" aria-label="세션 관전석">
   <div class="panel sessionPanel" id="sessionPanel">
     <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 최근 한 바퀴 비교</small><b class="deckTrack" id="sessionBadge">LATEST</b></h3>
     <div class="sessionGrid" id="sessionGrid">
@@ -995,21 +956,21 @@ body.shake { animation:shake .5s; }
 <!-- ═══════════ 마켓 인텔리전스 데스크 탭 ═══════════ -->
 <section id="tab-analysis" role="tabpanel" aria-labelledby="analysis-tab" class="hidden">
   <header class="ca-header">
-    <div><p class="ca-kicker">CHART STUDY · BTC / USDT</p><h2>장기 빗각</h2><p class="ca-meta">2017.08–2026.10.09 · 주봉 · 선형 가격축 · 고정 분석 자료</p></div>
-    <div class="ca-actions"><button type="button" id="caZoom" aria-pressed="false">확대해서 보기</button><a href="reports/btc-channels-2026-10-09.html" target="_blank" rel="noopener">분석 원본</a></div>
+    <div><p class="ca-kicker">CHART STUDY · BTC / USDT</p><h2>장기 빗각</h2><p class="ca-meta">확정 주봉 2017.08–2026.10.25 · 선형 가격축 · 2026.11.01 스냅샷</p></div>
+    <div class="ca-actions"><button type="button" id="caZoom" aria-pressed="false">확대해서 보기</button><a href="reports/btc-channels-2026-11-01.html" target="_blank" rel="noopener">분석 원본</a></div>
   </header>
   <div class="panel ca-panel">
-    <div class="ca-panel-head"><h3>📐 장기 평행 채널</h3><p>2018년 12월 저점과 2022년 11월 저점을 잇는 빗각. 2021년 고점을 지나는 평행선으로 폭을 정하고, 같은 간격으로 나눈 13개 선을 표시했다.</p></div>
+    <div class="ca-panel-head"><h3>📐 장기 평행 채널</h3><p>2018년과 2022년 주봉 저점을 잇고 2021년 주봉 고점으로 폭을 정한 13개 선형 평행선이다. 2026년 6월 저점도 기존 +2선 부근에 있어 기준점은 유지했다.</p></div>
     <p id="caStatus" class="ca-status" role="status">분석 탭을 열면 차트를 불러옵니다.</p>
-    <div class="ca-scroll" tabindex="0" role="region" aria-label="BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다."><img id="caLongImage" data-ca-image data-src="reports/btc-channels-2026-10-09-linear-long.svg" width="1600" height="940" alt="2017년 이후 BTC 주봉의 선형 장기 평행 채널. 2018년과 2022년 저점을 연결한 기준선 및 평행선 13개."></div>
-    <p class="ca-caption">금색은 채널 기준선, 흰색은 분할·확장선. 보라색 수평선은 75k 참고선이다. 확대 후에는 차트를 좌우로 밀어 볼 수 있다.</p>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다."><img id="caLongImage" data-ca-image data-src="reports/btc-channels-2026-11-01-linear-long.svg" width="1600" height="1040" alt="2017년 8월부터 2026년 10월까지 BTC 확정 주봉과 진행 중인 주봉, 2018년과 2022년 저점을 잇는 선형 평행 채널 13개."></div>
+    <p class="ca-caption">최근 확정 주봉은 10월 25일 마감이다. 점선 봉은 아직 진행 중이며, 오른쪽 채널 연장은 미래 캔들이 아니다. 보라색 75k는 별도 수평 참고선이다.</p>
   </div>
   <details class="ca-recent" id="caRecent">
     <summary>2022년 이후 빗각과 비교</summary>
     <p>2022년 저점과 2024년 8월 저점을 잇는 별도 기울기다. 장기 채널과 같은 선으로 해석하지 않는다.</p>
-    <div class="ca-scroll" tabindex="0" role="region" aria-label="2022년 이후 선형 채널 비교 차트"><img data-ca-image data-src="reports/btc-channels-2026-10-09-linear-recent.svg" width="1600" height="940" alt="2022년 이후 BTC 주봉과 선형 평행 채널 13개."></div>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="2022년 이후 선형 채널 비교 차트"><img data-ca-image data-src="reports/btc-channels-2026-11-01-linear-recent.svg" width="1600" height="1040" alt="2022년 11월부터 2026년 10월까지 BTC 주봉과 선형 평행 채널 13개."></div>
   </details>
-  <aside class="ca-note"><b>선은 참고 기준이지 매매 신호가 아니다.</b><p>기준점은 과거를 보고 선택했다. 선이 많다고 지지·저항의 신뢰도가 높아지는 것은 아니다. 미래 점선은 단순 연장이며 가격 예측이 아니다. 이 자료는 실시간으로 갱신되지 않으며, 2010–2017년은 포함하지 않았다.</p></aside>
+  <aside class="ca-note"><b>선은 참고 기준이지 매매 신호가 아니다.</b><p>최근 확정 주봉 데이터는 2026년 10월 25일까지다. 현재 주봉은 미완결이라 별도 점선으로 표시했다. 기준점은 과거를 보고 선택했으며 미래 점선은 단순 연장이다. 가격 예측이나 검증된 지지·저항으로 보지 않는다. 2010–2017년은 포함하지 않았다.</p></aside>
 </section>
 <section id="tab-domestic" aria-label="국내장" class="hidden"></section>
 <div id="tab-desk">
@@ -3166,53 +3127,6 @@ function subscribeMarketEvents() {
     .on('postgres_changes', {event:'*', schema:'public', table:'market_events'}, payload => applyMarketEvent(payload.new))
     .subscribe();
 }
-
-const marketContextSlides = [
-  { title:'비트코인 기준점', label:'BTC / USDT', value:()=>marketText('btcUsd'), detail:()=>`원화 환산 ${marketText('btcKrw')}`,
-    copy:'글로벌 BTC 가격과 국내 원화 환산 가격을 함께 봅니다. 원화 가치는 환율에 따라 움직입니다.' },
-  { title:'원화 시장 가격차', label:'김치 프리미엄', value:()=>marketText('kimchi'), detail:()=>`USD/KRW ${marketText('usdKrw')} · USDT/KRW ${marketText('usdtKrwPx')} (${marketText('usdtKrwBasis')})`,
-    copy:'국내 BTC 가격과 글로벌 BTC의 환율 환산 가격 차이입니다. 테더 가격차는 별도로 표시합니다.' },
-  { title:'시장 위험 선호', label:'공포 · 탐욕', value:()=>{const v=marketText('fng');return v==='—'?'—':`${v} / 100`;}, detail:()=>`${marketText('fngW')} · BTC 점유율 ${marketText('dom')}`,
-    copy:'시장 심리 지표와 BTC 점유율을 함께 보여줍니다. 한 지표만으로 시장 방향을 단정하지 않습니다.' },
-  { title:'선물 포지셔닝 비용', label:'BTC 펀딩비', value:()=>marketText('fund'), detail:()=> '무기한 선물 · 8시간 기준',
-    copy:'양수면 롱이 숏에, 음수면 숏이 롱에 펀딩을 지급합니다. 포지션 쏠림을 살피는 참고값입니다.' },
-];
-let marketContextIndex = 0, marketContextPaused = false, marketContextLastAdvance = Date.now();
-function marketText(id) { return $(id)?.textContent?.trim() || '—'; }
-function renderMarketContext() {
-  const slide = marketContextSlides[marketContextIndex];
-  $('marketContextTitle').textContent = slide.title;
-  $('marketContextLabel').textContent = slide.label;
-  $('marketContextValue').textContent = slide.value();
-  $('marketContextDetail').textContent = slide.detail();
-  $('marketContextCopy').textContent = slide.copy;
-  $('marketContextPosition').textContent = `${marketContextIndex+1} / ${marketContextSlides.length}`;
-  document.querySelectorAll('.contextDot').forEach((dot,i)=>dot.setAttribute('aria-pressed',String(i===marketContextIndex)));
-}
-function setMarketContext(index) {
-  marketContextIndex = (index + marketContextSlides.length) % marketContextSlides.length;
-  marketContextLastAdvance = Date.now();
-  renderMarketContext();
-}
-function refreshMarketContextValue() {
-  const slide = marketContextSlides[marketContextIndex];
-  $('marketContextValue').textContent = slide.value();
-  $('marketContextDetail').textContent = slide.detail();
-}
-renderMarketContext();
-$('marketContextPrev').addEventListener('click',()=>setMarketContext(marketContextIndex-1));
-$('marketContextNext').addEventListener('click',()=>setMarketContext(marketContextIndex+1));
-document.querySelectorAll('.contextDot').forEach(dot=>dot.addEventListener('click',()=>setMarketContext(+dot.dataset.contextIndex)));
-const marketContext = $('marketContext');
-marketContext.addEventListener('pointerenter',()=>{marketContextPaused=true;});
-marketContext.addEventListener('pointerleave',()=>{marketContextPaused=false;marketContextLastAdvance=Date.now();});
-marketContext.addEventListener('focusin',()=>{marketContextPaused=true;});
-marketContext.addEventListener('focusout',event=>{if(!marketContext.contains(event.relatedTarget)){marketContextPaused=false;marketContextLastAdvance=Date.now();}});
-setInterval(()=>{
-  if(tabLive('lounge')&&!document.hidden)refreshMarketContextValue();
-  if(marketContextPaused||document.hidden||!tabLive('lounge')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  if(Date.now()-marketContextLastAdvance>=15000)setMarketContext(marketContextIndex+1);
-},1000);
 
 subscribeMarketEvents();
 

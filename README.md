@@ -38,7 +38,7 @@ History API; legacy fragment bookmarks continue to work. See
 Read the market's *now* on a single screen.
 한 화면에서 시장의 지금을 읽습니다.
 
-- **장기 빗각** — 라운지 BTC 차트에 선형 평행 채널 13개를 항상 표시하고 현재 봉 이후 오른쪽 끝까지 연장합니다. 미래 캔들은 추가하지 않습니다. 라운지의 추가 버튼 없이 차트 분석 탭 또는 [별도 분석 주소](https://tapelounge.com/analysis/)로 이동합니다. 기준점은 고정하고 선은 캔들 날짜에 맞춰 계산합니다. 분석 탭의 이미지는 고정 자료이며 최근 기울기는 접힌 비교 자료입니다. [구현·제한](docs/chart-analysis-2026-10-10.md)
+- **장기 빗각** — 라운지 BTC 차트에 선형 평행 채널 13개를 표시하고 현재 봉 이후 오른쪽 끝까지 연장합니다. 미래 캔들은 추가하지 않습니다. 분석 탭의 2026-11-01 스냅샷은 확정 주봉 2026-10-25까지와 진행 중인 주봉을 구분하고, 최근 기울기는 접힌 비교 자료로 둡니다. 채널 기준점은 장기 구조 확인을 위해 유지합니다. [구현·제한](docs/chart-analysis-2026-10-10.md)
 
 - **크루 명함** — 채팅의 AI 크루 이름을 누르면 성격·관심 분야·불러온 대화 중 최근 발언 3개를 확인할 수 있습니다. 기존 채팅 캐시를 재사용하며 추가 AI 호출이나 DB 조회는 없습니다. [구현 안내](docs/crew-cards-2026-09-09.md)
 
@@ -53,12 +53,11 @@ Read the market's *now* on a single screen.
 | **BTC Dominance · 도미넌스** | Bitcoin's share of total market cap | 전체 시총 중 비트코인 점유율 |
 | **Funding Rate · 펀딩비** | Perpetual-futures 8h funding — a gauge of futures-market heat | 무기한 선물 8시간 펀딩 — 선물 시장 과열 온도 |
 
-### Spectator floor · 접어서 보관하는 관전석
+### Session floor · 세션 관전석
 
 The market plays the game; visitors watch the tension build and the result settle.
 시장이 스스로 판을 벌이고, 방문자는 긴장과 결과 확정의 순간을 관전합니다.
 
-- **Market Context · 주요 시장 정보** — slowly rotates between BTC global/KRW price, KRW basis, sentiment with BTC dominance, and funding; values reuse the lounge's existing feeds, with manual controls and pause-on-focus / BTC 글로벌·원화 가격, 원화 프리미엄, 심리·도미넌스, 펀딩비를 15초마다 순환 표시하며 기존 데이터만 재사용하고 직접 넘기기·포커스 시 정지 지원
 - **Coin Derby · 코인 경마장** — BTC, ETH, SOL, XRP, BNB, DOGE, ADA, and LINK race by live five-minute return / 8개 주요 코인이 실시간 5분 수익률로 경주
 - **Session Championship · 세션 챔피언십** — Asia (08–16 KST), Europe (16–22), and U.S. (22–08) ranked by signed session return, with realized range used only as a tie-breaker; a five-minute REST snapshot with no socket of its own / 아시아·유럽·미국장을 부호 있는 세션 수익률로 비교하고 동률일 때만 변동폭으로 순위를 정하며, 전용 회선 없이 5분 REST 스냅샷으로 갱신
 - **Market event ledger · 시장 이벤트 장부** — the 24/7 collector retains events in Supabase for chart annotations and operational history; recent liquidation clusters remain visible on the BTC chart / 24시간 수집기가 Supabase에 이벤트를 보관해 차트 표식과 운영 이력에 사용합니다. 최근 청산 묶음은 BTC 차트에 표시합니다.
