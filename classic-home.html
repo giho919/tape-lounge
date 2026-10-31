@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="chart-analysis.css?v=20261010c">
 <link rel="stylesheet" href="chart-share.css?v=20261031a">
 <script src="chart-share.js?v=20261031a" defer></script>
-<script src="blind-daily.js?v=20261031a"></script>
+<script src="blind-daily.js?v=20261101a"></script>
 <script src="blind-daily-share.js?v=20261031b" defer></script>
 <script src="site-campaign.js?v=20261101a"></script>
 <script src="chart-analysis-20261101.js" defer></script>
@@ -434,6 +434,11 @@ body.shake { animation:shake .5s; }
 .bgGuideLink { display:block; width:max-content; max-width:100%; margin:11px auto 0; color:var(--gold); font-size:10px; line-height:1.5; text-decoration:underline; text-underline-offset:3px; }
 .bgGuideLink:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .bgDailyActions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.bgDailyArchive { margin-top:10px; padding-top:7px; border-top:1px solid var(--line); text-align:left; }
+.bgDailyArchive summary { padding:5px 2px; color:var(--dim); font-size:10.5px; cursor:pointer; }
+.bgDailyArchiveLinks { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+.bgDailyArchiveLinks a { padding:6px 9px; border:1px solid var(--line); border-radius:999px; color:var(--gold); font-size:10px; line-height:1.2; text-decoration:none; }
+.bgDailyArchiveLinks a:hover,.bgDailyArchiveLinks a:focus-visible { outline:none; border-color:var(--gold-dim); background:rgba(212,175,55,.08); }
 #bgOver .bgDailyActions .go { padding:9px 14px; letter-spacing:.5px; background:transparent; font-family:inherit; }
 #bgOver .bgDailyActions .bgDailyInvite { border-color:var(--line); color:var(--dim); }
 #bgDailyInviteCopy { width:100%; margin-top:10px; min-height:54px; padding:10px; color:var(--tx); background:var(--bg); border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:11px; line-height:1.6; resize:vertical; }
@@ -3606,21 +3611,37 @@ async function blindStart() {
   $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
 }
 
+function bgDailyArchiveMarkup(day,today) {
+  const dates = day === today ? window.BlindDaily.previousDays(day,7) : [today,...window.BlindDaily.previousDays(day,7)];
+  if (!dates.length) return '';
+  const internal = new URLSearchParams(location.search).get('internal') === '1';
+  const links = dates.map(archiveDay => {
+    const round = window.BlindDaily.selection(archiveDay), target = new URL(window.BlindDaily.url(archiveDay,round.version));
+    if (internal) target.searchParams.set('internal','1');
+    const label = `${archiveDay===today?'오늘 · ':''}${archiveDay.slice(5).replace('-','/')} · ${round.track==='stock'?'미국주식':'코인'}`;
+    return `<a href="${target.pathname}${target.search}">${label}</a>`;
+  }).join('');
+  const summary = day === today ? '지난 판 다시 보기' : '오늘·지난 날짜 바꾸기';
+  return `<details class="bgDailyArchive"><summary>${summary}</summary><div class="bgDailyArchiveLinks">${links}</div></details>`;
+}
 function bgShowDailyOverlay() {
   const day = window.BlindDaily.requestedDay(bgDailyQuery);
+  const today = window.BlindDaily.dayKey();
   bgDailySelection = window.BlindDaily.selection(day);
   const stockRound = bgDailySelection.version === 2, marketName = stockRound ? '미국 주식' : '코인', unit = stockRound ? '거래일' : '일';
   let first = null;
   try { first = window.BlindDaily.read(localStorage,bgDailySelection.version).find(r => r.day === day); } catch {}
   let run = {days:0,playedToday:false};
   try { run = window.BlindDaily.streak(localStorage); } catch {}
-  const runCopy = day !== window.BlindDaily.dayKey() ? '연속 출전은 당일 오늘의 판 완주로 기록됩니다.' : run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : run.days ? `어제까지 ${run.days}일 연속 · 오늘 완주하면 이어집니다.` : '오늘 완주하면 연속 출전 기록이 시작됩니다.';
+  const runCopy = day !== today ? '연속 출전은 당일 오늘의 판 완주로 기록됩니다.' : run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : run.days ? `어제까지 ${run.days}일 연속 · 오늘 완주하면 이어집니다.` : '오늘 완주하면 연속 출전 기록이 시작됩니다.';
   const runBadge = `<span class="bgStreakBadge">♠ ${runCopy}</span>`;
+  const archive = bgDailyArchiveMarkup(day,today), heading = day===today ? '🎴 오늘의 판' : `🎴 ${day} · 지난 판`;
   $('bgTrackRow').classList.add('hidden');
-  $('bgModeDesc').textContent = '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체';
-  $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 ${marketName} 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>가상 자금 $10,000 · 실제 주문 없음 · 200${unit} · 기본 속도 3×로 약 3분.<br>차트 위에서 속도를 0.5×씩 조절하거나 잠시 멈출 수 있어요.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
-    <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.</p>
-    <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':'오늘의 판 시작'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
+  $('bgModeDesc').textContent = day===today ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '지난 판 재연 · 오늘의 연속 출전 기록과 별도';
+  $('bgOverBox').innerHTML = `<h4>${heading}</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 ${marketName} 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>가상 자금 $10,000 · 실제 주문 없음 · 200${unit} · 기본 속도 3×로 약 3분.<br>차트 위에서 속도를 0.5×씩 조절하거나 잠시 멈출 수 있어요.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
+    <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>${day===today?'완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.':'지난 판 완주 기록은 저장되지만 연속 출전에는 반영되지 않습니다.'}</p>
+    <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
+    ${archive}
     <a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
     <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 오늘의 판 링크"></textarea>`;
 }
@@ -3628,8 +3649,8 @@ async function bgShareDailyChallenge() {
   const day = bgDailySelection?.day || window.BlindDaily.requestedDay(bgDailyQuery);
   const version = bgDailySelection?.version || window.BlindDaily.selection(day).version;
   const url = window.BlindDaily.url(day,version);
-  const title = `Tape Lounge · ${day} 오늘의 판`;
-  const text = `오늘의 판 같이 해볼래? 같은 과거 ${version===2?'미국 주식':'코인'} 차트로 200${version===2?'거래일':'일'} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.`;
+  const current = day === window.BlindDaily.dayKey(), title = `Tape Lounge · ${day} ${current?'오늘의 판':'지난 판'}`;
+  const text = `${current?'오늘의 판':'지난 판'} 같이 해볼래? 같은 과거 ${version===2?'미국 주식':'코인'} 차트로 200${version===2?'거래일':'일'} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.`;
   const msg = $('bgDailyInviteStatus'), copy = $('bgDailyInviteCopy');
   if (navigator.share) {
     try {

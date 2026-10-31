@@ -45,6 +45,12 @@ the version change. No account, public ranking, analytics write or server-side
 record is introduced. Keep the local-only wording visible wherever the streak
 is shown.
 
+The daily challenge overlay also links to up to seven earlier fixed rounds.
+Older dates keep their original market version and deterministic data; completed
+archive rounds may be saved locally but never extend today's streak. When a
+visitor opens an archive round, the date picker offers a link back to today's
+round. Public share links never carry the internal-traffic query flag.
+
 Route checks:
 
 ```

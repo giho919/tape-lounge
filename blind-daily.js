@@ -48,6 +48,17 @@
     try { const value=JSON.parse(storage.getItem(STORES[version]));return value?.version===version && Array.isArray(value.records) ? value.records.filter(r=>validDay(r.day)&&Number.isFinite(r.roi)&&Number.isFinite(r.bh)).slice(-30) : []; } catch { return []; }
   }
   function previousDay(day) { return new Date(Date.parse(day+'T00:00:00Z')-DAY).toISOString().slice(0,10); }
+  function previousDays(day=dayKey(),limit=7) {
+    if (!validDay(day)) day=dayKey();
+    const count=Number.isSafeInteger(limit)?Math.max(0,Math.min(30,limit)):7;
+    const days=[];
+    while(days.length<count) {
+      day=previousDay(day);
+      if(day<LAUNCH)break;
+      days.push(day);
+    }
+    return days;
+  }
   function streak(storage,today=dayKey()) {
     if (!validDay(today)) today=dayKey();
     try {
@@ -82,9 +93,9 @@
   function shareText(chosen,result) {
     const pct = value => `${value>=0?'+':''}${value.toFixed(2)}%`;
     const unit=chosen.version===STOCK_VERSION?'거래일':'일';
-    return `Tape Lounge · ${chosen.day} 오늘의 판\n${result.completed?`200${unit} 완주`:result.bankrupt?'파산 정산':`${result.days}${unit} 중간 정산`} · 내 수익률 ${pct(result.roi)}\n같은 기간 보유 ${pct(result.bh)} (수수료 전)\n과거 차트 모의 연습 · 잔여 포지션은 마지막 종가 평가\n${url(chosen.day,chosen.version)}`;
+    return `Tape Lounge · ${chosen.day} ${chosen.day===dayKey()?'오늘의 판':'지난 판'}\n${result.completed?`200${unit} 완주`:result.bankrupt?'파산 정산':`${result.days}${unit} 중간 정산`} · 내 수익률 ${pct(result.roi)}\n같은 기간 보유 ${pct(result.bh)} (수수료 전)\n과거 차트 모의 연습 · 잔여 포지션은 마지막 종가 평가\n${url(chosen.day,chosen.version)}`;
   }
-  const api=Object.freeze({dayKey,validDay,requestedDay,selection,validate,validateStock,url,read,streak,record,shareText});
+  const api=Object.freeze({dayKey,validDay,requestedDay,selection,validate,validateStock,url,read,previousDays,streak,record,shareText});
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.BlindDaily=api;
 })(typeof window === 'undefined' ? globalThis : window);
