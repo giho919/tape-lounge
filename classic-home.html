@@ -1108,7 +1108,7 @@ body.shake { animation:shake .5s; }
       <button class="bgModeBtn blindModeBtn" data-m="daily" onclick="bgSetMode('daily')">🎴 오늘의 판</button>
       <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">👥 함께 보는 판</button>
     </div>
-    <div id="bgWebViewHint" class="bgWebViewHint" hidden><span>캔들이 비어 보이면 다시 그리세요. 현재 판 진행은 유지됩니다.</span><button id="bgChartRecoverBtn" class="bgChartRecoverBtn" type="button" onclick="bgChartRecover()">차트 다시 그리기</button></div>
+    <div id="bgWebViewHint" class="bgWebViewHint" hidden><span>캔들이 늦게 뜨면 자동으로 다시 그립니다. 판 진행은 유지됩니다.</span><button id="bgChartRecoverBtn" class="bgChartRecoverBtn" type="button" onclick="bgChartRecover()">차트 다시 그리기</button></div>
     <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeLabel">시장 선택</span>
       <button class="bgModeBtn bgTrackBtn" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</button>
@@ -3456,6 +3456,7 @@ function resizeBlindCharts(forceRepaint = true) {
   return true;
 }
 let bgResizeTimer = null;
+let bgRecoveryTimers = [];
 function scheduleBlindChartResize() {
   if (!bgCh) return;
   let passes = 0;
@@ -3470,7 +3471,10 @@ function bgChartRecover() {
   if (bg) {
     const visible = bg.norm.slice(0, bg.idx + 1);
     bgS.setData(visible);
-    bgMASet(); bgVolSet(); bgS.setMarkers(bg.markers || []);
+    bgMASet(); bgVolSet();
+    const markers = [...(bg.markers || [])];
+    if (bg.gameMode === 'study' && bg.over && typeof studyOpinionMarkers === 'function') markers.push(...studyOpinionMarkers());
+    bgS.setMarkers(markers.sort((a,b) => a.time - b.time));
     if (range) {
       try { bgCh.timeScale().setVisibleLogicalRange(range); }
       catch { chartShowRecent(bgCh, visible.length, BG_VIEW_BARS); }
@@ -3478,12 +3482,27 @@ function bgChartRecover() {
   }
   scheduleBlindChartResize();
 }
+function scheduleBlindChartRecovery() {
+  scheduleBlindChartResize();
+  if (!bgCh || !bg) return;
+  bgRecoveryTimers.forEach(clearTimeout);
+  bgRecoveryTimers = [];
+  const generation = bgLoadGeneration;
+  // Some mobile WebViews report their final canvas size only after the page transition.
+  // Re-seed the revealed series after layout settles; this never advances the round.
+  for (const delay of [180, 650, 1400]) {
+    bgRecoveryTimers.push(setTimeout(() => {
+      if (!bgCh || !bg || document.hidden || generation !== bgLoadGeneration) return;
+      bgChartRecover();
+    }, delay));
+  }
+}
 window.bgChartRecover = bgChartRecover;
-window.addEventListener('resize', scheduleBlindChartResize, {passive:true});
-window.addEventListener('orientationchange', scheduleBlindChartResize, {passive:true});
-window.addEventListener('pageshow', scheduleBlindChartResize);
-window.visualViewport?.addEventListener('resize', scheduleBlindChartResize, {passive:true});
-document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleBlindChartResize(); });
+window.addEventListener('resize', scheduleBlindChartRecovery, {passive:true});
+window.addEventListener('orientationchange', scheduleBlindChartRecovery, {passive:true});
+window.addEventListener('pageshow', scheduleBlindChartRecovery);
+window.visualViewport?.addEventListener('resize', scheduleBlindChartRecovery, {passive:true});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleBlindChartRecovery(); });
 let bgLoadGeneration = 0;
 const bgDailyQuery = new URLSearchParams(location.search).get('daily');
 let bgDailySelection = null;
@@ -3589,7 +3608,7 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
   bgMASet(); bgVolSet(); bgS.setMarkers([]);
   chartShowRecent(bgCh, bg.idx + 1, BG_VIEW_BARS);
-  scheduleBlindChartResize();
+  scheduleBlindChartRecovery();
   $('bgOver').classList.add('hidden');
   $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
