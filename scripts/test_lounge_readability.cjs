@@ -25,8 +25,7 @@ const bootstrap = [
    assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
    assert.equal(await page.locator('.loungeGuide').count(),0,'lounge guide must stay absent');
    assert.equal(await page.locator('#pitStage,.rooms').count(),0,'short-term pit boss and duplicate room links must stay absent');
-   assert.equal(await page.locator('#marketContext').count(),1,'longer-term market context carousel remains');
-   assert.equal(await page.locator('.contextDot').count(),4,'market context has four key information slides');
+   assert.equal(await page.locator('#marketContext,.marketContext,.contextDot').count(),0,'removed market context carousel stays absent');
    assert.equal(await page.locator('.spectatorCard').count(),1,'the coin race remains in the observatory');
    assert.equal(await page.locator('#raceRows').count(),1);
    assert.equal(await page.locator('#deckPanel').count(),1,'the candle deck remains available');
