@@ -154,8 +154,8 @@ controls are Korean, so localized article links label that limitation before ent
 
 The existing engine reveals only the available candles to price and indicators.
 Daily starts at 100, with $10,000 simulated funds, 1x leverage, 25% order size and
-3x playback (~3 minutes for 200 days). Its speed can be adjusted from 0.5x to 4x
-in 0.5x steps. Users may adjust the controls. P&L is marked
+2x playback (~4 minutes for 200 days). Its speed can be selected directly from
+0.5x to 4x or adjusted in 0.5x steps. P&L is marked
 to the last revealed close; an open position is not assumed closed free of cost.
 Early settlement shows the actual revealed end date. There are no real orders,
 new database tables, uploads, public rankings or automatic social posts.
@@ -178,10 +178,11 @@ Do not make opening Safari a normal prerequisite. Desktop mobile-width preview i
 not proof of Threads iOS behavior; report that limitation until checked in the
 actual app.
 
-Blind-round pause and speed controls stay directly above the chart so mobile players
-can reach them without scrolling to the account/order panel. Daily mode starts at 3×
-and adjusts in 0.5× steps from 0.5× to 4×. Shared-table mode keeps the host-controlled
-1× → 2× → 4× cycle.
+Blind-round speed selection stays directly above the chart and remains available on
+the start overlay, so mobile players can choose a pace before candles begin. Daily
+mode starts at 2× and also offers 0.5×–4× direct selection or 0.5× increments. Pause
+stays next to the chart once a round starts. Shared-table mode keeps the
+host-controlled 1× → 2× → 4× cycle.
 
 The bottom navigation keeps the lounge first and the blind game second because
 the game currently earns the longest sessions. Leave the remaining tabs in place;

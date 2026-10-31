@@ -470,15 +470,19 @@ body.shake { animation:shake .5s; }
 #bgDailyBoard .nk { flex:1; color:#c6cad3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #bgLog { max-height:200px; overflow-y:auto; padding:8px 15px 12px; font-size:11px; }
 #bgLog .tr { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
-.bgStage { position:relative; min-height:0; }
-.bgChartControls { display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:5px 12px 3px; }
+.bgStage { position:relative; min-height:0; isolation:isolate; }
+.bgChartControls { position:relative; z-index:7; display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px; padding:5px 12px 3px; }
+.bgChartControls.prestart #bgPlayBtn { display:none; }
 .bgChartControls .bgChartControl { flex:0 0 auto; min-height:32px; padding:6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--panel2); color:#d7dbe3; font-family:inherit; font-size:10px; font-weight:700; line-height:1.2; letter-spacing:.3px; white-space:nowrap; cursor:pointer; touch-action:manipulation; }
 .bgChartControls .bgChartControl.pause { min-width:106px; min-height:40px; border-color:var(--gold); background:var(--gold-dim); color:#111; }
 .bgChartControls .bgChartControl:active { filter:brightness(1.18); }
 .bgSpeedControl { display:flex; align-items:center; gap:4px; min-height:34px; padding:2px 4px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); }
 .bgSpeedControl button { width:40px; height:40px; border:0; border-radius:5px; background:transparent; color:var(--gold); font-family:inherit; font-size:20px; font-weight:700; line-height:1; cursor:pointer; touch-action:manipulation; }
 .bgSpeedControl button:disabled { opacity:.35; cursor:default; }
-.bgSpeedControl output { min-width:48px; color:var(--gold); font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+.bgSpeedCaption { padding:0 2px 0 4px; color:var(--dim); font-size:10px; white-space:nowrap; }
+.bgSpeedControl select { min-width:60px; height:34px; padding:0 18px 0 7px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--gold); font-family:inherit; font-size:10px; font-weight:700; text-align:center; cursor:pointer; touch-action:manipulation; }
+.bgSpeedControl select:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.bgSpeedControl select:disabled { opacity:.45; cursor:default; }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center; text-align:center; }
 #bgOver.hidden { display:none; }
@@ -1117,11 +1121,12 @@ body.shake { animation:shake .5s; }
       <span class="num" id="bgDay">—</span>
       <span class="num" id="bgPx" style="margin-left:auto">—</span>
     </div>
-    <div class="bgChartControls" id="bgPlayRow">
+    <div class="bgChartControls prestart" id="bgPlayRow">
       <button type="button" class="bgChartControl pause gbtn next" id="bgPlayBtn" onclick="soloPauseToggle()" aria-label="일시정지">⏸ 일시정지</button>
       <div class="bgSpeedControl" role="group" aria-label="차트 진행 속도">
         <button type="button" id="bgSpeedDownBtn" onclick="soloAdjustSpeed(-1)" aria-label="속도 낮추기">−</button>
-        <output id="bgSpeedLabel" aria-live="polite">속도 1×</output>
+        <span class="bgSpeedCaption" aria-hidden="true">속도</span>
+        <select id="bgSpeedSelect" aria-label="차트 진행 속도 선택" onchange="soloSetSpeed(this.value)"><option value="1">1×</option></select>
         <button type="button" id="bgSpeedUpBtn" onclick="soloAdjustSpeed(1)" aria-label="속도 높이기">+</button>
       </div>
     </div>
@@ -3625,6 +3630,9 @@ function bgDailyArchiveMarkup(day,today) {
   return `<details class="bgDailyArchive"><summary>${summary}</summary><div class="bgDailyArchiveLinks">${links}</div></details>`;
 }
 function bgShowDailyOverlay() {
+  bgSpeed = 2;
+  $('bgPlayRow').classList.add('prestart');
+  bgRenderSpeed();
   const day = window.BlindDaily.requestedDay(bgDailyQuery);
   const today = window.BlindDaily.dayKey();
   bgDailySelection = window.BlindDaily.selection(day);
@@ -3638,7 +3646,7 @@ function bgShowDailyOverlay() {
   const archive = bgDailyArchiveMarkup(day,today), heading = day===today ? '🎴 오늘의 판' : `🎴 ${day} · 지난 판`;
   $('bgTrackRow').classList.add('hidden');
   $('bgModeDesc').textContent = day===today ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '지난 판 재연 · 오늘의 연속 출전 기록과 별도';
-  $('bgOverBox').innerHTML = `<h4>${heading}</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 ${marketName} 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>가상 자금 $10,000 · 실제 주문 없음 · 200${unit} · 기본 속도 3×로 약 3분.<br>차트 위에서 속도를 0.5×씩 조절하거나 잠시 멈출 수 있어요.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
+  $('bgOverBox').innerHTML = `<h4>${heading}</h4><p><b style="color:var(--gold)">${day}</b><br>모두 같은 ${marketName} 차트에서 시작합니다. 종목과 날짜는 정산 뒤 공개.<br>가상 자금 $10,000 · 실제 주문 없음 · 200${unit} · 기본 속도 2×로 약 4분.<br>시작 전 속도를 고르고, 진행 중에는 차트 위에서 잠시 멈추거나 바꿀 수 있어요.<br>이평선과 흐름만 보고, 같은 기간 보유 수익률을 넘어보세요.</p>
     <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>${day===today?'완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.':'지난 판 완주 기록은 저장되지만 연속 출전에는 반영되지 않습니다.'}</p>
     <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
     ${archive}
@@ -3692,7 +3700,7 @@ async function bgStartDaily(generation) {
       symbol = chosen.symbol; track = 'crypto';
     }
     if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
-    bgSpeed = 3; bgLev = 1; bgPct = 25; bgLevRender(); bgRenderSpeed();
+    bgLev = 1; bgPct = 25; bgLevRender(); bgRenderSpeed();
     bgSetupSolo(kl, symbol, track, 'daily');
   } catch (error) {
     if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
@@ -3936,6 +3944,7 @@ function bgAdvanceOneDay() {
 async function blindFinish(early) {
   if (!bg || bg.over) return;
   bg.over = true;
+  $('bgPlayRow').classList.add('prestart');
   clearInterval(bgTimer); bgTimer = null;
   const roi = (bgTotal() / 10000 - 1) * 100;
   const bh = (bg.norm[bg.idx].close / bg.norm[bg.base].close - 1) * 100;  // 같은 기간 존버
@@ -3997,6 +4006,8 @@ let bgTimer = null, bgTickLast = 0, bgSpeed = 1;
 
 function bgShowSoloOverlay() {
   const stock = bgTrack === 'stock';
+  if (bgMode !== 'daily') bgSpeed = 1;
+  $('bgPlayRow').classList.add('prestart');
   [$('bgPlayBtn'), $('bgSpeedDownBtn'), $('bgSpeedUpBtn'), $('bgFinishBtn')].forEach(el => {
     el.classList.remove('roomLocked'); el.style.pointerEvents = ''; el.setAttribute('aria-disabled', 'false');
   });
@@ -4019,6 +4030,7 @@ function bgShowSoloOverlay() {
 // 자동 진행 시작 (blindStart → bgSetupSolo 끝에서 호출)
 function soloStart() {
   bg.elapsedMs = 0; bg.playing = true;
+  $('bgPlayRow').classList.remove('prestart');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
   $('bgLiveRow').classList.remove('hidden');
   bgRenderSpeed(); soloTickStart(); soloStatus();
@@ -4053,21 +4065,37 @@ function bgRenderSpeed(speed = bgSpeed) {
   const speeds = roomMode ? BG_ROOM_SPEEDS : BG_SPEEDS;
   const value = roomMode ? +(studyRoom?.speed || speed) : speed;
   const index = speeds.indexOf(value);
-  $('bgSpeedLabel').textContent = `속도 ${value}×`;
+  const select = $('bgSpeedSelect'), optionSet = speeds.join(',');
+  if (select.dataset.speedOptions !== optionSet) {
+    select.innerHTML = speeds.map(rate => `<option value="${rate}">${rate}×</option>`).join('');
+    select.dataset.speedOptions = optionSet;
+  }
+  select.value = String(value);
   $('bgSpeedDownBtn').disabled = index <= 0;
   $('bgSpeedUpBtn').disabled = index < 0 || index >= speeds.length - 1;
+}
+function soloSetSpeed(requested) {
+  const target = Number(requested);
+  if (bg?.gameMode === 'study') {
+    const started = studyRoom?.status === 'running' && studyNow() >= Date.parse(studyRoom.start_at || 0);
+    if (studyRoom?.host_user_id !== myUid || !started || !BG_ROOM_SPEEDS.includes(target)) return;
+    if (target !== +(studyRoom?.speed || 1)) studyHostControl(`speed_${target}`);
+    return;
+  }
+  if (!BG_SPEEDS.includes(target)) return;
+  bgSpeed = target;
+  bgRenderSpeed();
 }
 function soloAdjustSpeed(direction) {
   if (bg?.gameMode === 'study') {
     const speed = +(studyRoom?.speed || 1);
     const index = BG_ROOM_SPEEDS.indexOf(speed);
     const next = BG_ROOM_SPEEDS[Math.max(0, Math.min(BG_ROOM_SPEEDS.length - 1, index + Math.sign(direction)))];
-    if (next !== speed) studyHostControl(`speed_${next}`);
+    if (next !== speed) soloSetSpeed(next);
     return;
   }
   const index = BG_SPEEDS.indexOf(bgSpeed);
-  bgSpeed = BG_SPEEDS[Math.max(0, Math.min(BG_SPEEDS.length - 1, index + Math.sign(direction)))];
-  bgRenderSpeed();
+  soloSetSpeed(BG_SPEEDS[Math.max(0, Math.min(BG_SPEEDS.length - 1, index + Math.sign(direction)))]);
 }
 function soloCycleSpeed() { soloAdjustSpeed(1); }
 function blindSettle() {
@@ -4090,7 +4118,7 @@ function soloStatus() {
     dot.style.background = 'var(--dim)'; dot.style.boxShadow = 'none';
   }
 }
-window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed; window.blindSettle = blindSettle;
+window.soloPauseToggle = soloPauseToggle; window.soloSetSpeed = soloSetSpeed; window.soloCycleSpeed = soloCycleSpeed; window.blindSettle = blindSettle;
 
 let bgTrack = 'stock';
 function bgSetTrack(track) {
@@ -4427,7 +4455,8 @@ function studyUpdateControls() {
   const isHost = studyRoom?.host_user_id === myUid;
   const started = studyRoom?.status === 'running' && studyNow() >= Date.parse(studyRoom.start_at || 0);
   const enabled = isHost && started;
-  const play = $('bgPlayBtn'), speedDown = $('bgSpeedDownBtn'), speedUp = $('bgSpeedUpBtn'), finish = $('bgFinishBtn');
+  $('bgPlayRow').classList.toggle('prestart', !started);
+  const play = $('bgPlayBtn'), speedDown = $('bgSpeedDownBtn'), speedUp = $('bgSpeedUpBtn'), speedSelect = $('bgSpeedSelect'), finish = $('bgFinishBtn');
   play.textContent = studyRoom?.playing ? '⏸ 일시정지' : '▶ 재생';
   play.setAttribute('aria-label',studyRoom?.playing ? '일시정지' : '다시 재생');
   bgRenderSpeed(+(studyRoom?.speed || 1));
@@ -4437,6 +4466,7 @@ function studyUpdateControls() {
     el.style.pointerEvents = enabled ? '' : 'none';
     el.setAttribute('aria-disabled', enabled ? 'false' : 'true');
   });
+  speedSelect.disabled = !enabled;
 }
 function studyTick() {
   if (!bg || bg.over || !studyRoom?.start_at) return;
