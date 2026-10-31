@@ -16,7 +16,7 @@
   function load(image) {
     if (!image || image.hasAttribute('src')) return;
     image.addEventListener('load', () => {
-      if (image.id === 'caLongImage') status.textContent = '2026.10.09 기준 고정 자료 · 실시간 시세가 아닙니다.';
+      if (image.id === 'caLongImage') status.textContent = '2026.11.01 스냅샷 · 마지막 완결 주봉은 10월 25일입니다.';
       positionExpanded();
     }, {once:true});
     image.addEventListener('error', () => {
