@@ -47,6 +47,18 @@ const root=path.resolve(__dirname,'..');
   await page.locator('.contextDot[data-context-index="0"]').click();
   assert.equal(await page.locator('#marketContextTitle').textContent(),initialContext,'context dots select a slide');
   assert.ok(await page.locator('#raceRows').count(),'coin race remains available');
+  // The no-socket smoke path cannot exercise the race after its first quote.
+  // Feed deterministic prices so a live-ticker-only exception cannot pass again.
+  await page.evaluate(()=>{
+    RACE_COINS.forEach(sym=>{race[sym].start=100;race[sym].last=100;});
+    race.BTC.last=105;race.ETH.last=103;renderRace();
+  });
+  assert.match(await page.locator('#raceLeader').textContent(),/^BTC 선두 · 격차 2\.00%p$/);
+  assert.match(await page.locator('#raceClock').textContent(),/^\d{2}:\d{2}$/);
+  await page.evaluate(()=>{race.SOL.last=106;renderRace();});
+  assert.match(await page.locator('#raceLeader').textContent(),/^SOL 선두 · 격차 1\.00%p$/);
+  await page.evaluate(()=>{race.BTC.last=106;renderRace();});
+  assert.match(await page.locator('#raceLeader').textContent(),/격차 0\.00%p$/);
   assert.ok(await page.locator('#deckPanel').count(),'candle deck remains available');
   await page.locator('.tab[data-tab="desk"]').click();
   assert.equal(await page.locator('#tab-lounge').isVisible(),false);

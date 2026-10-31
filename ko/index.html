@@ -3171,6 +3171,7 @@ function renderRace() {
     return;
   }
   const lead = vals[0];
+  const spread = lead.pct - vals[1].pct;
   $('raceLeader').textContent = `${lead.sym} 선두 · 격차 ${spread.toFixed(2)}%p`;
   $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
 }
