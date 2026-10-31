@@ -46,7 +46,10 @@ reading surface, not a replacement execution quote service.
 `/ko/`, `/en/`, `/zh/`, `/ja/` each contain nine real HTML pages: home, markets, watch,
 research, reading index, about/methodology, and three original guides. They have
 translated article bodies, titles/descriptions, self canonical URLs and reciprocal
-hreflang including x-default. Root duplicates Korean with `/ko/` canonical.
+hreflang including x-default. The legacy lounge remains at `/` and `/ko/`; `/` is
+canonical. The localized editorial homepages point their Korean and x-default
+variants to that canonical root, and the root publishes the reciprocal language
+links. The duplicate `/ko/` entry is omitted from the sitemap.
 
 Country-based suggestion is only on the neutral root: manual choice first, then
 country.is country lookup cached seven days, then browser language fallback. Country

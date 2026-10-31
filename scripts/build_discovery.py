@@ -96,6 +96,13 @@ def write(path, text):
 def url(lang, page=''):
     return f'/{lang}/' + (page.rstrip('/') + '/' if page else '')
 
+def locale_url(lang, page=''):
+    # The legacy Korean lounge exists at both / and /ko/, with / as canonical.
+    # Localized editorial homepages must point back to that canonical URL.
+    if lang == 'ko' and not page:
+        return '/'
+    return url(lang, page)
+
 def stage(value, lang):
     return STAGES.get(value, [value]*4)[list(LANGS).index(lang)]
 
@@ -144,8 +151,8 @@ def render(lang, page, data, letters, generated, root=False):
     article_date=guide_date(guide) if guide else None
     current=BASE+url(lang,page)
     nav=''.join(link(url(lang,p),c['nav'][i], 'selected' if page==p or (p=='learn' and guide) else '') for i,p in enumerate(['','markets','watch','learn']))
-    languages=''.join(f'<a href="{url(l,page)}" lang="{l}" hreflang="{l}" data-language="{l}" '+('aria-current="true"' if l==lang else '')+f'>{label}</a>' for l,label in LANGS.items())
-    alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+url("ko",page)}">'
+    languages=''.join(f'<a href="{locale_url(l,page)}" lang="{l}" hreflang="{l}" data-language="{l}" '+('aria-current="true"' if l==lang else '')+f'>{label}</a>' for l,label in LANGS.items())
+    alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+locale_url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+locale_url("ko",page)}">'
     schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':title,'description':desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
         schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':article_date,'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
@@ -232,6 +239,8 @@ def build(force=False):
     classic=classic.replace('<head>','<head>\n<base href="/">',1)
     classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
+    home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
+    classic=classic.replace('</head>',home_alternates+'\n</head>',1)
     write('index.html',classic)
     write('ko/index.html',classic)
     terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
