@@ -24,3 +24,9 @@
 
 - Refreshed the spot-price marker and the still-open 2026-10-26 weekly candle from Binance Spot BTC/USDT. At the snapshot: open $80,154.09, high $81,971.00, low $76,325.98, latest price $77,613.26. The previous fully closed weekly candle remains 2026-10-19 through 2026-10-25.
 - The historical channel anchors, slope and spacing are unchanged. This is a quote/candle refresh, not a refit to recent prices; the current week remains visibly provisional and the rails remain geometric extensions.
+
+## 2026-11-01 02:41 KST quote refresh
+
+- Binance Spot BTC/USDT ticker: $77,645.67. The open 2026-10-26 weekly candle remains O $80,154.09 / H $81,971.00 / L $76,325.98; its kline close was $77,645.68 at retrieval, one cent away from the ticker.
+- Updated the current-price marker, provisional candle close, report and image cache version. The last completed weekly candle is still 2026-10-19–2026-10-25.
+- Kept the 2018/2022 anchors, slope, channel spacing and 75k horizontal reference unchanged. Lounge Market Context was already absent; no additional removal was needed.
