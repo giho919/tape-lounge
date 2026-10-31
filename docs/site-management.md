@@ -50,6 +50,9 @@ Older dates keep their original market version and deterministic data; completed
 archive rounds may be saved locally but never extend today's streak. When a
 visitor opens an archive round, the date picker offers a link back to today's
 round. Public share links never carry the internal-traffic query flag.
+The friend-invite action uses the visitor's native share sheet when available.
+Clipboard fallback copies the Korean invitation and the exact round URL together;
+it never publishes to a social account automatically.
 
 Route checks:
 
