@@ -84,3 +84,25 @@ An inactive publisher is not sufficient evidence that it should be enabled.
 Check its configuration and reason for being stopped before restoring it.
 Website maintenance must not change trading strategy, exchange orders, model
 training, or Telegram/social publishing.
+
+Chart sharing uses `chart-share.js` / `.css` and the `TapeChartSource` adapter
+in `classic-home.html`. The adapter captures only the three Lightweight Charts
+canvases: price/volume, MACD and RSI. It keeps the visible range and series intact.
+The PNG identifies the instrument, interval, capture time, indicators and chart
+provider; BTCDOM futures and the QQQB token are explicitly named. There is no
+upload endpoint. Native file sharing is optional, with download and link fallbacks.
+
+Shared links use only whitelisted `chart` and `tf` values on the public homepage,
+plus `#loungeChart`. Internal flags and unrelated query parameters must never be
+copied. A shared link opens the latest chart for that selection; it does not
+reconstruct the historical viewport shown in the saved PNG. The price-tile jump
+stays in the running page and preserves internal exclusion.
+
+Run `node scripts/test_chart_share.cjs` after rebuilding. It tests actual chart
+screenshots at desktop/phone widths, PNG downloads, private-state exclusion,
+clean deep links, native-share cancellation, clipboard fallback, loading errors,
+and closing during encoding. OS sharing and clipboard are mocked; external writes
+and WebSockets are blocked. Artifacts go to `TAPE_TEST_ARTIFACTS` or a temporary
+directory, never to published pages. Both new assets are included in the discovery
+generator's fingerprint. Broader site navigation remains covered by the existing
+route and full-lounge smoke tests.

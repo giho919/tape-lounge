@@ -27,11 +27,13 @@
 <link rel="dns-prefetch" href="https://data-api.binance.vision">
 <link rel="stylesheet" href="domestic.css?v=20260911f">
 <link rel="stylesheet" href="chart-analysis.css?v=20261010c">
+<link rel="stylesheet" href="chart-share.css?v=20261031a">
+<script src="chart-share.js?v=20261031a" defer></script>
 <script src="chart-analysis.js?v=20261010c" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
 <script src="domestic.js?v=20260911f" defer></script>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://s.tradingview.com; connect-src 'self' wss://api.upbit.com wss://ws-api.bithumb.com https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.bybit.com https://www.okx.com https://api.gateio.ws https://api.bitget.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com https://s.tradingview.com; connect-src 'self' wss://api.upbit.com wss://ws-api.bithumb.com https://api.upbit.com https://data-api.binance.vision https://api.bithumb.com https://api.bybit.com https://www.okx.com https://api.gateio.ws https://api.bitget.com https://api.frankfurter.dev https://api.alternative.me https://api.coingecko.com https://api.binance.com https://fapi.binance.com https://mempool.space https://*.supabase.co wss://*.supabase.co wss://stream.binance.com:9443 wss://fstream.binance.com; upgrade-insecure-requests">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
@@ -737,11 +739,11 @@ body.shake { animation:shake .5s; }
 <!-- ═══════════ 라운지 탭 ═══════════ -->
 <div id="tab-lounge" class="hidden">
 <div class="strip">
-  <div class="tile">
+  <a class="tile chartJump" href="/#loungeChart" aria-label="비트코인 차트로 이동">
     <div class="l">BTC / USDT</div>
     <div class="v num" id="btcUsd">—</div>
     <div class="s num" id="btcKrw">—</div>
-  </div>
+  </a>
   <div class="tile gaugeTile">
     <canvas id="gauge" width="150" height="86"></canvas>
     <div>
@@ -812,7 +814,7 @@ body.shake { animation:shake .5s; }
 
 <div class="main">
   <div class="col">
-    <div class="panel caro">
+    <div class="panel caro" id="loungeChart">
       <div class="caroTabs">
         <span class="arr" onclick="caroMove(-1)">‹</span>
         <span class="ct2 on" data-c="0" onclick="caroGo(0)">BTC</span>
@@ -820,6 +822,7 @@ body.shake { animation:shake .5s; }
         <span class="ct2" data-c="2" onclick="caroGo(2)">BTC.D</span>
         <span class="ct2" data-c="3" onclick="caroGo(3)">NASDAQ</span>
         <span class="arr" onclick="caroMove(1)">›</span>
+        <button class="chartShareOpen" id="chartShareOpen" type="button" aria-label="차트 이미지 저장 및 링크 공유" aria-haspopup="dialog" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>공유</span></button>
       </div>
       <div class="tfRow">
         <span class="tfb on" data-tf="1m" onclick="setTf('1m')">1분</span>
@@ -1875,7 +1878,9 @@ let dayOpen = null, ethOpen = null, qqqOpen = null;
 
 // ═══ 타임프레임 공용 차트 피드 (4차트 + 캔들 덱) ═══
 const TF_LABEL = { '1m':'1분', '15m':'15분', '1h':'60분', '4h':'240분', '1d':'일봉', '1w':'주봉', '1M':'월봉' };
-let chartTf = '1m';
+const entryChartTf = document.body.dataset.entryTab === 'lounge' ? new URLSearchParams(location.search).get('tf') : null;
+let chartTf = Object.hasOwn(TF_LABEL, entryChartTf) ? entryChartTf : '1m';
+document.querySelectorAll('.tfb').forEach(b => b.classList.toggle('on', b.dataset.tf === chartTf));
 const CHART_SYMS = [
   { sym: 'BTCUSDT',    spot: true,  name: 'BTC' },
   { sym: 'ETHUSDT',    spot: true,  name: 'ETH' },
@@ -2145,6 +2150,29 @@ async function setTf(tf) {
 }
 window.setTf = setTf;
 ensureLoungeChart(0);
+
+// Public chart-only adapter. Never capture the page, chat or paper-account DOM.
+window.TapeChartSource = Object.freeze({
+  describe() {
+    const markets = ['BTC / USDT · Binance', 'ETH / USDT · Binance', 'BTCDOMUSDT · Binance 선물지수', 'QQQB / USDT · ETF 토큰'];
+    const keys = ['BTC', 'ETH', 'BTC.D', 'NASDAQ'];
+    return { key:keys[caroIdx], market:markets[caroIdx], tf:chartTf, label:TF_LABEL[chartTf] };
+  },
+  restore() {
+    if (document.body.dataset.entryTab !== 'lounge') return;
+    const key = new URLSearchParams(location.search).get('chart');
+    const index = ['BTC', 'ETH', 'BTC.D', 'NASDAQ'].indexOf(key);
+    if (index >= 0) caroGo(index);
+    if (location.hash === '#loungeChart') requestAnimationFrame(() => $('loungeChart').scrollIntoView({block:'start'}));
+  },
+  capture() {
+    const chart = chartOf(caroIdx), page = document.querySelector(`.caroPage[data-p="${caroIdx}"]`);
+    if (activeTab !== 'lounge' || !page?.getBoundingClientRect().width || !chart?.bars || !chartSeed[caroIdx]) {
+      throw new Error('차트 데이터를 불러온 뒤 다시 시도해 주세요.');
+    }
+    return { ...this.describe(), capturedAt:new Date().toISOString(), maPeriods:MA_DEFS.map(d => d[0]), stPeriod:ST_PERIOD, stMultiplier:ST_MULTIPLIER, panes:chart.osc.charts.map(c => c.takeScreenshot()) };
+  }
+});
 
 // ═══ 체결의 비 ═══
 const rain = $('rain'), rctx = rain.getContext('2d');

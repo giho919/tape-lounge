@@ -18,7 +18,8 @@ VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdig
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
-               'chart-analysis.js', 'chart-analysis.css', 'btc-long-channel.js']
+               'chart-analysis.js', 'chart-analysis.css', 'btc-long-channel.js',
+               'chart-share.js', 'chart-share.css']
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
