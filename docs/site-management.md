@@ -142,6 +142,10 @@ Do not make opening Safari a normal prerequisite. Desktop mobile-width preview i
 not proof of Threads iOS behavior; report that limitation until checked in the
 actual app.
 
+Blind-round pause and speed controls stay directly above the chart so mobile players
+can reach them without scrolling to the account/order panel. The speed button keeps
+the existing 1× → 2× → 4× cycle and does not change the shared room's host controls.
+
 Completed daily rounds also offer a 1200×630 branded result card for local PNG
 download or the device's native share sheet. The card labels the result as
 simulation, includes the same-period holding comparison and the date-keyed public

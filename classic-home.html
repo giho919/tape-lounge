@@ -470,6 +470,11 @@ body.shake { animation:shake .5s; }
 #bgLog { max-height:200px; overflow-y:auto; padding:8px 15px 12px; font-size:11px; }
 #bgLog .tr { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
 .bgStage { position:relative; min-height:0; }
+.bgChartControls { display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:5px 12px 3px; }
+.bgChartControls .bgChartControl { flex:0 0 auto; min-height:32px; padding:6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--panel2); color:#d7dbe3; font-family:inherit; font-size:10px; font-weight:700; line-height:1.2; letter-spacing:.3px; white-space:nowrap; cursor:pointer; touch-action:manipulation; }
+.bgChartControls .bgChartControl.pause { min-width:106px; border-color:var(--gold); background:var(--gold-dim); color:#111; }
+.bgChartControls .bgChartControl.speed { min-width:84px; color:var(--gold); }
+.bgChartControls .bgChartControl:active { filter:brightness(1.18); }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center; text-align:center; }
 #bgOver.hidden { display:none; }
@@ -1120,6 +1125,10 @@ body.shake { animation:shake .5s; }
       <span class="num" id="bgDay">—</span>
       <span class="num" id="bgPx" style="margin-left:auto">—</span>
     </div>
+    <div class="bgChartControls" id="bgPlayRow">
+      <button type="button" class="bgChartControl pause gbtn next" id="bgPlayBtn" onclick="soloPauseToggle()">⏸ 일시정지</button>
+      <button type="button" class="bgChartControl speed gbtn" id="bgSpeedBtn" onclick="soloCycleSpeed()">속도 1×</button>
+    </div>
     <div class="indicatorLegend" data-indicator-legend></div>
     <div id="bgChart" style="height:480px"></div>
     <span class="chartWatermark" aria-hidden="true">tapelounge.com</span>
@@ -1169,10 +1178,6 @@ body.shake { animation:shake .5s; }
       <div class="gRow">
         <div class="gbtn buy solid" id="bgBuyCustom" onclick="blindTrade('buy', bgPct/100)">롱 25%</div>
         <div class="gbtn sell solid" id="bgSellCustom" onclick="blindTrade('sell', bgPct/100)">숏 25%</div>
-      </div>
-      <div class="gRow" id="bgPlayRow">
-        <div class="gbtn next" id="bgPlayBtn" onclick="soloPauseToggle()">⏸ 일시정지</div>
-        <div class="gbtn" id="bgSpeedBtn" onclick="soloCycleSpeed()">속도 1×</div>
       </div>
       <div class="gRow" id="bgSoloFinish" style="padding-bottom:14px">
         <div class="gbtn" id="bgFinishBtn" onclick="blindSettle()">🏳 여기서 정산</div>
