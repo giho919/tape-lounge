@@ -179,10 +179,11 @@ not proof of Threads iOS behavior; report that limitation until checked in the
 actual app.
 
 Blind-round speed selection stays directly above the chart and remains available on
-the start overlay, so mobile players can choose a pace before candles begin. Daily
-mode starts at 2× and also offers 0.5×–4× direct selection or 0.5× increments. Pause
-stays next to the chart once a round starts. Shared-table mode keeps the
-host-controlled 1× → 2× → 4× cycle.
+the start overlay, so mobile players can choose a pace before candles begin. On
+mobile, the intro card starts below the controls so its title and instructions stay
+clear. Daily mode starts at 2× and also offers 0.5×–4× direct selection or 0.5×
+increments. Pause stays next to the chart once a round starts. Shared-table mode
+keeps the host-controlled 1× → 2× → 4× cycle.
 
 The bottom navigation keeps the lounge first and the blind game second because
 the game currently earns the longest sessions. Leave the remaining tabs in place;
