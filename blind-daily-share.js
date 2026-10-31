@@ -71,8 +71,8 @@
 
     text('오늘의 판', 66, 184, 18, '#d4af37', 600);
     text(data.label, 66, 244, 38, '#f4f0e7', 700);
-    text(`${data.symbol} / USDT`, 66, 298, 25, '#aab1bf', 600);
-    text(`${data.days}일 플레이 · 가상 자금 $10,000`, 66, 339, 16, '#828b9c', 500);
+    text(data.market === 'stock' ? data.symbol : `${data.symbol} / USDT`, 66, 298, 25, '#aab1bf', 600);
+    text(`${data.days}${data.market === 'stock' ? '거래일' : '일'} 플레이 · 가상 자금 $10,000`, 66, 339, 16, '#828b9c', 500);
 
     rounded(ctx, 550, 165, 584, 257, 16); ctx.fillStyle = 'rgba(8,10,14,.72)'; ctx.fill();
     ctx.strokeStyle = '#393d47'; ctx.lineWidth = 1; ctx.stroke();
@@ -85,7 +85,7 @@
 
     ctx.strokeStyle = '#343947'; ctx.beginPath(); ctx.moveTo(64, 458); ctx.lineTo(1136, 458); ctx.stroke();
     text('다음 판은 당신 차례', 66, 501, 22, '#f0d77a', 700);
-    text(`tapelounge.com/blind/?daily=${data.day}`, 66, 536, 18, '#e5e7eb', 600);
+    text(`tapelounge.com/blind/?daily=${data.day}${data.version === 2 ? '&v=2' : ''}`, 66, 536, 18, '#e5e7eb', 600);
     text('모의 연습 결과 · 실제 주문·투자 성과 아님 · 잔여 포지션은 마지막 종가 평가', 66, 578, 14, '#929aaa', 500);
     text('TAPE LOUNGE', 1134, 578, 13, '#756439', 700);
     return canvas;

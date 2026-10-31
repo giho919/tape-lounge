@@ -10,6 +10,7 @@ import sys
 from xml.etree.ElementTree import Element, SubElement, tostring
 from discovery_content import COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
+from blind_daily_stock_rounds import ensure_rounds
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
@@ -176,10 +177,11 @@ def render(lang, page, data, letters, generated, root=False):
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS + TOOL_ASSETS
+    daily_changed=ensure_rounds(ROOT)
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
-    if not force and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
+    if not force and not daily_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
         return {'changed':False}
     data=read('data/andy-watch.json'); letters=read('reports/letters.json')
     generated=datetime.now(timezone.utc).isoformat()
