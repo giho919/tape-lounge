@@ -153,6 +153,12 @@ challenge link. Image creation is local; there is no upload, public score table,
 or server-side verification. Keep the clean result-copy link available as a
 separate fallback.
 
+Before a daily round starts, the intro also offers a user-triggered invite to the
+same date-keyed challenge. It opens the device share sheet when available, then
+copies the clean public URL, with a selectable text fallback if clipboard access
+is unavailable. Do not attach campaign or internal tracking parameters to these
+personal invites, and do not send or post them automatically.
+
 Run `node scripts/test_blind_daily.cjs` and `node scripts/test_blind_daily_ui.cjs`.
 They cover deterministic/KST selection, candle integrity, local persistence and
 retention, real chart/indicator visibility, a local simulated trade, full finish,
