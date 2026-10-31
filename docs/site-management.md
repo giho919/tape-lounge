@@ -132,6 +132,13 @@ clean public puzzle link. Other query parameters are excluded. It is a client-si
 practice game, not a tamper-proof competition; hidden data can be inspected by a
 determined user. Do not present its local records as audited performance.
 
+Completed daily rounds also offer a 1200×630 branded result card for local PNG
+download or the device's native share sheet. The card labels the result as
+simulation, includes the same-period holding comparison and the date-keyed public
+challenge link. Image creation is local; there is no upload, public score table,
+or server-side verification. Keep the clean result-copy link available as a
+separate fallback.
+
 Run `node scripts/test_blind_daily.cjs` and `node scripts/test_blind_daily_ui.cjs`.
 They cover deterministic/KST selection, candle integrity, local persistence and
 retention, real chart/indicator visibility, a local simulated trade, full finish,

@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="chart-share.css?v=20261031a">
 <script src="chart-share.js?v=20261031a" defer></script>
 <script src="blind-daily.js?v=20261031a"></script>
+<script src="blind-daily-share.js?v=20261031b" defer></script>
 <script src="site-campaign.js?v=20261031a"></script>
 <script src="chart-analysis.js?v=20261010c" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
@@ -445,6 +446,18 @@ body.shake { animation:shake .5s; }
 #bgOver .bgDailyActions .go { padding:9px 14px; letter-spacing:.5px; background:transparent; font-family:inherit; }
 #bgDailyCopyText { width:100%; margin-top:10px; min-height:128px; padding:10px; color:var(--tx); background:var(--bg); border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:11px; line-height:1.6; resize:vertical; }
 #bgDailyCopyText[hidden] { display:none; }
+#bgDailyShareDialog { width:min(680px,calc(100% - 24px)); max-height:calc(100dvh - 30px); margin:auto; padding:18px; overflow:auto; border:1px solid var(--gold-dim); border-radius:14px; background:var(--panel); color:var(--tx); box-shadow:0 20px 80px #000b; }
+#bgDailyShareDialog::backdrop { background:#000b; }
+.bgDailyShareHead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.bgDailyShareHead b { color:var(--gold); font-size:14px; letter-spacing:.6px; }
+#bgDailyShareClose { min-width:36px; min-height:36px; border:0; background:transparent; color:var(--tx); font-size:24px; cursor:pointer; }
+#bgDailySharePreview { display:block; width:100%; max-height:52dvh; object-fit:contain; background:#090b10; border:1px solid var(--line); border-radius:8px; }
+#bgDailyShareStatus { min-height:2.8em; margin:10px 0; color:var(--dim); font-size:11px; line-height:1.6; }
+.bgDailyShareActions { display:flex; flex-wrap:wrap; gap:8px; }
+.bgDailyShareActions button { flex:1 1 130px; min-height:40px; padding:10px; border:1px solid var(--gold-dim); border-radius:7px; background:rgba(212,175,55,.07); color:var(--gold); font:inherit; font-size:12px; font-weight:600; cursor:pointer; }
+.bgDailyShareActions button:disabled { opacity:.45; cursor:wait; }
+#bgDailyShareClose:focus-visible,.bgDailyShareActions button:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.bgDailyShareNote { margin-top:10px; color:var(--dim); font-size:10px; line-height:1.6; }
 .bgModeLabel { flex:0 0 auto; margin-right:2px; color:var(--dim); font-size:9px; letter-spacing:1px; }
 #bgTrackRow { padding-top:0; }
 #bgTrackRow .bgModeBtn { min-height:24px; padding:4px 10px; border-radius:6px; font-size:9.5px; font-weight:500; }
@@ -3614,6 +3627,17 @@ async function bgCopyDailyResult() {
   catch { if (target?.isConnected) { target.value=text;target.hidden=false;target.focus();target.select();if(msg)msg.textContent='아래 내용을 선택해 복사해 주세요.'; } }
 }
 window.bgCopyDailyResult = bgCopyDailyResult;
+function bgOpenDailyShare() {
+  if (!bg?.daily || !bg.over || !window.TapeDailyShare) return;
+  const result = {roi:(bgTotal()/10000-1)*100,bh:(bg.norm[bg.idx].close/bg.norm[bg.base].close-1)*100,days:bg.idx-bg.base,completed:bg.idx===bg.norm.length-1,bankrupt:bg.bankrupt};
+  const label = result.completed ? '200일 완주' : result.bankrupt ? '파산 정산' : '중간 정산';
+  window.TapeDailyShare.open({
+    day:bg.daily.day, symbol:bg.sym.replace('USDT',''), label, days:result.days,
+    roi:result.roi, bh:result.bh, completed:result.completed,
+    text:window.BlindDaily.shareText(bg.daily,result),
+  });
+}
+window.bgOpenDailyShare = bgOpenDailyShare;
 
 function bgMASet() {
   const vis = bg.norm.slice(0, bg.idx + 1);
@@ -3853,7 +3877,7 @@ async function blindFinish(early) {
       <div class="big num" style="color:${roi>=0?'var(--grn)':'var(--red)'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
       <p>같은 기간 보유 <b>${bh>=0?'+':''}${bh.toFixed(2)}%</b> <small>(수수료 전)</small><br>${roi>=bh?'이번 판에서는 보유 수익률을 앞섰습니다.':'이번 판에서는 보유 수익률이 더 높았습니다.'}</p>
       <p class="bgDailyInfo">${recorded.saved?'첫 완주 기록을 이 브라우저에 저장했습니다.':first?`이 브라우저의 첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}%` : completed?'브라우저 기록을 저장하지 못했습니다.':'200일을 끝까지 마치면 첫 완주 기록이 남습니다.'}<br>남아 있는 포지션은 마지막 종가로 평가합니다.</p>
-      <div class="resultWatermark">tapelounge.com</div><div class="bgDailyActions"><button type="button" class="go" onclick="bgCopyDailyResult()">결과·도전 링크 복사</button><button type="button" class="go" onclick="blindStart()">같은 판 연습</button></div>
+      <div class="resultWatermark">tapelounge.com</div><div class="bgDailyActions"><button type="button" class="go" onclick="bgOpenDailyShare()">결과 카드 저장·공유</button><button type="button" class="go" onclick="bgCopyDailyResult()">결과·도전 링크 복사</button><button type="button" class="go" onclick="blindStart()">같은 판 연습</button></div>
       <p class="bgDailyInfo" id="bgDailyCopyStatus" role="status"></p><textarea readonly hidden id="bgDailyCopyText" aria-label="복사할 모의 결과와 도전 링크"></textarea>`;
     $('bgOver').classList.remove('hidden');
     return;
