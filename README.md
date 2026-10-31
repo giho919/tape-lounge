@@ -16,6 +16,13 @@ discovery pages remain available. Live data use public browser APIs. Supabase co
 to provide chat, shared market events and privacy-first aggregate analytics. Chat
 authentication runs only when a visitor chooses to send, under the existing CAPTCHA/RLS contract.
 
+**Direct tool entry pages (2026-10-31):** `/domestic/`, `/desk/`, `/analysis/`,
+`/onchain/`, `/calendar/`, `/blind/`, and `/strategists/` open the existing tools
+without a redirect. The same generator selects the initial panel and produces
+page-specific metadata and sitemap entries. Navigation uses real links and the
+History API; legacy fragment bookmarks continue to work. See
+[site management](docs/site-management.md) for publishing and checks.
+
 ### Anonymous audience & private analytics · 익명 관전 인원과 비공개 통계
 
 - Anonymous Presence remains connected; Presence state is not written to the database / 익명 Presence 유지, Presence 상태는 DB에 저장하지 않음

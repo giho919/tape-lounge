@@ -30,7 +30,10 @@ test('hash 첫 진입과 lazy 초기화 경합을 처리한다',()=>{
 test('새 스크립트와 기존 인라인 스크립트가 모두 문법 검증을 통과한다',()=>{
  new vm.Script(js);for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(match[1].trim())new vm.Script(match[1]);
 });
-test('독립 경로가 internal 매개변수를 보존한다',()=>{
- const redirect=fs.readFileSync(path.join(root,'analysis','index.html'),'utf8');assert(redirect.includes("location.search+'#analysis'"));
+test('독립 경로는 리디렉션 없이 분석 탭으로 바로 열린다',()=>{
+ const page=fs.readFileSync(path.join(root,'analysis','index.html'),'utf8');
+ assert(page.includes('data-entry-tab="analysis"'));
+ assert(page.includes('<link rel="canonical" href="https://tapelounge.com/analysis/">'));
+ assert(!page.includes('location.replace('));
 });
 console.log(tests+' chart analysis checks passed');

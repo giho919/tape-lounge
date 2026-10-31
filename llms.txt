@@ -15,6 +15,18 @@
 - [Session methodology](https://tapelounge.com/en/learn/market-sessions/)
 - [Observation ledger](https://tapelounge.com/en/watch/)
 
+## Interactive tools (Korean)
+- [Domestic prices and Korean premium](https://tapelounge.com/domestic/)
+- [Bitcoin futures desk](https://tapelounge.com/desk/)
+- [Long-term channel analysis](https://tapelounge.com/analysis/)
+- [On-chain and mempool](https://tapelounge.com/onchain/)
+- [Economic releases](https://tapelounge.com/calendar/)
+- [Blind chart practice](https://tapelounge.com/blind/)
+- [AI strategist reports](https://tapelounge.com/strategists/)
+
+These URLs open each tool directly, without redirecting to a homepage fragment.
+Live values require JavaScript and can be delayed or unavailable.
+
 ## Public data
 - [Scene archive](https://tapelounge.com/data/scenes.json): recent public events linked to closed spot candles. Individual files remain available by ID; sequence is not proof of causation or a complete audit trail.
 - [Summary JSON](https://tapelounge.com/data/discovery.json): schema, reportAt, generatedAt, sourceHash, candidates, coverage, copy and public report summaries.

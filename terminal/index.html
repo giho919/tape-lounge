@@ -4,14 +4,14 @@
 <base href="/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://tapelounge.com/">
-<title>Tape Lounge</title>
+<meta name="robots" content="noindex,follow">
+<title>Tape Lounge · 실시간 비트코인·김프·차트 라운지</title>
 <meta name="description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
 <meta property="og:site_name" content="Tape Lounge">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tapelounge.com/">
-<meta property="og:title" content="Tape Lounge">
+<meta property="og:title" content="Tape Lounge · 실시간 비트코인·김프·차트 라운지">
 <meta property="og:description" content="실시간 시세와 청산이 흐르는 크립토 라운지. 선물 데스크·온체인·지표 발표장·블라인드 차트 게임·전략가 리포트를 한 곳에서.">
 <meta property="og:image" content="https://tapelounge.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -57,7 +57,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .tabsWrap { position:fixed; top:50%; right:max(0px, calc((100vw - 1500px) / 2));
   transform:translateY(-50%); z-index:34; }
 .tabs { display:flex; flex-direction:column; gap:2px; align-items:stretch; }
-.tab { position:relative; display:flex; align-items:center; gap:9px; width:134px;
+.tab { position:relative; display:flex; align-items:center; gap:9px; width:134px; text-decoration:none;
   padding:9px 12px 9px 13px; font-size:11.5px; line-height:1.35; letter-spacing:.6px;
   white-space:nowrap; color:var(--dim); cursor:pointer;
   background:var(--panel); border:1px solid var(--line); border-right:0;
@@ -712,21 +712,21 @@ body.shake { animation:shake .5s; }
 </style>
 <link rel="stylesheet" href="strategists.css?v=20260909">
 </head>
-<body>
+<body data-entry-tab="lounge">
 <div class="wrap">
 
 <div class="hdr">
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
   <div class="tabsWrap">
   <div class="tabs" role="tablist" aria-orientation="vertical" aria-label="라운지 섹션">
-    <div class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge" title="실시간 시세·청산·채팅이 흐르는 메인 화면"><i class="ic" aria-hidden="true">🥂</i><span class="nm">라운지</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보"><i class="ic" aria-hidden="true">🇰🇷</i><span class="nm">국내장</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk" title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서"><i class="ic" aria-hidden="true">📊</i><span class="nm">데스크</span></div>
-    <div class="tab" id="analysis-tab" role="tab" tabindex="0" aria-controls="tab-analysis" aria-selected="false" data-tab="analysis" title="차트 분석 — BTC 장기 빗각과 선형 평행 채널"><i class="ic" aria-hidden="true">📐</i><span class="nm">차트 분석</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain" title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표"><i class="ic" aria-hidden="true">⛓</i><span class="nm">온체인</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro" title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과"><i class="ic" aria-hidden="true">📣</i><span class="nm">발표장</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game" title="블라인드 — 종목명을 가린 실제 차트 맞히기"><i class="ic" aria-hidden="true">🎰</i><span class="nm">블라인드</span></div>
-    <div class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars" title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부"><i class="ic" aria-hidden="true">🎩</i><span class="nm">전략가들</span></div>
+    <a href="/" class="tab on" role="tab" tabindex="0" aria-selected="true" data-tab="lounge" title="실시간 시세·청산·채팅이 흐르는 메인 화면"><i class="ic" aria-hidden="true">🥂</i><span class="nm">라운지</span></a>
+    <a href="/domestic/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="domestic" title="국내 시세·김프·관심 코인·Andy 후보"><i class="ic" aria-hidden="true">🇰🇷</i><span class="nm">국내장</span></a>
+    <a href="/desk/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="desk" title="데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서"><i class="ic" aria-hidden="true">📊</i><span class="nm">데스크</span></a>
+    <a href="/analysis/" class="tab" id="analysis-tab" role="tab" tabindex="0" aria-controls="tab-analysis" aria-selected="false" data-tab="analysis" title="차트 분석 — BTC 장기 빗각과 선형 평행 채널"><i class="ic" aria-hidden="true">📐</i><span class="nm">차트 분석</span></a>
+    <a href="/onchain/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chain" title="온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표"><i class="ic" aria-hidden="true">⛓</i><span class="nm">온체인</span></a>
+    <a href="/calendar/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro" title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과"><i class="ic" aria-hidden="true">📣</i><span class="nm">발표장</span></a>
+    <a href="/blind/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="game" title="블라인드 — 종목명을 가린 실제 차트 맞히기"><i class="ic" aria-hidden="true">🎰</i><span class="nm">블라인드</span></a>
+    <a href="/strategists/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars" title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부"><i class="ic" aria-hidden="true">🎩</i><span class="nm">전략가들</span></a>
   </div>
   </div>
   <div style="display:flex;gap:14px;align-items:center">
@@ -1345,30 +1345,24 @@ body.shake { animation:shake .5s; }
 <script>
 const $ = id => document.getElementById(id);
 const fmt = (n, d=0) => n.toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d});
-let activeTab = 'lounge';
+let activeTab = document.body.dataset.entryTab || 'lounge';
 const tabLive = name => activeTab === name && !document.hidden;
 
 // ═══ 탭 ═══
 // ═══ 탭별 주소 ═══
-// 라운지는 hash 없음(루트 URL 유지), 나머지는 #슬러그.
-// hash 를 쓰면 정적 호스팅 그대로 동작하고 뒤로가기도 브라우저가 알아서 처리한다.
+// Each tool has a static entry page; clicks keep the current application alive.
+// Old fragment links remain valid for existing bookmarks and shared reports.
 const TAB_SLUG = { lounge:'', domestic:'domestic', desk:'desk', analysis:'analysis', chain:'onchain', macro:'calendar', game:'blind', chars:'strategists' };
 const SLUG_TAB = Object.fromEntries(Object.entries(TAB_SLUG).filter(([,v]) => v).map(([k,v]) => [v, k]));
-let applyingHash = false;
 
 function selectTab(t, fromHash = false) {
   if (typeof siteAnalyticsTabLeaving === 'function') siteAnalyticsTabLeaving();
   activeTab = t.dataset.tab;
   if (!fromHash) {
     const slug = TAB_SLUG[activeTab] || '';
-    const want = slug ? `#${slug}` : '';
-    if ((location.hash || '') !== want) {
-      applyingHash = true;
-      // 라운지로 돌아갈 때는 주소창에 빈 #가 남지 않도록 정리
-      if (slug) location.hash = slug;
-      else history.replaceState(null, '', location.pathname + location.search);
-      applyingHash = false;
-    }
+    const path = slug ? `/${slug}/` : '/';
+    const want = path + location.search;
+    if (location.pathname + location.search + location.hash !== want) history.pushState(null, '', want);
   }
   document.querySelectorAll('.tab').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-selected', 'false'); });
   t.classList.add('on'); t.setAttribute('aria-selected', 'true');
@@ -1392,23 +1386,27 @@ function selectTab(t, fromHash = false) {
   if (typeof syncRuntimeState === 'function') syncRuntimeState();
 }
 document.querySelectorAll('.tab').forEach(t => {
-  t.onclick = () => selectTab(t);
-  t.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTab(t); } };
+  t.onclick = e => {
+    if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); selectTab(t);
+  };
+  t.onkeydown = e => { if (e.key === ' ') { e.preventDefault(); selectTab(t); } };
 });
 
-// 주소의 hash → 탭. 첫 진입과 뒤로/앞으로 모두 여기로 들어온다.
-function applyTabFromHash() {
-  if (applyingHash) return;
+// Real paths for new links; fragments take precedence for legacy links.
+function applyTabFromLocation() {
   const slug = (location.hash || '').replace(/^#/, '').toLowerCase();
-  const tabId = slug ? SLUG_TAB[slug] : 'lounge';
-  if (!tabId || tabId === activeTab) return;   // 모르는 hash(#demo 등)는 건드리지 않는다
+  const pathSlug = location.pathname.replace(/^\/+|\/+$/g, '').replace(/\/index\.html$/, '');
+  const tabId = SLUG_TAB[slug] || SLUG_TAB[pathSlug] || 'lounge';
+  if (tabId === activeTab) return;
   const t = document.querySelector(`.tab[data-tab="${tabId}"]`);
   if (t) selectTab(t, true);
 }
-window.addEventListener('hashchange', applyTabFromHash);
+window.addEventListener('hashchange', applyTabFromLocation);
+window.addEventListener('popstate', applyTabFromLocation);
 // 첫 적용은 스크립트 평가가 끝난 뒤로 미룬다 — selectTab 이 아래쪽에서 let 으로
 // 선언되는 bgTimer 등을 참조하므로 즉시 호출하면 TDZ ReferenceError 로 죽는다.
-setTimeout(applyTabFromHash, 0);
+setTimeout(applyTabFromLocation, 0);
 
 // 탭 바가 좁아져 스크롤이 필요할 때만 우측 페이드 표시 — 숨겨진 스크롤바만으론
 // 오른쪽에 탭이 더 있다는 게 안 보여서(scrollbar-width:none) 대부분 라운지에만 머문 원인 중 하나였다.

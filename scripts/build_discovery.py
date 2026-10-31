@@ -4,6 +4,7 @@ from email.utils import format_datetime
 from hashlib import sha256
 from html import escape as e
 import json
+import re
 from pathlib import Path
 import sys
 from xml.etree.ElementTree import Element, SubElement, tostring
@@ -16,6 +17,55 @@ ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
+TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
+               'chart-analysis.js', 'chart-analysis.css', 'btc-long-channel.js']
+TOOL_PAGES = [
+    ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
+     '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
+    ('desk', 'desk', '비트코인 선물 데스크 · Tape Lounge',
+     'BTC 무기한 선물의 추세, 주요 가격대, 펀딩비, 미결제약정과 주문 흐름을 한 화면에서 확인합니다.'),
+    ('analysis', 'analysis', '비트코인 장기 채널·차트 분석 · Tape Lounge',
+     '비트코인의 장기 선형 채널과 주봉 지지·저항을 살펴보는 차트 분석 자료입니다. 고정 자료의 기준일과 한계를 함께 표시합니다.'),
+    ('onchain', 'chain', '비트코인 온체인·멤풀 · Tape Lounge',
+     '비트코인 멤풀, 전송 수수료, 새 블록과 공개 온체인 지표로 거래소 밖 네트워크 상황을 살펴봅니다.'),
+    ('calendar', 'macro', '미국 경제지표 발표 일정 · Tape Lounge',
+     'CPI, 고용, GDP와 FOMC의 공식 발표 일정, 확인된 결과와 발표 이후 비트코인 가격 반응을 한국시간으로 확인합니다.'),
+    ('blind', 'game', '블라인드 차트 게임 · Tape Lounge',
+     '종목과 날짜를 가린 실제 과거 차트로 모의 매매를 연습합니다. 혼자 하거나 함께 보는 판을 만들고 같은 기간 보유 수익률과 비교합니다.'),
+    ('strategists', 'chars', '크립토 전략가 리포트 · Tape Lounge',
+     '정마담의 운용 장부, Andy의 종목 관찰과 Prof. Justin의 월간 시장 국면 판정을 확인하는 AI 전략가 리포트입니다.'),
+]
+
+def tool_page(classic, slug, selected, title, description):
+    """Serve the selected tool as HTML, with the same app and no redirect hop."""
+    text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
+    text = re.sub(r'<title>[^<]*</title>', f'<title>{e(title)}</title>', text, count=1)
+    for attr, name, value in [('name', 'description', description),
+                              ('property', 'og:title', title),
+                              ('property', 'og:description', description),
+                              ('property', 'og:url', BASE+'/'+slug+'/')]:
+        text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
+                      lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
+    text = text.replace(f'<link rel="canonical" href="{BASE}/">',
+                        f'<link rel="canonical" href="{BASE}/{slug}/">', 1)
+
+    def panel(match):
+        tag, key, attrs = match.groups()
+        attrs = re.sub(r'\sclass="hidden"', '', attrs)
+        if key != selected:
+            attrs += ' class="hidden"'
+        return f'<{tag} id="tab-{key}"{attrs}>'
+
+    def nav(match):
+        attrs, key = match.groups()
+        active = key == selected
+        attrs = re.sub(r'class="tab(?: on)?"', 'class="tab'+(' on' if active else '')+'"', attrs)
+        attrs = re.sub(r'aria-selected="(?:true|false)"', f'aria-selected="{str(active).lower()}"', attrs)
+        return '<a'+attrs+'>'
+
+    text = re.sub(r'<(div|section) id="tab-([a-z]+)"([^>]*)>', panel, text)
+    text = re.sub(r'<a([^>]*\bdata-tab="([a-z]+)"[^>]*)>', nav, text)
+    return text
 
 def read(path):
     return json.loads((ROOT / path).read_text(encoding='utf-8'))
@@ -124,13 +174,16 @@ def render(lang, page, data, letters, generated, root=False):
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
         return {'changed':False}
     data=read('data/andy-watch.json'); letters=read('reports/letters.json')
     generated=datetime.now(timezone.utc).isoformat()
+    tool_hash=sha256((ROOT/'classic-home.html').read_bytes()+json.dumps(TOOL_PAGES,ensure_ascii=False).encode()+b''.join((ROOT/p).read_bytes() for p in TOOL_ASSETS)).hexdigest()
+    previous=read('data/discovery.json') if target.exists() else {}
+    tool_updated=previous.get('toolUpdatedAt',generated[:10]) if previous.get('toolSourceHash')==tool_hash else generated[:10]
     pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
     for lang in LANGS:
         for page in pages:
@@ -154,15 +207,21 @@ def build(force=False):
     if '<head>' not in classic or viewport not in classic:
         raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
     classic=classic.replace('<head>','<head>\n<base href="/">',1)
-    classic=classic.replace(viewport,viewport+'\n<meta name="robots" content="index,follow">\n<link rel="canonical" href="https://tapelounge.com/">',1)
+    classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
+    classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     write('index.html',classic)
     write('ko/index.html',classic)
     terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
     write('terminal/index.html',terminal)
-    write('data/discovery.json',json.dumps({'schema':1,'sourceHash':fingerprint,'generatedAt':generated,'reportAt':data['reportAt'],'coverage':data['coverage'],'candidates':data['candidates'],'letters':letters,'copy':COPY,'stages':STAGES},ensure_ascii=False,separators=(',',':'))+'\n')
+    for slug, selected, title, description in TOOL_PAGES:
+        write(slug+'/index.html', tool_page(classic, slug, selected, title, description))
+    write('data/discovery.json',json.dumps({'schema':1,'sourceHash':fingerprint,'toolSourceHash':tool_hash,'toolUpdatedAt':tool_updated,'generatedAt':generated,'reportAt':data['reportAt'],'coverage':data['coverage'],'candidates':data['candidates'],'letters':letters,'copy':COPY,'stages':STAGES},ensure_ascii=False,separators=(',',':'))+'\n')
     sitemap=Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     root_entry=SubElement(sitemap,'url');SubElement(root_entry,'loc').text=BASE+'/'
-    SubElement(root_entry,'lastmod').text=generated[:10]
+    SubElement(root_entry,'lastmod').text=tool_updated
+    for slug, *_ in TOOL_PAGES:
+        entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+'/'+slug+'/'
+        SubElement(entry,'lastmod').text=tool_updated
     for lang in LANGS:
         for page in pages:
             if lang=='ko' and page=='':continue
@@ -173,7 +232,6 @@ def build(force=False):
     write('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(sitemap,encoding='unicode'))
     # Reuse the existing, explicitly public publishable key and RPC. No new table/schema.
     source=(ROOT/'terminal/index.html').read_text(encoding='utf-8')
-    import re
     supa_url=re.search(r"const SUPA_URL = '([^']+)'",source)[1]
     key=re.search(r"const SUPA_KEY = '([^']+)'",source)[1]
     if not key.startswith('sb_publishable_'):
@@ -183,7 +241,7 @@ def build(force=False):
     turnstile=re.search(r"const TURNSTILE_SITEKEY = '([^']+)'",source)[1]
     sdk=re.search(r'<script src="([^"]+@supabase/supabase-js@[^"]+)" integrity="([^"]+)"',source)
     write('data/stage-config.json',json.dumps({'schema':1,'url':supa_url,'key':key,'turnstile':turnstile,'sdk':{'url':sdk[1],'integrity':sdk[2]},'words':WORDS},ensure_ascii=False,separators=(',',':'))+'\n')
-    return {'changed':True,'pages':len(LANGS)*len(pages)+1,'reportAt':data['reportAt']}
+    return {'changed':True,'pages':len(LANGS)*len(pages)+1+len(TOOL_PAGES),'reportAt':data['reportAt']}
 
 if __name__=='__main__':
     print(json.dumps(build('--force' in sys.argv)))

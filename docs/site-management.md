@@ -20,6 +20,30 @@ duplicate room directory must remain absent.
 to update `/`, `/ko/`, and `/terminal/` together. The hourly publisher regenerates
 these copies, so editing only `index.html` is temporary.
 
+The same generator serves seven direct tool paths: `/domestic/`, `/desk/`,
+`/analysis/`, `/onchain/`, `/calendar/`, `/blind/`, and `/strategists/`. These are
+full application entries with the selected panel present in the initial HTML,
+their own titles/canonical URLs, and real navigation links. Normal clicks use
+the History API to preserve the running app; old fragment bookmarks still work.
+Keep all seven generated entries in the publisher's staging list. The public
+source snapshot and `/terminal/` remain `noindex`; the generated home is indexable.
+The sitemap's tool dates follow the source hash instead of changing hourly when
+only a report refreshes. This enables discovery; it does not prove indexing or
+promise a ranking. Check search-console evidence when available.
+
+Route checks:
+
+```
+python3 scripts/test_tool_routes.py
+node scripts/test_tool_routes.cjs
+node scripts/test_nav.cjs
+node scripts/test_chart_analysis.cjs
+```
+
+The browser route test blocks external writes and checks direct entry without
+JavaScript, initial panel visibility, regular navigation without reloading,
+back/forward, refresh, internal query preservation, keyboard and old bookmarks.
+
 Review the live page, errors, data freshness, small-screen overflow, and the
 relevant interaction after each change. Use `?internal=1` in development and
 verification browsers. Block writes in browser tests: no production chat,
