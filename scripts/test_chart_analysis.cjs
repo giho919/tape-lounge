@@ -16,10 +16,11 @@ test('장기 차트가 기본이고 최근 차트는 접힌 비교 자료다',()
  assert(!/<img[^>]+\ssrc=/.test(section),'숨은 탭은 이미지를 요청하면 안 된다');
  assert(section.includes('고정 분석 자료'));assert(section.includes('실시간으로 갱신되지 않으며'));
 });
-test('분석 기능은 시세·DB·주문 API를 호출하지 않는다',()=>{
+test('분석 자료는 시세·주문을 조회하지 않고 공통 익명 통계에 참여한다',()=>{
  assert(!/\bfetch\s*\(|new WebSocket|\.rpc\s*\(|\.from\s*\(/.test(js));
  const f=html.slice(html.indexOf('async function recordSiteActivity('),html.indexOf('function siteAnalyticsFlush('));
- assert(f.indexOf("if (activeTab === 'analysis') return;")<f.indexOf('analyticsPayload('));
+ assert(!f.includes("activeTab === 'analysis'"));
+ assert(f.includes('analyticsPayload(activeSeconds, isView)'));
 });
 test('hash 첫 진입과 lazy 초기화 경합을 처리한다',()=>{
  assert(js.includes("if (!section.classList.contains('hidden')) init();"));

@@ -48,6 +48,26 @@ Review the live page, errors, data freshness, small-screen overflow, and the
 relevant interaction after each change. Use `?internal=1` in development and
 verification browsers. Block writes in browser tests: no production chat,
 anonymous signups, paper orders, or analytics test traffic.
+`scripts/browser_read_only.cjs` also stops write fetches and beacons inside the
+test page, since a keepalive request at unload can outlive network interception.
+
+## Chart-analysis audience coverage
+
+Apply `supabase/site_analytics_analysis.sql` as the recorded
+`include_analysis_in_site_analytics` migration before deploying the matching
+homepage source. It expands only the existing seven-argument RPC's tab
+allowlist. It does not replace that RPC with the older bootstrap definition.
+The patch is idempotent and stops for review if the expected guard has changed.
+The function's owner, ACL, empty search path, internal-traffic handling and
+write limits are preserved. Raw analytics remain private.
+
+Run `scripts/test_site_analytics_analysis.sql` as an administrator: its
+transaction rolls back all synthetic rows. It checks an anonymous caller,
+internal exclusion, session reuse, duration cap, all eight valid tab IDs,
+invalid-tab rejection and private-table permissions. Compare the function
+definition and ACL before/after and confirm that no synthetic rows persisted.
+The browser route test intercepts the analysis payload with `p_internal=true`
+and blocks its external write. Historical missing visits cannot be recovered.
 
 On 2026-10-31 a live race quote exposed an undefined `spread` in `renderRace`.
 The race-only failure occurred once per second while the socket-free smoke test

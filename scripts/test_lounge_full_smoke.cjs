@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const browserReadOnly=require('./browser_read_only.cjs');
 const root=path.resolve(__dirname,'..');
 (async()=>{
  const server=http.createServer((req,res)=>{
@@ -16,14 +17,11 @@ const root=path.resolve(__dirname,'..');
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
  try{
-  const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
-  const errors=[],blocked=[];
+  const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block'});
+  const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   // No analytics, anonymous signups, chat posts or orders can leave this browser.
-  await page.route('**/*',route=>{
-   if(!['GET','HEAD','OPTIONS'].includes(route.request().method())){blocked.push(route.request().url());return route.abort();}
-   return route.continue();
-  });
+  const blocked=await browserReadOnly(page);
   await page.routeWebSocket('**/*',ws=>ws.close());
   await page.goto('http://127.0.0.1:'+server.address().port+'/?internal=1',{waitUntil:'load',timeout:60000});
   await page.waitForFunction(()=>typeof loungeRuntimeOn!=='undefined'&&loungeRuntimeOn,null,{timeout:20000});
@@ -65,6 +63,6 @@ const root=path.resolve(__dirname,'..');
   await page.locator('.tab[data-tab="lounge"]').click();
   assert.equal(await page.locator('#tab-lounge').isVisible(),true);
   assert.deepEqual(errors,[]);
-  console.log('Full application initialized; live read-only chat, removed panels/guide, race/deck and tab lifecycle passed. Blocked writes: '+blocked.length);
+  console.log('Full application initialized; live read-only chat, removed panels/guide, race/deck and tab lifecycle passed. Blocked writes: '+(blocked.length+await page.evaluate(()=>window.__tapeTestBlockedWrites)));
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});

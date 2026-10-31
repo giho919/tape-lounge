@@ -1,5 +1,8 @@
 -- Tape Lounge privacy-first visitor analytics.
 -- Public clients may only call record_site_activity(); raw rows and aggregates stay private.
+-- Historical five-argument bootstrap. Do not replay this file over an existing
+-- seven-argument deployment; follow recorded migrations and additive patches.
+-- Chart-analysis upgrade: site_analytics_analysis.sql (2026-10-31).
 
 create extension if not exists pg_cron;
 

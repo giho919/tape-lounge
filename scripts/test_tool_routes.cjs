@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const browserReadOnly=require('./browser_read_only.cjs');
 const root=path.resolve(__dirname,'..');
 const routes={lounge:'/',domestic:'/domestic/',desk:'/desk/',analysis:'/analysis/',chain:'/onchain/',macro:'/calendar/',game:'/blind/',chars:'/strategists/'};
 (async()=>{
@@ -33,8 +34,8 @@ const routes={lounge:'/',domestic:'/domestic/',desk:'/desk/',analysis:'/analysis
    assert.equal(await staticPage.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,route);
   }
   await plain.close();
-  const live=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});
-  await live.route('**/*',r=>['GET','HEAD','OPTIONS'].includes(r.request().method())?r.continue():r.abort());
+  const live=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',serviceWorkers:'block'});
+  await browserReadOnly(live);
   await live.routeWebSocket('**/*',ws=>ws.close());
   const page=await live.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   for(const [tab,route] of Object.entries(routes)){
@@ -68,6 +69,14 @@ const routes={lounge:'/',domestic:'/domestic/',desk:'/desk/',analysis:'/analysis
   await page.waitForFunction(()=>activeTab==='analysis');
   await page.waitForFunction(()=>{const image=document.getElementById('caLongImage');return image.complete&&image.naturalWidth>0;});
   assert.match(await page.locator('#caLongImage').getAttribute('src'),/linear-long\.svg$/);
+  assert.ok(await page.evaluate(()=>window.__tapeTestAnalytics.some(p=>p?.p_tab==='analysis'&&p.p_internal===true)),'analysis emits the same internal-aware analytics payload as other tools');
+  const guarded=await page.evaluate(async()=>{
+   const before=window.__tapeTestBlockedWrites;let rejected=false;
+   try{await fetch('/test-only-write-sentinel',{method:'POST',keepalive:true,body:'verification'});}catch{rejected=true;}
+   const beacon=navigator.sendBeacon('/test-only-beacon-sentinel','verification');
+   return {rejected,beacon,blocked:window.__tapeTestBlockedWrites-before};
+  });
+  assert.deepEqual(guarded,{rejected:true,beacon:false,blocked:2},'unload-capable writes are stopped before network dispatch');
   assert.equal(await page.locator('#tab-lounge').isVisible(),false);
   assert.deepEqual(errors,[]);
   if(process.env.TAPE_ROUTE_SCREENSHOT){

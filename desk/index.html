@@ -2472,8 +2472,6 @@ function analyticsPayload(activeSeconds = 0, isView = false) {
   };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
-  // 분석 탭은 기존 RPC의 허용 목록 밖이므로 DB를 확장하기 전까지 보내지 않는다.
-  if (activeTab === 'analysis') return;
   if (!sbc || !analyticsVisitorId) return;
   const body = analyticsPayload(activeSeconds, isView);
   try {
