@@ -2,6 +2,7 @@
 ((root) => {
   'use strict';
   const topics = ['andy_scan','kimchi_fx','session_championship','daily_blind','site_launch'];
+  const sources = ['threads','x','instagram'];
   const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/blind/','/strategists/'];
   const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$/;
   const sourceName = value => value === 'twitter' ? 'x' : value;
@@ -11,7 +12,7 @@
     const source = sourceName(params.get('utm_source').trim().toLowerCase());
     const medium = params.get('utm_medium').trim().toLowerCase();
     const campaign = params.get('utm_campaign').trim().toLowerCase();
-    if (!['threads','x'].includes(source) || medium !== 'social' || !campaignPattern.test(campaign)) return null;
+    if (!sources.includes(source) || medium !== 'social' || !campaignPattern.test(campaign)) return null;
     return {source,campaign};
   }
   function route(search) {

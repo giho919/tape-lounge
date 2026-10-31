@@ -158,7 +158,7 @@ and normal solo play at desktop/mobile widths. Block writes with
 
 ## Owned social campaign attribution
 
-`site-campaign.js` recognizes only owned Threads/X links with `utm_medium=social`
+`site-campaign.js` recognizes owned Threads/X/Instagram links with `utm_medium=social`
 and a known topic: `andy_scan`, `kimchi_fx`, `session_championship`, `daily_blind`,
 or `site_launch`, optionally followed by `_YYYYMMDD`. `twitter` normalizes to `x`.
 Unknown, partial or duplicate labels use the unchanged seven-argument analytics
@@ -171,9 +171,12 @@ Apply the recorded `add_site_campaign_attribution` migration before deploying th
 matching client. `supabase/site_campaign_analytics.sql` is its reviewed SQL snapshot,
 not an old-bootstrap replacement or an automatically replayed setup script. It
 adds nullable session labels, private aggregate views and an RLS-protected daily
-table. The existing maintenance job rolls campaigns before its raw-session purge;
-its owner, ACL, schedule and other actions are preserved. No public read access is
-added. The public anonymous write-only SECURITY DEFINER endpoint is intentional.
+table. The later `allow_instagram_campaign_attribution` migration expands only the
+source allowlist; its reviewed SQL snapshot is
+`supabase/site_campaign_instagram_source.sql`. The existing maintenance job rolls
+campaigns before its raw-session purge; its owner, ACL, schedule and other actions
+are preserved. No public read access is added. The public anonymous write-only
+SECURITY DEFINER endpoint is intentional.
 
 Private reports: `site_analytics_campaigns_today`, `site_analytics_campaigns_recent`
 and `site_analytics_campaigns_daily`. They report unique browsers, sessions, active
