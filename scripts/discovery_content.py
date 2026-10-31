@@ -31,7 +31,7 @@ COPY = {
  ['blind-chart-practice','과거 차트로 연습하는 법: 미국주식·비트코인 블라인드 모의투자','종목과 날짜를 숨긴 과거 차트에서 가상 매매를 연습하고, 같은 기간 보유 수익률과 비교하는 방법을 안내합니다.',['블라인드 차트 게임은 실제 과거 일봉을 시간순으로 재생하면서 종목과 날짜를 가립니다. 시작 가격은 100으로 환산되어 가격 수준만으로 정답을 알아맞히기 어렵습니다.','가상 자금으로 롱·숏을 선택하고 주문 비율과 레버리지를 조절할 수 있습니다. 차트는 멈추거나 속도를 바꿔 볼 수 있고, 결과에는 화면에 표시된 모의 매매 수수료와 포지션 평가가 반영됩니다. 실제 거래소 주문은 발생하지 않습니다.','정산하면 종목과 실제 기간이 공개되고, 내 수익률을 같은 구간 매수 후 보유했을 때와 비교할 수 있습니다. 결과를 점수처럼 보기보다 진입·청산과 쉬어간 구간을 되짚는 용도로 사용하세요.','이미 끝난 과거 경로를 보는 연습에는 사후 편향이 있습니다. 한 판의 결과는 실력이나 전략을 검증하지 않으며, 실제 체결 비용과 유동성을 모두 재현하지 않습니다. 미래 수익을 보장하지 않습니다.'],'2026-11-01']
 ]},
 'en': {
-'nav':['Today','Markets','Radar','Read'], 'tools':'Charts & lounge', 'edition':'A clearer view of the market',
+'nav':['Today','Markets','Radar','Read'], 'tools':'Live tools (Korean)', 'edition':'A clearer view of the market',
 'headline':'Less noise.\nMore perspective.', 'intro':'See what moved. Keep an eye on what matters next. One independent reading room for markets, trends and the record behind them.',
 'market':'The market, at a glance', 'marketIntro':'Compare crypto prices, trading activity and the gap between Korean and global markets.',
 'radar':"On Andy’s radar", 'radarIntro':'The breakout is only the beginning. Follow the retest, the support and what happened next.',
@@ -60,7 +60,7 @@ COPY = {
  ['blind-chart-practice','Practice with a blind chart: historical stocks and Bitcoin','Learn how to trade a hidden historical chart with virtual funds, then compare your result with buy-and-hold over the same period.',['A blind chart replay shows real historical daily candles in sequence while keeping the ticker and dates hidden. Prices start at a normalized value of 100, so the nominal price does not reveal the answer.','Trade with virtual funds, choose simulated long or short positions, and adjust order size and leverage. Pause the replay or change its speed. The game applies its displayed simulated fees and position valuation; it places no real exchange orders.','After settlement, the ticker and historical dates appear beside your return and the buy-and-hold result for the same interval. Review where you entered, exited or stayed out rather than treating one outcome as a score.','This is a known historical path, so hindsight bias is unavoidable. One replay does not validate a strategy or predict future returns, and the simulation does not reproduce every execution cost or liquidity condition. The interactive game currently uses Korean controls.'],'2026-11-01']
 ]},
 'zh': {
-'nav':['今日','行情','雷达','阅读'], 'tools':'图表与交流', 'edition':'换个角度，看清市场',
+'nav':['今日','行情','雷达','阅读'], 'tools':'韩语实时工具', 'edition':'换个角度，看清市场',
 'headline':'少一点噪音，\n多一分洞察。', 'intro':'看清价格的变化，把值得关注的标的留下。连接行情、趋势与观察记录的独立研究空间。',
 'market':'市场一览', 'marketIntro':'比较主要加密资产的价格、交易额，以及韩国市场与海外的价差。', 'radar':'Andy 的观察雷达', 'radarIntro':'突破只是开始。继续观察回踩、支撑以及后续变化。',
 'research':'三个视角，一个市场', 'researchIntro':'分别阅读持仓判断、趋势观察和市场状态研究。三位策略师均为 AI 角色。', 'learn':'数字背后的背景', 'learnIntro':'从韩国溢价到趋势回踩：理解数字能说明什么、不能说明什么。',
@@ -87,7 +87,7 @@ COPY = {
  ['blind-chart-practice','用隐藏历史图表练习交易判断','用虚拟资金重放隐藏标的与日期的历史行情，并与同期买入持有收益作比较。',['盲图游戏按时间顺序重放真实历史日K线，但隐藏资产代码和日期。起始价格统一为100，减少单凭名义价格猜出答案的线索。','使用虚拟资金进行多空模拟交易，可调整下单比例与杠杆，也可暂停或调整播放速度。游戏按页面显示的模拟费用与持仓估值规则计算，不会下达真实交易。','结算后会揭晓标的和日期，并展示你的收益率与同期买入持有收益。复盘进出场和观望时机，比把单次结果当作能力评分更有用。','这是一条已经发生的历史路径，存在事后偏差。一次游戏不能验证策略或预测未来收益，模拟也不会完整还原现实中的成交成本与流动性。互动游戏目前使用韩文界面。'],'2026-11-01']
 ]},
 'ja': {
-'nav':['今日','マーケット','レーダー','読む'], 'tools':'チャートとラウンジ', 'edition':'市場を、もう少しクリアに',
+'nav':['今日','マーケット','レーダー','読む'], 'tools':'韓国語のライブツール', 'edition':'市場を、もう少しクリアに',
 'headline':'ノイズを減らし、\n流れをつかむ。', 'intro':'何が動いたかを知り、次に見る銘柄を残す。相場・トレンド・観察記録をつなぐ、独立したリサーチルーム。',
 'market':'マーケットをひと目で', 'marketIntro':'主要暗号資産の価格と売買代金、韓国と海外市場の価格差を比較します。', 'radar':'Andy の観察レーダー', 'radarIntro':'ブレイクの後こそ大切。押し目の支えと、その後の変化を追います。',
 'research':'三つの視点、一つの市場', 'researchIntro':'運用判断、トレンド観察、相場局面の研究を分けて読みます。三人とも AI ペルソナです。', 'learn':'数字の向こうの文脈', 'learnIntro':'韓国プレミアムからトレンドの押し目まで。数字が示すこと、示さないこと。',

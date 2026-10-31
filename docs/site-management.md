@@ -31,6 +31,10 @@ The sitemap's tool dates follow the source hash instead of changing hourly when
 only a report refreshes. This enables discovery; it does not prove indexing or
 promise a ranking. Check search-console evidence when available.
 
+The Korean live lounge exposes direct links to the localized editorial entry
+pages (`/en/`, `/zh/`, `/ja/`) from its header. Those pages label the full live
+tools as Korean so visitors know what opens before leaving the translated view.
+
 ## Daily blind-chart return loop
 
 The daily challenge records a first completed result and a consecutive-day
