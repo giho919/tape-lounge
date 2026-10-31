@@ -132,6 +132,15 @@ clean public puzzle link. Other query parameters are excluded. It is a client-si
 practice game, not a tamper-proof competition; hidden data can be inspected by a
 determined user. Do not present its local records as audited performance.
 
+Mobile WebViews can restore a chart after their viewport changes or the app resumes.
+The blind chart therefore resizes with its measured width and height and forces a
+repaint after data setup, page return, orientation change and viewport resize. On
+mobile blind pages, the in-page recovery button reseeds only the
+currently revealed candles and indicators, then restores the visible range; it must
+not alter game progress, orders, balances or the selected puzzle. Do not make
+opening Safari a normal prerequisite. Desktop mobile-width preview is not proof of
+Threads iOS behavior; report that limitation until checked in the actual app.
+
 Completed daily rounds also offer a 1200×630 branded result card for local PNG
 download or the device's native share sheet. The card labels the result as
 simulation, includes the same-period holding comparison and the date-keyed public
