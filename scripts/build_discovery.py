@@ -124,6 +124,9 @@ def guide_cards(lang):
     c=COPY[lang]
     return '<div class="reading-grid">'+''.join(f'<article class="reading-card"><span class="reading-no">0{i+1} / FIELD NOTES</span><h3>{link(url(lang,"learn/"+g[0]),g[1])}</h3><p>{e(g[2])}</p>{link(url(lang,"learn/"+g[0]),c["read"]+" ↗")}</article>' for i,g in enumerate(c['guides']))+'</div>'
 
+def guide_date(guide):
+    return guide[4] if len(guide)>4 else '2026-10-22'
+
 def market_table(lang, home=False):
     c=COPY[lang]
     rows=''.join(f'<tr data-market-symbol="{s}"><td><button class="star" data-star="{s}" aria-label="{s} · {e(c["save"])}" aria-pressed="false">☆</button><a href="{url(lang,"watch")}?q={s}">{s}</a><small>{n}</small></td><td data-price>—</td><td data-change>—</td><td data-premium>—</td><td data-volume>—</td></tr>' for s,n in zip(SYMBOLS[:5 if home else 8],NAMES))
@@ -138,13 +141,14 @@ def render(lang, page, data, letters, generated, root=False):
     guide=next((g for g in c['guides'] if page=='learn/'+g[0]),None)
     title=guide[1] if guide else titles[page]
     desc=guide[2] if guide else c.get({'':'intro','markets':'marketIntro','watch':'radarIntro','research':'researchIntro','learn':'learnIntro','about':'aboutText'}[page])
+    article_date=guide_date(guide) if guide else None
     current=BASE+url(lang,page)
     nav=''.join(link(url(lang,p),c['nav'][i], 'selected' if page==p or (p=='learn' and guide) else '') for i,p in enumerate(['','markets','watch','learn']))
     languages=''.join(f'<a href="{url(l,page)}" lang="{l}" hreflang="{l}" data-language="{l}" '+('aria-current="true"' if l==lang else '')+f'>{label}</a>' for l,label in LANGS.items())
     alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+url("ko",page)}">'
     schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':title,'description':desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
-        schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':'2026-10-22','dateModified':'2026-10-22','author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
+        schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':article_date,'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
     stamp=f'<span class="report-stamp">{e(c["report"])} <time datetime="{data["reportAt"]}">{data["reportAt"][:16]} UTC</time></span>'
     filters=f'<div class="filter-row" role="group" aria-label="{e(c["radar"])}">'+''.join(f'<button data-filter="{value}" aria-pressed="{"true" if value=="all" else "false"}">{e(c[key])}</button>' for value,key in [('all','allStages'),('지지 확인','confirmed'),('눌림 대기','waiting'),('1d','daily'),('saved','saved'),('archive','archive')])+'</div>'
     pulse=f'<section class="pulse"><header><span class="eyebrow">01 / {e(c["chart"])}</span><div class="chart-assets">'+''.join(f'<button data-chart-symbol="{s}" aria-pressed="{"true" if s=="BTC" else "false"}">{s}</button>' for s in SYMBOLS[:4])+f'</div></header><div class="pulse-price"><strong id="pulse-price">—</strong><span id="pulse-change"></span></div><div id="pulse-chart" role="img" aria-label="{e(c["chart"])}"><p>{e(c["loading"])}</p></div><div class="pulse-bottom"><div class="chart-ranges">'+''.join(f'<button data-range="{r}" aria-pressed="{"true" if r=="7d" else "false"}">{r.upper()}</button>' for r in ['1d','7d','30d'])+f'</div>{link("/terminal/#desk",c["openChart"]+" ↗")}</div><p class="data-note" id="chart-status">{e(c["chartNote"])}</p></section>'
@@ -162,7 +166,9 @@ def render(lang, page, data, letters, generated, root=False):
     elif page=='research':
         body=f'<div class="page-opening"><p class="eyebrow">RESEARCH ROOM / AI PERSONAS</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{reports(lang)}<section>{section_head(c["next"])}<div class="tool-links">{link(url(lang,"watch"),c["radar"]+" ↗")}{link("/terminal/#onchain","On-chain ↗")}{link("/terminal/#calendar","Calendar ↗")}{link("/terminal/#analysis","BTC channels ↗")}</div></section>'
     elif guide:
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="2026-10-22">2026-10-22</time></p>'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+f'<aside class="article-end">{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p></aside></article><section>{section_head(c["next"])}{guide_cards(lang)}</section>'
+        game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Try today’s chart game (Korean UI) ↗','zh':'开始今天的盲图游戏（韩文界面）↗','ja':'今日のチャートゲームへ（韓国語 UI）↗'}
+        game_cta=f'<p>{link("/blind/?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p></aside></article><section>{section_head(c["next"])}{guide_cards(lang)}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -213,7 +219,8 @@ def build(force=False):
             SubElement(item,key).text=val
         for guide in COPY[lang]['guides']:
             item=SubElement(channel,'item')
-            for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate','Thu, 22 Oct 2026 00:00:00 +0000')]:
+            published=datetime.fromisoformat(guide_date(guide)).replace(tzinfo=timezone.utc)
+            for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate',format_datetime(published))]:
                 SubElement(item,key).text=val
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
     # Keep the pre-redesign lounge as the public home while the hourly discovery
@@ -242,7 +249,16 @@ def build(force=False):
         for page in pages:
             if lang=='ko' and page=='':continue
             entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+url(lang,page)
-            SubElement(entry,'lastmod').text=max('2026-10-22',data['reportAt'][:10] if page in ['','watch'] else '2026-10-22' if page!='research' else letters['updated'][:10])
+            if page in ['','watch']:
+                lastmod=max('2026-10-22',data['reportAt'][:10])
+            elif page=='research':
+                lastmod=max('2026-10-22',letters['updated'][:10])
+            elif page.startswith('learn/'):
+                guide=next((g for g in COPY[lang]['guides'] if g[0]==page.split('/',1)[1]),None)
+                lastmod=guide_date(guide) if guide else '2026-10-22'
+            else:
+                lastmod='2026-10-22'
+            SubElement(entry,'lastmod').text=lastmod
     for name in ['andy_scan','madam_daily','justin_lab']:
         entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+'/reports/'+name+'.html'
     write('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(sitemap,encoding='unicode'))

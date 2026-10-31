@@ -124,6 +124,11 @@ in sync. Its search title and description are defined in `TOOL_PAGES`; keep thos
 keywords aligned with the visible US-stock/crypto historical-chart simulation. The
 lounge homepage keeps the separate general `og.png`.
 
+The localized blind-chart explainer lives in `scripts/discovery_content.py`. Keep
+its hindsight and no-real-orders caveats accurate in every language; its publication
+date feeds the rendered byline, Article metadata, RSS and sitemap. The current game
+controls are Korean, so localized article links label that limitation before entry.
+
 The existing engine reveals only the available candles to price and indicators.
 Daily starts at 100, with $10,000 simulated funds, 1x leverage, 25% order size and
 3x playback (~3 minutes for 200 days). Its speed can be adjusted from 0.5x to 4x
