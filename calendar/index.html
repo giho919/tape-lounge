@@ -1107,12 +1107,12 @@ body.shake { animation:shake .5s; }
     </div>
     <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeLabel">시장 선택</span>
-      <button class="bgModeBtn bgTrackBtn on" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</button>
-      <button class="bgModeBtn bgTrackBtn" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</button>
+      <button class="bgModeBtn bgTrackBtn" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</button>
+      <button class="bgModeBtn bgTrackBtn on" data-t="stock" onclick="bgSetTrack('stock')">📈 미국주식</button>
     </div>
     <div class="bgStage">
     <div class="chd">
-      <span class="sym" id="bgSym">❓ ??? / USDT</span>
+      <span class="sym" id="bgSym">❓ ??? · 미국 증시</span>
       <span class="num" id="bgDay">—</span>
       <span class="num" id="bgPx" style="margin-left:auto">—</span>
     </div>
@@ -3990,7 +3990,7 @@ function soloStatus() {
 }
 window.soloPauseToggle = soloPauseToggle; window.soloCycleSpeed = soloCycleSpeed; window.blindSettle = blindSettle;
 
-let bgTrack = 'crypto';
+let bgTrack = 'stock';
 function bgSetTrack(track) {
   if (bgMode === 'daily') return;
   if (bgTrack === track) return;
