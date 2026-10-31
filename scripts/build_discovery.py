@@ -13,13 +13,13 @@ from stage_content import WORDS, stage_body
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
                'chart-analysis.js', 'chart-analysis.css', 'btc-long-channel.js',
-               'chart-share.js', 'chart-share.css', 'blind-daily.js']
+               'chart-share.js', 'chart-share.css', 'blind-daily.js', 'site-campaign.js']
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
@@ -163,6 +163,7 @@ def render(lang, page, data, letters, generated, root=False):
     app_scripts=(f'<script defer src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous"></script><script defer src="/stage.js?v={VERSION}"></script><script defer src="/stage-community.js?v={VERSION}"></script>' if page=='' else f'<script defer src="/discovery.js?v={VERSION}"></script>')
     if page=='':
         nav=''.join(link(url(lang,p),WORDS[lang]['home'] if i==0 else c['nav'][i], 'selected' if i==0 else '') for i,p in enumerate(['','markets','watch','learn']))
+    app_scripts=f'<script src="/site-campaign.js?v={VERSION}"></script>'+app_scripts
     return f'''<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)} — Tape Lounge</title><meta name="description" content="{e(desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}

@@ -138,3 +138,51 @@ retention, real chart/indicator visibility, a local simulated trade, full finish
 reload, share text, clipboard fallback, unavailable data, stale network replies,
 and normal solo play at desktop/mobile widths. Block writes with
 `scripts/browser_read_only.cjs`; mock clipboard and all practice candle responses.
+
+## Owned social campaign attribution
+
+`site-campaign.js` recognizes only owned Threads/X links with `utm_medium=social`
+and a known topic: `andy_scan`, `kimchi_fx`, `session_championship`, `daily_blind`,
+or `site_launch`, optionally followed by `_YYYYMMDD`. `twitter` normalizes to `x`.
+Unknown, partial or duplicate labels use the unchanged seven-argument analytics
+RPC. Valid links use `record_site_campaign_activity`, a separate write-only RPC
+that delegates to the existing collector and attaches the first valid campaign
+to that visitor/session pair. It preserves the original function and its limits.
+Never store the full incoming URL or arbitrary UTM values.
+
+Apply the recorded `add_site_campaign_attribution` migration before deploying the
+matching client. `supabase/site_campaign_analytics.sql` is its reviewed SQL snapshot,
+not an old-bootstrap replacement or an automatically replayed setup script. It
+adds nullable session labels, private aggregate views and an RLS-protected daily
+table. The existing maintenance job rolls campaigns before its raw-session purge;
+its owner, ACL, schedule and other actions are preserved. No public read access is
+added. The public anonymous write-only SECURITY DEFINER endpoint is intentional.
+
+Private reports: `site_analytics_campaigns_today`, `site_analytics_campaigns_recent`
+and `site_analytics_campaigns_daily`. They report unique browsers, sessions, active
+seconds and sessions with at least 30 active seconds per source/topic. Deduplicate
+tabs per session and count on the actual KST activity day, including overnight
+sessions. Raw recent coverage follows the existing retention window; daily rows
+survive the purge. Re-run daily rollups only within available raw coverage.
+
+Campaign labels attribute the link, not independently verified platform origin:
+a copied Threads-tagged link may be opened elsewhere. A visitor can appear in
+several campaigns, so campaign visitor counts must not be summed as global uniques.
+Existing visits without tags are not retroactively assigned to a source. Report
+tagged arrivals alongside engagement and the site's overall audience quality.
+
+Generate links with `require('./site-campaign.js').tag(publicUrl,source,campaign)`.
+It preserves only safe public chart/daily-puzzle selections and strips internal
+flags, room codes and unrelated query parameters. Keep ordinary user share links
+clean; only explicitly prepared promotional links should carry campaign tags.
+There is no automatic social publishing or installation of social integrations.
+
+Checks: `node scripts/test_site_campaign.cjs`,
+`node scripts/test_site_campaign_ui.cjs`, and the administrator transaction in
+`scripts/test_site_campaign.sql`. Browser writes are intercepted before dispatch.
+The SQL checks exercise anonymous-role calls, unchanged legacy calls, first touch,
+visitor/session binding, deduplication, internal exclusion, time caps, malformed
+labels, rollover, idempotent rollups and the existing rate limit. All synthetic
+rows and rollups roll back. Confirm the reserved referrer `campaign-check.invalid`
+and campaign names ending `_19000101` left no rows, then compare core definition
+and ACL and review security/performance advisories.

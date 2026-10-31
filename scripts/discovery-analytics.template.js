@@ -7,7 +7,8 @@ try{if(params.get('internal')==='1')localStorage.setItem('tapeInternal','1');els
 const session=random(),page=document.body.dataset.page||'',tab=page==='markets'?'domestic':page===''?'lounge':'chars';
 let input=performance.now(),last=input,hidden=document.hidden,ended=false;
 let ref=null;try{const h=new URL(document.referrer).hostname;if(h!==location.hostname)ref=h;}catch{}
-function send(seconds=0,view=false,keepalive=false){if(internal)return;fetch('__PUBLIC_URL__/rest/v1/rpc/record_site_activity',{method:'POST',keepalive,headers:{apikey:'__PUBLISHABLE_KEY__','Content-Type':'application/json'},body:JSON.stringify({p_visitor_id:id,p_session_id:session,p_tab:tab,p_active_seconds:Math.max(0,Math.min(60,Math.round(seconds))),p_is_view:view,p_referrer_host:ref,p_internal:false})}).catch(()=>{});}
+const campaign=window.TapeCampaign?.route(location.search)||{rpc:'record_site_activity',fields:{}};
+function send(seconds=0,view=false,keepalive=false){if(internal)return;fetch('__PUBLIC_URL__/rest/v1/rpc/'+campaign.rpc,{method:'POST',keepalive,headers:{apikey:'__PUBLISHABLE_KEY__','Content-Type':'application/json'},body:JSON.stringify({p_visitor_id:id,p_session_id:session,p_tab:tab,p_active_seconds:Math.max(0,Math.min(60,Math.round(seconds))),p_is_view:view,p_referrer_host:ref,p_internal:false,...campaign.fields})}).catch(()=>{});}
 function flush(keepalive=false){const now=performance.now();if(!hidden){const seconds=Math.max(0,(Math.min(now,input+300000)-last)/1000);if(seconds>=1)send(seconds,false,keepalive);}last=now;}
 ['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();},{capture:true,passive:true}));
 send(0,true);const timer=setInterval(()=>flush(),60000);

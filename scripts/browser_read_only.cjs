@@ -12,7 +12,7 @@ module.exports=async function browserReadOnly(target){
    if(!readMethods.has(method)){
     window.__tapeTestBlockedWrites++;
     const url=typeof input==='string'?input:input.url;
-    if(url?.includes('/rpc/record_site_activity')){
+    if(/\/rpc\/record_site_(?:campaign_)?activity(?:\?|$)/.test(url||'')){
      try{window.__tapeTestAnalytics.push(JSON.parse(init?.body));}catch{}
     }
     return Promise.reject(new TypeError('Test blocked a network write'));

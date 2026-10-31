@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="chart-share.css?v=20261031a">
 <script src="chart-share.js?v=20261031a" defer></script>
 <script src="blind-daily.js?v=20261031a"></script>
+<script src="site-campaign.js?v=20261031a"></script>
 <script src="chart-analysis.js?v=20261010c" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -2503,11 +2504,14 @@ try {
   analyticsInternal = localStorage.getItem('tapeInternal') === '1';
 } catch(e) {}
 
+const analyticsCampaignRoute = window.TapeCampaign?.route(location.search) || {rpc:'record_site_activity',fields:{}};
+
 function analyticsPayload(activeSeconds = 0, isView = false) {
   return {
     p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab,
     p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView,
     p_referrer_host: analyticsReferrerHost, p_internal: analyticsInternal,
+    ...analyticsCampaignRoute.fields,
   };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
@@ -2515,11 +2519,11 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
   const body = analyticsPayload(activeSeconds, isView);
   try {
     if (keepalive) {
-      await fetch(`${SUPA_URL}/rest/v1/rpc/record_site_activity`, {
+      await fetch(`${SUPA_URL}/rest/v1/rpc/${analyticsCampaignRoute.rpc}`, {
         method:'POST', keepalive:true, headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body)
       });
     } else {
-      const { error } = await sbc.rpc('record_site_activity', body);
+      const { error } = await sbc.rpc(analyticsCampaignRoute.rpc, body);
       if (error) console.warn('analytics off', error.message);
     }
   } catch(e) { console.warn('analytics off'); }
