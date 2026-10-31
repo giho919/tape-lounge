@@ -173,10 +173,9 @@ The blind chart therefore resizes with its measured width and height, then re-se
 only the currently revealed candles and indicators after a round starts and when
 the page returns, changes orientation or resizes its viewport. Retries are bounded
 and preserve the visible range, game progress, orders, balances and selected puzzle.
-The mobile recovery button remains available if the embedded renderer still fails.
-Do not make opening Safari a normal prerequisite. Desktop mobile-width preview is
-not proof of Threads iOS behavior; report that limitation until checked in the
-actual app.
+Keep this recovery automatic and unobtrusive; do not show a retry banner on every
+mobile visit. The user confirmed the chart renders in Threads' in-app browser, so do
+not direct visitors to Safari as a normal workaround.
 
 Blind-round speed selection stays directly above the chart and remains available on
 the start overlay, so mobile players can choose a pace before candles begin. On

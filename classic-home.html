@@ -508,11 +508,6 @@ body.shake { animation:shake .5s; }
 .studyBtns .nick { border-color:#7770b8 !important; color:#bbb5ff !important; background:rgba(119,112,184,.10) !important; }
 .gbtn.roomLocked { opacity:.42; cursor:not-allowed; filter:saturate(.55); }
 .studyErr { min-height:16px; margin-top:9px; font-size:9.5px; color:var(--red); }
-.bgWebViewHint { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:7px 14px 0; padding:7px 10px; border-left:2px solid var(--gold-dim); border-radius:0 6px 6px 0; background:rgba(212,175,55,.045); color:var(--dim); font-size:10px; line-height:1.55; }
-.bgWebViewHint[hidden] { display:none !important; }
-@media(min-width:761px){.bgWebViewHint{display:none!important}}
-.bgChartRecoverBtn { flex:0 0 auto; padding:6px 8px; border:1px solid var(--gold-dim); border-radius:6px; background:rgba(212,175,55,.08); color:var(--gold); font:inherit; font-size:9px; font-weight:600; line-height:1.2; white-space:nowrap; cursor:pointer; }
-.bgChartRecoverBtn:active { background:rgba(212,175,55,.18); }
 .studyPanelBody { padding:12px 14px 14px; }.studyPanelBody .studyRoomLine { display:flex; justify-content:space-between; gap:10px; padding-bottom:9px; border-bottom:1px solid var(--line); font-size:10px; color:var(--dim); }.studyRoomLine b { color:var(--gold); font-family:Menlo,monospace; letter-spacing:1px; }
 .studyCallBtns { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:9px; }.studyCallBtns button { padding:8px 4px; border:1px solid var(--line); border-radius:6px; color:var(--dim); background:var(--bg); cursor:pointer; }.studyCallBtns button:hover { border-color:var(--gold-dim); color:#fff; }
 .studyLockState { margin-top:8px; min-height:16px; font-size:9.5px; color:var(--dim); }
@@ -533,12 +528,12 @@ body.shake { animation:shake .5s; }
   .strip .tile:nth-child(n+4) .s{font-size:9.5px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
-  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:48px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
+  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:100px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
   .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
 }
-@media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{font-size:8px}.tab .ic{font-size:16px}.bgModeRow{padding-left:9px;padding-right:9px}.bgWebViewHint{gap:5px;margin-inline:8px;padding:6px 8px;font-size:9px}.bgChartRecoverBtn{padding:5px 6px;font-size:8px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
+@media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{font-size:8px}.tab .ic{font-size:16px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
 @media(max-width:760px){
   .chartFunHud span,#rainIntro,#bgOver{backdrop-filter:none}
   .panel,.tile,.char{box-shadow:none}
@@ -1109,7 +1104,6 @@ body.shake { animation:shake .5s; }
       <button class="bgModeBtn blindModeBtn" data-m="daily" onclick="bgSetMode('daily')">🎴 오늘의 판</button>
       <button class="bgModeBtn blindModeBtn" data-m="study" onclick="bgSetMode('study')">👥 함께 보는 판</button>
     </div>
-    <div id="bgWebViewHint" class="bgWebViewHint" hidden><span>캔들이 늦게 뜨면 자동으로 다시 그립니다. 판 진행은 유지됩니다.</span><button id="bgChartRecoverBtn" class="bgChartRecoverBtn" type="button" onclick="bgChartRecover()">차트 다시 그리기</button></div>
     <div class="bgModeRow" id="bgTrackRow">
       <span class="bgModeLabel">시장 선택</span>
       <button class="bgModeBtn bgTrackBtn" data-t="crypto" onclick="bgSetTrack('crypto')">🪙 코인</button>
@@ -3457,7 +3451,6 @@ function scheduleBlindChartRecovery() {
     }, delay));
   }
 }
-window.bgChartRecover = bgChartRecover;
 window.addEventListener('resize', scheduleBlindChartRecovery, {passive:true});
 window.addEventListener('orientationchange', scheduleBlindChartRecovery, {passive:true});
 window.addEventListener('pageshow', scheduleBlindChartRecovery);
@@ -3466,7 +3459,6 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) sche
 let bgLoadGeneration = 0;
 const bgDailyQuery = new URLSearchParams(location.search).get('daily');
 let bgDailySelection = null;
-if (window.matchMedia?.('(max-width: 760px)').matches) $('bgWebViewHint').hidden = false;
 function bgPctSync(v) {
   v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
