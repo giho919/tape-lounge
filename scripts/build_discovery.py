@@ -15,6 +15,8 @@ from blind_daily_stock_rounds import ensure_rounds
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
+# Bump when the localized market index copy or search metadata changes.
+MARKET_PAGE_UPDATED = '2026-11-02'
 ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
@@ -551,6 +553,8 @@ def build(force=False):
             entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+url(lang,page)
             if page in ['','watch']:
                 lastmod=max('2026-10-22',data['reportAt'][:10])
+            elif page=='markets':
+                lastmod=MARKET_PAGE_UPDATED
             elif page=='research':
                 lastmod=max('2026-10-22',letters['updated'][:10])
             elif page.startswith('learn/'):
@@ -605,6 +609,12 @@ def build_editorial_only():
     write_live_home_pages(prepare_classic_home())
 
     sitemap=(ROOT/'sitemap.xml').read_text(encoding='utf-8')
+    for lang in LANGS:
+        loc=BASE+url(lang,'markets')
+        pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
+        sitemap,count=re.subn(pattern,lambda m:m.group(1)+MARKET_PAGE_UPDATED+m.group(2),sitemap,count=1)
+        if count!=1:
+            raise ValueError(f'Could not update sitemap lastmod for {loc}')
     for lang in LANGS:
         guide=next(g for g in COPY[lang]['guides'] if g[0]=='kimchi-premium')
         loc=BASE+url(lang,'learn/kimchi-premium')
