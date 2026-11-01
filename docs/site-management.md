@@ -254,6 +254,11 @@ such as internal-access or prior campaign parameters. Decision pages load the
 campaign parser before analytics so these visits are recorded as shared-game
 referrals.
 
+The result-share control is user-initiated and reports what happened: native
+sharing when available, clipboard copy otherwise, and a visible localized text
+area when clipboard access is denied. A cancelled native share does not copy or
+send anything. Do not describe opening the share sheet as a published post.
+
 Apply the recorded `add_site_campaign_attribution` migration before deploying the
 matching client. `supabase/site_campaign_analytics.sql` is its reviewed SQL snapshot,
 not an old-bootstrap replacement or an automatically replayed setup script. It
