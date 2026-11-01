@@ -188,13 +188,15 @@
     if (node.nodeType !== Node.TEXT_NODE || !node.nodeValue) return;
     const value = node.nodeValue;
     const trimmed = value.trim();
-    const replacement = textMap.get(trimmed) || dynamic(trimmed);
+    const normalized = trimmed.replace(/\s+/g, ' ');
+    const replacement = textMap.get(trimmed) || textMap.get(normalized) || dynamic(normalized);
     if (replacement) node.nodeValue = value.replace(trimmed, replacement);
   }
   function translateElement(element) {
     for (const name of ['aria-label', 'title', 'placeholder', 'alt']) {
       const value = element.getAttribute?.(name);
-      const replacement = value && (textMap.get(value.trim()) || dynamic(value.trim()));
+      const normalized = value?.trim().replace(/\s+/g, ' ');
+      const replacement = value && (textMap.get(value.trim()) || textMap.get(normalized) || dynamic(normalized));
       if (replacement) element.setAttribute(name, replacement);
     }
     for (const child of element.childNodes || []) {
@@ -215,7 +217,8 @@
         const element = record.target;
         for (const name of ['aria-label', 'title', 'placeholder', 'alt']) {
           const value = element.getAttribute(name);
-          const replacement = value && (textMap.get(value.trim()) || dynamic(value.trim()));
+          const normalized = value?.trim().replace(/\s+/g, ' ');
+          const replacement = value && (textMap.get(value.trim()) || textMap.get(normalized) || dynamic(normalized));
           if (replacement) element.setAttribute(name, replacement);
         }
       }
