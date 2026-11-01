@@ -1182,7 +1182,7 @@ body.shake { animation:shake .5s; }
         시작가는 100으로 환산되어 힌트가 없습니다.<br>
         가상 자금 <b style="color:var(--gold)">$10,000</b>으로 매매합니다. 실제 주문은 없습니다.<br>
         200일 뒤 종목·날짜가 공개되고, 같은 구간 보유 수익률과 비교합니다.</p>
-        <div class="go" onclick="blindStart()">판에 앉는다 →</div>
+        <button type="button" class="go" onclick="blindStart()">판에 앉는다 →</button>
         <a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
       </div>
     </div>
@@ -3595,7 +3595,7 @@ async function blindStart() {
       }
     } catch (e) { /* 아래 실패 메시지 */ }
     if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
-    $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
+    $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><button type="button" class="go" onclick="blindStart()">재시도</button>';
     return;
   }
   for (let t = 0; t < 8; t++) {
@@ -3611,7 +3611,7 @@ async function blindStart() {
     } catch (e) { /* 다른 종목 재시도 */ }
     if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
   }
-  $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><div class="go" onclick="blindStart()">재시도</div>';
+  $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.</p><button type="button" class="go" onclick="blindStart()">재시도</button>';
 }
 
 function bgDailyArchiveMarkup(day,today) {
@@ -3996,7 +3996,7 @@ async function blindFinish(early) {
     ${liqCount ? `<br><b style="color:var(--red)">강제청산 ${liqCount}회</b>` : ''}
     <br>${verdicts[Math.floor(Math.random()*verdicts.length)]}</p>
     <div class="resultWatermark">tapelounge.com</div>
-    <div class="go" onclick="blindStart()">한 판 더 🎲</div>`;
+    <button type="button" class="go" onclick="blindStart()">한 판 더 🎲</button>`;
   $('bgOver').classList.remove('hidden');
 }
 // ═══ 블라인드 차트 — 시간 자동 진행 엔진 (재생 / 일시정지 / 속도) ═══
@@ -4021,7 +4021,7 @@ function bgShowSoloOverlay() {
     가상 자금 <b style="color:var(--gold)">$10,000</b>으로 매매합니다. 실제 주문은 없습니다.<br>
     시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.<br>
     200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.</p>
-    <div class="go" onclick="blindStart()">판에 앉는다 →</div><a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>`;
+    <button type="button" class="go" onclick="blindStart()">판에 앉는다 →</button><a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>`;
   $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   bgRenderSpeed();
   $('bgOver').classList.remove('hidden');
