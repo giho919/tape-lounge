@@ -2248,6 +2248,10 @@ function bgDailyArchiveMarkup(day,today) {
   const summary = day === today ? '지난 판 다시 보기' : '오늘·지난 날짜 바꾸기';
   return `<details class="bgDailyArchive"><summary>${summary}</summary><div class="bgDailyArchiveLinks">${links}</div></details>`;
 }
+function bgGuideHref() {
+  const lang = document.documentElement.lang;
+  return ['en','zh','ja'].includes(lang) ? `/${lang}/learn/blind-chart-practice/` : '/ko/learn/blind-chart-practice/';
+}
 function bgShowDailyOverlay() {
   bgSpeed = 2;
   $('bgPlayRow').classList.add('prestart');
@@ -2271,7 +2275,7 @@ function bgShowDailyOverlay() {
     <p class="bgDailyInfo">가상 자금 $10,000 · 실제 주문 없음 · 기본 속도 2×로 약 4분. 시작 전이나 진행 중에 속도를 바꾸고 잠시 멈출 수 있어요.</p>
     <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>${day===today?'완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.':'지난 판 완주 기록은 저장되지만 연속 출전에는 반영되지 않습니다.'}</p>
     ${archive}
-    <a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
+    <a class="bgGuideLink" href="${bgGuideHref()}" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
     <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 판 초대 문구와 링크"></textarea>`;
 }
 async function bgShareDailyChallenge() {
@@ -2642,7 +2646,7 @@ function bgShowSoloOverlay() {
     가상 자금 <b style="color:var(--gold)">$10,000</b>으로 매매합니다. 실제 주문은 없습니다.<br>
     시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.<br>
     200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.</p>
-    <button type="button" class="go" onclick="blindStart()">판에 앉는다 →</button><a class="bgGuideLink" href="/ko/learn/blind-chart-practice/" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>`;
+    <button type="button" class="go" onclick="blindStart()">판에 앉는다 →</button><a class="bgGuideLink" href="${bgGuideHref()}" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>`;
   $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   bgRenderSpeed();
   $('bgOver').classList.remove('hidden');

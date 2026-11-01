@@ -61,6 +61,13 @@ test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게�
  for(const label of ['🎰 블라인드 차트','🎲 나만의 판','📈 미국주식','판에 앉는다 →','롱'])
   assert.ok(locale.includes(label),`live translator must cover blind game label ${label}`);
  assert.match(locale,/function refreshBlindGuideLinks\(\)/,'blind chart guide must stay in the selected language');
+ const guide=app.match(/function bgGuideHref\(\) \{[\s\S]*?\n\}/)?.[0];
+ assert.ok(guide,'dynamic blind chart screens must have a guide URL helper');
+ for(const [lang,href] of [['ko','/ko/learn/blind-chart-practice/'],['en','/en/learn/blind-chart-practice/'],['zh','/zh/learn/blind-chart-practice/'],['ja','/ja/learn/blind-chart-practice/']]){
+  const context={document:{documentElement:{lang}}};
+  assert.equal(vm.runInNewContext(`${guide}; bgGuideHref()`,context),href,`${lang} guide URL`);
+ }
+ assert.equal((app.match(/href="\$\{bgGuideHref\(\)\}"/g)||[]).length,2,'daily and solo overlays must both use the localized guide');
 });
 
 test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지한다',()=>{
