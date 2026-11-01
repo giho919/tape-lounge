@@ -1736,7 +1736,7 @@ subscribeMarketEvents();
 
 const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
 const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
-let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000, raceFullRound = false;
+let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
 function buildRace() {
   const rows = $('raceRows'); rows.textContent = '';
   RACE_COINS.forEach(sym => {
@@ -1771,21 +1771,26 @@ function renderRace() {
   $('raceLeader').textContent = `${lead.sym} 선두 · 격차 ${spread.toFixed(2)}%p`;
   $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
 }
-function finishRace() { Object.values(race).forEach(x => { x.start = x.last; }); }
 buildRace(); renderRace();
 let wsRace = null;
+const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');
+function applyRaceKline(data) {
+  const k = data?.k, symbol = String(k?.s || '').replace(/USDT$/, '');
+  if (!RACE_COINS.includes(symbol)) return;
+  const open = Number(k.o), close = Number(k.c), end = Number(k.T);
+  if (![open,close,end].every(Number.isFinite) || open <= 0 || close <= 0) return;
+  race[symbol].start = open;
+  race[symbol].last = close;
+  raceRoundEnd = end + 1;
+}
 function connectRaceWS() {
   if (!tabLive('lounge') || wsRace) return;
-  wsRace = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
+  wsRace = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS);
   wsRace.onmessage = ev => {
     if (!tabLive('lounge')) return;
-    const list = JSON.parse(ev.data); if (!Array.isArray(list)) return;
-    list.forEach(t => {
-      if (!t.s || !t.s.endsWith('USDT')) return;
-      const sym = t.s.slice(0,-4); if (!race[sym]) return;
-      const px = +t.c; if (!Number.isFinite(px)) return;
-      if (race[sym].start === null) race[sym].start = px; race[sym].last = px;
-    });
+    const payload = JSON.parse(ev.data), data = payload?.data;
+    if (data?.e !== 'kline' || data?.k?.i !== '5m') return;
+    applyRaceKline(data);
   };
   wsRace.onclose = () => { wsRace = null; if (tabLive('lounge')) setTimeout(connectRaceWS, 1800); };
 }
@@ -1795,12 +1800,7 @@ function disconnectRaceWS() {
 }
 setInterval(() => {
   if (!tabLive('lounge')) return;
-  if (Date.now() >= raceRoundEnd) {
-    if (raceFullRound) finishRace();
-    else Object.values(race).forEach(x => { x.start = x.last; });
-    raceFullRound = true;
-    raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
-  }
+  if (Date.now() >= raceRoundEnd) raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
   renderRace();
 }, 1000);
 

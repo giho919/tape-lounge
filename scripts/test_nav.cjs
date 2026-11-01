@@ -42,6 +42,21 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
  }
 });
 
+test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가로 시작한다',()=>{
+ assert.ok(app.includes("const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');"));
+ assert.ok(app.includes("new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS)"));
+ const src=app.match(/function applyRaceKline\(data\) \{[\s\S]*?\n\}/)?.[0];
+ assert.ok(src,'race kline adapter must be explicit and testable');
+ const ctx={RACE_COINS:['BTC','ETH'],race:{BTC:{start:null,last:null},ETH:{start:null,last:null}},raceRoundEnd:0};
+ vm.createContext(ctx);
+ vm.runInContext(src+'; applyRaceKline({e:"kline",k:{s:"BTCUSDT",i:"5m",o:"100",c:"104",T:299999}});',ctx);
+ assert.equal(ctx.race.BTC.start,100,'race baseline must use Binance kline open');
+ assert.equal(ctx.race.BTC.last,104,'live race value must use current kline close');
+ assert.equal(ctx.raceRoundEnd,300000,'race clock must use the kline close time');
+ vm.runInContext('applyRaceKline({e:"kline",k:{s:"XYZUSDT",i:"5m",o:"1",c:"2",T:599999}})',ctx);
+ assert.equal(ctx.raceRoundEnd,300000,'unknown symbols must not move the shared race clock');
+});
+
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{
  const rail=html.match(/\.tabsWrap \{[^}]*\}/)[0];
  assert.ok(/position:fixed/.test(rail),'고정이 아니면 라운지를 보는 동안 사라진다');
