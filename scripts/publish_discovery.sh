@@ -38,10 +38,33 @@ stage_public_files
 if git diff --cached --quiet; then exit 0; fi
 git diff --cached --check
 git commit -q -m 'data: refresh localized public observation pages'
-# Report publishers may push while we build. Rebase only this isolated clean checkout.
-git fetch -q origin main
-git rebase origin/main
-python3 scripts/build_discovery.py
-stage_public_files
-if ! git diff --cached --quiet; then git commit --amend --no-edit -q; fi
-git push -q origin HEAD:main
+# Other report publishers can advance main between our fetch and push. Retry
+# only that race, rebuilding the public allowlist on the newest remote tree.
+for attempt in 1 2 3; do
+  if push_output=$(git push -q origin HEAD:main 2>&1); then
+    exit 0
+  fi
+  case "$push_output" in
+    *non-fast-forward*|*"fetch first"*|*rejected*) ;;
+    *) printf '%s\n' "$push_output" >&2; exit 1 ;;
+  esac
+  if (( attempt == 3 )); then
+    printf '%s\n' "$push_output" >&2
+    echo 'Publish stopped after 3 concurrent main updates; the next hourly run will retry.' >&2
+    exit 1
+  fi
+  echo "Remote main changed during publish; refreshing the isolated build (retry $((attempt + 1))/3)." >&2
+  sleep $((attempt * 2))
+  git fetch -q origin main
+  if ! git rebase origin/main; then
+    git rebase --abort || true
+    echo 'Publish rebase conflicted with newer main; the next hourly run will retry.' >&2
+    exit 1
+  fi
+  python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
+  python3 scripts/build_discovery.py
+  stage_public_files
+  git diff --cached --check
+  if ! git diff --cached --quiet; then git commit --amend --no-edit -q; fi
+  if git diff --quiet origin/main HEAD; then exit 0; fi
+done

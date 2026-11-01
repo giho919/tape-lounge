@@ -39,6 +39,12 @@ The sitemap's tool dates follow the source hash instead of changing hourly when
 only a report refreshes. This enables discovery; it does not prove indexing or
 promise a ranking. Check search-console evidence when available.
 
+The hourly publisher uses a private temporary clone and stages only an explicit
+public-file allowlist. If another report job advances `main` during publication,
+it retries the non-fast-forward race up to two times by fetching, rebasing, and
+rebuilding that allowlist. It never force-pushes; unresolved conflicts are left
+for the next hourly run.
+
 The Korean live lounge exposes direct links to the localized editorial entry
 pages (`/en/`, `/zh/`, `/ja/`) from its header. Those pages label the full live
 tools as Korean so visitors know what opens before leaving the translated view.
