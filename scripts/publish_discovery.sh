@@ -15,6 +15,15 @@ stage_public_files() {
   git add -u -- reports/blind_daily_stock_v2/
   local today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
   if [[ -f "$today_payload" ]]; then git add -- "$today_payload"; fi
+  # The builder prepares the next two rounds locally, but those answer files
+  # must stay unpublished and must not block the isolated checkout's rebase.
+  local candidate
+  for candidate in reports/blind_daily_stock_v2/*.json; do
+    [[ -f "$candidate" && "$candidate" != "$today_payload" ]] || continue
+    if ! git ls-files --error-unmatch -- "$candidate" >/dev/null 2>&1; then
+      rm -f -- "$candidate"
+    fi
+  done
 }
 git clone --shared --no-checkout -q "$site_repo" "$publish_dir"
 git -C "$publish_dir" remote set-url origin github-salon:giho919/tape-lounge.git
