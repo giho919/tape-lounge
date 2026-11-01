@@ -94,8 +94,9 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     def language_link(match):
         tag = match.group(0)
         target_lang = match.group(1)
+        target_url = locale_home_url(target_lang) if not selected_slug else live_app_url(target_lang, selected_slug)
         tag = re.sub(r'href="[^"]*"',
-                     f'href="{e(live_app_url(target_lang, selected_slug), quote=True)}"', tag, count=1)
+                     f'href="{e(target_url, quote=True)}"', tag, count=1)
         tag = re.sub(r'\s+aria-current="[^"]*"', '', tag)
         if target_lang == lang:
             tag = tag[:-1] + ' aria-current="page">'
@@ -116,7 +117,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
             return tag
         path = parts.path.rstrip('/') or '/'
         if path == '/':
-            new_path = live_app_url(lang, '')
+            new_path = locale_home_url(lang)
         elif path == '/decision':
             new_path = decision_url(lang)
         elif path.strip('/') in route_slugs:
@@ -283,6 +284,9 @@ def live_app_url(lang, slug=''):
         return '/' + (slug.rstrip('/') + '/' if slug else '')
     return f'/{lang}/tools/' + (slug.rstrip('/') + '/' if slug else '')
 
+def locale_home_url(lang):
+    return '/' if lang == 'ko' else f'/{lang}/'
+
 def prepare_classic_home():
     """Prepare the shared lounge shell for the public root and tool entries."""
     classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
@@ -310,14 +314,41 @@ def prepare_classic_home():
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     return classic
 
+def localized_live_home(classic, lang):
+    """Render the same lounge home in each language; keep the shell and features identical."""
+    title, description = LIVE_PAGE_COPY[lang]['']
+    text = tool_page(classic, '', 'lounge', title, description, lang=lang, live_tools=True)
+    app_canonical = BASE + live_app_url(lang, '')
+    public_canonical = BASE + locale_home_url(lang)
+    text = text.replace(f'<link rel="canonical" href="{app_canonical}">',
+                        f'<link rel="canonical" href="{public_canonical}">', 1)
+    text = text.replace(f'<meta property="og:url" content="{app_canonical}">',
+                        f'<meta property="og:url" content="{public_canonical}">', 1)
+    text = text.replace('<meta name="robots" content="noindex,follow">',
+                        '<meta name="robots" content="index,follow,max-image-preview:large">', 1)
+    alternates = ''.join(
+        f'<link rel="alternate" hreflang="{code}" href="{BASE + locale_home_url(code)}">'
+        for code in LANGS
+    ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
+    return text.replace('</head>', alternates + '\n</head>', 1)
+
+def write_live_home_pages(classic):
+    """Write the canonical shared lounge home for Korean and all translated locales."""
+    alternates = ''.join(
+        f'<link rel="alternate" hreflang="{lang}" href="{BASE + locale_home_url(lang)}">'
+        for lang in LANGS
+    ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
+    korean_home = classic.replace('</head>', alternates + '\n</head>', 1)
+    write('index.html', korean_home)
+    write('ko/index.html', korean_home)
+    for lang in LIVE_PAGE_COPY:
+        write(f'{lang}/index.html', localized_live_home(classic, lang))
+
 def build_live_tools_only():
     """Regenerate the shared Korean live-lounge shell and its localized entries."""
     classic=prepare_classic_home()
     build_decision_pages()
-    home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
-    write('index.html',localized_home)
-    write('ko/index.html',localized_home)
+    write_live_home_pages(classic)
     for lang, pages_copy in LIVE_PAGE_COPY.items():
         title, description = pages_copy['']
         write(f'{lang}/tools/index.html',
@@ -479,12 +510,8 @@ def build(force=False):
             for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate',format_datetime(published))]:
                 SubElement(item,key).text=val
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
-    # Keep the pre-redesign lounge as the public home while the hourly discovery
-    # build refreshes localized research pages. The source snapshot is intentional.
-    home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
-    write('index.html',localized_home)
-    write('ko/index.html',localized_home)
+    # Keep the Korean lounge as the base shell and use it for every language home.
+    write_live_home_pages(classic)
     terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
     write('terminal/index.html',terminal)
     for slug, selected, title, description in TOOL_PAGES:
@@ -562,6 +589,10 @@ def build_editorial_only():
             for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate',format_datetime(published))]:
                 SubElement(item,key).text=val
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
+
+    # The locale root is the shared translated lounge. Editorial and guide
+    # pages remain available at their own routes underneath each locale.
+    write_live_home_pages(prepare_classic_home())
 
     sitemap=(ROOT/'sitemap.xml').read_text(encoding='utf-8')
     for lang in LANGS:

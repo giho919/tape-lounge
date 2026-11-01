@@ -100,7 +100,7 @@
     const recommendation = chosen && supported.includes(chosen) ? chosen : await readRecommendation();
     if (!languages[recommendation] || recommendation === 'ko') return;
     const copy = languages[recommendation];
-    box.innerHTML = `<div class="homeLocaleCopy"><span>${copy.text} ${copy.tools}</span><small>${copy.privacy}</small></div><div class="homeLocaleActions"><a class="homeLocaleLink" href="/${recommendation}/tools/" hreflang="${recommendation}" lang="${recommendation}" data-language="${recommendation}">${copy.link}</a><button class="homeLocaleDismiss" type="button">${copy.dismiss}</button><button class="homeLocaleDismiss" type="button" aria-label="${copy.close}">×</button></div>`;
+    box.innerHTML = `<div class="homeLocaleCopy"><span>${copy.text} ${copy.tools}</span><small>${copy.privacy}</small></div><div class="homeLocaleActions"><a class="homeLocaleLink" href="/${recommendation}/" hreflang="${recommendation}" lang="${recommendation}" data-language="${recommendation}">${copy.link}</a><button class="homeLocaleDismiss" type="button">${copy.dismiss}</button><button class="homeLocaleDismiss" type="button" aria-label="${copy.close}">×</button></div>`;
     box.hidden = false;
     box.querySelectorAll('.homeLocaleDismiss').forEach(button => button.addEventListener('click', () => {
       write('tl_locale_dismissed', true);
