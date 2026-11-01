@@ -326,8 +326,14 @@
     for (const link of document.querySelectorAll('a[data-decision-link]')) link.setAttribute('href', target);
   }
 
+  function refreshBlindGuideLinks() {
+    const target = `/${lang}/learn/blind-chart-practice/`;
+    for (const link of document.querySelectorAll('a.bgGuideLink')) link.setAttribute('href', target);
+  }
+
   refreshLanguageLinks();
   refreshDecisionLinks();
+  refreshBlindGuideLinks();
   const tabList = document.querySelector('[role="tablist"]');
   if (tabList) new MutationObserver(refreshLanguageLinks).observe(tabList, {
     subtree: true, attributes: true, attributeFilter: ['aria-selected', 'class'],
