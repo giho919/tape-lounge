@@ -45,16 +45,33 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
 test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가로 시작한다',()=>{
  assert.ok(app.includes("const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');"));
  assert.ok(app.includes("new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS)"));
+ assert.ok(app.includes('api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=5m&limit=1'));
  const src=app.match(/function applyRaceKline\(data\) \{[\s\S]*?\n\}/)?.[0];
+ const snapshotSrc=app.match(/function applyRaceSnapshot\(symbol, candle\) \{[\s\S]*?\n\}/)?.[0];
+ const valuesSrc=app.match(/function raceValues\(\) \{[\s\S]*?\n\}/)?.[0];
  assert.ok(src,'race kline adapter must be explicit and testable');
- const ctx={RACE_COINS:['BTC','ETH'],race:{BTC:{start:null,last:null},ETH:{start:null,last:null}},raceRoundEnd:0};
+ assert.ok(snapshotSrc,'race snapshot adapter must be explicit and testable');
+ assert.ok(valuesSrc,'race ranking must use an explicit shared candle window');
+ const now=Math.floor(Date.now()/300000)*300000, ctx={RACE_COINS:['BTC','ETH'],race:{BTC:{start:null,last:null,openTime:null},ETH:{start:null,last:null,openTime:null}},raceRoundEnd:now+300000,Date,renderRace(){}};
  vm.createContext(ctx);
- vm.runInContext(src+'; applyRaceKline({e:"kline",k:{s:"BTCUSDT",i:"5m",o:"100",c:"104",T:299999}});',ctx);
+ vm.runInContext(snapshotSrc+'; applyRaceSnapshot("BTC",['+now+',"100","105","99","103",0,'+(now+299999)+']);',ctx);
  assert.equal(ctx.race.BTC.start,100,'race baseline must use Binance kline open');
- assert.equal(ctx.race.BTC.last,104,'live race value must use current kline close');
- assert.equal(ctx.raceRoundEnd,300000,'race clock must use the kline close time');
- vm.runInContext('applyRaceKline({e:"kline",k:{s:"XYZUSDT",i:"5m",o:"1",c:"2",T:599999}})',ctx);
- assert.equal(ctx.raceRoundEnd,300000,'unknown symbols must not move the shared race clock');
+ assert.equal(ctx.race.BTC.last,103,'initial race value must use the shared candle close');
+ assert.equal(ctx.raceRoundEnd,now+300000,'initial race clock must use the candle close time');
+ vm.runInContext(src+'; applyRaceKline({e:"kline",k:{s:"BTCUSDT",i:"5m",t:'+now+',o:"100",c:"104",T:'+(now+299999)+'}});',ctx);
+ assert.equal(ctx.race.BTC.last,104,'live kline must advance the snapshot value');
+ vm.runInContext('applyRaceSnapshot("BTC",['+now+',"100","105","99","101",0,'+(now+299999)+']);',ctx);
+ assert.equal(ctx.race.BTC.last,104,'a late REST snapshot must not overwrite a live update');
+ vm.runInContext('applyRaceKline({e:"kline",k:{s:"BTCUSDT",i:"5m",t:'+(now-300000)+',o:"90",c:"91",T:'+(now-1)+'}})',ctx);
+ assert.equal(ctx.race.BTC.last,104,'an old candle must not roll the race back');
+ vm.runInContext(valuesSrc+'; race.ETH={start:95,last:100,openTime:'+(now-300000)+'}; JSON.stringify(raceValues())',ctx);
+ assert.equal(JSON.parse(vm.runInContext('JSON.stringify(raceValues())',ctx)).find(x=>x.sym==='ETH').pct,null,'previous-round values must not compete in the current race');
+ vm.runInContext('applyRaceKline({e:"kline",k:{s:"ETHUSDT",i:"5m",t:'+(now+300000)+',o:"100",c:"101",T:'+(now+599999)+'}})',ctx);
+ const current=JSON.parse(vm.runInContext('JSON.stringify(raceValues())',ctx));
+ assert.equal(current.find(x=>x.sym==='BTC').pct,null,'a new round must hide other coins until their new candle arrives');
+ assert.ok(Number.isFinite(current.find(x=>x.sym==='ETH').pct),'the first coin in a new round should update immediately');
+ vm.runInContext('applyRaceKline({e:"kline",k:{s:"XYZUSDT",i:"5m",t:'+now+',o:"1",c:"2",T:'+(now+299999)+'}})',ctx);
+ assert.equal(ctx.raceRoundEnd,now+600000,'unknown symbols must not move the shared race clock');
 });
 
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{

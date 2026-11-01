@@ -43,7 +43,7 @@ const root=path.resolve(__dirname,'..');
   // The no-socket smoke path cannot exercise the race after its first quote.
   // Feed deterministic prices so a live-ticker-only exception cannot pass again.
   await page.evaluate(()=>{
-    RACE_COINS.forEach(sym=>{race[sym].start=100;race[sym].last=100;});
+    RACE_COINS.forEach(sym=>{race[sym].start=100;race[sym].last=100;race[sym].openTime=raceRoundEnd-300000;});
     race.BTC.last=105;race.ETH.last=103;renderRace();
   });
   assert.match(await page.locator('#raceLeader').textContent(),/^BTC 선두 · 격차 2\.00%p$/);

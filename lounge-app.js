@@ -1735,7 +1735,7 @@ function subscribeMarketEvents() {
 subscribeMarketEvents();
 
 const RACE_COINS = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
-const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null}]));
+const race = Object.fromEntries(RACE_COINS.map(s => [s,{start:null,last:null,openTime:null}]));
 let raceRoundEnd = (Math.floor(Date.now()/300000)+1)*300000;
 function buildRace() {
   const rows = $('raceRows'); rows.textContent = '';
@@ -1749,7 +1749,8 @@ function buildRace() {
   });
 }
 function raceValues() {
-  return RACE_COINS.map(sym => ({sym, pct:Number.isFinite(race[sym].start) && race[sym].start > 0 && Number.isFinite(race[sym].last) ? (race[sym].last/race[sym].start-1)*100 : null})).sort((a,b)=>(b.pct ?? -Infinity)-(a.pct ?? -Infinity));
+  const roundStart = raceRoundEnd - 300000;
+  return RACE_COINS.map(sym => ({sym, pct:race[sym].openTime === roundStart && Number.isFinite(race[sym].start) && race[sym].start > 0 && Number.isFinite(race[sym].last) ? (race[sym].last/race[sym].start-1)*100 : null})).sort((a,b)=>(b.pct ?? -Infinity)-(a.pct ?? -Infinity));
 }
 function renderRace() {
   const vals = raceValues(), ready = vals.filter(v=>Number.isFinite(v.pct)), maxAbs = Math.max(.05,...ready.map(x=>Math.abs(x.pct)));
@@ -1774,17 +1775,50 @@ function renderRace() {
 buildRace(); renderRace();
 let wsRace = null;
 const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');
+function applyRaceSnapshot(symbol, candle) {
+  if (!RACE_COINS.includes(symbol) || !Array.isArray(candle)) return false;
+  const openTime = Number(candle[0]), open = Number(candle[1]), close = Number(candle[4]), end = Number(candle[6]);
+  if (![openTime,open,close,end].every(Number.isFinite) || open <= 0 || close <= 0 || end < openTime || end + 1 < Date.now() - 5000) return false;
+  if (openTime < raceRoundEnd - 300000) return false;
+  const state = race[symbol];
+  if (state.openTime !== null && state.openTime > openTime) return false;
+  if (state.openTime === openTime && state.last !== null) return false;
+  state.start = open;
+  state.last = close;
+  state.openTime = openTime;
+  raceRoundEnd = end + 1;
+  renderRace();
+  return true;
+}
 function applyRaceKline(data) {
   const k = data?.k, symbol = String(k?.s || '').replace(/USDT$/, '');
   if (!RACE_COINS.includes(symbol)) return;
-  const open = Number(k.o), close = Number(k.c), end = Number(k.T);
-  if (![open,close,end].every(Number.isFinite) || open <= 0 || close <= 0) return;
-  race[symbol].start = open;
-  race[symbol].last = close;
+  const openTime = Number(k.t), open = Number(k.o), close = Number(k.c), end = Number(k.T);
+  if (![openTime,open,close,end].every(Number.isFinite) || open <= 0 || close <= 0 || end < openTime || end + 1 < Date.now() - 5000 || openTime < raceRoundEnd - 300000) return;
+  const state = race[symbol];
+  if (state.openTime !== null && openTime < state.openTime) return;
+  if (state.openTime !== openTime) {
+    state.start = open;
+    state.openTime = openTime;
+  }
+  state.last = close;
   raceRoundEnd = end + 1;
+}
+let raceSnapshotRequested = false;
+async function bootstrapRaceSnapshot() {
+  await Promise.all(RACE_COINS.map(async symbol => {
+    if (race[symbol].last !== null) return;
+    try {
+      const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=5m&limit=1`, {cache:'no-store'});
+      if (!response.ok) return;
+      const candles = await response.json();
+      if (Array.isArray(candles?.[0])) applyRaceSnapshot(symbol, candles[0]);
+    } catch (_) {}
+  }));
 }
 function connectRaceWS() {
   if (!tabLive('lounge') || wsRace) return;
+  if (!raceSnapshotRequested) { raceSnapshotRequested = true; bootstrapRaceSnapshot(); }
   wsRace = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS);
   wsRace.onmessage = ev => {
     if (!tabLive('lounge')) return;
