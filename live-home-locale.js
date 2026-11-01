@@ -31,6 +31,7 @@
     '라운지 정보 넘기기':['Lounge feature controls','大厅内容控制','ラウンジ表示の操作'],
     '이전 정보':['Previous feature','上一项','前の項目'], '다음 정보':['Next feature','下一项','次の項目'],
     '자동 넘김 시작':['Start automatic rotation','开始自动轮播','自動切り替えを開始'],
+    'Andy 관찰':['Andy watch','Andy 观察','Andy の観察'],
     '세션 관전석':['Session watch','时段观察席','セッション観戦席'],
     '세션 챔피언십':['Session championship','时段冠军赛','セッション・チャンピオンシップ'],
     '🏆 세션 챔피언십':['🏆 Session championship','🏆 时段冠军赛','🏆 セッション・チャンピオンシップ'],
@@ -51,7 +52,7 @@
     'MACD 지표':['MACD indicator','MACD 指标','MACD 指標'], 'RSI 지표':['RSI indicator','RSI 指标','RSI 指標'],
     '차트 이미지 저장 및 링크 공유':['Save chart image and share a link','保存图表图片并分享链接','チャート画像を保存してリンクを共有'],
     'Supertrend · Wilder ATR 10, 배수 3. 진행 중인 봉의 값은 바뀔 수 있습니다.':['Supertrend · Wilder ATR 10, multiplier 3. The current candle can change.','Supertrend · Wilder ATR 10，系数 3。当前K线数值可能变化。','Supertrend・Wilder ATR 10、係数3。形成中のローソク足の値は変わることがあります。'],
-    '상승':['Up','上涨','上昇'], '하락':['Down','下跌','下落'], '점선':['dotted','虚线','点線'], '마감':['Close','收盘','確定'],
+    '상승':['Up','上涨','上昇'], '하락':['Down','下跌','下落'], '점선':['dotted','虚线','点線'], '(점선)':['(dotted)','（虚线）','（点線）'], '마감':['Close','收盘','確定'],
     '현재 봉 · 마감 전 변동 가능':['Current candle · may change before close','当前K线 · 收盘前可能变化','現在の足・確定前に変動する場合があります'],
     '모의투자':['Paper trading','模拟交易','ペーパートレード'], '💵 모의투자':['💵 Paper trading','💵 模拟交易','💵 ペーパートレード'],
     'BTC 무기한 · 격리 마진':['BTC perpetual · isolated margin','BTC 永续 · 逐仓','BTC無期限・分離マージン'],
@@ -63,6 +64,7 @@
     '실제 주문이 아닙니다 · 체결가와 청산은 서버가 바이낸스 시세로 판정합니다':['No real orders · fills and liquidation use Binance prices','不会提交真实订单 · 成交与清算按 Binance 行情判定','実注文はありません・約定と清算はBinance価格で判定'],
     '라운지 채팅':['Lounge chat','大厅聊天','ラウンジチャット'], '🥂 라운지 채팅':['🥂 Lounge chat','🥂 大厅聊天','🥂 ラウンジチャット'],
     '실시간 · 한국시간':['Live · Korea time','实时 · 韩国时间','ライブ・韓国時間'], '닉네임 설정':['Set nickname','设置昵称','ニックネーム設定'],
+    '라운지 대화 · 작성 시각은 한국시간':['Lounge conversation · timestamps in Korea time','大厅对话 · 时间为韩国时间','ラウンジの会話・時刻は韓国時間'],
     '크루 이름을 누르면 소개와 최근 발언을 볼 수 있어요.':['Select a crew member to see their profile and recent remarks.','点击成员名称可查看介绍和近期发言。','クルー名を押すと紹介と最近の発言を見られます。'],
     '채팅 메시지':['Chat message','聊天内容','チャットメッセージ'], '전송':['Send','发送','送信'],
     '체결의 비':['Trade-flow rain','成交雨','約定の雨'], '🌧 체결의 비':['🌧 Trade-flow rain','🌧 成交雨','🌧 約定の雨'],
@@ -77,10 +79,29 @@
     '기록 보기':['View record','查看记录','記録を見る'], '월간 소견서 읽기 ↗':['Read monthly note ↗','阅读月度观点 ↗','月次ノートを読む ↗'],
     '후보 관찰 목록 ↗':['Candidate watchlist ↗','候选观察列表 ↗','候補ウォッチリスト ↗'],
     '운용 장부 읽기 ↗':['Read the operating ledger ↗','阅读运作记录 ↗','運用記録を読む ↗'],
+    '🏆 실시간 포지션':['🏆 Live positions','🏆 实时持仓','🏆 リアルタイムポジション'],
+    '미실현 수익률 순':['Ranked by unrealized return','按未实现收益率排序','未実現損益率順'], '게스트':['Guest','访客','ゲスト'],
+    'LOUNGE CREW / 크루 명함':['LOUNGE CREW / Crew card','LOUNGE CREW / 成员名片','LOUNGE CREW / クルーカード'],
+    '크루 명함 닫기':['Close crew card','关闭成员名片','クルーカードを閉じる'],
+    '라운지 크루 · AI 캐릭터':['Lounge crew · AI character','大厅成员 · AI角色','ラウンジクルー・AIキャラクター'],
+    '주로 보는 것':['What they follow','关注内容','主に見るもの'], '최근 발언 보기':['Recent remarks','近期发言','最近の発言'],
+    '명함을 열 때 불러온 대화 중 최신 3개 · 한국시간 전체 발언 기록은 아니에요.':['The latest three messages loaded when this card opened · Korea time. Not a full history.','打开名片时加载的最新三条对话 · 韩国时间。并非完整发言记录。','カードを開いた際に読み込んだ最新3件・韓国時間。全発言履歴ではありません。'],
+    '불러온 대화에 이 크루의 발언이 아직 없어요.':['No remarks from this crew member in the loaded conversation yet.','已加载的对话中暂时没有该成员的发言。','読み込んだ会話に、このメンバーの発言はまだありません。'],
+    '공개 자료를 바탕으로 대화하는 AI예요. 실제 투자자나 투자 자문가가 아니며, 발언에 오류가 있을 수 있어요.':['An AI character responding to public information. Not a real investor or adviser; remarks may contain errors.','这是基于公开资料对话的AI角色，并非真实投资者或顾问，发言可能有误。','公開情報をもとに会話するAIキャラクターです。実在の投資家・助言者ではなく、発言に誤りが含まれる場合があります。'],
     '본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.':['For information only, not investment advice. All investment decisions and responsibility remain with you.','本网站仅提供信息，不构成投资建议。投资决定与责任由用户自行承担。','本サイトは情報提供を目的とし、投資助言ではありません。投資判断と責任は利用者ご自身にあります。'],
     '최근 대화가 없어요 오늘 시장에서 눈에 들어온 장면을 먼저 남겨보세요.':['No recent chat. Share a market observation to get the conversation started.','暂无近期聊天。分享你今天注意到的行情，开启讨论。','最近の会話はありません。今日気になった相場の動きを投稿してみましょう。'],
     '아무 곳이나 눌러 시작 →':['Click anywhere to begin →','点击任意位置开始 →','どこかをタップして開始 →'],
     '새 블록이 금고에 착륙했습니다.':['A new block has landed in the vault.','新区块已进入金库。','新しいブロックが保管庫に到着しました。'],
+    '지금 이 순간 바이낸스에서 일어나는':['Happening on Binance right now,','此刻在币安发生的','いまBinanceで行われる'],
+    '진짜 비트코인 거래':['real Bitcoin trades','真实的比特币成交','実際のビットコイン取引'],
+    '가 빗방울로 떨어집니다.':['fall as raindrops.','像雨滴一样落下。','が雨粒となって降り注ぎます。'],
+    '방울이 클수록 큰돈이 움직인 것':['Larger drops mean larger trades','水滴越大，成交金额越大','滴が大きいほど取引額も大きく'],
+    '초록은 매수':['green means buying','绿色表示买入','緑は買い'], '빨강은 매도':['red means selling','红色表示卖出','赤は売り'],
+    '예요.':['.','。','。'], '금테를 두른 방울은':['Gold-rimmed drops mark','带金边的水滴代表','金縁のしずくは'],
+    '$50만 이상의 고래':['trades above $500K','超过 50 万美元的大额成交','50万ドル超の大口取引'],
+    '퍼지는 파문은 강제 청산.':['; expanding ripples mark liquidations.','；扩散的涟漪代表强制平仓。','、広がる波紋は強制清算です。'],
+    '비가 어느 쪽에 많이 내리는지가 곧 지금의 힘싸움입니다.':['The heavier side of the rain shows the current buying-versus-selling flow.','哪一侧的雨点更多，反映当前买卖力量的对比。','雨がどちらに多く降るかで、今の売買の勢いが見えてきます。'],
+    '본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다. · 데이터: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5':['For information only, not investment advice. You are responsible for your investment decisions. · Data: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me and CoinGecko (live; may be delayed) · Tape Lounge Prototype v0.5','本网站仅供信息参考，不构成投资建议。投资决定与责任由用户自行承担。· 数据：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（实时，可能延迟）· Tape Lounge Prototype v0.5','本サイトは情報提供を目的とし、投資助言ではありません。投資判断と責任は利用者ご自身にあります。・データ：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（リアルタイム、遅延の可能性あり）・Tape Lounge Prototype v0.5'],
   };
 
   const textMap = new Map(Object.entries(copy).map(([source, translations]) => [source, translations[langIndex] || translations[0]]));
@@ -108,6 +129,15 @@
   }, true);
 
   const dynamic = value => {
+    const deckTimeframe = value.match(/^([A-Z0-9.]+) · (1분|15분|60분|240분|일봉|주봉|월봉)$/);
+    if (deckTimeframe) {
+      const intervals = {
+        '1분':['1 min','1 分钟','1分'], '15분':['15 min','15 分钟','15分'],
+        '60분':['60 min','60 分钟','60分'], '240분':['4 hr','4 小时','4時間'],
+        '일봉':['1 day','日线','日足'], '주봉':['1 week','周线','週足'], '월봉':['1 month','月线','月足'],
+      };
+      return `${deckTimeframe[1]} · ${intervals[deckTimeframe[2]][langIndex]}`;
+    }
     const deal = value.match(/^TODAY'S DEAL · (\d{1,2})월 (\d{1,2})일 · (코인|미국 주식)$/);
     if (deal) {
       const month = Number(deal[1]), day = Number(deal[2]);
