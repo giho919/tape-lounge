@@ -22,6 +22,18 @@ test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로�
  for(const t of TABS)assert.ok(app.includes(`'${t}'`)||app.includes(`"${t}"`),t);
 });
 
+test('국가별 언어 안내가 API에 연결될 수 있고 요청에 referrer·쿠키를 보내지 않는다',()=>{
+ const locale=fs.readFileSync(require.resolve('../home-language.js'),'utf8');
+ assert.ok(locale.includes("fetch('https://api.country.is/'"));
+ assert.ok(locale.includes("credentials: 'omit'"));
+ assert.ok(locale.includes("referrerPolicy: 'no-referrer'"));
+ for(const page of ['../classic-home.html','../index.html','../en/index.html','../zh/index.html','../ja/index.html']){
+  const source=fs.readFileSync(require.resolve(page),'utf8');
+  const policy=source.match(/Content-Security-Policy[^>]*content="([^"]+)"/);
+  assert.ok(policy?.[1].includes('https://api.country.is'),`${page} blocks country lookup`);
+ }
+});
+
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{
  const rail=html.match(/\.tabsWrap \{[^}]*\}/)[0];
  assert.ok(/position:fixed/.test(rail),'고정이 아니면 라운지를 보는 동안 사라진다');
