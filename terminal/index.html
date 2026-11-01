@@ -471,6 +471,8 @@ body.shake { animation:shake .5s; }
 .bgSpeedControl { display:flex; align-items:center; gap:4px; min-height:34px; padding:2px 4px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); }
 .bgSpeedControl button { width:40px; height:40px; border:0; border-radius:5px; background:transparent; color:var(--gold); font-family:inherit; font-size:20px; font-weight:700; line-height:1; cursor:pointer; touch-action:manipulation; }
 .bgSpeedControl button:disabled { opacity:.35; cursor:default; }
+.bgSpeedControl .bgSpeedQuick { width:auto; min-width:44px; height:36px; padding:0 9px; border:1px solid var(--gold-dim); border-radius:6px; background:rgba(212,175,55,.07); font-size:11px; }
+.bgSpeedControl .bgSpeedQuick[aria-pressed="true"] { background:var(--gold-dim); color:#fff; }
 .bgSpeedCaption { padding:0 2px 0 4px; color:var(--dim); font-size:10px; white-space:nowrap; }
 .bgSpeedControl select { min-width:60px; height:34px; padding:0 18px 0 7px; border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--gold); font-family:inherit; font-size:10px; font-weight:700; text-align:center; cursor:pointer; touch-action:manipulation; }
 .bgSpeedControl select:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
@@ -1082,6 +1084,7 @@ body.shake { animation:shake .5s; }
         <button type="button" id="bgSpeedDownBtn" onclick="soloAdjustSpeed(-1)" aria-label="속도 낮추기">−</button>
         <span class="bgSpeedCaption" aria-hidden="true">속도</span>
         <select id="bgSpeedSelect" aria-label="차트 진행 속도 선택" onchange="soloSetSpeed(this.value)"><option value="1">1×</option></select>
+        <button type="button" class="bgSpeedQuick" id="bgSpeedOneBtn" onclick="soloSetSpeed(1)" aria-label="차트 속도를 1배로 바로 낮추기" aria-pressed="false">1×</button>
         <button type="button" id="bgSpeedUpBtn" onclick="soloAdjustSpeed(1)" aria-label="속도 높이기">+</button>
       </div>
     </div>
@@ -2353,7 +2356,7 @@ let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsS
 // 이제 마지막 실제 조작 이후 IDLE_LIMIT_MS 가 지나면 적립을 멈춘다.
 const IDLE_LIMIT_MS = 5 * 60 * 1000;
 let analyticsLastInputAt = performance.now();
-const markUserInput = () => { analyticsLastInputAt = performance.now(); };
+const markUserInput = () => { analyticsLastInputAt = performance.now(); qualifySiteAnalytics(); };
 ['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev =>
   window.addEventListener(ev, markUserInput, { passive:true, capture:true }));
 
@@ -2376,6 +2379,11 @@ try {
   analyticsInternal = localStorage.getItem('tapeInternal') === '1';
 } catch(e) {}
 
+const analyticsAutomated = !analyticsInternal && (navigator.webdriver === true ||
+  /(?:googlebot|google-inspectiontool|googleother|google-agent|storebot-google|bingbot|duckduckbot|baiduspider|yandexbot|applebot|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|redditbot|pinterestbot|ahrefsbot|semrushbot|mj12bot|bytespider|gptbot|claudebot|perplexitybot|crawler|spider|headlesschrome|phantomjs|lighthouse|pagespeed)/i.test(navigator.userAgent || ''));
+const analyticsQualificationDelayMs = 5000;
+let analyticsQualified = analyticsInternal, analyticsQualificationTimer = null;
+
 const analyticsCampaignRoute = window.TapeCampaign?.route(location.search) || {rpc:'record_site_activity',fields:{}};
 
 function analyticsPayload(activeSeconds = 0, isView = false) {
@@ -2387,7 +2395,7 @@ function analyticsPayload(activeSeconds = 0, isView = false) {
   };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
-  if (!sbc || !analyticsVisitorId) return;
+  if (!sbc || !analyticsVisitorId || analyticsAutomated) return;
   const body = analyticsPayload(activeSeconds, isView);
   try {
     if (keepalive) {
@@ -2400,8 +2408,26 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
     }
   } catch(e) { console.warn('analytics off'); }
 }
+function qualifySiteAnalytics() {
+  if (analyticsQualified || analyticsAutomated || document.hidden) return false;
+  analyticsQualified = true;
+  clearTimeout(analyticsQualificationTimer); analyticsQualificationTimer = null;
+  analyticsLastActiveAt = analyticsLastInputAt = performance.now();
+  recordSiteActivity(0, false, !analyticsStarted);
+  analyticsStarted = true;
+  startSitePresence();
+  if (!analyticsTimer) analyticsTimer = setInterval(() => siteAnalyticsFlush(false), 60000);
+  return true;
+}
+function scheduleSiteAnalyticsQualification() {
+  if (analyticsQualified || analyticsAutomated || document.hidden || analyticsQualificationTimer) return;
+  analyticsQualificationTimer = setTimeout(() => {
+    analyticsQualificationTimer = null;
+    qualifySiteAnalytics();
+  }, analyticsQualificationDelayMs);
+}
 function siteAnalyticsFlush(keepalive = false) {
-  if (document.hidden && !keepalive) return;
+  if (!analyticsQualified || analyticsAutomated || (document.hidden && !keepalive)) return;
   const now = performance.now();
   // 조작이 끊긴 뒤의 시간은 활동으로 치지 않는다. 마지막 입력까지만 인정.
   const countUntil = Math.min(now, analyticsLastInputAt + IDLE_LIMIT_MS);
@@ -2412,8 +2438,9 @@ function siteAnalyticsFlush(keepalive = false) {
 }
 function siteAnalyticsTabLeaving() { siteAnalyticsFlush(false); }
 function siteAnalyticsTabEntered() {
+  const alreadyQualified = analyticsQualified;
   analyticsLastActiveAt = performance.now(); markUserInput();   // 탭 전환은 명백한 조작
-  recordSiteActivity(0, false, true);
+  if (alreadyQualified) recordSiteActivity(0, false, true);
 }
 window.siteAnalyticsTabLeaving = siteAnalyticsTabLeaving;
 window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
@@ -2424,7 +2451,7 @@ function renderViewerCount() {
   $('viewerCount').textContent = `${count}명 관전 중`;
 }
 function startSitePresence() {
-  if (!sbc || document.hidden || presenceChannel) return;
+  if (!sbc || document.hidden || presenceChannel || analyticsAutomated || !analyticsQualified) return;
   // 고정 채널명 — 세션마다 다른 이름을 쓰면(구 -${presenceSeq}) 탭 전환 후 재구독한 사람이
   // 새 채널로 옮겨가 버려 같은 순간에도 서로 다른 채널에 흩어지고 인원수가 실제보다 적게 잡혔다.
   const channel = sbc.channel('tape-lounge-presence', { config:{ presence:{ key:analyticsSessionId } } })
@@ -2448,9 +2475,14 @@ function stopSitePresence() {
 function syncSiteAudience() {
   if (document.hidden) {
     siteAnalyticsFlush(true); stopSitePresence(); clearInterval(analyticsTimer); analyticsTimer = null;
-  } else {
+    if (!analyticsQualified) { clearTimeout(analyticsQualificationTimer); analyticsQualificationTimer = null; }
+  } else if (analyticsAutomated) {
+    return;
+  } else if (analyticsQualified) {
     analyticsLastActiveAt = performance.now(); recordSiteActivity(0, false, !analyticsStarted); analyticsStarted = true; startSitePresence();
     if (!analyticsTimer) analyticsTimer = setInterval(() => siteAnalyticsFlush(false), 60000);
+  } else {
+    scheduleSiteAnalyticsQualification();
   }
 }
 document.addEventListener('visibilitychange', syncSiteAudience);
@@ -3913,6 +3945,8 @@ function bgRenderSpeed(speed = bgSpeed) {
     select.dataset.speedOptions = optionSet;
   }
   select.value = String(value);
+  const oneSpeed = $('bgSpeedOneBtn');
+  oneSpeed.setAttribute('aria-pressed', value === 1 ? 'true' : 'false');
   $('bgSpeedDownBtn').disabled = index <= 0;
   $('bgSpeedUpBtn').disabled = index < 0 || index >= speeds.length - 1;
 }
@@ -4298,12 +4332,12 @@ function studyUpdateControls() {
   const started = studyRoom?.status === 'running' && studyNow() >= Date.parse(studyRoom.start_at || 0);
   const enabled = isHost && started;
   $('bgPlayRow').classList.toggle('prestart', !started);
-  const play = $('bgPlayBtn'), speedDown = $('bgSpeedDownBtn'), speedUp = $('bgSpeedUpBtn'), speedSelect = $('bgSpeedSelect'), finish = $('bgFinishBtn');
+  const play = $('bgPlayBtn'), speedDown = $('bgSpeedDownBtn'), speedUp = $('bgSpeedUpBtn'), speedOne = $('bgSpeedOneBtn'), speedSelect = $('bgSpeedSelect'), finish = $('bgFinishBtn');
   play.textContent = studyRoom?.playing ? '⏸ 일시정지' : '▶ 재생';
   play.setAttribute('aria-label',studyRoom?.playing ? '일시정지' : '다시 재생');
   bgRenderSpeed(+(studyRoom?.speed || 1));
   finish.textContent = isHost ? '🏳 여기서 정산' : '🔒 방장만 정산';
-  [play, speedDown, speedUp, finish].forEach(el => {
+  [play, speedDown, speedUp, speedOne, finish].forEach(el => {
     el.classList.toggle('roomLocked', !enabled);
     el.style.pointerEvents = enabled ? '' : 'none';
     el.setAttribute('aria-disabled', enabled ? 'false' : 'true');

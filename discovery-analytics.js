@@ -4,16 +4,18 @@ const random=()=>crypto.randomUUID(),params=new URLSearchParams(location.search)
 if(document.body.dataset.entry==='root'&&['desk','analysis','onchain','calendar','blind','game','market','domestic','research','strategists','chars'].includes(location.hash.slice(1)))return;
 let id=random(),internal=params.get('internal')==='1';
 try{if(params.get('internal')==='1')localStorage.setItem('tapeInternal','1');else if(params.get('internal')==='0')localStorage.removeItem('tapeInternal');internal=params.get('internal')==='1'||(params.get('internal')!=='0'&&localStorage.getItem('tapeInternal')==='1');id=localStorage.getItem('tapeVisitorId')||id;localStorage.setItem('tapeVisitorId',id);}catch{}
-const automated=navigator.webdriver===true||/(?:googlebot|bingbot|duckduckbot|baiduspider|yandexbot|applebot|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|redditbot|pinterestbot|ahrefsbot|semrushbot|mj12bot|bytespider|gptbot|claudebot|perplexitybot|crawler|spider|headlesschrome|phantomjs|lighthouse|pagespeed)/i.test(navigator.userAgent||'');
+const automated=navigator.webdriver===true||/(?:googlebot|google-inspectiontool|googleother|google-agent|storebot-google|bingbot|duckduckbot|baiduspider|yandexbot|applebot|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|redditbot|pinterestbot|ahrefsbot|semrushbot|mj12bot|bytespider|gptbot|claudebot|perplexitybot|crawler|spider|headlesschrome|phantomjs|lighthouse|pagespeed)/i.test(navigator.userAgent||'');
 const session=random(),page=document.body.dataset.page||'',tab=page==='markets'?'domestic':page===''?'lounge':'chars';
-let input=performance.now(),last=input,hidden=document.hidden,ended=false;
+let input=performance.now(),last=input,hidden=document.hidden,ended=false,qualified=false,qualifyTimer=null;
 let ref=null;try{const h=new URL(document.referrer).hostname;if(h!==location.hostname)ref=h;}catch{}
 const campaign=window.TapeCampaign?.route(location.search)||{rpc:'record_site_activity',fields:{}};
 function send(seconds=0,view=false,keepalive=false){if(internal||automated)return;fetch('https://mmvhyzajmfkilldxxazs.supabase.co/rest/v1/rpc/'+campaign.rpc,{method:'POST',keepalive,headers:{apikey:'sb_publishable_S5ohCvizmH8zI-H1wvRupA_aHTG4YOH','Content-Type':'application/json'},body:JSON.stringify({p_visitor_id:id,p_session_id:session,p_tab:tab,p_active_seconds:Math.max(0,Math.min(60,Math.round(seconds))),p_is_view:view,p_referrer_host:ref,p_internal:false,...campaign.fields})}).catch(()=>{});}
-function flush(keepalive=false){const now=performance.now();if(!hidden){const seconds=Math.max(0,(Math.min(now,input+300000)-last)/1000);if(seconds>=1)send(seconds,false,keepalive);}last=now;}
-['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();},{capture:true,passive:true}));
-send(0,true);const timer=setInterval(()=>flush(),60000);
-document.addEventListener('visibilitychange',()=>{flush(document.hidden);hidden=document.hidden;last=performance.now();});
-addEventListener('pagehide',()=>{if(ended)return;ended=true;flush(true);clearInterval(timer);});
+function qualify(){if(qualified||automated||hidden)return;qualified=true;clearTimeout(qualifyTimer);qualifyTimer=null;input=last=performance.now();send(0,true);}
+function scheduleQualification(){if(qualified||automated||hidden||qualifyTimer!==null)return;qualifyTimer=setTimeout(()=>{qualifyTimer=null;qualify();},5000);}
+function flush(keepalive=false){const now=performance.now();if(qualified&&!hidden){const seconds=Math.max(0,(Math.min(now,input+300000)-last)/1000);if(seconds>=1)send(seconds,false,keepalive);}last=now;}
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();qualify();},{capture:true,passive:true}));
+scheduleQualification();const timer=setInterval(()=>{if(qualified)flush();},60000);
+document.addEventListener('visibilitychange',()=>{flush(document.hidden);hidden=document.hidden;last=performance.now();if(hidden){clearTimeout(qualifyTimer);qualifyTimer=null;}else scheduleQualification();});
+addEventListener('pagehide',()=>{if(ended)return;ended=true;flush(true);clearInterval(timer);clearTimeout(qualifyTimer);});
 addEventListener('pageshow',ev=>{if(ev.persisted)location.reload();});
 })();
