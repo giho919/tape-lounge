@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 from urllib.parse import urlsplit, urlunsplit
 from xml.etree.ElementTree import Element, SubElement, tostring
+from zoneinfo import ZoneInfo
 from discovery_content import COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
@@ -514,9 +515,10 @@ def build(force=False):
         return {'changed':False}
     data=read('data/andy-watch.json'); letters=read('reports/letters.json')
     generated=datetime.now(timezone.utc).isoformat()
+    generated_kst=datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
     tool_hash=sha256((ROOT/'classic-home.html').read_bytes()+json.dumps(TOOL_PAGES,ensure_ascii=False).encode()+b''.join((ROOT/p).read_bytes() for p in TOOL_ASSETS)).hexdigest()
     previous=read('data/discovery.json') if target.exists() else {}
-    tool_updated=previous.get('toolUpdatedAt',generated[:10]) if previous.get('toolSourceHash')==tool_hash else generated[:10]
+    tool_updated=previous.get('toolUpdatedAt',generated_kst) if previous.get('toolSourceHash')==tool_hash else generated_kst
     pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
     for lang in LANGS:
         for page in pages:
@@ -558,13 +560,13 @@ def build(force=False):
         SubElement(entry,'lastmod').text=tool_updated
     for lang in LANGS:
         entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+decision_url(lang)
-        SubElement(entry,'lastmod').text=generated[:10]
+        SubElement(entry,'lastmod').text=generated_kst
     for lang in LANGS:
         for page in pages:
             if lang=='ko' and page=='':continue
             entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+url(lang,page)
             if page=='':
-                lastmod=max('2026-10-22',data['reportAt'][:10])
+                lastmod=tool_updated
             elif page=='watch':
                 lastmod=max(WATCH_PAGE_UPDATED,data['reportAt'][:10])
             elif page=='markets':
@@ -590,7 +592,9 @@ def build(force=False):
     template=(ROOT/'scripts/discovery-analytics.template.js').read_text(encoding='utf-8')
     write('discovery-analytics.js',template.replace('__PUBLIC_URL__',supa_url).replace('__PUBLISHABLE_KEY__',key))
     turnstile=public_config['turnstile']
-    sdk=re.search(r'<script src="([^"]+@supabase/supabase-js@[^"]+)" integrity="([^"]+)"',source)
+    sdk=re.search(r'<script\b[^>]*\bsrc="([^"]+@supabase/supabase-js@[^"]+)"[^>]*\bintegrity="([^"]+)"',source)
+    if not sdk:
+        raise ValueError('Could not find the pinned Supabase browser SDK URL and integrity in terminal/index.html')
     write('data/stage-config.json',json.dumps({'schema':1,'url':supa_url,'key':key,'turnstile':turnstile,'sdk':{'url':sdk[1],'integrity':sdk[2]},'words':WORDS},ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'pages':len(LANGS)*len(pages)+1+len(TOOL_PAGES),'reportAt':data['reportAt']}
 
