@@ -18,11 +18,11 @@ BASE = 'https://tapelounge.com'
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-02'
 WATCH_PAGE_UPDATED = '2026-11-02'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css', 'lounge-app.js']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
-TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
+TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
                'site-campaign.js', 'blind-og-20261101.png', 'lounge-rotation.js',
@@ -66,11 +66,6 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
                             '<meta name="robots" content="noindex,follow">', 1)
         text = re.sub(r'(<summary[^>]*>)🌐\s*KO(</summary>)',
                       lambda m: m.group(1) + '🌐 ' + lang.upper() + m.group(2), text, count=1)
-        text = text.replace("const path = slug ? `/${slug}/` : '/';",
-                            f"const path = slug ? `/{lang}/tools/${{slug}}/` : '/{lang}/tools/';", 1)
-        path_expression = "const pathSlug = location.pathname.replace(/^\\/+|\\/+$/g, '').replace(/\\/index\\.html$/, '');"
-        localized_path_expression = path_expression[:-1] + f".replace(/^{lang}\\/tools\\/?/, '');"
-        text = text.replace(path_expression, localized_path_expression, 1)
         locale_js_version = sha256((ROOT / 'live-home-locale.js').read_bytes()).hexdigest()[:12]
         text = text.replace('</head>',
                             f'<script defer src="/live-home-locale.js?v={locale_js_version}"></script>\n</head>', 1)
@@ -295,9 +290,16 @@ def locale_home_url(lang):
 def prepare_classic_home():
     """Prepare the shared lounge shell for the public root and tool entries."""
     classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
+    app_version=sha256((ROOT/'lounge-app.js').read_bytes()).hexdigest()[:12]
+    classic, app_script_count = re.subn(
+        r'(<script defer src="/lounge-app\.js\?v=)[^"]+("></script>)',
+        lambda m: m.group(1) + app_version + m.group(2),
+        classic, count=1)
+    if app_script_count != 1:
+        raise ValueError('Could not refresh the shared lounge app script version')
     classic, campaign_script_count = re.subn(
-        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
-        f'<script src="/site-campaign.js?v={VERSION}"></script>',
+        r'<script(?: defer)? src="/?site-campaign\.js\?v=[^"]+"></script>',
+        f'<script defer src="/site-campaign.js?v={VERSION}"></script>',
         classic, count=1)
     if campaign_script_count != 1:
         raise ValueError('Could not refresh the social campaign script version in the lounge template')

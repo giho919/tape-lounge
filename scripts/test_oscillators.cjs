@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
-const code=html.slice(html.indexOf('function oscillatorStep('),html.indexOf('function makeOscillators('));
+const app=fs.readFileSync(path.join(__dirname,'../lounge-app.js'),'utf8');
+new vm.Script(app);
+const code=app.slice(app.indexOf('function oscillatorStep('),app.indexOf('function makeOscillators('));
 const ctx=vm.createContext({});vm.runInContext(code,ctx);
 const api=vm.runInContext('({oscillatorStep,seedOscillators,tickOscillators})',ctx);
 const clone=x=>JSON.parse(JSON.stringify(x));

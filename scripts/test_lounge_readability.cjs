@@ -2,8 +2,9 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
 const html = fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].forEach(m=>new vm.Script(m[1]));
-function extract(start,end){return html.slice(html.indexOf(start),html.indexOf(end,html.indexOf(start)));}
+const app = fs.readFileSync(path.join(__dirname,'../lounge-app.js'),'utf8');
+new vm.Script(app);
+function extract(start,end){return app.slice(app.indexOf(start),app.indexOf(end,app.indexOf(start)));}
 const chat = extract("const feed = $('feed');","// 전략가 서신");
 const people = extract("function nickColor(", "function chatWanted()");
 const bootstrap = [

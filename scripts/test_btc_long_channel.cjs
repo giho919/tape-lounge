@@ -1,5 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'btc-long-channel.js'),'utf8'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const app=fs.readFileSync(path.join(root,'lounge-app.js'),'utf8');
 const store=new Map(),context={window:{},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)}};
 vm.createContext(context);vm.runInContext(source,context);const api=context.window.BtcLongChannel;
 function make(){const objects=[];return {objects,timeScale:()=>({timeToCoordinate:t=>100+(t-1668988800)/86400*10}),addLineSeries(options){const s={options,data:[],attachPrimitive(p){this.primitive=p;p.attached({requestUpdate:()=>{}});},priceToCoordinate:p=>100-p/1000,setData(d){this.data=Array.from(d);},applyOptions(o){Object.assign(this.options,o);},update(p){const last=this.data.at(-1);assert(!last||p.time>=last.time,'out-of-order update');if(last?.time===p.time)this.data[this.data.length-1]=p;else this.data.push(p);}};objects.push(s);return s;}};}
@@ -35,8 +36,8 @@ test('시간봉 전환은 옛 시각을 지운 뒤 다시 시딩한다',()=>{
  api.seed(s,[t-86400,t]);s.series.forEach(x=>assert.equal(x.data.length,2));
 });
 test('BTC만 연결되고 실시간/시간봉 전환 훅이 존재한다',()=>{
- assert(html.includes("elId === 'c_btc'"));assert(html.includes('BtcLongChannel.seed(chart.longChannel'));
- assert(html.includes('BtcLongChannel.tick(chart.longChannel,k.t/1000)'));assert(html.includes('BtcLongChannel.clear(chart.longChannel)'));
+ assert(app.includes("elId === 'c_btc'"));assert(app.includes('BtcLongChannel.seed(chart.longChannel'));
+ assert(app.includes('BtcLongChannel.tick(chart.longChannel,k.t/1000)'));assert(app.includes('BtcLongChannel.clear(chart.longChannel)'));
  assert.equal((html.match(/data-analysis-open/g)||[]).length,0);
  assert(!/btcLongWeekly|btcLongToggle|btcLongHint|btc-long-tools/.test(html));
 });

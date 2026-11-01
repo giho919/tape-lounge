@@ -1,11 +1,12 @@
-// 라운지 차트의 청산·고래 마커. 브라우저 없이 index.html 에서 함수만 떼어내 검사한다.
+// 라운지 차트의 청산·고래 마커. 브라우저 없이 공유 앱 파일에서 함수만 떼어내 검사한다.
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
-const src=html.slice(html.indexOf('function snapToBar('), html.indexOf('\nasync function loadLiquidationLedger('));
-const renderSrc=html.slice(html.indexOf('const MARKER_LABEL_PX'), html.indexOf('// 확대·이동하면 들어갈 수 있는 라벨 수가 달라지므로'));
+const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
+const src=app.slice(app.indexOf('function snapToBar('), app.indexOf('\nasync function loadLiquidationLedger('));
+const renderSrc=app.slice(app.indexOf('const MARKER_LABEL_PX'), app.indexOf('// 확대·이동하면 들어갈 수 있는 라벨 수가 달라지므로'));
 assert.ok(src.includes('rebuildLiquidationMarkers')&&renderSrc.includes('renderBtcMarkers'),'대상 함수를 찾지 못했다');
-assert.ok(!html.includes('liquidationBucketTime'),'초 단위로 직접 나누던 옛 버킷 계산은 남아 있으면 안 된다');
-assert.ok(!/chartPxPerBar|minTier/.test(html),'배율로 마커를 숨기던 코드는 남아 있으면 안 된다');
+assert.ok(!app.includes('liquidationBucketTime'),'초 단위로 직접 나누던 옛 버킷 계산은 남아 있으면 안 된다');
+assert.ok(!/chartPxPerBar|minTier/.test(app),'배율로 마커를 숨기던 코드는 남아 있으면 안 된다');
 
 let tests=0; const test=(label,fn)=>{fn();tests++;console.log('PASS',label);};
 const HOUR=3600000, DAY=24*HOUR;
@@ -115,10 +116,10 @@ test('고래도 실제 캔들에 붙어 모든 시간대에서 함께 그려진�
   assert.ok(!/chartTf === '1m' \?/.test(html),'고래를 1분봉에서만 그리던 조건도 없어야 한다');
 });
 test('차트용 청산 장부는 삭제된 라운지 패널과 분리돼 여러 날의 기록을 보존한다',()=>{
-  assert.ok(/liquidationLedger/.test(html),'전용 장부가 없다');
-  assert.ok(/function applyMarketEvent\(row\)[\s\S]{0,240}recordLiquidationForChart\(row\)/.test(html),'실시간 장부 이벤트가 차트용 청산 기록에 직접 반영되어야 한다');
-  assert.ok(/loadLiquidationLedger[\s\S]{0,600}gte\('amount_usd', MARKER_ROW_FLOOR\)/.test(html),'작은 전표를 서버에서 걸러야 한다');
-  assert.ok(/MARKER_HISTORY_DAYS \* 86400000/.test(html),'24시간이 아니라 여러 날을 받아야 한다');
+  assert.ok(/liquidationLedger/.test(app),'전용 장부가 없다');
+  assert.ok(/function applyMarketEvent\(row\)[\s\S]{0,240}recordLiquidationForChart\(row\)/.test(app),'실시간 장부 이벤트가 차트용 청산 기록에 직접 반영되어야 한다');
+  assert.ok(/loadLiquidationLedger[\s\S]{0,600}gte\('amount_usd', MARKER_ROW_FLOOR\)/.test(app),'작은 전표를 서버에서 걸러야 한다');
+  assert.ok(/MARKER_HISTORY_DAYS \* 86400000/.test(app),'24시간이 아니라 여러 날을 받아야 한다');
 });
 
 // ── 지표 발표 ──
@@ -170,10 +171,10 @@ test('고래는 접속 전 기록과 접속 중 기록을 같은 캔들에서 �
   assert.equal(sellHeavy[0].position,'aboveBar'); assert.equal(sellHeavy[0].color,'#f87171');
 });
 test('두 정책과 두 조회가 실제로 배선돼 있다',()=>{
-  assert.ok(/loadWhaleLedger[\s\S]{0,400}eq\('event_type','whale'\)/.test(html),'고래 이력 조회 없음');
-  assert.ok(/loadMacroMarkers[\s\S]{0,300}macroLoad\(\)/.test(html),'발표장과 같은 파일을 쓰지 않는다');
-  assert.ok(/loadWhaleLedger\(\); loadMacroMarkers\(\);/.test(html),'적재가 호출되지 않는다');
-  assert.ok(/rebuildMacroMarkers\(\);\n  renderBtcMarkers\(\);\n  connectChartWS/.test(html),'시간대 변경 시 발표 마커를 다시 스냅하지 않는다');
-  assert.ok(/recordWhaleForChart\(row\)/.test(html),'실시간 고래가 장부에 안 들어간다');
+  assert.ok(/loadWhaleLedger[\s\S]{0,400}eq\('event_type','whale'\)/.test(app),'고래 이력 조회 없음');
+  assert.ok(/loadMacroMarkers[\s\S]{0,300}macroLoad\(\)/.test(app),'발표장과 같은 파일을 쓰지 않는다');
+  assert.ok(/loadWhaleLedger\(\); loadMacroMarkers\(\);/.test(app),'적재가 호출되지 않는다');
+  assert.ok(/rebuildMacroMarkers\(\);\n  renderBtcMarkers\(\);\n  connectChartWS/.test(app),'시간대 변경 시 발표 마커를 다시 스냅하지 않는다');
+  assert.ok(/recordWhaleForChart\(row\)/.test(app),'실시간 고래가 장부에 안 들어간다');
 });
 console.log(tests+' liquidation marker checks passed');

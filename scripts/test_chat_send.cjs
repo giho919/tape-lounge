@@ -2,7 +2,8 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('path').join(__dirname, '../index.html'), 'utf8');
-const code = html.slice(html.indexOf('let _lastChat ='), html.indexOf('window.chatSend = chatSend;') + 'window.chatSend = chatSend;'.length);
+const app = fs.readFileSync(require('path').join(__dirname, '../lounge-app.js'), 'utf8');
+const code = app.slice(app.indexOf('let _lastChat ='), app.indexOf('window.chatSend = chatSend;') + 'window.chatSend = chatSend;'.length);
 async function scenario({fail=false,auth=true,concurrent=false,newDraft=false}={}) {
   const nodes = {chatTxt:{value:'test draft',parentElement:{insertAdjacentElement(_,x){nodes[x.id]=x;}}},chatSendBtn:{disabled:false,textContent:'전송'}};
   let calls=0, resolve;

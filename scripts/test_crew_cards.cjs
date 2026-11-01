@@ -3,8 +3,9 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
-function extract(start,end){const i=html.indexOf(start);assert.ok(i>=0);return html.slice(i,html.indexOf(end,i));}
+const app=fs.readFileSync(path.join(__dirname,'../lounge-app.js'),'utf8');
+new vm.Script(app);
+function extract(start,end){const i=app.indexOf(start);assert.ok(i>=0);return app.slice(i,app.indexOf(end,i));}
 const bootstrap=[
  "const $=id=>document.getElementById(id);const esc=s=>{const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML};",
  "let myNick='test',myUid=null,sbc=null;async function ensureAuth(){}function setNick(){}",

@@ -17,12 +17,12 @@ for(const mutate of [a=>a.pop(),a=>{a[6][0]++;},a=>{a[5][4]='111';},a=>{a[2][1]=
 }
 const memory=new Map(),storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};
 const result={roi:0,bh:5.25,completed:true,finishedAt:'2026-10-31T08:00:00Z'};
-assert.deepEqual(daily.record(storage,day,{...result,completed:false}),{saved:false,first:null});
+assert.deepEqual(daily.record(storage,day,{...result,completed:false}),{saved:false,first:null,streak:{days:0,playedToday:false,lastDay:null}});
 assert.equal(daily.read(storage).length,0);
 assert.equal(daily.record(storage,day,result).saved,true);
 assert.equal(daily.record(storage,day,{...result,roi:99}).saved,false);
 assert.equal(daily.read(storage)[0].roi,0,'retries cannot replace the first completed result');
-assert.deepEqual(daily.record({getItem(){throw Error('denied');},setItem(){throw Error('denied');}},day,result),{saved:false,first:null});
+assert.deepEqual(daily.record({getItem(){throw Error('denied');},setItem(){throw Error('denied');}},day,result),{saved:false,first:null,streak:{days:0,playedToday:false,lastDay:null}});
 assert.deepEqual(daily.read({getItem:()=>'{broken'}),[]);
 for(let i=0;i<35;i++)daily.record(storage,new Date(Date.UTC(2026,10,1+i)).toISOString().slice(0,10),result);
 assert.equal(daily.read(storage).length,30);

@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
-function extract(start,end){const i=html.indexOf(start);assert.ok(i>=0);return html.slice(i,html.indexOf(end,i));}
+const js=fs.readFileSync(path.join(__dirname,'../lounge-app.js'),'utf8');
+new vm.Script(js);
+function extract(start,end){const i=js.indexOf(start);assert.ok(i>=0);return js.slice(i,js.indexOf(end,i));}
 const ctx=vm.createContext({document:{querySelectorAll:()=>[]}});
 vm.runInContext(extract('const MA_DEFS =','const LOUNGE_KL_LIMIT =')+extract('function seedMA(','const LOUNGE_CHART_IDS ='),ctx);
 const api=vm.runInContext('({MA_DEFS,supertrendStep,seedSupertrend,tickSupertrend,seedMA})',ctx);

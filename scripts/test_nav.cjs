@@ -1,6 +1,7 @@
 // 측면 인덱스 탭 구조와 발표장 배지. 브라우저 없이 index.html 을 읽어 검사한다.
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
-const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
+const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\n/g,'\n');
+const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
 const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
@@ -17,8 +18,8 @@ test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로�
  assert.ok(block.includes('aria-orientation="vertical"'),'세로 탭임을 알려야 한다');
  assert.equal((block.match(/class="tab on"/g)||[]).length,1,'처음 선택된 탭은 하나');
  // 기존 스크립트가 쓰는 선택자를 그대로 유지하는지
- assert.ok(html.includes("document.querySelectorAll('.tab').forEach"),'선택 로직이 .tab 을 계속 쓴다');
- for(const t of TABS)assert.ok(html.includes(`'${t}'`)||html.includes(`"${t}"`),t);
+ assert.ok(app.includes("document.querySelectorAll('.tab').forEach"),'선택 로직이 .tab 을 계속 쓴다');
+ for(const t of TABS)assert.ok(app.includes(`'${t}'`)||app.includes(`"${t}"`),t);
 });
 
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{
@@ -45,7 +46,7 @@ test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 
 
 // 배지: 라운지가 이미 들고 있는 macroData 로만 만든다
 function badge(events, nowIso){
-  const src=html.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];
+  const src=app.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];
   let text=null, note=null, removed=false;
   const el={ querySelector:()=>null, appendChild:o=>{el._b=o}, _b:null };
   const ctx={ macroData:{events}, Math, Array, Number, Date,
@@ -75,10 +76,10 @@ test('발표장 배지는 하루 안으로 다가온 VIP·MAIN 발표에만 붙�
 });
 
 test('배지는 라운지가 이미 받은 달력만 쓰고, 숨은 탭을 위해 따로 조회하지 않는다',()=>{
- const src=html.match(/function refreshTabBadges[\s\S]*?\n\}/)[0];
+ const src=app.match(/function refreshTabBadges[\s\S]*?\n\}/)[0];
  assert.ok(!/fetch|sbc\.from/.test(src),'배지가 직접 네트워크를 부르면 안 된다');
  assert.ok(/macroData/.test(src));
- assert.ok(/refreshTabBadges\(\);\}/.test(html.match(/macroData=await response\.json\(\);[^\n]*/)[0]+'}'),'달력을 받은 뒤 갱신해야 한다');
+ assert.ok(/refreshTabBadges\(\);\}/.test(app.match(/macroData=await response\.json\(\);[^\n]*/)[0]+'}'),'달력을 받은 뒤 갱신해야 한다');
 });
 
 console.log(tests+' nav checks passed');
