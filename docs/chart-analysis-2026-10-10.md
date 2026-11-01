@@ -53,4 +53,5 @@
 
 - Binance Spot BTC/USDT ticker and the still-open 2026-10-26 weekly kline close: $77,758.01. The week remains O $80,154.09 / H $81,971.00 / L $76,325.98; the last fully closed week is 2026-10-25.
 - Updated both linear SVG live-price markers, the report's current-week row and snapshot time, and the chart cache key across pages.
+- The analysis tab now links to a timestamped copy of this report so a cached prior report cannot hide the refreshed quote.
 - Historical anchors, slope, channel spacing and the separate 75k reference remain unchanged. The lounge Market Context carousel remains removed.
