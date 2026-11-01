@@ -28,13 +28,33 @@ document.addEventListener('click',ev=>{const star=ev.target.closest('[data-star]
 addEventListener('storage',ev=>{if(ev.key==='tl_domestic_favorites'){const a=read(ev.key,[]);favorites=new Set((Array.isArray(a)?a:[]).filter(valid));stars();renderSaved();filterRadar();if(page==='markets')renderMarket();}});
 function renderSaved(){if(!$('saved-rows')||!c)return;const symbols=favorites.size?[...favorites].slice(0,8):['BTC','ETH','SOL'];$('saved-rows').innerHTML=symbols.map(s=>{const q=quotes[s];return `<div class="saved-row"><button class="star" data-star="${s}" aria-label="${s} · ${esc(c.save)}" aria-pressed="${favorites.has(s)}">${favorites.has(s)?'★':'☆'}</button><a href="${trackSymbol(s)}">${s}</a><span>${q?money(q.price):'—'}<small class="${q&&fresh(quoteAt)?tone(q.change):''}">${q&&fresh(quoteAt)?pct(q.change):'—'}</small></span></div>`;}).join('');}
 function premium(s){const q=quotes[s],k=krw[s];return q&&k&&fx&&fresh(quoteAt)&&fresh(krwAt)&&Date.now()-fxAt<26*3600000?(k/(q.price*fx.rate)-1)*100:null;}
-function renderMarket(){if(!$('market-rows')||!c)return;const query=$('market-search')?.value.trim().toUpperCase()||'';let symbols=page==='markets'?Object.keys(quotes):['BTC','ETH','SOL','XRP','BNB'];if(!symbols.length)symbols=['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];symbols=symbols.filter(s=>(!query||s.includes(query))&&(!savedOnly||favorites.has(s)));
+function marketAndyMark(symbol){
+if(page!=='markets'||!Array.isArray(data?.candidates))return '';
+const items=data.candidates.filter(item=>item.active&&item.symbol===symbol);
+if(!items.length)return '';
+const index={ko:0,en:1,zh:2,ja:3}[lang]??0;
+const stageLabel=item=>data.stages?.[item.stage]?.[index]||item.stage;
+const tfLabel=item=>item.timeframe==='4h'?c.fourHour:item.timeframe==='1d'?c.daily:item.timeframe;
+const details=Array.from(new Set(items.map(item=>tfLabel(item)+' · '+stageLabel(item)))).join(' / ');
+const scanLabel={ko:'Andy 관찰',en:'Andy scan',zh:'Andy观察',ja:'Andy観察'}[lang]||'Andy';
+const asOf=data.reportAt?({ko:'최근 관찰',en:'Latest scan',zh:'最近观察',ja:'最新スキャン'}[lang]+': '+time(data.reportAt)):'';
+const description=[scanLabel,details,asOf].filter(Boolean).join(' · ');
+return '<span class="market-andy" title="'+esc(description)+'" aria-label="'+esc(description)+'">'+esc(scanLabel)+'</span>';
+}
+function renderMarket(){
+if(!$('market-rows')||!c)return;
+const query=$('market-search')?.value.trim().toUpperCase()||'';
+let symbols=page==='markets'?Object.keys(quotes):['BTC','ETH','SOL','XRP','BNB'];
+if(!symbols.length)symbols=['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','LINK'];
+symbols=symbols.filter(s=>(!query||s.includes(query))&&(!savedOnly||favorites.has(s)));
 if(page==='markets')symbols.sort((a,b)=>sort==='change'?(quotes[b]?.change??-Infinity)-(quotes[a]?.change??-Infinity):sort==='premium'?(premium(b)??-Infinity)-(premium(a)??-Infinity):(quotes[b]?.volume??0)-(quotes[a]?.volume??0));
-const total=symbols.length;symbols=symbols.slice(0,page==='markets'?limit:5);$('market-rows').innerHTML=symbols.length?symbols.map(s=>{const q=quotes[s],p=premium(s),live=fresh(quoteAt);return `<tr data-market-symbol="${s}"><td><button class="star" data-star="${s}" aria-label="${s} · ${esc(c.save)}" aria-pressed="${favorites.has(s)}">${favorites.has(s)?'★':'☆'}</button><a href="${trackSymbol(s)}">${s}</a><small>USDT</small></td><td>${q?money(q.price):'—'}</td><td class="${q&&live?tone(q.change):''}">${q&&live?pct(q.change):'—'}</td><td class="${Number.isFinite(p)?tone(p):''}">${Number.isFinite(p)?pct(p):'—'}</td><td>${q&&live?compact(q.volume):'—'}</td></tr>`;}).join(''):`<tr><td colspan="5">${esc(c.empty)}</td></tr>`;
+const total=symbols.length;
+symbols=symbols.slice(0,page==='markets'?limit:5);
+$('market-rows').innerHTML=symbols.length?symbols.map(s=>{const q=quotes[s],p=premium(s),live=fresh(quoteAt),andy=marketAndyMark(s);return '<tr data-market-symbol="'+s+'"><td><button class="star" data-star="'+s+'" aria-label="'+s+' · '+esc(c.save)+'" aria-pressed="'+favorites.has(s)+'">'+(favorites.has(s)?'★':'☆')+'</button><a href="'+trackSymbol(s)+'">'+s+'</a><small>USDT</small>'+andy+'</td><td>'+(q?money(q.price):'—')+'</td><td class="'+(q&&live?tone(q.change):'')+'">'+(q&&live?pct(q.change):'—')+'</td><td class="'+(Number.isFinite(p)?tone(p):'')+'">'+(Number.isFinite(p)?pct(p):'—')+'</td><td>'+(q&&live?compact(q.volume):'—')+'</td></tr>';}).join(''):'<tr><td colspan="5">'+esc(c.empty)+'</td></tr>';
 if($('market-more'))$('market-more').hidden=total<=limit;
-const quoteStatus=quoteAt?`${c.observed}: ${time(new Date(quoteAt).toISOString())} · Binance / Upbit · ${fresh(quoteAt)?'60s':c.stale}`:c.snapshot;
+const quoteStatus=quoteAt?c.observed+': '+time(new Date(quoteAt).toISOString())+' · Binance / Upbit · '+(fresh(quoteAt)?'60s':c.stale):c.snapshot;
 $('quote-status').textContent=[quoteStatus,krwError?dataStatus.krwOffline:''].filter(Boolean).join(' · ');
-if($('fx-status'))$('fx-status').textContent=`${c.fxDate}: ${fx?fx.date+' · '+money(fx.rate)+(fxError?' · '+dataStatus.fxDelayed:''):dataStatus.fxOffline}`;
+if($('fx-status'))$('fx-status').textContent=c.fxDate+': '+(fx?fx.date+' · '+money(fx.rate)+(fxError?' · '+dataStatus.fxDelayed:''):dataStatus.fxOffline);
 }
 function renderReturn(){if(!$('return-copy')||!c||!prior||Date.now()-prior.at<900000||!fresh(quoteAt))return;const changes=[...favorites].filter(s=>quotes[s]&&Number.isFinite(prior.prices?.[s])&&prior.prices[s]>0).map(s=>({s,v:(quotes[s].price/prior.prices[s]-1)*100})).sort((a,b)=>Math.abs(b.v)-Math.abs(a.v));if(changes[0])$('return-copy').textContent=`${changes[0].s} ${pct(changes[0].v)} · ${time(new Date(prior.at).toISOString())} → ${time(new Date(quoteAt).toISOString())}`;}
 function snapshot(){if(!fresh(quoteAt)||!favorites.size)return;const prices={};favorites.forEach(s=>{if(quotes[s])prices[s]=quotes[s].price;});write('tl_discovery_visit_v1',{at:quoteAt,prices});}
@@ -63,7 +83,7 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.da
 $('site-search').addEventListener('input',search);$('site-search').addEventListener('keydown',ev=>{if(ev.key==='Escape')$('search-results').hidden=true;else if(ev.key==='Enter')$('search-results').querySelector('a')?.click();});document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('.site-search'))$('search-results').hidden=true;});
 document.querySelectorAll('[data-chart-symbol]').forEach(b=>b.onclick=()=>{chartSymbol=b.dataset.chartSymbol;document.querySelectorAll('[data-chart-symbol]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));loadChart();});
 document.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{chartRange=b.dataset.range;document.querySelectorAll('[data-range]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));loadChart();});
-if($('market-search'))$('market-search').addEventListener('input',()=>{limit=50;renderMarket();});if($('market-sort'))$('market-sort').onchange=ev=>{sort=ev.target.value;renderMarket();};if($('market-saved'))$('market-saved').onclick=()=>{savedOnly=!savedOnly;$('market-saved').setAttribute('aria-pressed',String(savedOnly));renderMarket();};if($('market-more'))$('market-more').onclick=()=>{limit+=50;renderMarket();};
+if($('market-search'))$('market-search').addEventListener('input',()=>{if(limit!==Infinity)limit=50;renderMarket();});if($('market-sort'))$('market-sort').onchange=ev=>{sort=ev.target.value;renderMarket();};if($('market-saved'))$('market-saved').onclick=()=>{savedOnly=!savedOnly;$('market-saved').setAttribute('aria-pressed',String(savedOnly));renderMarket();};if($('market-more'))$('market-more').onclick=()=>{limit=Infinity;renderMarket();};
 async function refresh(){if(document.hidden)return;if(page===''||page==='markets'){await fetchQuotes();if(document.hidden)return;fetchKorean();if($('pulse-chart')&&!chartBusy&&Date.now()-chartAt>55000)loadChart();if($('session-rows')&&Date.now()-sessionsAt>300000)loadSessions();}else if(page==='watch'&&!$('watch-asset')?.hidden&&!chartBusy&&Date.now()-chartAt>55000)loadChart();}
 refresh();timer=setInterval(refresh,60000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){snapshot();abortAll();}else refresh();});

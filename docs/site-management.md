@@ -304,3 +304,8 @@ labels, rollover, idempotent rollups and the existing rate limit. All synthetic
 rows and rollups roll back. Confirm the reserved referrer `campaign-check.invalid`
 and campaign names ending `_19000101` left no rows, then compare core definition
 and ACL and review security/performance advisories.
+
+
+## Localized all-market table
+
+The four localized market routes show the top 50 Binance USDT spot markets at first for a lighter mobile load. The View all control expands the complete current list in one action and stays expanded when the visitor searches, sorts or filters saved symbols. Use the latest active data.discovery.json scan records to mark Andy-observed symbols; the badge and its accessible description must remain an observation label, show timeframe/stage/as-of context, and never imply a trade signal.
