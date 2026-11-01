@@ -252,7 +252,7 @@ LIVE_PAGE_COPY = {
     'en': {
         '': ('Live market lounge | Tape Lounge', 'A live market lounge with price action, chart practice, market data and trader conversations.'),
         'blind': ('Blind chart practice | Tape Lounge', 'Practice on historical stock and crypto charts with the same live lounge layout.'),
-        'domestic': ('Korean market desk | Tape Lounge', 'Compare Korean exchange prices, the local USDT basis and market observations.'),
+        'domestic': ('Korean Crypto Prices & Kimchi Premium | Tape Lounge', 'Compare live Upbit and Bithumb KRW prices with overseas USDT spot markets; the premium uses the selected exchange’s latest USDT/KRW trade.'),
         'desk': ('Bitcoin futures desk | Tape Lounge', 'Review Bitcoin futures context, funding, open interest and order flow.'),
         'analysis': ('Bitcoin chart analysis | Tape Lounge', 'Explore Bitcoin long-term channels and chart indicators.'),
         'onchain': ('On-chain market view | Tape Lounge', 'Follow Bitcoin network activity and public on-chain indicators.'),
@@ -262,7 +262,7 @@ LIVE_PAGE_COPY = {
     'zh': {
         '': ('实时行情大厅 | Tape Lounge', '在同一大厅查看行情、历史图表练习、市场数据与交易讨论。'),
         'blind': ('盲图练习 | Tape Lounge', '在统一的大厅界面中，用历史美股和加密货币图表练习。'),
-        'domestic': ('韩国市场行情 | Tape Lounge', '比较韩国交易所价格、USDT价差与市场观察。'),
+        'domestic': ('韩国加密货币行情与溢价 | Tape Lounge', '比较 Upbit、Bithumb 的韩元实时价格与海外 USDT 现货价格，并说明溢价换算基准。'),
         'desk': ('比特币合约行情台 | Tape Lounge', '查看比特币合约背景、资金费率、持仓量与订单流。'),
         'analysis': ('比特币图表分析 | Tape Lounge', '查看比特币长期通道与图表指标。'),
         'onchain': ('链上市场观察 | Tape Lounge', '查看比特币网络活动和公开链上指标。'),
@@ -272,7 +272,7 @@ LIVE_PAGE_COPY = {
     'ja': {
         '': ('ライブマーケットラウンジ | Tape Lounge', '相場、過去チャート練習、市場データ、トレーダーの会話を一つのラウンジで確認できます。'),
         'blind': ('ブラインドチャート練習 | Tape Lounge', '同じラウンジ画面で、株式と暗号資産の過去チャートを練習できます。'),
-        'domestic': ('韓国市場デスク | Tape Lounge', '韓国取引所の価格、USDT価格差、市場観察を比較します。'),
+        'domestic': ('韓国暗号資産価格・プレミアム | Tape Lounge', 'Upbit・Bithumbのウォン建て価格と海外USDT現物価格を比較し、換算基準も確認できます。'),
         'desk': ('ビットコイン先物デスク | Tape Lounge', 'ビットコイン先物の背景、資金調達率、建玉、注文フローを確認します。'),
         'analysis': ('ビットコインチャート分析 | Tape Lounge', 'ビットコインの長期チャネルとチャート指標を確認します。'),
         'onchain': ('オンチェーン市場ビュー | Tape Lounge', 'ビットコインネットワークの動きと公開オンチェーン指標を確認します。'),

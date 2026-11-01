@@ -42,7 +42,7 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='
   assert.ok(!/max-height\s*:\s*\d+vh/.test(css),'세로는 페이지 스크롤 하나로만 움직인다');
   console.log('PASS table fits the viewport width with a single vertical scroll');}
  let r=await run({hidden:true});assert.equal(r.requests.length,0);assert.equal(r.timers.size,0);console.log('PASS hidden tab performs no requests');
- for(const [lang,labels] of Object.entries({en:['Markets','Korean exchange','Compare exchange','Asset','Premium','Waiting'],zh:['市场','韩国交易所','比较交易所','币种','溢价','等待连接'],ja:['マーケット','韓国取引所','比較取引所','銘柄','プレミアム','接続待ち']})){
+ for(const [lang,labels] of Object.entries({en:['Korean Crypto Premium','Korean exchange','Compare exchange','Asset','Premium','Waiting'],zh:['韩国加密货币溢价','韩国交易所','比较交易所','币种','溢价','等待连接'],ja:['韓国の暗号資産プレミアム','韓国取引所','比較取引所','銘柄','プレミアム','接続待ち']})){
   const localized=await run({lang}),markup=localized.nodes['tab-domestic'].innerHTML;
   for(const label of labels.slice(0,3))assert.ok(markup.includes(label),`${lang} entry copy: ${label}`);
   for(const label of labels.slice(3,5))assert.ok(localized.nodes['dm-head'].innerHTML.includes(label),`${lang} table header: ${label}`);
@@ -55,7 +55,7 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='
   assert.ok(details.includes(sectionLabels[0])&&details.includes(sectionLabels[1]),`${lang} detail sections`);
  }
  console.log('PASS domestic-market controls, headers and connection state localize in English, Chinese and Japanese');
- r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(!r.requests.some(u=>u.includes('frankfurter')),'환율은 더 이상 조회하지 않는다');assert.ok(r.nodes['dm-table'].innerHTML.includes(`title="Andy · ${andyStage}"`),'리포트에 실린 '+andySymbol+' 후보가 표에 배지로 나온다: '+r.nodes['dm-table'].innerHTML.match(/title="Andy[^\"]*/)?.[0]);assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
+ r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['tab-domestic'].innerHTML.includes('김치 프리미엄'),'Korean market title is specific');assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(!r.requests.some(u=>u.includes('frankfurter')),'환율은 더 이상 조회하지 않는다');assert.ok(r.nodes['dm-table'].innerHTML.includes(`title="Andy · ${andyStage}"`),'리포트에 실린 '+andySymbol+' 후보가 표에 배지로 나온다: '+r.nodes['dm-table'].innerHTML.match(/title="Andy[^\"]*/)?.[0]);assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
  const click=(x,attr,value)=>x.events['tab-domestic:click']({target:{closest:sel=>sel==='['+attr+']'?{dataset:{[attr.slice(5)]:value}}:null}});
  assert.equal((r.nodes['dm-head'].innerHTML.match(/<th/g)||[]).length,5);
  for(const label of ['이름','현재가','김프','전일대비','거래액(일)'])assert.ok(r.nodes['dm-head'].innerHTML.includes(label),label);

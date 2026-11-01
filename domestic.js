@@ -58,8 +58,8 @@ if(!root.document)return;
 const el=document.getElementById('tab-domestic');if(!el)return;
 const lang=document.documentElement?.lang||'ko',langIndex={ko:0,en:1,zh:2,ja:3}[lang]??0;
 const COPY={
- title:['마켓','Markets','市场','マーケット'],watch:['후보 관찰 · 리서치 ↗','Watchlist · research ↗','观察名单 · 研究 ↗','候補ウォッチ · リサーチ ↗'],
- intro:['국내 원화 가격과 해외 USDT 현물가를 비교합니다. 김프는 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.','Compare Korean won prices with overseas USDT spot prices. The premium uses the latest USDT/KRW trade on the selected Korean exchange.','比较韩国韩元价格与海外 USDT 现货价格。溢价按所选韩国交易所最新的 USDT/KRW 成交价换算。','韓国ウォン建て価格と海外USDT現物価格を比較します。プレミアムは選択した韓国取引所のUSDT/KRW最新約定価格で換算します。'],
+ title:['김치 프리미엄','Korean Crypto Premium','韩国加密货币溢价','韓国の暗号資産プレミアム'],watch:['후보 관찰 · 리서치 ↗','Watchlist · research ↗','观察名单 · 研究 ↗','候補ウォッチ · リサーチ ↗'],
+ intro:['업비트·빗썸의 원화 시세와 해외 USDT 시세를 비교합니다. 김치 프리미엄은 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.','Compare Korean won prices with overseas USDT spot prices. The premium uses the latest USDT/KRW trade on the selected Korean exchange.','比较韩国韩元价格与海外 USDT 现货价格。溢价按所选韩国交易所最新的 USDT/KRW 成交价换算。','韓国ウォン建て価格と海外USDT現物価格を比較します。プレミアムは選択した韓国取引所のUSDT/KRW最新約定価格で換算します。'],
  guide:['계산 방식 ↗','How it is calculated ↗','计算方式 ↗','計算方法 ↗'],base:['기준 거래소','Korean exchange','韩国交易所','韓国取引所'],compare:['비교 거래소','Compare exchange','比较交易所','比較取引所'],
  upbit:['업비트','Upbit','Upbit','Upbit'],bithumb:['빗썸','Bithumb','Bithumb','Bithumb'],binance:['바이낸스','Binance','Binance','Binance'],bybit:['바이비트','Bybit','Bybit','Bybit'],okx:['OKX','OKX','OKX','OKX'],gate:['게이트','Gate.io','Gate.io','Gate.io'],bitget:['비트겟','Bitget','Bitget','Bitget'],
  watchOnly:['관심 코인만 보기','Watchlist only','仅看自选','ウォッチリストのみ'],andyOnly:['Andy 후보만 보기','Andy picks only','仅看 Andy 观察标的','Andy候補のみ'],search:['BTC, 비트코인…','BTC, Bitcoin…','BTC、比特币…','BTC、ビットコイン…'],searchLabel:['종목 찾기','Search assets','搜索币种','銘柄を検索'],
