@@ -24,6 +24,8 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
                'site-campaign.js', 'blind-og-20261101.png', 'lounge-rotation.js',
                'live-home-locale.js']
+SHARE_ASSETS = ['article-share.js', 'article-share.css']
+SHARE_VERSION = sha256(b''.join((ROOT / p).read_bytes() for p in SHARE_ASSETS)).hexdigest()[:12]
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
@@ -388,6 +390,10 @@ def guide_cards(lang, exclude=None):
     guides=(guide for guide in c['guides'] if guide[0]!=exclude)
     return '<div class="reading-grid">'+''.join(f'<article class="reading-card"><span class="reading-no">0{i+1} / FIELD NOTES</span><h3>{link(url(lang,"learn/"+g[0]),g[1])}</h3><p>{e(g[2])}</p>{link(url(lang,"learn/"+g[0]),c["read"]+" ↗")}</article>' for i,g in enumerate(guides))+'</div>'
 
+def guide_share(lang):
+    labels={'ko':('글 공유','공유 링크'),'en':('Share this note','Share link'),'zh':('分享这篇笔记','分享链接'),'ja':('この記事を共有','共有リンク')}[lang]
+    return f'<div class="guide-share"><button type="button" data-article-share>{e(labels[0])} ↗</button><span data-article-share-status role="status" aria-live="polite"></span><input type="url" data-article-share-url aria-label="{e(labels[1],quote=True)}" readonly hidden></div>'
+
 def kimchi_calculator(lang):
     t=KIMCHI_TOOL_COPY[lang].copy()
     live=KIMCHI_LIVE_COPY[lang]
@@ -450,7 +456,7 @@ def render(lang, page, data, letters, generated, root=False):
         kimchi=guide[0]=='kimchi-premium'
         tool=kimchi_calculator(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p></aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -462,6 +468,7 @@ def render(lang, page, data, letters, generated, root=False):
         schema[1].update(name=title,description=desc)
     schema_json=json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
     app_scripts=(f'<script defer src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous"></script><script defer src="/stage.js?v={VERSION}"></script><script defer src="/stage-community.js?v={VERSION}"></script>' if page=='' else f'<script defer src="/discovery.js?v={VERSION}"></script>')
+    article_share_assets=(f'<link rel="stylesheet" href="/article-share.css?v={SHARE_VERSION}"><script defer src="/article-share.js?v={SHARE_VERSION}"></script>' if guide else '')
     kimchi_assets=''
     if guide and guide[0]=='kimchi-premium':
         kimchi_assets=f'<link rel="stylesheet" href="/kimchi-premium.css?v={VERSION}">'
@@ -474,7 +481,7 @@ def render(lang, page, data, letters, generated, root=False):
 <title>{e(title)} — Tape Lounge</title><meta name="description" content="{e(desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}
 <meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0d1114"><meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.bithumb.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co wss://stream.binance.com:9443; frame-src https://challenges.cloudflare.com">
-<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}">{kimchi_assets}<link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}">{kimchi_assets}<link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}{article_share_assets}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
 <body class="{'market-stage' if page=='' else ''}" data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
 <header class="masthead"><a class="wordmark" href="{url(lang)}" aria-label="Tape Lounge"><span class="brand-icon">t.</span><span>TAPE<span class="wordmark-light">LOUNGE</span><small>A PLACE TO READ THE MARKET.</small></span></a><nav class="primary-nav" aria-label="Navigation">{nav}</nav><div class="header-actions"><a class="terminal-link" href="{live_app_url(lang)}">{e(c['tools'])} ↗</a><details class="languages"><summary aria-label="Language">◎ {lang.upper()}</summary><div>{languages}</div></details></div></header>
 <div id="locale-suggestion" hidden role="status"></div><main id="content"><div class="site-search"><label for="site-search">⌕ <span class="sr-only">{e(c['find'])}</span></label><input id="site-search" type="search" placeholder="{e(c['searchHint'])}" autocomplete="off" aria-controls="search-results"><span class="search-caption">MARKETS / IDEAS / PERSPECTIVES</span><div id="search-results" hidden></div></div>{body}</main>
@@ -484,7 +491,7 @@ def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
     classic=prepare_classic_home()
-    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
@@ -607,7 +614,7 @@ def build_editorial_only():
 
     data['copy']=COPY
     data['generatedAt']=generated
-    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS+SHARE_ASSETS
     data['sourceHash']=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     write('data/discovery.json',json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
