@@ -70,3 +70,10 @@
 - Binance Spot BTC/USDT ticker and the open 2026-10-26 weekly kline: $77,750.01. The week remains O $80,154.09 / H $81,971.00 / L $76,325.98; volume 96,778.83857 BTC. Last fully closed week: 2026-10-25.
 - Refreshed the live-price guides, provisional candle bodies and volume bars in both linear SVGs, plus the timestamped report and all chart-entry cache keys. Preserved historical anchors, slope, 13 rails and the separate $75k reference.
 - The old separate Market Context carousel was already absent. Removed the remaining Lounge top market-metrics strip (BTC/KRW quote, Kimchi premium, Fear & Greed, FX, BTC dominance and funding) and the polling used only by those tiles. The live chart price and Session Championship remain.
+
+
+## Snapshot refresh — 2026-11-01 12:36 KST
+
+- Binance Spot BTC/USDT at 12:36:47 KST: $77,803.27. The open week (2026-10-26) remains O $80,154.09 / H $81,971.00 / L $76,325.98, with 96,846.99627 BTC cumulative volume. The last fully closed weekly candle is still 2026-10-25.
+- Refreshed the current-price guide, unfinished candle and volume bar in both linear SVGs, plus the timestamped report and all 11 app-page cache references.
+- Kept the long-term and recent channel anchors, slopes, rail spacing and separate $75k reference unchanged. Lounge Market Context metrics and polling remain absent.
