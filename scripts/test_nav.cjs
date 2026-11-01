@@ -34,6 +34,14 @@ test('국가별 언어 안내가 API에 연결될 수 있고 요청에 referrer�
  }
 });
 
+test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온다',()=>{
+ for(const [page,lang] of [['../en/index.html','en'],['../zh/index.html','zh'],['../ja/index.html','ja']]){
+  const source=fs.readFileSync(require.resolve(page),'utf8');
+  assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${page} lang`);
+  assert.ok(source.includes('/live-home-locale.js?v='),`${page} must translate dynamic live labels`);
+ }
+});
+
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{
  const rail=html.match(/\.tabsWrap \{[^}]*\}/)[0];
  assert.ok(/position:fixed/.test(rail),'고정이 아니면 라운지를 보는 동안 사라진다');
