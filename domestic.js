@@ -56,39 +56,65 @@ const api={premium,fresh,rowsFor,stamped,FOREIGN,foreignRows};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 if(!root.document)return;
 const el=document.getElementById('tab-domestic');if(!el)return;
+const lang=document.documentElement?.lang||'ko',langIndex={ko:0,en:1,zh:2,ja:3}[lang]??0;
+const COPY={
+ title:['마켓','Markets','市场','マーケット'],watch:['후보 관찰 · 리서치 ↗','Watchlist · research ↗','观察名单 · 研究 ↗','候補ウォッチ · リサーチ ↗'],
+ intro:['국내 원화 가격과 해외 USDT 현물가를 비교합니다. 김프는 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.','Compare Korean won prices with overseas USDT spot prices. The premium uses the latest USDT/KRW trade on the selected Korean exchange.','比较韩国韩元价格与海外 USDT 现货价格。溢价按所选韩国交易所最新的 USDT/KRW 成交价换算。','韓国ウォン建て価格と海外USDT現物価格を比較します。プレミアムは選択した韓国取引所のUSDT/KRW最新約定価格で換算します。'],
+ guide:['계산 방식 ↗','How it is calculated ↗','计算方式 ↗','計算方法 ↗'],base:['기준 거래소','Korean exchange','韩国交易所','韓国取引所'],compare:['비교 거래소','Compare exchange','比较交易所','比較取引所'],
+ upbit:['업비트','Upbit','Upbit','Upbit'],bithumb:['빗썸','Bithumb','Bithumb','Bithumb'],binance:['바이낸스','Binance','Binance','Binance'],bybit:['바이비트','Bybit','Bybit','Bybit'],okx:['OKX','OKX','OKX','OKX'],gate:['게이트','Gate.io','Gate.io','Gate.io'],bitget:['비트겟','Bitget','Bitget','Bitget'],
+ watchOnly:['관심 코인만 보기','Watchlist only','仅看自选','ウォッチリストのみ'],andyOnly:['Andy 후보만 보기','Andy picks only','仅看 Andy 观察标的','Andy候補のみ'],search:['BTC, 비트코인…','BTC, Bitcoin…','BTC、比特币…','BTC、ビットコイン…'],searchLabel:['종목 찾기','Search assets','搜索币种','銘柄を検索'],
+ notes:['계산 기준과 데이터 주의사항','Method and data notes','计算方法与数据说明','計算方法とデータについて'],readTable:['표 읽는 법: 큰 숫자는 국내 기준 거래소 가격, 작은 숫자는 대응하는 해외 값입니다. 현재가 아래는 해외 환산가, 김프 아래는 국내 가격과 환산가의 차이, 전일대비 아래는 변동 금액, 거래액 아래는 해외 24시간 거래대금을 원화로 환산한 값입니다. 비교할 수 없는 종목은 김프를 비우고 이유를 표시합니다. 표 머리글로 정렬하고 종목 이름을 눌러 상세 정보를 확인하세요.','Reading the table: the larger value is the Korean exchange price; the smaller value is the matching overseas figure. Below the price is the converted overseas price, below the premium is the KRW gap, below the daily change is the KRW move, and below volume is overseas 24-hour turnover converted to KRW. Unmatched or stale prices show a reason instead of a premium. Select a column to sort or an asset name for details.','表格说明：较大的数字是韩国交易所价格，较小的数字是对应的海外数据。现价下方为换算后的海外价格，溢价下方为韩元价差，涨跌下方为韩元变动额，成交额下方为换算为韩元的海外24小时成交额。无法比较或行情过期时会显示原因而不显示溢价。点击表头排序，点击币种查看详情。','表の見方：大きい数字は韓国取引所の価格、小さい数字は対応する海外価格です。現在値の下は換算後の海外価格、プレミアムの下はウォン差、前日比の下はウォンでの変動額、出来高の下はウォン換算した海外24時間出来高です。比較できない、または価格が古い場合は理由を表示し、プレミアムは空欄になります。見出しで並べ替え、銘柄名で詳細を開けます。'],
+ formula:['김프 = (국내 원화 가격 ÷ (해외 USDT 가격 × 기준 거래소의 USDT/KRW 가격) − 1) × 100. 원달러 환율 대신 국내에서 실제로 거래되는 USDT 가격으로 환산하므로 테더의 달러 가격차는 김프에 섞이지 않습니다. 양쪽 모두 최근 체결가입니다.','Premium = (Korean KRW price ÷ (overseas USDT price × Korean exchange USDT/KRW price) − 1) × 100. This uses the locally traded USDT price, not the USD/KRW FX rate, so the USDT-to-dollar deviation is not included. Both sides use recent trades.','溢价 =（韩国韩元价格 ÷（海外 USDT 价格 × 韩国交易所 USDT/KRW 价格）− 1）× 100。这里使用韩国市场实际成交的 USDT 价格，而非美元兑韩元汇率，因此不会把 USDT 对美元的偏差混入溢价。两边均为最新成交价。','プレミアム =（韓国ウォン価格 ÷（海外USDT価格 × 韓国取引所のUSDT/KRW価格）− 1）× 100。ドル/ウォン為替ではなく、韓国市場で実際に取引されるUSDT価格を使うため、USDT自体のドル乖離は含みません。両市場とも直近約定価格です。'],
+ dataNotes:['해외 거래소는 USDT 현물이며 같은 티커끼리 비교합니다. 바이낸스만 실시간 수신하고 나머지는 30초마다 조회합니다. 가격이 2분보다 오래되면 김프 계산에서 제외합니다.','Overseas venues use USDT spot markets and matching tickers. Binance streams live; other exchanges are polled every 30 seconds. Prices older than two minutes are excluded from premium calculations.','海外市场均为 USDT 现货，只按相同代码匹配。Binance 使用实时推送，其他交易所每30秒查询一次。超过两分钟的价格不参与溢价计算。','海外取引所はUSDT現物で、同じティッカー同士を比較します。Binanceはリアルタイム、その他は30秒ごとに取得します。2分より古い価格はプレミアム計算から除外します。'],
+ caution:['티커 일치만으로 토큰·네트워크 동일성이나 입출금 가능 여부를 보증하지 않습니다. 수수료·슬리피지·송금 지연을 반영한 차익거래 수익이 아닙니다.','Matching tickers does not verify token or network identity or deposit and withdrawal availability. The displayed gap is not an arbitrage return; fees, slippage and transfer delays are excluded.','代码相同不代表代币或网络相同，也不代表可以充提。显示价差不是套利收益，未计手续费、滑点和转账延迟。','同じティッカーでもトークンやネットワークの同一性、入出金可否は未確認です。表示値は手数料・スリッページ・送金遅延を含む裁定利益ではありません。'],
+ sources:['출처: Upbit·Bithumb 공개 시세, Binance·Bybit·OKX·Gate·Bitget 현물, Tape Lounge Andy 리포트. 관심 코인은 이 브라우저에만 저장됩니다.','Sources: public Upbit and Bithumb prices; Binance, Bybit, OKX, Gate.io and Bitget spot markets; Tape Lounge Andy report. Watchlist choices stay in this browser.','来源：Upbit、Bithumb公开行情，Binance、Bybit、OKX、Gate.io、Bitget现货，以及 Tape Lounge Andy 报告。自选列表仅保存在此浏览器。','出典：Upbit・Bithumbの公開価格、Binance・Bybit・OKX・Gate.io・Bitget現物、Tape Lounge Andyレポート。ウォッチリストはこのブラウザー内に保存されます。'],
+ name:['이름','Asset','币种','銘柄'],price:['현재가','Price','现价','現在値'],premium:['김프','Premium','溢价','プレミアム'],change:['전일대비','24h change','24小时涨跌','前日比'],volume:['거래액(일)','24h volume','24小时成交额','24時間出来高'],venuePrice:['{0} 현재가','{0} price','{0}现价','{0}価格'],converted:['{0} 환산가','{0} converted','{0}换算价','{0}換算価格'],tetherBasis:['환산 기준 {0} USDT/KRW {1} · 해외 {2} 현물 {3} USDT','Conversion: {0} USDT/KRW {1} · overseas {2} spot {3} USDT','换算基准：{0} USDT/KRW {1} · 海外 {2} 现货 {3} USDT','換算基準：{0} USDT/KRW {1}・海外 {2}現物 {3} USDT'],premiumHidden:['현재 {0} 상태라 김프를 숨겼습니다.','{0}; premium hidden.','当前{0}，暂不显示溢价。','現在{0}のためプレミアムを非表示にしています。'],andyStage:['Andy 관찰 기록: {0} ({1})','Andy watch: {0} ({1})','Andy观察记录：{0}（{1}）','Andyの観察記録：{0}（{1}）'],
+ volumeUnit:['거래액(일)','24h volume','24小时成交额','24時間出来高'],sortTitle:['{0} 기준 정렬','Sort by {0}','按{0}排序','{0}で並べ替え'],favoriteAria:['{0} 관심 코인','Add {0} to watchlist','将 {0} 加入自选','{0}をウォッチリストに追加'],marketsCount:['{0}종','{0} pairs','{0} 个交易对','{0}銘柄'],
+ count:['암호화폐 총 {0}개','{0} crypto assets','共 {0} 种加密货币','全{0}銘柄'],numbers:['숫자','Numbers','数据','数値'],reference:['참고','Reference','参考','参考'],prev:['전일 대비','24h change','24小时涨跌','前日比'],hiLow:['24시간 고 / 저','24h high / low','24小时高 / 低','24時間高値 / 安値'],fromHigh:['고가 대비','From 24h high','较24小时高点','24時間高値から'],foreignChange:['해외 등락','Overseas change','海外涨跌','海外変動'],dailyVolume:['거래액 · 국내 / 해외','24h volume · KR / overseas','24小时成交额 · 韩国 / 海外','24時間出来高・韓国 / 海外'],
+ latest:['최근 체결','Latest trade','最新成交','最新約定'],stale:['체결 지연·미확인','Stale / unconfirmed','成交延迟 / 未确认','約定遅延・未確認'],statusLive:['실시간 수신','Live','实时','ライブ'],statusWait:['연결 대기·30초 조회','Waiting · 30s polling','等待连接 · 每30秒查询','接続待ち・30秒ごとに取得'],statusPoll:['30초 조회','30s polling','每30秒查询','30秒ごとに取得'],screen:['화면 1초 반영','Screen refresh: 1s','画面每秒更新','画面は1秒ごとに更新'],
+ delayed:['체결 지연','Trade delayed','成交延迟','約定遅延'],noMatch:['해외 비교 없음','No overseas match','无海外匹配','海外比較なし'],foreignDelayed:['해외 시세 지연','Overseas price delayed','海外行情延迟','海外価格遅延'],noUsdt:['국내 USDT 시세 없음','Korean USDT price unavailable','韩国USDT价格不可用','韓国USDT価格なし'],recheck:['가격차 재확인','Premium needs review','价差需复核','価格差を再確認'],foreignWait:['해외 시세 대기','Waiting for overseas price','等待海外行情','海外価格待ち'],
+ close:['닫기 ✕','Close ✕','关闭 ✕','閉じる ✕'],chartHeader:['{0} 원화 차트','{0} KRW chart','{0} KRW 图表','{0} KRWチャート'],chartTitle:['차트','Chart','图表','チャート'],chartNote:['차트는 TradingView가 표시하며 이 페이지 시세와 별도로 제공됩니다. TradingView에 없는 종목은 차트가 비어 있을 수 있습니다.','TradingView provides this chart independently of prices on this page. Assets unavailable on TradingView may show a blank chart.','图表由 TradingView 独立提供，与本页行情分开。TradingView 未收录的币种可能显示空白。','チャートはTradingViewが表示し、このページの価格とは別に配信されます。TradingViewにない銘柄は空欄になる場合があります。'],
+ loading:['국내 시세를 불러오는 중입니다.','Loading Korean prices.','正在加载韩国行情。','韓国価格を読み込み中です。'],loadingVenue:['{0} 시세를 불러오는 중입니다.','Loading {0} prices.','正在加载 {0} 行情。','{0}の価格を読み込み中です。'],retryVenue:['{0} 시세를 계속 불러오지 못하고 있습니다. 자동으로 다시 시도하는 중입니다.','Unable to load {0} prices. Retrying automatically.','暂时无法加载 {0} 行情，正在自动重试。','{0}の価格を読み込めず、自動で再試行しています。'],retryList:['다시 시도 중: {0}','Retrying: {0}','重试中：{0}','再試行中：{0}'],favoritesHint:['관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.','Star assets to build your watchlist.','点击星标，将币种加入自选列表。','星を押してウォッチリストを作成できます。'],noResults:['검색 결과가 없습니다.','No matching assets.','没有找到匹配的币种。','一致する銘柄がありません。'],storageWarning:['브라우저 저장이 차단되어 관심 목록은 이번 방문 동안만 유지됩니다.','Browser storage is blocked; your watchlist lasts only for this visit.','浏览器存储不可用，自选列表仅在本次访问期间保留。','ブラウザー保存が無効なため、ウォッチリストは今回の訪問中のみ保持されます。'],
+ interval1:['1시간','1h','1小时','1時間'],interval4:['4시간','4h','4小时','4時間'],intervalD:['1일','1d','1天','1日'],fourHoursPrefix:['4h','4h','4小时','4時間'],dailyPrefix:['일봉','1d','日线','日足'],andyDaily:['매일 20시 갱신','Updated daily at 20:00 KST','每日韩国时间20:00更新','毎日20:00 KST更新'],notCurrent:['현재 신호 아님','Not a current signal','非当前信号','現在のシグナルではありません'],staleReport:['오래된 리포트, 후보 표시는 보류','Report is stale; picks are hidden','报告已过期，暂不显示观察标的','レポートが古いため候補を非表示'],reportFail:['리포트를 확인하지 못했습니다. 원본 장부에서 확인해 주세요.','Could not load the report. Check the original ledger.','无法读取报告，请查看原始记录。','レポートを読み込めません。元の記録をご確認ください。'],reportLoading:['Andy 장부 확인 중…','Loading Andy report…','正在读取 Andy 报告…','Andyレポートを確認中…'],
+ stageSupport:['지지 확인','Support held','支撑确认','サポート確認'],stageRestart:['재출발','Restarting','重新启动','再始動'],stageWait:['눌림 대기','Waiting for pullback','等待回踩','押し目待ち'],stageExtended:['이미 많이 벌어짐','Extended','涨幅已大','すでに大きく上昇'],stageBreakout:['신규 돌파','Fresh breakout','新突破','新規ブレイク'],stageTrend:['추세 진행','Trend in progress','趋势延续','トレンド継続'],stageReversal:['바닥 반전','Bottom reversal','底部反转','底打ち反転'],notCandidate:['현재 연결된 Andy 후보는 아닙니다.','Not currently on Andy’s watchlist.','目前不在 Andy 观察名单中。','現在Andyの候補ではありません。'],
+ detailCaution:['같은 티커만 비교하며 토큰·네트워크 동일성이나 입출금 가능 여부는 확인하지 않았습니다. 수수료·슬리피지·송금 지연도 반영하지 않았습니다.','Matching tickers do not confirm token or network identity or deposit and withdrawal availability. Fees, slippage and transfer delays are excluded.','代码相同不代表代币或网络相同，也不代表可以充提。未计手续费、滑点或转账延迟。','同じティッカーでもトークンやネットワークの同一性、入出金可否は未確認です。手数料・スリッページ・送金遅延も含みません。'],chartLink:['해외 현물 차트 ↗','Overseas spot chart ↗','海外现货图表 ↗','海外現物チャート ↗'],ledger:['장부 ↗','Ledger ↗','记录 ↗','記録 ↗'],talk:['라운지에서 이야기하기 →','Discuss in the lounge →','到大厅讨论 →','ラウンジで話す →']
+};
+const tr=(key,...args)=>String(COPY[key]?.[langIndex]??key).replace(/\{(\d+)\}/g,(_,i)=>String(args[Number(i)]??''));
+const numberLocale={ko:'ko-KR',en:'en-US',zh:'zh-CN',ja:'ja-JP'}[lang]||'ko-KR';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=(x,d=0)=>num(x)===null?'—':Number(x).toLocaleString('ko-KR',{maximumFractionDigits:d});
+const fmt=(x,d=0)=>num(x)===null?'—':Number(x).toLocaleString(numberLocale,{maximumFractionDigits:d});
 const pct=x=>num(x)===null?'—':(x>0?'+':'')+Number(x).toFixed(2)+'%';
 const color=x=>num(x)===null?'dm-muted':x>=0?'dm-up':'dm-down';
 const krw=x=>num(x)===null?'—':'₩'+fmt(x,x<100?4:x<1000?2:0);
 const won=x=>num(x)===null?'':fmt(x,x<100?4:x<1000?2:0);
 /* 보조줄은 좁은 화면에서도 가로 스크롤 없이 들어가야 해 만·억으로 줄인다. 정확한 금액은 상세에 남는다. */
-const shortWon=x=>{const n=num(x);if(n===null)return '';const a=Math.abs(n),sign=n>0?'+':n<0?'-':'';
- if(a>=1e8)return sign+fmt(a/1e8,a>=1e9?0:1)+'억';
- if(a>=1e4)return sign+fmt(a/1e4,a>=1e5?0:1)+'만';
- return sign+fmt(a,a<1?4:a<100?2:0);};
-const eok=x=>{const n=num(x);if(n===null)return '';if(n<1e8)return fmt(n/1e4)+'만';const e=Math.round(n/1e8);return e<1e4?fmt(e)+'억':fmt(Math.floor(e/1e4))+'조 '+fmt(e%1e4)+'억';};
+const compact=(n)=>{const a=Math.abs(n);if(langIndex===0){if(a>=1e12)return fmt(n/1e12,1)+'조';if(a>=1e8)return fmt(n/1e8,a>=1e9?0:1)+'억';if(a>=1e4)return fmt(n/1e4,a>=1e5?0:1)+'만';return fmt(n,n<1?4:n<100?2:0);}if(langIndex===1){if(a>=1e12)return fmt(n/1e12,1)+'T';if(a>=1e9)return fmt(n/1e9,1)+'B';if(a>=1e6)return fmt(n/1e6,1)+'M';if(a>=1e3)return fmt(n/1e3,1)+'K';return fmt(n,n<1?4:n<100?2:0);}if(langIndex===2){if(a>=1e12)return fmt(n/1e12,1)+'万亿';if(a>=1e8)return fmt(n/1e8,1)+'亿';if(a>=1e4)return fmt(n/1e4,1)+'万';return fmt(n,n<1?4:n<100?2:0);}if(a>=1e12)return fmt(n/1e12,1)+'兆';if(a>=1e8)return fmt(n/1e8,1)+'億';if(a>=1e4)return fmt(n/1e4,1)+'万';return fmt(n,n<1?4:n<100?2:0);};
+const shortWon=x=>{const n=num(x);if(n===null)return '';const sign=n>0?'+':n<0?'-':'';return sign+compact(Math.abs(n));};
+const eok=x=>{const n=num(x);if(n===null)return '';if(langIndex===0){if(n<1e8)return fmt(n/1e4)+'만';const e=Math.round(n/1e8);return e<1e4?fmt(e)+'억':fmt(Math.floor(e/1e4))+'조 '+fmt(e%1e4)+'억';}return compact(n);};
 const signedKrw=x=>num(x)===null?'—':(x>0?'+':x<0?'-':'')+krw(Math.abs(x));
 const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M':fmt(x);
-const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const time=x=>new Date(x).toLocaleTimeString(numberLocale,{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
 const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
-const guidePath={en:'/en/learn/kimchi-premium/',zh:'/zh/learn/kimchi-premium/',ja:'/ja/learn/kimchi-premium/'}[document.documentElement?.lang]||'/ko/learn/kimchi-premium/';
-el.innerHTML=`<div class="dm-top"><h1>마켓</h1><a href="#research">후보 관찰 · 리서치 ↗</a></div>
-<p class="dm-intro"><span>국내 원화 가격과 해외 USDT 현물가를 비교합니다. 김프는 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.</span> <a href="${guidePath}">계산 방식 ↗</a></p>
-<div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
-<div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
+const guidePath={en:'/en/learn/kimchi-premium/',zh:'/zh/learn/kimchi-premium/',ja:'/ja/learn/kimchi-premium/'}[lang]||'/ko/learn/kimchi-premium/';
+el.innerHTML=`<div class="dm-top"><h1>${tr('title')}</h1><a href="#research">${tr('watch')}</a></div>
+<p class="dm-intro"><span>${tr('intro')}</span> <a href="${guidePath}">${tr('guide')}</a></p>
+<div class="dm-pair"><label class="dm-card"><span>${tr('base')}</span><select id="dm-venue"><option value="upbit">${tr('upbit')} KRW</option><option value="bithumb">${tr('bithumb')} KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>${tr('compare')}</span><select id="dm-foreign">${Object.keys(FOREIGN).map(k=>`<option value="${k}">${tr(k)} USDT</option>`).join('')}</select></label></div>
+<div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="${tr('watchOnly')}">☆</button><button id="dm-andy-only" aria-pressed="false" title="${tr('andyOnly')}">Andy</button><input id="dm-search" type="search" placeholder="${tr('search')}" maxlength="40" aria-label="${tr('searchLabel')}"><span id="dm-count"></span></div>
 <div class="dm-scroll"><table><thead><tr id="dm-head"></tr></thead><tbody id="dm-table"></tbody><tbody id="dm-chart"></tbody><tbody id="dm-rest"></tbody></table></div>
-<div class="dm-foot"><p id="dm-status" role="status" aria-live="polite">국내 시세를 불러오는 중입니다.</p><p class="dm-strip" id="dm-rates"></p><p class="dm-strip"><span id="dm-andy-at">Andy 장부 확인 중…</span> <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">장부 ↗</a></p></div>
-<details><summary>계산 기준과 데이터 주의사항</summary><p>표 읽는 법: 칸마다 위가 국내(기준 거래소), 아래 작은 숫자가 그에 대응하는 값입니다. 현재가 아래는 해외 환산가, 김프 아래는 국내 가격에서 환산가를 뺀 금액, 전일대비 아래는 변동 금액(좁은 화면을 위해 만·억으로 줄이며 정확한 값은 이름을 누르면 나옵니다), 거래액 아래는 해외 24시간 거래대금을 같은 환산 기준으로 원화로 옮긴 값입니다. 비교할 수 없는 종목은 김프를 비우고 그 아래에 이유를 적습니다. 머리글을 누르면 정렬 기준과 오름·내림 방향이 바뀌고, 이름을 누르면 24시간 고가 대비·해외 등락을 포함한 자세한 값이 열립니다.</p><p>김프 = (국내 원화 가격 ÷ (해외 USDT 가격 × 기준 거래소의 USDT/KRW 가격) − 1) × 100. 원달러 환율이 아니라 국내에서 실제로 USDT를 사고파는 가격으로 환산하므로, 테더 자체의 달러 가격차는 김프에 섞이지 않습니다. 양쪽 가격은 같은 순간의 호가가 아닌 최근 체결가입니다.</p><p>해외 거래소는 모두 USDT 현물 마켓이고 같은 티커끼리 짝지어 비교합니다. 바이낸스만 실시간 수신이며 나머지는 30초 조회입니다. 바이낸스·바이비트·OKX·비트겟은 거래소가 준 시각으로, 시각을 주지 않는 게이트는 응답을 받은 시각으로 지연을 판단합니다.</p><p>시세는 WebSocket으로 수신해 화면에 1초 단위로 묶어 반영합니다. 연결이 끊기면 30초 주기 조회로 전환하며, 국내장을 떠나면 연결을 닫습니다. 최초 연결이나 재연결은 요청 제한 때문에 수 초 이상 걸릴 수 있습니다. 마지막 국내 체결·해외 시세가 2분을 넘거나 기준 거래소의 USDT/KRW 체결이 2분을 넘으면 가격차 계산에서 제외합니다. 이전 가격은 지연 표시로 남을 수 있습니다.</p><p>동일 티커 기준 비교이며 토큰·네트워크의 동일성과 입출금 가능 여부를 보증하지 않습니다. 입출금 상태는 미확인입니다. 수수료·슬리피지·송금 지연을 반영한 차익거래 수익이 아니며, 큰 가격차만 보고 거래하지 마세요. ±50% 초과 값은 재확인 대상으로 계산값을 숨깁니다.</p><p>출처: Upbit·Bithumb 공개 시세, Binance·Bybit·OKX·Gate·Bitget 현물, Tape Lounge Andy 리포트. 관심 코인은 이 브라우저에만 저장됩니다.</p></details>`;
+<div class="dm-foot"><p id="dm-status" role="status" aria-live="polite">${tr('loading')}</p><p class="dm-strip" id="dm-rates"></p><p class="dm-strip"><span id="dm-andy-at">${tr('reportLoading')}</span> <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">${tr('ledger')}</a></p></div>
+<details><summary>${tr('notes')}</summary><p>${tr('readTable')}</p><p>${tr('formula')}</p><p>${tr('dataNotes')}</p><p>${tr('caution')}</p><p>${tr('sources')}</p></details>`;
 const $=id=>document.getElementById(id);
-const names={BTC:'비트코인',ETH:'이더리움',XRP:'리플',SOL:'솔라나',DOGE:'도지코인',USDT:'테더',ETC:'이더리움클래식'};
-function name(s){return (state.venue==='bithumb'?state.meta.find(m=>m.market==='KRW-'+s)?.korean_name:null)||names[s]||s;}
+const names={BTC:['비트코인','Bitcoin','比特币','ビットコイン'],ETH:['이더리움','Ethereum','以太坊','イーサリアム'],XRP:['리플','XRP','XRP','XRP'],SOL:['솔라나','Solana','Solana','Solana'],DOGE:['도지코인','Dogecoin','狗狗币','ドージコイン'],USDT:['테더','Tether','泰达币','テザー'],ETC:['이더리움클래식','Ethereum Classic','以太坊经典','イーサリアムクラシック']};
+function name(s){const meta=state.venue==='bithumb'?state.meta.find(m=>m.market==='KRW-'+s):null;return langIndex===0?(meta?.korean_name||names[s]?.[0]||s):langIndex===1?(meta?.english_name||names[s]?.[1]||s):(names[s]?.[langIndex]||s);}
 function visible(){return !el.classList.contains('hidden')&&!document.hidden;}
-function venueName(){return state.venue==='upbit'?'업비트':'빗썸';}
+function venueName(){return tr(state.venue);}
+function foreignName(){return tr(state.foreign);}
 const TV={upbit:'UPBIT',bithumb:'BITHUMB'};
-const INTERVALS={'60':'1시간','240':'4시간','D':'1일'};
+const INTERVALS={'60':tr('interval1'),'240':tr('interval4'),'D':tr('intervalD')};
+const stageText=s=>({ '지지 확인':tr('stageSupport'),'재출발':tr('stageRestart'),'눌림 대기':tr('stageWait'),'이미 많이 벌어짐':tr('stageExtended'),'신규 돌파':tr('stageBreakout'),'추세 진행':tr('stageTrend'),'바닥 반전':tr('stageReversal') }[s]||s);
+const reasonText=s=>({ '체결 지연':tr('delayed'),'해외 비교 없음':tr('noMatch'),'해외 시세 지연':tr('foreignDelayed'),'국내 USDT 시세 없음':tr('noUsdt'),'가격차 재확인':tr('recheck') }[s]||s);
 let mounted='';
 function chartKey(symbol){return `${state.venue}|${symbol}|${state.interval}`;}
 /* TradingView 임베드는 iframe 으로만 넣는다 — 위젯 로더 스크립트를 이 페이지에서 실행시키지 않기 위해서다.
@@ -96,39 +122,39 @@ function chartKey(symbol){return `${state.venue}|${symbol}|${state.interval}`;}
    시세 갱신 때 건드리지 않는다(render 참고). */
 function chartUrl(symbol){
  const q=new URLSearchParams({symbol:`${TV[state.venue]}:${symbol}KRW`,interval:state.interval,theme:'dark',style:'1',
-  locale:'kr',timezone:'Asia/Seoul',hide_side_toolbar:'1',allow_symbol_change:'0',save_image:'0',withdateranges:'0',
+  locale:({ko:'kr',en:'en',zh:'zh_CN',ja:'ja'}[lang]||'kr'),timezone:'Asia/Seoul',hide_side_toolbar:'1',allow_symbol_change:'0',save_image:'0',withdateranges:'0',
   utm_source:'tapelounge.com'});
  return 'https://s.tradingview.com/widgetembed/?'+q;
 }
 function chartRow(symbol){
  const tabs=Object.entries(INTERVALS).map(([k,v])=>`<button data-interval="${k}" aria-pressed="${k===state.interval}">${v}</button>`).join('');
  return `<tr class="dm-open dm-open-chart"><td colspan="5">
-<div class="dm-openhead"><b>${esc(name(symbol))} <span>${symbol}</span></b><button data-select="${symbol}">닫기 ✕</button></div>
-<section><h3>${esc(venueName())} 원화 차트 <small>TradingView · ${esc(TV[state.venue])}:${esc(symbol)}KRW</small><span class="dm-periods">${tabs}</span></h3>
-<iframe class="dm-chart" src="${esc(chartUrl(symbol))}" title="${esc(name(symbol))} ${symbol}/KRW 차트" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
-<p class="dm-note">차트는 TradingView가 그리며 이 페이지의 시세와 별개로 받아옵니다. 거래소에 상장돼 있어도 TradingView에 없는 종목은 빈 화면이 나올 수 있습니다.</p></section></td></tr>`;
+<div class="dm-openhead"><b>${esc(name(symbol))} <span>${symbol}</span></b><button data-select="${symbol}">${tr('close')}</button></div>
+<section><h3>${tr('chartHeader',esc(venueName()))} <small>TradingView · ${esc(TV[state.venue])}:${esc(symbol)}KRW</small><span class="dm-periods">${tabs}</span></h3>
+<iframe class="dm-chart" src="${esc(chartUrl(symbol))}" title="${esc(name(symbol))} ${symbol}/KRW ${tr('chartTitle')}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+<p class="dm-note">${tr('chartNote')}</p></section></td></tr>`;
 }
 function fact(label,value,cls){return `<div><span>${label}</span><b${cls?` class="${cls}"`:''}>${value}</b></div>`;}
 function detail(r,stages){
- const tether=state.tickers[state.venue].find(t=>t.market==='KRW-USDT'),far=FOREIGN[state.foreign].label;
+ const tether=state.tickers[state.venue].find(t=>t.market==='KRW-USDT'),far=foreignName();
  return `<tr class="dm-open"><td colspan="5">
-<section><h3>숫자</h3><div class="dm-facts">
-${fact(esc(venueName())+' 현재가',krw(r.price))}
-${fact('전일 대비',pct(r.change)+(num(r.changeKrw)===null?'':` <em>${signedKrw(r.changeKrw)}</em>`),color(r.change))}
-${fact(esc(far)+' 환산가',krw(r.foreignKrw))}
-${fact('김프',(r.premium===null?'—':pct(r.premium))+(r.gap===null?'':` <em>${signedKrw(r.gap)}</em>`),color(r.premium))}
-${fact('24시간 고 / 저',krw(r.high)+' / '+krw(r.low))}
-${fact('고가 대비',pct(r.fromHigh),color(r.fromHigh))}
-${fact('해외 등락',pct(r.foreignChange),color(r.foreignChange))}
-${fact('거래액 · 국내 / 해외',(eok(r.volume)||'—')+' / '+(eok(r.foreignVolumeKrw)||'—'))}
+<section><h3>${tr('numbers')}</h3><div class="dm-facts">
+${fact(esc(tr('venuePrice',venueName())),krw(r.price))}
+${fact(tr('prev'),pct(r.change)+(num(r.changeKrw)===null?'':` <em>${signedKrw(r.changeKrw)}</em>`),color(r.change))}
+${fact(tr('converted',far),krw(r.foreignKrw))}
+${fact(tr('premium'),(r.premium===null?'—':pct(r.premium))+(r.gap===null?'':` <em>${signedKrw(r.gap)}</em>`),color(r.premium))}
+${fact(tr('hiLow'),krw(r.high)+' / '+krw(r.low))}
+${fact(tr('fromHigh'),pct(r.fromHigh),color(r.fromHigh))}
+${fact(tr('foreignChange'),pct(r.foreignChange),color(r.foreignChange))}
+${fact(tr('dailyVolume'),(eok(r.volume)||'—')+' / '+(eok(r.foreignVolumeKrw)||'—'))}
 </div></section>
-<section><h3>참고</h3>
-<p class="dm-note">환산 기준은 ${esc(venueName())}의 USDT/KRW ${krw(tether?.trade_price)}이고, 해외 가격은 ${esc(far)} 현물 ${fmt(r.foreign,6)} USDT입니다.${r.reason?` 지금은 ${esc(r.reason)} 상태라 김프를 비워 두었습니다.`:''}</p>
-<p class="dm-note">${stages[r.symbol]?`Andy 장부에 ${esc(stages[r.symbol])}로 올라 있습니다 (${esc(state.andy.label)}).`:'현재 연결된 Andy 후보는 아닙니다.'} 같은 티커라는 것 외에 토큰·네트워크의 동일성과 입출금 가능 여부는 확인하지 않았고, 수수료·슬리피지·송금 지연도 반영하지 않았습니다.</p>
-<p><a href="https://www.binance.com/en/trade/${r.symbol}_USDT?type=spot" target="_blank" rel="noopener noreferrer">해외 현물 차트 ↗</a> · <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">Andy 장부 ↗</a> · <a href="#">라운지에서 이야기하기 →</a></p></section>
+<section><h3>${tr('reference')}</h3>
+<p class="dm-note">${tr('tetherBasis',venueName(),krw(tether?.trade_price),far,fmt(r.foreign,6))}${r.reason?` ${tr('premiumHidden',reasonText(r.reason))}`:''}</p>
+<p class="dm-note">${stages[r.symbol]?tr('andyStage',esc(stages[r.symbol]),esc(state.andy.label)):tr('notCandidate')} ${tr('detailCaution')}</p>
+<p><a href="https://www.binance.com/en/trade/${r.symbol}_USDT?type=spot" target="_blank" rel="noopener noreferrer">${tr('chartLink')}</a> · <a href="reports/andy_scan.html#andy-retest" target="_blank" rel="noopener">${tr('ledger')}</a> · <a href="#">${tr('talk')}</a></p></section>
 </td></tr>`;
 }
-const COLUMNS=[{key:'symbol',label:'이름',first:-1},{key:'price',label:'현재가'},{key:'premium',label:'김프'},{key:'change',label:'전일대비'},{key:'volume',label:'거래액(일)'}];
+const COLUMNS=[{key:'symbol',label:tr('name'),first:-1},{key:'price',label:tr('price')},{key:'premium',label:tr('premium')},{key:'change',label:tr('change')},{key:'volume',label:tr('volume')}];
 function order(a,b){const k=state.sort,d=state.dir;if(k==='symbol')return d===1?b.symbol.localeCompare(a.symbol):a.symbol.localeCompare(b.symbol);const x=num(a[k]),y=num(b[k]);if(x===null&&y===null)return a.symbol.localeCompare(b.symbol);if(x===null)return 1;if(y===null)return -1;return (d===1?y-x:x-y)||a.symbol.localeCompare(b.symbol);}
 function render(){
  const focused=document.activeElement;
@@ -137,19 +163,20 @@ function render(){
  const andyFresh=state.andy&&now-state.andy.at<=36*3600000&&now-state.andy.at>=-300000;
  const stages=andyFresh?state.andy.stages:{};
  const u=state.tickers[state.venue].find(t=>t.market==='KRW-USDT');
- $('dm-rates').innerHTML=`<span>환산 기준 ${venueName()} USDT/KRW <b>${krw(u?.trade_price)}</b> ${fresh(u?.trade_timestamp)?'최근 체결':'체결 지연·미확인'}</span><span>해외 <b>${esc(FOREIGN[state.foreign].label)} USDT 현물</b> ${Object.keys(state.global).length}종</span>`;
+ $('dm-rates').innerHTML=`<span>${tr('base')}: ${venueName()} USDT/KRW <b>${krw(u?.trade_price)}</b> ${fresh(u?.trade_timestamp)?tr('latest'):tr('stale')}</span><span>${tr('compare')}: <b>${esc(foreignName())} USDT ${langIndex===0?'현물':langIndex===1?'spot':langIndex===2?'现货':'現物'}</b> ${tr('marketsCount',Object.keys(state.global).length)}</span>`;
  const relevant=[state.venue,'foreign'];
  const failures=relevant.filter(k=>(state.tries[k]||0)>=2);
- $('dm-status').textContent=`국내 ${live[state.venue]?'실시간 수신':'연결 대기·30초 조회'} · 해외 ${FOREIGN[state.foreign].stream?(live.binance?'실시간 수신':'연결 대기·30초 조회'):'30초 조회'} · 화면 1초 반영`+(state.at[state.venue]?` · ${time(state.at[state.venue])} KST`:'')+(failures.length?' · 다시 시도 중: '+failures.map(k=>k==='foreign'?FOREIGN[state.foreign].label:venueName()).join(', '):'')+(storageWarning?' · 브라우저 저장이 차단되어 관심 목록은 이번 방문 동안만 유지됩니다.':'');
- $('dm-head').innerHTML=COLUMNS.map(c=>{const t=esc(c.label),on=state.sort===c.key;return `<th${on?` aria-sort="${state.dir===1?'descending':'ascending'}"`:''}><button data-sort="${c.key}" title="${t} 기준 정렬">${t}<span aria-hidden="true">${on?(state.dir===1?'▼':'▲'):'⇅'}</span></button></th>`;}).join('');
- $('dm-andy-at').textContent=state.andy?`${state.andy.label} · 매일 20시 갱신${andyFresh?' · 현재 신호 아님':' · 오래된 리포트, 후보 표시는 보류'}`:'리포트를 확인하지 못했습니다. 원본 장부에서 확인해 주세요.';
+ const domesticState=live[state.venue]?tr('statusLive'):tr('statusWait'),foreignState=FOREIGN[state.foreign].stream?(live.binance?tr('statusLive'):tr('statusWait')):tr('statusPoll');
+ $('dm-status').textContent=`${tr('base')}: ${domesticState} · ${tr('compare')}: ${foreignName()} ${foreignState} · ${tr('screen')}`+(state.at[state.venue]?` · ${time(state.at[state.venue])} KST`:'')+(failures.length?' · '+tr('retryList',failures.map(k=>k==='foreign'?foreignName():venueName()).join(', ')):'')+(storageWarning?' · '+tr('storageWarning'):'');
+ $('dm-head').innerHTML=COLUMNS.map(c=>{const t=esc(c.label),on=state.sort===c.key;return `<th${on?` aria-sort="${state.dir===1?'descending':'ascending'}"`:''}><button data-sort="${c.key}" title="${esc(tr('sortTitle',c.label))}">${t}<span aria-hidden="true">${on?(state.dir===1?'▼':'▲'):'⇅'}</span></button></th>`;}).join('');
+ $('dm-andy-at').textContent=state.andy?`${state.andy.label} · ${tr('andyDaily')}${andyFresh?' · '+tr('notCurrent'):' · '+tr('staleReport')}`:tr('reportFail');
  const filtered=rows.filter(r=>(!state.only||favorites.has(r.symbol))&&(!state.andyOnly||stages[r.symbol])&&(!state.query||(r.symbol+' '+name(r.symbol)).toLowerCase().includes(state.query))).sort(order);
- $('dm-count').textContent=`암호화폐 총 ${filtered.length}개`;
+ $('dm-count').textContent=tr('count',filtered.length);
  const pending=!state.at.foreign;
- const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${r.symbol} 관심 코인" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy 장부 · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(pending&&r.foreign===null?'해외 시세 대기':r.reason):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
+ const row=r=>`<tr${r.symbol===state.selected?' class="dm-sel"':''}><td class="dm-name"><button data-select="${r.symbol}" aria-expanded="${r.symbol===state.selected}">${esc(name(r.symbol))}</button><small><button data-star="${r.symbol}" aria-label="${esc(tr('favoriteAria',r.symbol))}" aria-pressed="${favorites.has(r.symbol)}">${favorites.has(r.symbol)?'★':'☆'}</button><span class="dm-sym">${r.symbol}</span>${stages[r.symbol]?` <span class="dm-badge" title="Andy · ${esc(stages[r.symbol])}">${esc(stages[r.symbol])}</span>`:''}</small></td><td><b>${won(r.price)||'—'}</b><small>${won(r.foreignKrw)}</small></td><td><b class="${color(r.premium)}">${r.premium===null?'':pct(r.premium)}</b><small${r.gap===null?' class="dm-warn"':''}>${r.gap===null?esc(pending&&r.foreign===null?tr('foreignWait'):reasonText(r.reason)):shortWon(r.gap)}</small></td><td><b class="${color(r.change)}">${pct(r.change)}</b><small>${shortWon(r.changeKrw)}</small></td><td><b>${eok(r.volume)||'—'}</b><small>${eok(r.foreignVolumeKrw)}</small></td></tr>`;
  /* 차트 줄만 따로 그린다. iframe 은 다시 그리면 처음부터 읽으므로 시세 갱신에 딸려가면 안 된다. */
  const at=state.selected?filtered.findIndex(r=>r.symbol===state.selected):-1,open=at>=0?filtered[at]:null;
- $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?((state.tries[state.venue]||0)>=3?`${venueName()} 시세를 계속 불러오지 못하고 있습니다. 자동으로 다시 시도하는 중입니다.`:`${venueName()} 시세를 불러오는 중입니다.`):state.only?'관심 코인의 별표를 눌러 나만의 목록을 만들어 보세요.':'검색 결과가 없습니다.'}</td></tr>`;
+ $('dm-table').innerHTML=filtered.length?(at>=0?filtered.slice(0,at+1):filtered).map(row).join(''):`<tr><td colspan="5">${!state.tickers[state.venue].length?((state.tries[state.venue]||0)>=3?tr('retryVenue',venueName()):tr('loadingVenue',venueName())):state.only?tr('favoritesHint'):tr('noResults')}</td></tr>`;
  const key=open?chartKey(open.symbol):'';
  if(mounted!==key){$('dm-chart').innerHTML=open?chartRow(open.symbol):'';mounted=key;}
  $('dm-rest').innerHTML=(open?detail(open,stages):'')+(at>=0?filtered.slice(at+1).map(row).join(''):'');
@@ -179,15 +206,15 @@ async function loadAndy(epoch){
   const data=await get('data/andy-watch.json',epoch),at=Date.parse(data.reportAt);
   if(data.schema!==1||!Number.isFinite(at)||!Array.isArray(data.candidates))throw Error('Invalid ledger');
   const stages={};for(const x of data.candidates){if(!safeSymbol(x.symbol)||!['4h','1d'].includes(x.timeframe)||typeof x.stage!=='string')continue;
-   const label=(x.timeframe==='4h'?'4h':'일봉')+' · '+x.stage;stages[x.symbol]=stages[x.symbol]?stages[x.symbol]+' / '+label:label;}
-  state.andy={label:new Date(at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})+' KST',at,stages};state.at.andy=Date.now();return;
+   const label=tr(x.timeframe==='4h'?'fourHoursPrefix':'dailyPrefix')+' · '+stageText(x.stage);stages[x.symbol]=stages[x.symbol]?stages[x.symbol]+' / '+label:label;}
+  state.andy={label:new Date(at).toLocaleString(numberLocale,{timeZone:'Asia/Seoul',hour12:false})+' KST',at,stages};state.at.andy=Date.now();return;
  }catch(e){if(e.name==='AbortError'||e.message==='Cancelled')throw e;}
  const html=await get('reports/andy_scan.html',epoch,true),doc=new DOMParser().parseFromString(html,'text/html');
  const label=doc.querySelector('.hdr .ts')?.textContent?.match(/(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) KST/);
  if(!label||!doc.querySelector('#andy-retest'))throw Error('Invalid report');
- const stages={};doc.querySelectorAll('#andy-retest table tr').forEach(tr=>{const t=tr.querySelectorAll('td');if(t.length<2)return;const s=t[0].textContent.trim().replace(/\/USDT$/,''),stage=t[1].textContent.trim();if(safeSymbol(s)&&['지지 확인','재출발','눌림 대기','이미 많이 벌어짐'].includes(stage))stages[s]='4h · '+stage;});
- doc.querySelectorAll('table tr').forEach(tr=>{if(tr.closest?.('#andy-retest'))return;const t=tr.querySelectorAll('td');if(t.length<3)return;const s=t[1].textContent.trim(),m=t[2].textContent.trim().match(/^[ABC] · (신규 돌파|추세 진행|바닥 반전)$/);if(safeSymbol(s)&&m)stages[s]=(stages[s]?stages[s]+' / ':'')+'일봉 · '+m[1];});
- state.andy={label:label[0],at:Date.parse(`${label[1]}T${label[2]}:00+09:00`),stages};state.at.andy=Date.now();
+ const stages={};doc.querySelectorAll('#andy-retest table tr').forEach(rowEl=>{const t=rowEl.querySelectorAll('td');if(t.length<2)return;const s=t[0].textContent.trim().replace(/\/USDT$/,''),stage=t[1].textContent.trim();if(safeSymbol(s)&&['지지 확인','재출발','눌림 대기','이미 많이 벌어짐'].includes(stage))stages[s]=tr('fourHoursPrefix')+' · '+stageText(stage);});
+ doc.querySelectorAll('table tr').forEach(rowEl=>{if(rowEl.closest?.('#andy-retest'))return;const t=rowEl.querySelectorAll('td');if(t.length<3)return;const s=t[1].textContent.trim(),m=t[2].textContent.trim().match(/^[ABC] · (신규 돌파|추세 진행|바닥 반전)$/);if(safeSymbol(s)&&m)stages[s]=(stages[s]?stages[s]+' / ':'')+tr('dailyPrefix')+' · '+stageText(m[1]);});
+ const reportAt=Date.parse(`${label[1]}T${label[2]}:00+09:00`);state.andy={label:new Date(reportAt).toLocaleString(numberLocale,{timeZone:'Asia/Seoul',hour12:false})+' KST',at:reportAt,stages};state.at.andy=Date.now();
 }
 /* 아직 한 줄도 못 받은 상태에서는 30초를 기다리지 않고 짧게 다시 시도한다.
    한 번 실패했다고 표를 비우거나 실패라고 단정하지 않는다 — 이미 받아 둔 시세는 그대로 두고 조용히 재시도한다. */

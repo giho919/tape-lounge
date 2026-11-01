@@ -17,13 +17,13 @@ assert.ok(andyRow,'발행 리포트에 후보가 하나는 있어야 한다');
 const andySymbol=andyRow[0].textContent.replace('/USDT',''),andyStage='4h · '+andyRow[1].textContent;
 assert.notEqual(andySymbol,'USDT');
 const ticks=[{market:'KRW-BTC',trade_price:135200000,trade_timestamp:current,acc_trade_price_24h:2e9,signed_change_rate:.01,signed_change_price:1352000,high_price:138000000,low_price:134000000},{market:'KRW-USDT',trade_price:1300,trade_timestamp:current}].concat(andySymbol==='BTC'?[]:[{market:'KRW-'+andySymbol,trade_price:5000,trade_timestamp:current,acc_trade_price_24h:1e8,signed_change_rate:0}]);
-async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang=''}={}){
+async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='',lang='ko'}={}){
  const nodes={},requests=[],timers=new Map(),events={};let seq=0,mutate;
  const node=id=>nodes[id]??=({innerHTML:'',textContent:'',dataset:{},hidden:false,classList:{contains:()=>hidden},addEventListener:(event,cb)=>events[id+':'+event]=cb,querySelector:()=>null,setAttribute(){},scrollIntoView(){}});
- const doc={hidden:false,getElementById:node,activeElement:null,addEventListener:(event,cb)=>events[event]=cb};
+ const doc={hidden:false,documentElement:{lang},getElementById:node,activeElement:null,addEventListener:(event,cb)=>events[event]=cb};
  let skew=0;
  class Clock extends Date{constructor(...a){super(...(a.length?a:[current+reportAge+skew]));}static now(){return current+reportAge+skew;}}
- const context={console,Date:Clock,URLSearchParams,document:doc,window:{document:doc},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
+ const context={console,Date:Clock,URLSearchParams,document:doc,window:{document:doc,dispatchEvent:event=>events[event.type]=event},CustomEvent:class{constructor(type,init){this.type=type;this.detail=init?.detail;}},localStorage:{getItem(){if(storageFail)throw Error('blocked');return '[]';},setItem(){if(storageFail)throw Error('blocked');}},AbortController,
   setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),MutationObserver:class{constructor(cb){mutate=cb;}observe(){}},
   DOMParser:class{parseFromString(){return {querySelector:sel=>sel==='.hdr .ts'?{textContent:stamp[0]}:sel==='#andy-retest'?{}:null,querySelectorAll:sel=>(sel.startsWith('#andy-retest')?reportRows:dailyRows).map(t=>({querySelectorAll:()=>t}))};}},
   fetch:async(url,opts)=>{requests.push(url);assert.equal(opts.credentials,'omit');assert.ok(opts.signal);if(fail)throw Error('offline');if(hang&&url.includes(hang))return new Promise(()=>{});let data;if(url.includes('/candles/minutes/')){const n=+url.match(/count=(\d+)/)[1];
@@ -42,7 +42,20 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='
   assert.ok(!/max-height\s*:\s*\d+vh/.test(css),'세로는 페이지 스크롤 하나로만 움직인다');
   console.log('PASS table fits the viewport width with a single vertical scroll');}
  let r=await run({hidden:true});assert.equal(r.requests.length,0);assert.equal(r.timers.size,0);console.log('PASS hidden tab performs no requests');
- r=await run();assert.equal(r.requests.length,3);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(!r.requests.some(u=>u.includes('frankfurter')),'환율은 더 이상 조회하지 않는다');assert.ok(r.nodes['dm-table'].innerHTML.includes(`title="Andy 장부 · ${andyStage}"`),'리포트에 실린 '+andySymbol+' 후보가 표에 배지로 나온다');assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
+ for(const [lang,labels] of Object.entries({en:['Markets','Korean exchange','Compare exchange','Asset','Premium','Waiting'],zh:['市场','韩国交易所','比较交易所','币种','溢价','等待连接'],ja:['マーケット','韓国取引所','比較取引所','銘柄','プレミアム','接続待ち']})){
+  const localized=await run({lang}),markup=localized.nodes['tab-domestic'].innerHTML;
+  for(const label of labels.slice(0,3))assert.ok(markup.includes(label),`${lang} entry copy: ${label}`);
+  for(const label of labels.slice(3,5))assert.ok(localized.nodes['dm-head'].innerHTML.includes(label),`${lang} table header: ${label}`);
+  assert.ok(localized.nodes['dm-status'].textContent.includes(labels[5]),`${lang} connection state`);
+  localized.events['tab-domestic:click']({target:{closest:sel=>sel==='[data-select]'?{dataset:{select:'BTC'}}:null}});
+  const chart=localized.nodes['dm-chart'].innerHTML,details=localized.nodes['dm-rest'].innerHTML;
+  assert.ok(chart.includes('locale='+({en:'en',zh:'zh_CN',ja:'ja'}[lang])),`${lang} TradingView locale`);
+  assert.ok(chart.includes(({en:'Bitcoin BTC/KRW Chart',zh:'比特币 BTC/KRW 图表',ja:'ビットコイン BTC/KRW チャート'}[lang])),`${lang} chart title`);
+  const sectionLabels={en:['Numbers','Reference'],zh:['数据','参考'],ja:['数値','参考']}[lang];
+  assert.ok(details.includes(sectionLabels[0])&&details.includes(sectionLabels[1]),`${lang} detail sections`);
+ }
+ console.log('PASS domestic-market controls, headers and connection state localize in English, Chinese and Japanese');
+ r=await run();assert.equal(r.requests.length,4);assert.ok(r.nodes['dm-table'].innerHTML.includes('BTC'));assert.ok(r.nodes['dm-table'].innerHTML.includes('+4.00%'));assert.ok(!r.requests.some(u=>u.includes('frankfurter')),'환율은 더 이상 조회하지 않는다');assert.ok(r.nodes['dm-table'].innerHTML.includes(`title="Andy · ${andyStage}"`),'리포트에 실린 '+andySymbol+' 후보가 표에 배지로 나온다: '+r.nodes['dm-table'].innerHTML.match(/title="Andy[^\"]*/)?.[0]);assert.ok(r.nodes['dm-andy-at'].textContent.includes('현재 신호 아님'));console.log('PASS quotation, premium and current published Andy contract');
  const click=(x,attr,value)=>x.events['tab-domestic:click']({target:{closest:sel=>sel==='['+attr+']'?{dataset:{[attr.slice(5)]:value}}:null}});
  assert.equal((r.nodes['dm-head'].innerHTML.match(/<th/g)||[]).length,5);
  for(const label of ['이름','현재가','김프','전일대비','거래액(일)'])assert.ok(r.nodes['dm-head'].innerHTML.includes(label),label);
