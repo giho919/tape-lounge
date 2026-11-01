@@ -1,5 +1,4 @@
--- Reviewed snapshot for allow_decision_game_share_attribution.
--- Accept one fixed share/referral label pair; keep all social campaign labels unchanged.
+-- Reviewed snapshot for direct share attribution. Accept only fixed share/referral labels.
 alter table private.site_visit_sessions
   drop constraint site_visit_sessions_campaign_check,
   add constraint site_visit_sessions_campaign_check check (
@@ -7,7 +6,7 @@ alter table private.site_visit_sessions
     (campaign_source is not null and campaign_name is not null and (
       (campaign_source in ('threads','x','instagram') and campaign_name ~
         '^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$') or
-      (campaign_source = 'share' and campaign_name = 'decision_game')
+      (campaign_source = 'share' and campaign_name in ('decision_game','daily_blind'))
     ))
   );
 
@@ -19,7 +18,7 @@ alter table private.site_analytics_campaigns_daily
     (campaign_source is not null and campaign_name is not null and (
       (campaign_source in ('threads','x','instagram') and campaign_name ~
         '^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$') or
-      (campaign_source = 'share' and campaign_name = 'decision_game')
+      (campaign_source = 'share' and campaign_name in ('decision_game','daily_blind'))
     ))
   );
 
@@ -37,7 +36,7 @@ begin
   if p_campaign_source is null or p_campaign_name is null or not (
     (p_campaign_source in ('threads','x','instagram') and p_campaign_name ~
       '^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$') or
-    (p_campaign_source = 'share' and p_campaign_name = 'decision_game')
+    (p_campaign_source = 'share' and p_campaign_name in ('decision_game','daily_blind'))
   ) then
     raise exception 'INVALID_CAMPAIGN';
   end if;

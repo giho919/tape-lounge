@@ -2281,7 +2281,7 @@ function bgShowDailyOverlay() {
 async function bgShareDailyChallenge() {
   const day = bgDailySelection?.day || window.BlindDaily.requestedDay(bgDailyQuery);
   const version = bgDailySelection?.version || window.BlindDaily.selection(day).version;
-  const url = window.BlindDaily.url(day,version);
+  const url = bgDailyInviteUrl(day,version);
   const current = day === window.BlindDaily.dayKey(), title = `Tape Lounge · ${day} ${current?'오늘의 판':'지난 판'}`;
   const text = `${current?'오늘의 판':'지난 판'} 같이 해볼래? 같은 과거 ${version===2?'미국 주식':'코인'} 차트로 200${version===2?'거래일':'일'} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.`;
   const invite = `${text}\n${url}`;
@@ -2304,6 +2304,15 @@ async function bgShareDailyChallenge() {
       if (msg) msg.textContent = '아래 초대 문구와 링크를 선택해 복사해 주세요.';
     }
   }
+}
+function bgDailyInviteUrl(day,version) {
+  const url = window.BlindDaily.url(day,version);
+  try { return window.TapeCampaign?.tagDailyBlindShare(url) || url; }
+  catch { return url; }
+}
+function bgDailyShareText(chosen,result) {
+  const plainUrl = window.BlindDaily.url(chosen.day,chosen.version);
+  return window.BlindDaily.shareText(chosen,result).replace(plainUrl,bgDailyInviteUrl(chosen.day,chosen.version));
 }
 async function bgStartDaily(generation) {
   const chosen = bgDailySelection || window.BlindDaily.selection(window.BlindDaily.requestedDay(bgDailyQuery));
@@ -2335,7 +2344,7 @@ async function bgStartDaily(generation) {
 async function bgCopyDailyResult() {
   if (!bg?.daily || !bg.over) return;
   const result = {roi:(bgTotal()/10000-1)*100,bh:(bg.norm[bg.idx].close/bg.norm[bg.base].close-1)*100,days:bg.idx-bg.base,completed:bg.idx===bg.norm.length-1,bankrupt:bg.bankrupt};
-  const text = window.BlindDaily.shareText(bg.daily,result), target = $('bgDailyCopyText'), msg = $('bgDailyCopyStatus');
+  const text = bgDailyShareText(bg.daily,result), target = $('bgDailyCopyText'), msg = $('bgDailyCopyStatus');
   try { await navigator.clipboard.writeText(text); if (msg?.isConnected) msg.textContent = '결과와 같은 판의 링크를 복사했습니다.'; }
   catch { if (target?.isConnected) { target.value=text;target.hidden=false;target.focus();target.select();if(msg)msg.textContent='아래 내용을 선택해 복사해 주세요.'; } }
 }
@@ -2347,7 +2356,7 @@ function bgOpenDailyShare() {
   window.TapeDailyShare.open({
     day:bg.daily.day, version:bg.daily.version, market:bg.daily.track || 'crypto', symbol:bg.sym.replace('USDT',''), label, days:result.days,
     roi:result.roi, bh:result.bh, completed:result.completed,
-    text:window.BlindDaily.shareText(bg.daily,result),
+    text:bgDailyShareText(bg.daily,result),
   });
 }
 window.bgOpenDailyShare = bgOpenDailyShare;

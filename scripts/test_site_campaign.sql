@@ -6,6 +6,7 @@ declare
   v_a uuid := gen_random_uuid();
   v_b uuid := gen_random_uuid();
   v_c uuid := gen_random_uuid();
+  v_share uuid := gen_random_uuid();
   v_internal uuid := gen_random_uuid();
   v_untagged uuid := gen_random_uuid();
   v_invalid uuid := gen_random_uuid();
@@ -47,6 +48,10 @@ begin
   end if;
   if not exists(select 1 from private.site_analytics_campaigns_today where campaign_source='x' and campaign_name=v_other and visitors=1 and sessions=1 and active_seconds=0) then
     raise exception 'Distinct source/campaign aggregation failed';
+  end if;
+  perform public.record_site_campaign_activity(v_visitor,v_share,'game',35,true,'campaign-check.invalid',false,'share','daily_blind');
+  if not exists(select 1 from private.site_analytics_campaigns_today where campaign_source='share' and campaign_name='daily_blind' and visitors=1 and sessions=1 and active_seconds=35 and engaged_sessions=1) then
+    raise exception 'Daily blind direct-share attribution failed';
   end if;
 
   perform public.record_site_campaign_activity(gen_random_uuid(),v_internal,'game',99999,true,'campaign-check.invalid',true,'threads',v_name);
@@ -91,6 +96,10 @@ begin
   perform private.rollup_site_campaigns(v_today-1);
   if not exists(select 1 from private.site_analytics_campaigns_daily where day=v_today-1 and campaign_source='threads' and campaign_name=v_name and visitors=1 and sessions=1 and active_seconds=12) then
     raise exception 'Daily campaign rollup/re-run failed';
+  end if;
+  perform private.rollup_site_campaigns(v_today);
+  if not exists(select 1 from private.site_analytics_campaigns_daily where day=v_today and campaign_source='share' and campaign_name='daily_blind' and visitors=1 and sessions=1 and active_seconds=35 and engaged_sessions=1) then
+    raise exception 'Daily blind share rollup failed';
   end if;
 
   -- Fill remaining anonymous new-session slots; the wrapper must not bypass the existing cap.

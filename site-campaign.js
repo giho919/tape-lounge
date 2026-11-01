@@ -16,7 +16,7 @@
     // standardized to daily_blind; the database only receives the canonical label.
     campaign = campaign.replace(/^blind_chart_game(?=_|$)/, 'daily_blind');
     const isSocial = socialSources.includes(source) && medium === 'social' && campaignPattern.test(campaign);
-    const isDirectShare = source === 'share' && medium === 'referral' && campaign === 'decision_game';
+    const isDirectShare = source === 'share' && medium === 'referral' && ['decision_game','daily_blind'].includes(campaign);
     if (!isSocial && !isDirectShare) return null;
     return {source,campaign};
   }
@@ -39,7 +39,24 @@
     if (original.pathname === '/' && original.hash === '#loungeChart') url.hash='loungeChart';
     return url.href;
   }
-  const api = Object.freeze({parse,route,tag,topics:Object.freeze(topics)});
+  function tagDailyBlindShare(target) {
+    const original = new URL(target);
+    const day = original.searchParams.get('daily');
+    const dayTime = day && /^\d{4}-\d{2}-\d{2}$/.test(day) ? Date.parse(`${day}T00:00:00.000Z`) : NaN;
+    const validDay = Number.isFinite(dayTime) && new Date(dayTime).toISOString().slice(0,10) === day;
+    const version = original.searchParams.get('v');
+    if (original.origin !== 'https://tapelounge.com' || original.username || original.password || original.pathname !== '/blind/' || !validDay || (version && version !== '2')) {
+      throw new Error('Only a valid daily blind-chart round can be shared');
+    }
+    const url = new URL('/blind/', 'https://tapelounge.com');
+    url.searchParams.set('daily',day);
+    if (version === '2') url.searchParams.set('v','2');
+    url.searchParams.set('utm_source','share');
+    url.searchParams.set('utm_medium','referral');
+    url.searchParams.set('utm_campaign','daily_blind');
+    return url.href;
+  }
+  const api = Object.freeze({parse,route,tag,tagDailyBlindShare,topics:Object.freeze(topics)});
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.TapeCampaign=api;
 })(typeof window === 'undefined' ? globalThis : window);
