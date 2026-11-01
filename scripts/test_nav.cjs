@@ -1,5 +1,5 @@
 // 측면 인덱스 탭 구조와 발표장 배지. 브라우저 없이 index.html 을 읽어 검사한다.
-const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
+const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm'), crypto=require('node:crypto'), path=require('node:path');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\n/g,'\n');
 const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
 const builder=fs.readFileSync(require.resolve('./build_discovery.py'),'utf8');
@@ -40,7 +40,24 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
   const source=fs.readFileSync(require.resolve(page),'utf8');
   assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${page} lang`);
   assert.ok(source.includes('/live-home-locale.js?v='),`${page} must translate dynamic live labels`);
+  assert.doesNotMatch(source,/<script[^>]+src="\$1[0-9a-f]{12}"/i,`${page} must not reference a malformed locale script`);
  }
+});
+
+test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게임 조작부까지 번역한다',()=>{
+ const localePath=path.resolve(__dirname,'../live-home-locale.js');
+ const localeVersion=crypto.createHash('sha256').update(fs.readFileSync(localePath)).digest('hex').slice(0,12);
+ const slugs=['','blind','domestic','desk','analysis','onchain','calendar','strategists'];
+ for(const lang of ['en','zh','ja'])for(const slug of slugs){
+  const route=path.resolve(__dirname,'..',lang,'tools',slug,'index.html');
+  const source=fs.readFileSync(route,'utf8');
+  assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${lang}/${slug} lang`);
+  assert.ok(source.includes(`/live-home-locale.js?v=${localeVersion}`),`${lang}/${slug} must load the current live translator`);
+  assert.doesNotMatch(source,/<script[^>]+src="\$1[0-9a-f]{12}"/i,`${lang}/${slug} must not reference a malformed locale script`);
+ }
+ const locale=fs.readFileSync(localePath,'utf8');
+ for(const label of ['🎰 블라인드 차트','🎲 나만의 판','📈 미국주식','판에 앉는다 →','롱'])
+  assert.ok(locale.includes(label),`live translator must cover blind game label ${label}`);
 });
 
 test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지한다',()=>{
