@@ -12,6 +12,14 @@
   const main = document.getElementById('loungeRotationMain');
   const dots = [...root.querySelectorAll('[data-rotation-to]')];
   const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  let inViewport = true;
+  if ('IntersectionObserver' in window) {
+    inViewport = false;
+    const visibilityObserver = new IntersectionObserver(entries => {
+      inViewport = Boolean(entries[0]?.isIntersecting);
+    }, { threshold: 0.2 });
+    visibilityObserver.observe(root);
+  }
 
   const slides = [
     {
@@ -187,6 +195,6 @@
   show(active);
   updatePauseButton();
   window.setInterval(() => {
-    if (!paused && !pointerInside && !focusInside && !document.hidden && root.offsetParent !== null) show(active + 1);
-  }, 12000);
+    if (!paused && !pointerInside && !focusInside && !document.hidden && inViewport && root.offsetParent !== null) show(active + 1);
+  }, 20000);
 })();
