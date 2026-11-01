@@ -115,6 +115,22 @@ COPY = {
 ]
 }
 }
+COPY['ko'].update({
+    'radarSeoTitle':'코인 추세 레이더: 돌파·눌림·지지 관찰',
+    'radarSeoDescription':'Andy의 공개 리포트에서 코인 일봉 추세 전환과 4시간봉 눌림·지지 상태를 살펴보고, 종목별 관찰 이력을 확인하세요. 매수 신호가 아닌 추세 관찰 기록입니다.'
+})
+COPY['en'].update({
+    'radarSeoTitle':'Crypto Trend Radar: Breakouts & Retests',
+    'radarSeoDescription':'Browse coins from Andy’s published scans: daily trend transitions and 4-hour pullback and support states, with historical observations. Research notes, not buy signals.'
+})
+COPY['zh'].update({
+    'radarSeoTitle':'加密货币趋势雷达：突破与回踩观察',
+    'radarSeoDescription':'查看 Andy 公开扫描的币种：日线趋势转换、4小时回踩与支撑状态及历史观察记录。本页面为观察记录，不构成买入信号。'
+})
+COPY['ja'].update({
+    'radarSeoTitle':'暗号資産トレンドレーダー：ブレイク・押し目観察',
+    'radarSeoDescription':'Andyの公開スキャンから、日足のトレンド転換や4時間足の押し目・サポート状態、過去の観察記録を確認できます。売買シグナルではありません。'
+})
 STAGES = {
 '지지 확인':['지지 확인','Support confirmed','支撑确认','支持を確認'],
 '재출발':['재출발','Continuation','再次启动','再始動'],

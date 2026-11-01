@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-02'
+WATCH_PAGE_UPDATED = '2026-11-02'
 ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
@@ -426,8 +427,8 @@ def render(lang, page, data, letters, generated, root=False):
     guide=next((g for g in c['guides'] if page=='learn/'+g[0]),None)
     title=guide[1] if guide else titles[page]
     desc=guide[2] if guide else c.get({'':'intro','markets':'marketIntro','watch':'radarIntro','research':'researchIntro','learn':'learnIntro','about':'aboutText'}[page])
-    search_title=c.get('marketSeoTitle',title) if page=='markets' else title
-    search_desc=c.get('marketSeoDescription',desc) if page=='markets' else desc
+    search_title=c.get('marketSeoTitle',title) if page=='markets' else c.get('radarSeoTitle',title) if page=='watch' else title
+    search_desc=c.get('marketSeoDescription',desc) if page=='markets' else c.get('radarSeoDescription',desc) if page=='watch' else desc
     article_date=guide_date(guide) if guide else None
     current=BASE+url(lang,page)
     nav=''.join(link(url(lang,p),c['nav'][i], 'selected' if page==p or (p=='learn' and guide) else '') for i,p in enumerate(['','markets','watch','learn']))
@@ -551,8 +552,10 @@ def build(force=False):
         for page in pages:
             if lang=='ko' and page=='':continue
             entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+url(lang,page)
-            if page in ['','watch']:
+            if page=='':
                 lastmod=max('2026-10-22',data['reportAt'][:10])
+            elif page=='watch':
+                lastmod=max(WATCH_PAGE_UPDATED,data['reportAt'][:10])
             elif page=='markets':
                 lastmod=MARKET_PAGE_UPDATED
             elif page=='research':
@@ -609,6 +612,12 @@ def build_editorial_only():
     write_live_home_pages(prepare_classic_home())
 
     sitemap=(ROOT/'sitemap.xml').read_text(encoding='utf-8')
+    for lang in LANGS:
+        loc=BASE+url(lang,'watch')
+        pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
+        sitemap,count=re.subn(pattern,lambda m:m.group(1)+WATCH_PAGE_UPDATED+m.group(2),sitemap,count=1)
+        if count!=1:
+            raise ValueError(f'Could not update sitemap lastmod for {loc}')
     for lang in LANGS:
         loc=BASE+url(lang,'markets')
         pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
