@@ -242,9 +242,9 @@ def build(force=False):
     classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    classic=classic.replace('</head>',home_alternates+'\n</head>',1)
-    write('index.html',classic)
-    write('ko/index.html',classic)
+    localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
+    write('index.html',localized_home)
+    write('ko/index.html',localized_home)
     terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
     write('terminal/index.html',terminal)
     for slug, selected, title, description in TOOL_PAGES:
