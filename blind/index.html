@@ -403,6 +403,16 @@ body.shake { animation:shake .5s; }
 .gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 
 /* ═══ 세션 관전석 ═══ */
+.homeQuote { display:flex; align-items:center; gap:12px; min-height:52px; margin:10px 0 12px; padding:8px 14px; border:1px solid rgba(212,175,55,.24); border-radius:11px; background:linear-gradient(100deg,rgba(212,175,55,.055),rgba(17,20,27,.92) 54%,rgba(18,21,28,.96)); box-shadow:inset 0 1px 0 rgba(255,255,255,.025); }
+.homeQuoteSymbol { display:flex; align-items:center; gap:7px; flex:none; color:#aeb3bd; font:700 9px Menlo,monospace; letter-spacing:1px; white-space:nowrap; }
+.homeQuoteSymbol small { color:#747a85; font-size:8px; letter-spacing:.8px; }
+.homeQuoteDot { width:6px; height:6px; flex:none; border-radius:50%; background:var(--grn); box-shadow:0 0 7px rgba(74,222,128,.45); }
+.homeQuotePrice { margin-left:auto; color:#f1eee4; font:600 clamp(17px,2vw,22px) Menlo,monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.homeQuoteChange { display:flex; align-items:baseline; justify-content:flex-end; gap:6px; flex:none; min-width:78px; }
+.homeQuoteChange b { font:700 12px Menlo,monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.homeQuoteChange small { color:#777d88; font:700 8px Menlo,monospace; letter-spacing:.8px; }
+@media(max-width:760px) { .homeQuote { min-height:48px; gap:8px; margin:8px 0 10px; padding:7px 11px; } .homeQuoteSymbol { gap:5px; font-size:8.5px; letter-spacing:.5px; } .homeQuoteSymbol small { font-size:7px; } .homeQuotePrice { font-size:clamp(16px,5vw,20px); } .homeQuoteChange { min-width:70px; gap:4px; } .homeQuoteChange b { font-size:11px; } }
+@media(max-width:360px) { .homeQuote { gap:5px; padding-right:8px; padding-left:8px; } .homeQuoteSymbol { gap:4px; font-size:8px; } .homeQuoteChange { min-width:64px; } }
 .loungeRotation { position:relative; overflow:hidden; margin:0 0 12px; padding:15px 18px 12px; border:1px solid rgba(212,175,55,.34); border-radius:15px; background:radial-gradient(ellipse at 88% 0,rgba(212,175,55,.10),transparent 40%),linear-gradient(135deg,#15171c,#101218 68%,#11151a); box-shadow:inset 0 1px 0 rgba(255,255,255,.025); }
 .loungeRotation:after { content:'♠'; position:absolute; right:92px; top:-34px; color:rgba(212,175,55,.055); font:110px Georgia,serif; pointer-events:none; }
 .loungeRotationTop,.loungeRotationControls { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; }
@@ -820,6 +830,11 @@ body.shake { animation:shake .5s; }
 
 <!-- ═══════════ 라운지 탭 ═══════════ -->
 <div id="tab-lounge" class="hidden">
+<div class="homeQuote" aria-label="BTC/USDT spot price and 24-hour change">
+  <div class="homeQuoteSymbol"><span class="homeQuoteDot" aria-hidden="true"></span><span>BTC / USDT</span><small>SPOT</small></div>
+  <strong class="homeQuotePrice num" id="homeBtcPrice">—</strong>
+  <div class="homeQuoteChange"><b class="num" id="homeBtcChange">—</b><small>24H</small></div>
+</div>
 <section class="loungeRotation" id="loungeRotation" aria-label="라운지 주요 기록" aria-roledescription="carousel">
   <div class="loungeRotationTop"><span>AT THE TABLE</span><span class="loungeRotationCount" id="loungeRotationCount">01 / 04</span></div>
   <div class="loungeRotationMain" id="loungeRotationMain" aria-live="off">
@@ -1823,10 +1838,19 @@ function caroMove(d) { caroGo(caroIdx + d); }
 window.caroGo = caroGo; window.caroMove = caroMove;
 
 let dayOpen = null, ethOpen = null, qqqOpen = null;
+function updateHomeQuote(px, chg) {
+  const priceEl = $('homeBtcPrice'), changeEl = $('homeBtcChange');
+  if (priceEl && Number.isFinite(px) && px > 0) priceEl.textContent = fmt(px, 1);
+  if (changeEl && Number.isFinite(chg)) {
+    changeEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    changeEl.className = 'num ' + (chg >= 0 ? 'up' : 'dn');
+  }
+}
 // 장대/돌파·베팅 판정용 1분봉 이력 시딩 (BTC 고정 — 이펙트는 항상 1분 기준)
 (async () => {
   const d = await (await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT')).json();
   dayOpen = +d.openPrice;
+  updateHomeQuote(+d.lastPrice, +d.priceChangePercent);
   const kl = await (await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=61')).json();
   kl.slice(0, -1).forEach(k => {
     bodyHist.push(Math.abs(+k[4]-+k[1])/+k[1]*100);
@@ -3270,6 +3294,7 @@ function queueMarketUi(px, isBuy) {
     const next = pendingMarketUi; pendingMarketUi = null;
     if (!next || !tabLive('lounge')) return;
     const {px,isBuy} = next;
+    updateHomeQuote(px, dayOpen ? (px / dayOpen - 1) * 100 : null);
     setFlap(fmt(px, 1));
     $('livePx').style.color = isBuy ? 'var(--grn)' : 'var(--red)';
     if (dayOpen) {
