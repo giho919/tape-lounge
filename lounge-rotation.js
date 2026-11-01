@@ -15,18 +15,18 @@
 
   const slides = [
     {
-      eyebrow: 'YOUR CALL',
-      title: '그때 나라면?',
-      copy: '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인해요.',
-      link: '/decision/',
-      label: '한 판 시작 ↗',
-    },
-    {
       eyebrow: "TODAY'S DEAL",
       title: '오늘의 판, 200일 버텨볼래?',
       copy: '종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.',
       link: '/blind/?daily=1',
       label: '오늘의 판 열기 ↗',
+    },
+    {
+      eyebrow: 'YOUR CALL',
+      title: '그때 나라면?',
+      copy: '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인해요.',
+      link: '/decision/',
+      label: '한 판 시작 ↗',
     },
     {
       eyebrow: 'SESSION CHAMPIONSHIP',
@@ -99,21 +99,21 @@
       const date = new Intl.DateTimeFormat('ko-KR', {
         timeZone: 'Asia/Seoul', month: 'long', day: 'numeric',
       }).format(new Date(`${day}T00:00:00+09:00`));
-      slides[1].eyebrow = `TODAY'S DEAL · ${date} · ${market}`;
-      slides[1].title = selection.track === 'stock' ? '오늘의 미국 주식 판, 200거래일' : '오늘의 판, 200일 버텨볼래?';
-      slides[1].copy = selection.track === 'stock'
-        ? '종목과 날짜를 가린 과거 주식 차트. 끝나면 같은 기간 보유와 비교합니다.'
-        : '종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.';
-      slides[1].label = '오늘의 판 열기 ↗';
+      slides[0].eyebrow = `TODAY'S DEAL · ${date} · ${market}`;
+      slides[0].title = selection.track === 'stock' ? '오늘의 미국 주식 판, 200거래일' : '오늘의 판, 200일 버텨볼래?';
+      slides[0].copy = selection.track === 'stock'
+        ? '종목과 날짜를 가린 같은 차트로 200거래일 동안 버텨 보세요. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다.'
+        : '종목과 날짜를 가린 같은 차트로 200일 동안 버텨 보세요. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다.';
+      slides[0].label = '오늘의 판 열기 ↗';
       if (streak.playedToday) {
-        slides[1].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
-        slides[1].label = '오늘 결과 다시 보기 ↗';
+        slides[0].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
+        slides[0].label = '오늘 결과 다시 보기 ↗';
       } else if (streak.days > 0) {
-        slides[1].copy = `어제까지 ${streak.days}일 연속 출전. 오늘 완주하면 기록이 이어져요.`;
-        slides[1].label = '오늘 이어서 도전 ↗';
+        slides[0].copy = `어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
+        slides[0].label = '오늘 이어서 도전 ↗';
       }
-      slides[1].link = daily.url(day, selection.version);
-      if (active === 1) show(active);
+      slides[0].link = daily.url(day, selection.version);
+      if (active === 0) show(active);
     } catch { /* Keep the useful static invitation if local date or storage is unavailable. */ }
   }
 
@@ -184,7 +184,7 @@
   if (sessionCopy) sessionObserver.observe(sessionCopy, { childList: true, characterData: true, subtree: true });
 
   updateDailyRound();
-  show(0);
+  show(active);
   updatePauseButton();
   window.setInterval(() => {
     if (!paused && !pointerInside && !focusInside && !document.hidden && root.offsetParent !== null) show(active + 1);

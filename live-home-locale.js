@@ -30,6 +30,7 @@
     '전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부':['Monthly regime notes, daily scans and public ledgers','月度市场判断、每日扫描与公开记录','月次の相場判断・日次スキャン・公開運用記録'],
     '라운지 주요 기록':['Lounge rotation','大厅轮播','ラウンジ表示'], '오늘의 판':['Today’s chart','今日盲图','今日のチャート'],
     '오늘의 판, 200일 버텨볼래?':['Today’s chart: can you last 200 days?','今日盲图：你能坚持 200 天吗？','今日のチャート、200日続けられる？'],
+    '오늘 이어서 도전 ↗':['Continue today’s round ↗','继续今天的牌局 ↗','今日の一局を続ける ↗'],
     '오늘의 판 열기 ↗':['Play today’s chart ↗','开始今日盲图 ↗','今日のチャートを始める ↗'],
     '그때 나라면?':['What would you have done?','如果当时是你？','あの時、自分なら？'],
     '그때 나라면':['Decision practice','决策练习','判断練習'],
@@ -366,6 +367,9 @@
   }, true);
 
   const dynamic = value => {
+    if (value === '오늘의 미국 주식 판, 200거래일') return lang === 'en'
+      ? 'Today’s U.S. stock round · 200 trading days'
+      : lang === 'zh' ? '今日美股牌局 · 200个交易日' : '今日の米国株ラウンド・200取引日';
     const hiddenMarket = value.startsWith('❓ ??? · ') ? value.slice('❓ ??? · '.length) : null;
     if (hiddenMarket === '미국 증시' || hiddenMarket === '코인 시장') {
       const market = hiddenMarket === '미국 증시'
