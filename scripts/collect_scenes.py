@@ -13,6 +13,7 @@ import re
 import sys
 import time
 from urllib.parse import urlencode
+from frontend_config import read_public_config
 from urllib.request import Request, urlopen
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -44,9 +45,9 @@ def summary(scene):
 
 def collect():
     # Read only constants already published in the old frontend, never a server env/config.
-    source=(ROOT/'terminal/index.html').read_text(encoding='utf-8')
-    base=re.search(r"const SUPA_URL = '([^']+)'",source)[1]
-    key=re.search(r"const SUPA_KEY = '([^']+)'",source)[1]
+    public_config=read_public_config(ROOT)
+    base=public_config['url']
+    key=public_config['key']
     if not key.startswith('sb_publishable_'):raise ValueError('Expected public frontend key')
     now=datetime.now(timezone.utc); millis=int(now.timestamp()*1000)
     query=urlencode({'select':FIELDS,'is_highlight':'eq.true','event_time':'gte.'+(now-timedelta(hours=47)).isoformat(),'order':'event_time.desc','limit':'500'})

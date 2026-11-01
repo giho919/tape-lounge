@@ -12,6 +12,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from discovery_content import COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
+from frontend_config import read_public_config
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
@@ -506,7 +507,7 @@ def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
     classic=prepare_classic_home()
-    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
@@ -581,13 +582,14 @@ def build(force=False):
     write('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(sitemap,encoding='unicode'))
     # Reuse the existing, explicitly public publishable key and RPC. No new table/schema.
     source=(ROOT/'terminal/index.html').read_text(encoding='utf-8')
-    supa_url=re.search(r"const SUPA_URL = '([^']+)'",source)[1]
-    key=re.search(r"const SUPA_KEY = '([^']+)'",source)[1]
+    public_config=read_public_config(ROOT)
+    supa_url=public_config['url']
+    key=public_config['key']
     if not key.startswith('sb_publishable_'):
         raise ValueError('Only a publishable frontend key may be reused')
     template=(ROOT/'scripts/discovery-analytics.template.js').read_text(encoding='utf-8')
     write('discovery-analytics.js',template.replace('__PUBLIC_URL__',supa_url).replace('__PUBLISHABLE_KEY__',key))
-    turnstile=re.search(r"const TURNSTILE_SITEKEY = '([^']+)'",source)[1]
+    turnstile=public_config['turnstile']
     sdk=re.search(r'<script src="([^"]+@supabase/supabase-js@[^"]+)" integrity="([^"]+)"',source)
     write('data/stage-config.json',json.dumps({'schema':1,'url':supa_url,'key':key,'turnstile':turnstile,'sdk':{'url':sdk[1],'integrity':sdk[2]},'words':WORDS},ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'pages':len(LANGS)*len(pages)+1+len(TOOL_PAGES),'reportAt':data['reportAt']}
@@ -645,7 +647,7 @@ def build_editorial_only():
 
     data['copy']=COPY
     data['generatedAt']=generated
-    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS+SHARE_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS+SHARE_ASSETS
     data['sourceHash']=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     write('data/discovery.json',json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
