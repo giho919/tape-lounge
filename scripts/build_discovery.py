@@ -224,11 +224,19 @@ def build_decision_pages():
     template=(ROOT/'scripts/decision-template.html').read_text(encoding='utf-8')
     alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+decision_url(lang)}">' for lang in LANGS)
     alternates+=f'<link rel="alternate" hreflang="x-default" href="{BASE}/decision/">'
+    image_alt = {
+        'ko': 'Tape Lounge BTC decision practice: 12 historical chart decisions, revealed five days at a time.',
+        'en': 'Tape Lounge BTC decision practice: 12 historical chart decisions, revealed five days at a time.',
+        'zh': 'Tape Lounge 比特币历史行情决策练习：12 次选择，每次揭晓后续五天走势。',
+        'ja': 'Tape LoungeのBTC判断練習。過去チャートで12回判断し、5日後の値動きを確認。',
+    }
     for lang in LANGS:
         title,description=DECISION_COPY[lang]
+        image=f'{BASE}/decision-og-{lang}-20261101.png?v=20261101a'
         page=(template.replace('__LANG__',lang).replace('__TITLE__',e(title))
               .replace('__DESCRIPTION__',e(description,quote=True))
               .replace('__CANONICAL__',BASE+decision_url(lang)).replace('__ALTERNATES__',alternates)
+              .replace('__OG_IMAGE__',image).replace('__OG_IMAGE_ALT__',e(image_alt[lang],quote=True))
               .replace('__ANALYTICS_VERSION__',VERSION))
         write(decision_url(lang).strip('/')+'/index.html',page)
     return {'pages':len(LANGS),'routes':[decision_url(lang) for lang in LANGS]}
