@@ -96,10 +96,12 @@
     '진짜 비트코인 거래':['real Bitcoin trades','真实的比特币成交','実際のビットコイン取引'],
     '가 빗방울로 떨어집니다.':['fall as raindrops.','像雨滴一样落下。','が雨粒となって降り注ぎます。'],
     '방울이 클수록 큰돈이 움직인 것':['Larger drops mean larger trades','水滴越大，成交金额越大','滴が大きいほど取引額も大きく'],
+    '방울이 클수록 큰돈이 움직인 것 —':['Larger drops mean larger trades —','水滴越大，成交金额越大 —','滴が大きいほど取引額も大きく —'],
     '초록은 매수':['green means buying','绿色表示买入','緑は買い'], '빨강은 매도':['red means selling','红色表示卖出','赤は売り'],
     '예요.':['.','。','。'], '금테를 두른 방울은':['Gold-rimmed drops mark','带金边的水滴代表','金縁のしずくは'],
     '$50만 이상의 고래':['trades above $500K','超过 50 万美元的大额成交','50万ドル超の大口取引'],
     '퍼지는 파문은 강제 청산.':['; expanding ripples mark liquidations.','；扩散的涟漪代表强制平仓。','、広がる波紋は強制清算です。'],
+    ', 퍼지는 파문은 강제 청산.':['; expanding ripples mark liquidations.','；扩散的涟漪代表强制平仓。','、広がる波紋は強制清算です。'],
     '비가 어느 쪽에 많이 내리는지가 곧 지금의 힘싸움입니다.':['The heavier side of the rain shows the current buying-versus-selling flow.','哪一侧的雨点更多，反映当前买卖力量的对比。','雨がどちらに多く降るかで、今の売買の勢いが見えてきます。'],
     '본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다. · 데이터: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · Tape Lounge Prototype v0.5':['For information only, not investment advice. You are responsible for your investment decisions. · Data: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me and CoinGecko (live; may be delayed) · Tape Lounge Prototype v0.5','本网站仅供信息参考，不构成投资建议。投资决定与责任由用户自行承担。· 数据：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（实时，可能延迟）· Tape Lounge Prototype v0.5','本サイトは情報提供を目的とし、投資助言ではありません。投資判断と責任は利用者ご自身にあります。・データ：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（リアルタイム、遅延の可能性あり）・Tape Lounge Prototype v0.5'],
   };
