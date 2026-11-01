@@ -143,13 +143,23 @@
     '지난 판 재연 · 오늘의 연속 출전 기록과 별도':['Replay a past round · does not count toward today’s streak','重玩历史牌局 · 不计入今日连续挑战','過去の一局を再プレイ · 今日の連続記録には含まれません'],
     '과거의 어느 실제 ':['You land in a real past ','进入真实的历史','実際の過去の'],
     '에 던져집니다. ':['. ','。','に飛び込みます。'],
-    '종목도, 날짜도 비밀.':['The asset and date stay hidden.','币种和日期暂不公开。','銘柄も日付も秘密です。'],
+    '종목도, 날짜도 비밀.':['The asset and date stay hidden.','标的和日期暂不公开。','銘柄も日付も秘密です。'],
+    '200일 뒤 종목·날짜가 공개되고, 같은 구간 보유 수익률과 비교합니다.':['After 200 days, the asset and dates are revealed. Compare your trades with holding over the same period.','200天后揭晓标的和日期，并与同期持有收益率比较。','200日後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
+    '오늘의 판 시작':['Start today’s round','开始今日牌局','今日の一局を始める'],
+    '오늘의 판 시작 →':['Start today’s round →','开始今日牌局 →','今日の一局を始める →'],
+    '지난 판 다시 하기':['Replay this round','重玩本局','この一局を再プレイ'],
+    '지난 판 다시 하기 →':['Replay this round →','重玩本局 →','この一局を再プレイ →'],
+    '같은 판 다시 연습 →':['Practice this round again →','再次练习本局 →','同じ一局をもう一度練習 →'],
+    '친구와 같은 판 하기 ↗':['Play the same round with a friend ↗','和朋友一起玩同一局 ↗','友だちと同じ一局をプレイ ↗'],
+    '첫 완주 기록을 이 브라우저에 저장했습니다.':['Your first finish was saved in this browser.','首次完赛记录已保存在此浏览器。','初回完走記録をこのブラウザーに保存しました。'],
+    '남아 있는 포지션은 마지막 종가로 평가합니다.':['Open positions are valued at the final closing price.','未平仓位按最后收盘价估值。','残っているポジションは最終終値で評価します。'],
     '시작가는 100으로 환산되어 힌트가 없습니다.':['Prices are rebased to 100, so there are no clues.','价格统一换算为100，不提供额外线索。','開始価格は100に換算し、手掛かりを隠します。'],
     '과거의 어느 실제 미국 증시에 던져집니다.':['You’re dropped into a real U.S. market from the past.','进入一段真实的历史美股行情。','過去の実際の米国市場に入り込みます。'],
     '가상 자금':['Virtual funds','虚拟资金','仮想資金'],
     '으로 매매합니다. 실제 주문은 없습니다.':[' to trade. No real orders are placed.','用于模拟交易，不会下达真实订单。','で売買します。実際の注文は行いません。'],
+    '가상 자금 $10,000 · 실제 주문 없음 · 기본 속도 2×로 약 4분. 시작 전이나 진행 중에 속도를 바꾸고 잠시 멈출 수 있어요.':['Virtual $10,000 · no real orders · about 4 minutes at 2× speed. You can change speed or pause before or during the round.','虚拟资金 $10,000 · 不会下达真实订单 · 2×速度下约需4分钟。开始前或进行中都可以调整速度或暂停。','仮想資金 $10,000・実際の注文なし・2倍速で約4分。開始前やプレイ中に速度を変更したり、一時停止したりできます。'],
     '시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.':['Candles advance automatically. You can play, pause, or change the pace.','行情自动推进，可播放、暂停或调整速度。','チャートは自動で進み、再生・一時停止・速度を変更できます。'],
-    '200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.':['After 200 days, the asset and dates are revealed. Compare your trades with holding over the same period.','200天后揭晓币种和日期，并与同期持有收益率比较。','200日後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
+    '200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.':['After 200 days, the asset and dates are revealed. Compare your trades with holding over the same period.','200天后揭晓标的和日期，并与同期持有收益率比较。','200日後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
     '판에 앉는다 →':['Take your seat →','入座 →','席に着く →'],
     '게임 방식과 정산 기준 ↗':['How it works and how results are settled ↗','玩法与结算规则 ↗','遊び方と精算ルール ↗'],
     '💼 내 판돈':['💼 Your bankroll','💼 你的筹码','💼 持ち金'],
@@ -366,11 +376,35 @@
     const dailyStreak = value.match(/^오늘 출전 완료 · (\d+)일 연속$/);
     if (dailyStreak) return lang === 'en' ? `Round complete · ${dailyStreak[1]}-day streak`
       : lang === 'zh' ? `今日完成 · 连续 ${dailyStreak[1]} 天` : `本日完走・${dailyStreak[1]}日連続`;
-    const pendingStreak = value.match(/^어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.$/);
+    const pendingStreak = value.match(/^(♠ )?어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.$/);
     if (pendingStreak) return lang === 'en'
-      ? `Through yesterday: ${pendingStreak[1]} days in a row · finish today to keep it going.`
-      : lang === 'zh' ? `截至昨天已连续 ${pendingStreak[1]} 天 · 完成今天即可延续。`
-        : `昨日まで${pendingStreak[1]}日連続・今日完走で記録が続きます。`;
+      ? `${pendingStreak[1] || ''}Through yesterday: ${pendingStreak[2]} days in a row · finish today to keep it going.`
+      : lang === 'zh' ? `${pendingStreak[1] || ''}截至昨天已连续 ${pendingStreak[2]} 天 · 完成今天即可延续。`
+        : `${pendingStreak[1] || ''}昨日まで${pendingStreak[2]}日連続・今日完走で記録が続きます。`;
+    const dailyMarket = value.match(/^(\d{4}-\d{2}-\d{2}) · (미국 주식|코인)$/);
+    if (dailyMarket) {
+      const market = dailyMarket[2] === '미국 주식'
+        ? ['U.S. stocks', '美股', '米国株'] : ['Crypto', '加密资产', '暗号資産'];
+      return `${dailyMarket[1]} · ${market[langIndex]}`;
+    }
+    const dailyIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\.$/);
+    if (dailyIntro) {
+      const period = dailyIntro[1] === '거래일'
+        ? ['trading days', '个交易日', '取引日'] : ['days', '天', '日'];
+      return lang === 'en'
+        ? `Try to last 200 ${period[0]} on the same chart, with the asset and dates hidden. Then compare your trades with holding over that period.`
+        : lang === 'zh'
+          ? `在标的和日期均隐藏的同一张图表上坚持200${period[1]}，再将自己的交易与同期持有收益率比较。`
+          : `銘柄と日付を伏せた同じチャートで200${period[2]}続け、取引結果を同期間の保有リターンと比較します。`;
+    }
+    const firstFinish = value.match(/^첫 완주 ([+-]?\d+(?:\.\d+)?%) · 같은 기간 보유 ([+-]?\d+(?:\.\d+)?%)$/);
+    if (firstFinish) return lang === 'en'
+      ? `First finish ${firstFinish[1]} · hold over the same period ${firstFinish[2]}`
+      : lang === 'zh' ? `首次完赛 ${firstFinish[1]} · 同期持有 ${firstFinish[2]}`
+        : `初回完走 ${firstFinish[1]}・同期間の保有 ${firstFinish[2]}`;
+    const firstReturn = value.match(/^이 브라우저의 첫 완주 ([+-]?\d+(?:\.\d+)?%)$/);
+    if (firstReturn) return lang === 'en' ? `This browser’s first finish ${firstReturn[1]}`
+      : lang === 'zh' ? `此浏览器首次完赛 ${firstReturn[1]}` : `このブラウザーの初回完走 ${firstReturn[1]}`;
     const replayHeader = value.match(/^🎴 (\d{4}-\d{2}-\d{2}) · 지난 판$/);
     if (replayHeader) return lang === 'en' ? `🎴 ${replayHeader[1]} · Past round`
       : lang === 'zh' ? `🎴 ${replayHeader[1]} · 历史牌局` : `🎴 ${replayHeader[1]}・過去の一局`;
