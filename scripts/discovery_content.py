@@ -4,7 +4,7 @@ COPY = {
 'ko': {
 'nav':['오늘','마켓','레이더','읽을거리'], 'tools':'라이브 라운지', 'edition':'시장을 읽는 또 하나의 시선',
 'headline':'소음은 덜고,\n흐름은 더 선명하게.', 'intro':'가격이 움직인 이유를 찾고, 다음에 볼 종목을 남겨두세요. 시장 · 추세 · 기록을 연결하는 작은 리서치룸.',
-'market':'시장 한눈에', 'marketIntro':'주요 코인의 가격과 거래량, 한국 시장의 가격 차이를 한곳에서 비교합니다.',
+'market':'시장 한눈에', 'marketIntro':'주요 코인의 가격과 거래량, 한국 시장의 가격 차이를 한곳에서 비교합니다.', 'marketSeoTitle':'김프 실시간 시세표: 코인 가격·거래량·김치프리미엄', 'marketSeoDescription':'업비트 원화 가격과 바이낸스 USDT 현물가를 비교해 BTC·ETH 등 주요 코인의 김치 프리미엄을 확인하세요. 24시간 등락·거래대금과 USD/KRW 기준환율을 60초마다 갱신합니다.',
 'radar':'Andy의 레이더', 'radarIntro':'돌파보다 중요한 건 그다음. 눌림을 견딘 자리와 이후의 변화를 관찰합니다.',
 'research':'세 가지 관점, 하나의 시장', 'researchIntro':'운용의 판단, 종목의 흐름, 국면의 근거를 나누어 읽습니다. 세 전략가는 AI 페르소나입니다.',
 'learn':'숫자 너머의 맥락', 'learnIntro':'김프부터 추세 지지까지. 화면의 숫자가 무엇을 말하고, 무엇을 말하지 않는지.',
@@ -33,7 +33,7 @@ COPY = {
 'en': {
 'nav':['Today','Markets','Radar','Read'], 'tools':'Live lounge', 'edition':'A clearer view of the market',
 'headline':'Less noise.\nMore perspective.', 'intro':'See what moved. Keep an eye on what matters next. One independent reading room for markets, trends and the record behind them.',
-'market':'The market, at a glance', 'marketIntro':'Compare crypto prices, trading activity and the gap between Korean and global markets.',
+'market':'The market, at a glance', 'marketIntro':'Compare crypto prices, trading activity and the gap between Korean and global markets.', 'marketSeoTitle':'Korean Crypto Premium & Live Prices', 'marketSeoDescription':'Compare Upbit KRW prices with Binance USDT spot quotes. Track the Korean premium, 24-hour moves, trading volume and USD/KRW reference rate, refreshed every 60 seconds.',
 'radar':"On Andy’s radar", 'radarIntro':'The breakout is only the beginning. Follow the retest, the support and what happened next.',
 'research':'Three perspectives. One market.', 'researchIntro':'Separate portfolio decisions, trend observations and regime research. All three strategists are AI personas.',
 'learn':'The context behind the numbers', 'learnIntro':'From Korean premiums to trend retests: what the numbers tell you, and what they do not.',
@@ -62,7 +62,7 @@ COPY = {
 'zh': {
 'nav':['今日','行情','雷达','阅读'], 'tools':'实时行情大厅', 'edition':'换个角度，看清市场',
 'headline':'少一点噪音，\n多一分洞察。', 'intro':'看清价格的变化，把值得关注的标的留下。连接行情、趋势与观察记录的独立研究空间。',
-'market':'市场一览', 'marketIntro':'比较主要加密资产的价格、交易额，以及韩国市场与海外的价差。', 'radar':'Andy 的观察雷达', 'radarIntro':'突破只是开始。继续观察回踩、支撑以及后续变化。',
+'market':'市场一览', 'marketIntro':'比较主要加密资产的价格、交易额，以及韩国市场与海外的价差。', 'marketSeoTitle':'韩国加密货币溢价实时行情表', 'marketSeoDescription':'对比 Upbit 韩元价格与 Binance USDT 现货价，查看 BTC、ETH 等主要币种的韩国溢价、24 小时涨跌、成交额及美元兑韩元参考汇率，每 60 秒更新。', 'radar':'Andy 的观察雷达', 'radarIntro':'突破只是开始。继续观察回踩、支撑以及后续变化。',
 'research':'三个视角，一个市场', 'researchIntro':'分别阅读持仓判断、趋势观察和市场状态研究。三位策略师均为 AI 角色。', 'learn':'数字背后的背景', 'learnIntro':'从韩国溢价到趋势回踩：理解数字能说明什么、不能说明什么。',
 'all':'查看全部', 'price':'价格 · USDT', 'change':'24小时涨跌', 'volume':'24小时交易额 · USDT', 'premium':'韩国溢价', 'asset':'资产', 'save':'自选', 'saved':'已保存',
 'find':'搜索资产与主题', 'searchHint':'BTC、ETH、溢价…', 'empty':'暂无匹配记录。', 'loading':'正在连接数据', 'offline':'数据连接延迟，请稍后重试', 'observed':'报价观测时间', 'stale':'更新延迟',
@@ -89,7 +89,7 @@ COPY = {
 'ja': {
 'nav':['今日','マーケット','レーダー','読む'], 'tools':'ライブラウンジ', 'edition':'市場を、もう少しクリアに',
 'headline':'ノイズを減らし、\n流れをつかむ。', 'intro':'何が動いたかを知り、次に見る銘柄を残す。相場・トレンド・観察記録をつなぐ、独立したリサーチルーム。',
-'market':'マーケットをひと目で', 'marketIntro':'主要暗号資産の価格と売買代金、韓国と海外市場の価格差を比較します。', 'radar':'Andy の観察レーダー', 'radarIntro':'ブレイクの後こそ大切。押し目の支えと、その後の変化を追います。',
+'market':'マーケットをひと目で', 'marketIntro':'主要暗号資産の価格と売買代金、韓国と海外市場の価格差を比較します。', 'marketSeoTitle':'韓国プレミアム・暗号資産リアルタイム価格', 'marketSeoDescription':'UpbitのKRW価格とBinanceのUSDT現物価格を比較。BTC・ETHなど主要銘柄の韓国プレミアム、24時間騰落率、売買代金、USD/KRW参考レートを60秒ごとに更新します。', 'radar':'Andy の観察レーダー', 'radarIntro':'ブレイクの後こそ大切。押し目の支えと、その後の変化を追います。',
 'research':'三つの視点、一つの市場', 'researchIntro':'運用判断、トレンド観察、相場局面の研究を分けて読みます。三人とも AI ペルソナです。', 'learn':'数字の向こうの文脈', 'learnIntro':'韓国プレミアムからトレンドの押し目まで。数字が示すこと、示さないこと。',
 'all':'すべて見る', 'price':'価格 · USDT', 'change':'24時間騰落', 'volume':'24時間売買代金 · USDT', 'premium':'韓国プレミアム', 'asset':'銘柄', 'save':'ウォッチリスト', 'saved':'保存済み',
 'find':'銘柄・テーマを検索', 'searchHint':'BTC、ETH、プレミアム…', 'empty':'該当する記録はありません。', 'loading':'データに接続中', 'offline':'データ接続が遅れています', 'observed':'価格の観測時刻', 'stale':'更新遅延',

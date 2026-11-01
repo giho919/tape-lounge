@@ -424,12 +424,14 @@ def render(lang, page, data, letters, generated, root=False):
     guide=next((g for g in c['guides'] if page=='learn/'+g[0]),None)
     title=guide[1] if guide else titles[page]
     desc=guide[2] if guide else c.get({'':'intro','markets':'marketIntro','watch':'radarIntro','research':'researchIntro','learn':'learnIntro','about':'aboutText'}[page])
+    search_title=c.get('marketSeoTitle',title) if page=='markets' else title
+    search_desc=c.get('marketSeoDescription',desc) if page=='markets' else desc
     article_date=guide_date(guide) if guide else None
     current=BASE+url(lang,page)
     nav=''.join(link(url(lang,p),c['nav'][i], 'selected' if page==p or (p=='learn' and guide) else '') for i,p in enumerate(['','markets','watch','learn']))
     languages=''.join(f'<a href="{locale_url(l,page)}" lang="{l}" hreflang="{l}" data-language="{l}" '+('aria-current="true"' if l==lang else '')+f'>{label}</a>' for l,label in LANGS.items())
     alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+locale_url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+locale_url("ko",page)}">'
-    schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':title,'description':desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
+    schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':search_title,'description':search_desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
         schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':article_date,'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
         if guide[0]=='kimchi-premium':
@@ -478,8 +480,8 @@ def render(lang, page, data, letters, generated, root=False):
     app_scripts=f'<script src="/site-campaign.js?v={VERSION}"></script>'+app_scripts
     return f'''<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{e(title)} — Tape Lounge</title><meta name="description" content="{e(desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}
-<meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0d1114"><meta name="referrer" content="strict-origin-when-cross-origin">
+<title>{e(search_title)} — Tape Lounge</title><meta name="description" content="{e(search_desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}
+<meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(search_title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(search_desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0d1114"><meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.bithumb.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co wss://stream.binance.com:9443; frame-src https://challenges.cloudflare.com">
 <link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}">{kimchi_assets}<link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}{article_share_assets}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
 <body class="{'market-stage' if page=='' else ''}" data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
