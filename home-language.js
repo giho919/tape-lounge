@@ -6,21 +6,21 @@
   const languages = {
     en: {
       text: 'English market notes and guides are available.',
-      tools: 'Live tools are currently in Korean.',
+      tools: 'The live lounge is also available in English.',
       privacy: 'Country lookup uses country.is, which receives your IP; Tape Lounge does not store your IP or location.',
-      link: 'English pages ↗', dismiss: 'Stay here', close: 'Dismiss language suggestion',
+      link: 'Open the English live lounge ↗', dismiss: 'Stay here', close: 'Dismiss language suggestion',
     },
     zh: {
       text: '中文市场文章与指南可供阅读。',
-      tools: '实时工具目前为韩语。',
+      tools: '实时行情大厅也支持中文。',
       privacy: '国家判断使用 country.is，该服务会接收请求 IP；Tape Lounge 不保存 IP 或位置。',
-      link: '中文内容 ↗', dismiss: '留在这里', close: '关闭语言建议',
+      link: '打开中文实时行情大厅 ↗', dismiss: '留在这里', close: '关闭语言建议',
     },
     ja: {
       text: '市況記事とガイドを日本語で読めます。',
-      tools: 'ライブツールは現在韓国語です。',
+      tools: 'ライブマーケットラウンジも日本語で利用できます。',
       privacy: '国の判定に country.is を使い、同サービスはリクエスト IP を受信します。Tape Lounge は IP や位置を保存しません。',
-      link: '日本語ページ ↗', dismiss: 'このまま見る', close: '言語の提案を閉じる',
+      link: '日本語のライブラウンジを開く ↗', dismiss: 'このまま見る', close: '言語の提案を閉じる',
     },
   };
 
@@ -77,7 +77,20 @@
 
   document.addEventListener('click', event => {
     const link = event.target.closest('a[data-language]');
-    if (link && supported.includes(link.dataset.language)) write('tl_language', link.dataset.language);
+    if (link && supported.includes(link.dataset.language)) {
+      write('tl_language', link.dataset.language);
+      try {
+        const target = new URL(link.href, location.href);
+        if (target.origin !== location.origin) return;
+        const current = new URL(location.href);
+        for (const key of ['internal', 'utm_source', 'utm_medium', 'utm_campaign', 'asset', 'interval', 'tf', 'daily']) {
+          if (current.searchParams.has(key) && !target.searchParams.has(key)) {
+            target.searchParams.set(key, current.searchParams.get(key));
+          }
+        }
+        link.href = target.href;
+      } catch {}
+    }
   });
 
   const start = async () => {
@@ -87,7 +100,7 @@
     const recommendation = chosen && supported.includes(chosen) ? chosen : await readRecommendation();
     if (!languages[recommendation] || recommendation === 'ko') return;
     const copy = languages[recommendation];
-    box.innerHTML = `<div class="homeLocaleCopy"><span>${copy.text} ${copy.tools}</span><small>${copy.privacy}</small></div><div class="homeLocaleActions"><a class="homeLocaleLink" href="/${recommendation}/watch/" hreflang="${recommendation}" lang="${recommendation}" data-language="${recommendation}">${copy.link}</a><button class="homeLocaleDismiss" type="button">${copy.dismiss}</button><button class="homeLocaleDismiss" type="button" aria-label="${copy.close}">×</button></div>`;
+    box.innerHTML = `<div class="homeLocaleCopy"><span>${copy.text} ${copy.tools}</span><small>${copy.privacy}</small></div><div class="homeLocaleActions"><a class="homeLocaleLink" href="/${recommendation}/tools/" hreflang="${recommendation}" lang="${recommendation}" data-language="${recommendation}">${copy.link}</a><button class="homeLocaleDismiss" type="button">${copy.dismiss}</button><button class="homeLocaleDismiss" type="button" aria-label="${copy.close}">×</button></div>`;
     box.hidden = false;
     box.querySelectorAll('.homeLocaleDismiss').forEach(button => button.addEventListener('click', () => {
       write('tl_locale_dismissed', true);

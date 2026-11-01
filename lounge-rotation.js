@@ -38,9 +38,13 @@
   ];
 
   const currentUrl = new URL(window.location.href);
+  const liveToolsRoot = document.documentElement.dataset.liveToolsRoot || '';
+  const liveToolPages = new Set(['blind', 'domestic', 'desk', 'analysis', 'onchain', 'calendar', 'strategists']);
   function withVisitContext(value) {
     if (value.startsWith('#')) return value;
     const target = new URL(value, window.location.origin);
+    const toolPath = target.pathname.replace(/^\/+|\/+$/g, '');
+    if (liveToolsRoot && liveToolPages.has(toolPath)) target.pathname = `${liveToolsRoot}/${toolPath}/`;
     for (const key of ['internal', 'utm_source', 'utm_medium', 'utm_campaign']) {
       const current = currentUrl.searchParams.get(key);
       if (current && !target.searchParams.has(key)) target.searchParams.set(key, current);

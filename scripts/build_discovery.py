@@ -7,6 +7,7 @@ import json
 import re
 from pathlib import Path
 import sys
+from urllib.parse import urlsplit, urlunsplit
 from xml.etree.ElementTree import Element, SubElement, tostring
 from discovery_content import COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
@@ -21,7 +22,8 @@ NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', '
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
-               'site-campaign.js', 'blind-og-20261101.png']
+               'site-campaign.js', 'blind-og-20261101.png', 'lounge-rotation.js',
+               'live-home-locale.js']
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
@@ -47,14 +49,31 @@ REPORT_METADATA = [
      'Prof. Justin의 월간 시장 국면 판정과 최근 흐름을 확인하세요. 모형 판정은 단독 매수·매도 신호가 아니며, 판단 수치와 기준값은 공개하지 않습니다.'),
 ]
 
-def tool_page(classic, slug, selected, title, description):
-    """Serve the selected tool as HTML, with the same app and no redirect hop."""
+def tool_page(classic, slug, selected, title, description, lang='ko', live_tools=False):
+    """Serve one tab from the shared live-app shell, optionally under a locale route."""
+    route = live_app_url(lang, slug) if live_tools else ('/' + slug.rstrip('/') + '/' if slug else '/')
+    canonical = BASE + route
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
+    if live_tools:
+        text = text.replace('<html lang="ko">',
+                            f'<html lang="{lang}" data-live-tools-root="/{lang}/tools">', 1)
+        text = text.replace('<meta name="robots" content="index,follow">',
+                            '<meta name="robots" content="noindex,follow">', 1)
+        text = re.sub(r'(<summary[^>]*>)🌐\s*KO(</summary>)',
+                      lambda m: m.group(1) + '🌐 ' + lang.upper() + m.group(2), text, count=1)
+        text = text.replace("const path = slug ? `/${slug}/` : '/';",
+                            f"const path = slug ? `/{lang}/tools/${{slug}}/` : '/{lang}/tools/';", 1)
+        path_expression = "const pathSlug = location.pathname.replace(/^\\/+|\\/+$/g, '').replace(/\\/index\\.html$/, '');"
+        localized_path_expression = path_expression[:-1] + f".replace(/^{lang}\\/tools\\/?/, '');"
+        text = text.replace(path_expression, localized_path_expression, 1)
+        locale_js_version = sha256((ROOT / 'live-home-locale.js').read_bytes()).hexdigest()[:12]
+        text = text.replace('</head>',
+                            f'<script defer src="/live-home-locale.js?v={locale_js_version}"></script>\n</head>', 1)
     text = re.sub(r'<title>[^<]*</title>', f'<title>{e(title)}</title>', text, count=1)
     for attr, name, value in [('name', 'description', description),
                               ('property', 'og:title', title),
                               ('property', 'og:description', description),
-                              ('property', 'og:url', BASE+'/'+slug+'/')]:
+                              ('property', 'og:url', canonical)]:
         text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
     if slug == 'blind':
@@ -69,7 +88,44 @@ def tool_page(classic, slug, selected, title, description):
                       f'<meta name="twitter:image" content="{image}">\n'
                       f'<meta name="twitter:image:alt" content="{image_alt}">', text, count=1)
     text = text.replace(f'<link rel="canonical" href="{BASE}/">',
-                        f'<link rel="canonical" href="{BASE}/{slug}/">', 1)
+                        f'<link rel="canonical" href="{canonical}">', 1)
+
+    selected_slug = LIVE_TAB_SLUGS.get(selected, '')
+    def language_link(match):
+        tag = match.group(0)
+        target_lang = match.group(1)
+        tag = re.sub(r'href="[^"]*"',
+                     f'href="{e(live_app_url(target_lang, selected_slug), quote=True)}"', tag, count=1)
+        tag = re.sub(r'\s+aria-current="[^"]*"', '', tag)
+        if target_lang == lang:
+            tag = tag[:-1] + ' aria-current="page">'
+        return tag
+    text = re.sub(r'<a\b[^>]*\bdata-language="(ko|en|zh|ja)"[^>]*>',
+                  language_link, text)
+
+    route_slugs = {slug for slug in LIVE_TAB_SLUGS.values() if slug}
+    def localized_anchor(match):
+        tag = match.group(0)
+        if 'data-language=' in tag:
+            return tag
+        href = re.search(r'href="([^"]*)"', tag)
+        if not href:
+            return tag
+        parts = urlsplit(href.group(1))
+        if parts.scheme or parts.netloc:
+            return tag
+        path = parts.path.rstrip('/') or '/'
+        if path == '/':
+            new_path = live_app_url(lang, '')
+        elif path.strip('/') in route_slugs:
+            new_path = live_app_url(lang, path.strip('/'))
+        elif live_tools and lang != 'ko' and path.startswith('/ko/'):
+            new_path = f'/{lang}/' + path[len('/ko/'):]
+        else:
+            return tag
+        replacement = urlunsplit(('', '', new_path, parts.query, parts.fragment))
+        return tag[:href.start(1)] + replacement + tag[href.end(1):]
+    text = re.sub(r'<a\b[^>]*>', localized_anchor, text)
 
     def panel(match):
         tag, key, attrs = match.groups()
@@ -151,6 +207,92 @@ def locale_url(lang, page=''):
     if lang == 'ko' and not page:
         return '/'
     return url(lang, page)
+
+LIVE_TAB_SLUGS = {
+    'lounge':'', 'game':'blind', 'domestic':'domestic', 'desk':'desk',
+    'analysis':'analysis', 'chain':'onchain', 'macro':'calendar', 'chars':'strategists',
+}
+LIVE_PAGE_COPY = {
+    'en': {
+        '': ('Live market lounge | Tape Lounge', 'A live market lounge with price action, chart practice, market data and trader conversations.'),
+        'blind': ('Blind chart practice | Tape Lounge', 'Practice on historical stock and crypto charts with the same live lounge layout.'),
+        'domestic': ('Korean market desk | Tape Lounge', 'Compare Korean exchange prices, the local USDT basis and market observations.'),
+        'desk': ('Bitcoin futures desk | Tape Lounge', 'Review Bitcoin futures context, funding, open interest and order flow.'),
+        'analysis': ('Bitcoin chart analysis | Tape Lounge', 'Explore Bitcoin long-term channels and chart indicators.'),
+        'onchain': ('On-chain market view | Tape Lounge', 'Follow Bitcoin network activity and public on-chain indicators.'),
+        'calendar': ('Economic calendar | Tape Lounge', 'Review major economic releases and market context.'),
+        'strategists': ('Strategist reports | Tape Lounge', 'Read the public market observations and research notes.'),
+    },
+    'zh': {
+        '': ('实时行情大厅 | Tape Lounge', '在同一大厅查看行情、历史图表练习、市场数据与交易讨论。'),
+        'blind': ('盲图练习 | Tape Lounge', '在统一的大厅界面中，用历史美股和加密货币图表练习。'),
+        'domestic': ('韩国市场行情 | Tape Lounge', '比较韩国交易所价格、USDT价差与市场观察。'),
+        'desk': ('比特币合约行情台 | Tape Lounge', '查看比特币合约背景、资金费率、持仓量与订单流。'),
+        'analysis': ('比特币图表分析 | Tape Lounge', '查看比特币长期通道与图表指标。'),
+        'onchain': ('链上市场观察 | Tape Lounge', '查看比特币网络活动和公开链上指标。'),
+        'calendar': ('经济日历 | Tape Lounge', '查看重要经济数据发布与市场背景。'),
+        'strategists': ('策略师报告 | Tape Lounge', '阅读公开市场观察与研究记录。'),
+    },
+    'ja': {
+        '': ('ライブマーケットラウンジ | Tape Lounge', '相場、過去チャート練習、市場データ、トレーダーの会話を一つのラウンジで確認できます。'),
+        'blind': ('ブラインドチャート練習 | Tape Lounge', '同じラウンジ画面で、株式と暗号資産の過去チャートを練習できます。'),
+        'domestic': ('韓国市場デスク | Tape Lounge', '韓国取引所の価格、USDT価格差、市場観察を比較します。'),
+        'desk': ('ビットコイン先物デスク | Tape Lounge', 'ビットコイン先物の背景、資金調達率、建玉、注文フローを確認します。'),
+        'analysis': ('ビットコインチャート分析 | Tape Lounge', 'ビットコインの長期チャネルとチャート指標を確認します。'),
+        'onchain': ('オンチェーン市場ビュー | Tape Lounge', 'ビットコインネットワークの動きと公開オンチェーン指標を確認します。'),
+        'calendar': ('経済カレンダー | Tape Lounge', '主な経済指標の発表と市場の背景を確認します。'),
+        'strategists': ('ストラテジストレポート | Tape Lounge', '公開されている市場観察とリサーチ記録を読めます。'),
+    },
+}
+
+def live_app_url(lang, slug=''):
+    if lang == 'ko':
+        return '/' + (slug.rstrip('/') + '/' if slug else '')
+    return f'/{lang}/tools/' + (slug.rstrip('/') + '/' if slug else '')
+
+def prepare_classic_home():
+    """Prepare the shared lounge shell for the public root and tool entries."""
+    classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
+    classic, campaign_script_count = re.subn(
+        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
+        f'<script src="/site-campaign.js?v={VERSION}"></script>',
+        classic, count=1)
+    if campaign_script_count != 1:
+        raise ValueError('Could not refresh the social campaign script version in the lounge template')
+    classic, rotation_script_count = re.subn(
+        r'<script defer src="/?lounge-rotation\.js\?v=[^"]+"></script>',
+        f'<script defer src="/lounge-rotation.js?v={VERSION}"></script>',
+        classic, count=1)
+    if rotation_script_count != 1:
+        raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
+    write('classic-home.html', classic)
+
+    viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
+    if '<head>' not in classic or viewport not in classic:
+        raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
+    classic=classic.replace('<head>','<head>\n<base href="/">',1)
+    home_language_version=sha256((ROOT/'home-language.js').read_bytes()).hexdigest()[:12]
+    classic=classic.replace('</head>',f'<script defer src="/home-language.js?v={home_language_version}"></script>\n</head>',1)
+    classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
+    classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
+    return classic
+
+def build_live_tools_only():
+    """Regenerate the shared Korean live-lounge shell and its localized entries."""
+    classic=prepare_classic_home()
+    home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
+    localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
+    write('index.html',localized_home)
+    write('ko/index.html',localized_home)
+    for lang, pages_copy in LIVE_PAGE_COPY.items():
+        title, description = pages_copy['']
+        write(f'{lang}/tools/index.html',
+              tool_page(classic, '', 'lounge', title, description, lang=lang, live_tools=True))
+        for slug, selected, _, _ in TOOL_PAGES:
+            title, description = pages_copy[slug]
+            write(f'{lang}/tools/{slug}/index.html',
+                  tool_page(classic, slug, selected, title, description, lang=lang, live_tools=True))
+    return {'changed':True,'liveToolEntries':1+len(LIVE_PAGE_COPY)*(1+len(TOOL_PAGES))}
 
 def stage(value, lang):
     return STAGES.get(value, [value]*4)[list(LANGS).index(lang)]
@@ -268,27 +410,14 @@ def render(lang, page, data, letters, generated, root=False):
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.bithumb.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co wss://stream.binance.com:9443; frame-src https://challenges.cloudflare.com">
 <link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}">{kimchi_assets}<link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
 <body class="{'market-stage' if page=='' else ''}" data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
-<header class="masthead"><a class="wordmark" href="{url(lang)}" aria-label="Tape Lounge"><span class="brand-icon">t.</span><span>TAPE<span class="wordmark-light">LOUNGE</span><small>A PLACE TO READ THE MARKET.</small></span></a><nav class="primary-nav" aria-label="Navigation">{nav}</nav><div class="header-actions"><a class="terminal-link" href="/terminal/">{e(c['tools'])} ↗</a><details class="languages"><summary aria-label="Language">◎ {lang.upper()}</summary><div>{languages}</div></details></div></header>
+<header class="masthead"><a class="wordmark" href="{url(lang)}" aria-label="Tape Lounge"><span class="brand-icon">t.</span><span>TAPE<span class="wordmark-light">LOUNGE</span><small>A PLACE TO READ THE MARKET.</small></span></a><nav class="primary-nav" aria-label="Navigation">{nav}</nav><div class="header-actions"><a class="terminal-link" href="{live_app_url(lang)}">{e(c['tools'])} ↗</a><details class="languages"><summary aria-label="Language">◎ {lang.upper()}</summary><div>{languages}</div></details></div></header>
 <div id="locale-suggestion" hidden role="status"></div><main id="content"><div class="site-search"><label for="site-search">⌕ <span class="sr-only">{e(c['find'])}</span></label><input id="site-search" type="search" placeholder="{e(c['searchHint'])}" autocomplete="off" aria-controls="search-results"><span class="search-caption">MARKETS / IDEAS / PERSPECTIVES</span><div id="search-results" hidden></div></div>{body}</main>
 <footer><div class="footer-top"><a class="footer-brand" href="{url(lang)}">TAPE LOUNGE<span>{e(c['edition'])}</span></a><div>{link(url(lang,'research'),c['research'])}{link(url(lang,'about'),c['method'])}<a href="/{lang}/feed.xml">RSS ↗</a><a href="/data/discovery.json">Open data ↗</a></div></div><p>{e(c['disclaimer'])}</p><div class="footer-bottom"><span>© 2026 Tape Lounge</span><nav aria-label="Languages">{languages}</nav></div></footer></body></html>'''
 
 def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
-    classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
-    classic, campaign_script_count = re.subn(
-        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
-        f'<script src="/site-campaign.js?v={VERSION}"></script>',
-        classic, count=1)
-    if campaign_script_count != 1:
-        raise ValueError('Could not refresh the social campaign script version in the lounge template')
-    classic, rotation_script_count = re.subn(
-        r'<script defer src="/?lounge-rotation\.js\?v=[^"]+"></script>',
-        f'<script defer src="/lounge-rotation.js?v={VERSION}"></script>',
-        classic, count=1)
-    if rotation_script_count != 1:
-        raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
-    write('classic-home.html', classic)
+    classic=prepare_classic_home()
     inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
@@ -318,14 +447,6 @@ def build(force=False):
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
     # Keep the pre-redesign lounge as the public home while the hourly discovery
     # build refreshes localized research pages. The source snapshot is intentional.
-    viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
-    if '<head>' not in classic or viewport not in classic:
-        raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
-    classic=classic.replace('<head>','<head>\n<base href="/">',1)
-    home_language_version=sha256((ROOT/'home-language.js').read_bytes()).hexdigest()[:12]
-    classic=classic.replace('</head>',f'<script defer src="/home-language.js?v={home_language_version}"></script>\n</head>',1)
-    classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
-    classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
     localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
     write('index.html',localized_home)
@@ -334,6 +455,14 @@ def build(force=False):
     write('terminal/index.html',terminal)
     for slug, selected, title, description in TOOL_PAGES:
         write(slug+'/index.html', tool_page(classic, slug, selected, title, description))
+    for lang, pages_copy in LIVE_PAGE_COPY.items():
+        title, description = pages_copy['']
+        write(f'{lang}/tools/index.html',
+              tool_page(classic, '', 'lounge', title, description, lang=lang, live_tools=True))
+        for slug, selected, _, _ in TOOL_PAGES:
+            title, description = pages_copy[slug]
+            write(f'{lang}/tools/{slug}/index.html',
+                  tool_page(classic, slug, selected, title, description, lang=lang, live_tools=True))
     write('data/discovery.json',json.dumps({'schema':1,'sourceHash':fingerprint,'toolSourceHash':tool_hash,'toolUpdatedAt':tool_updated,'generatedAt':generated,'reportAt':data['reportAt'],'coverage':data['coverage'],'candidates':data['candidates'],'letters':letters,'copy':COPY,'stages':STAGES},ensure_ascii=False,separators=(',',':'))+'\n')
     sitemap=Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     root_entry=SubElement(sitemap,'url');SubElement(root_entry,'loc').text=BASE+'/'
@@ -414,7 +543,9 @@ def build_editorial_only():
     return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
 
 if __name__=='__main__':
-    if '--editorial-only' in sys.argv:
+    if '--live-tools-only' in sys.argv:
+        print(json.dumps(build_live_tools_only()))
+    elif '--editorial-only' in sys.argv:
         print(json.dumps(build_editorial_only()))
     else:
         print(json.dumps(build('--force' in sys.argv)))
