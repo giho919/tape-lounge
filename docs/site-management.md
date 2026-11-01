@@ -14,6 +14,9 @@ for five seconds or the visitor makes a first pointer, keyboard, wheel, touch or
 scroll interaction. Known crawlers, preview agents and WebDriver sessions are
 excluded client-side without storing their user-agent string. This is an
 engagement-qualified browser count, not independently verified human identity.
+Active time includes visible time leading up to the qualifying event and later
+foreground time; hidden-tab intervals are excluded. Historical activity totals
+from before this change omit that initial visible interval and understate dwell.
 Pre-change totals include immediate page loads and must not be compared as if
 the collection rule had been identical.
 

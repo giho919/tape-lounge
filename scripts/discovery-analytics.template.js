@@ -7,15 +7,16 @@ try{if(params.get('internal')==='1')localStorage.setItem('tapeInternal','1');els
 const automated=navigator.webdriver===true||/(?:googlebot|google-inspectiontool|googleother|google-agent|storebot-google|bingbot|duckduckbot|baiduspider|yandexbot|applebot|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|discordbot|telegrambot|whatsapp|redditbot|pinterestbot|ahrefsbot|semrushbot|mj12bot|bytespider|gptbot|claudebot|perplexitybot|crawler|spider|headlesschrome|phantomjs|lighthouse|pagespeed)/i.test(navigator.userAgent||'');
 const session=random(),page=document.body.dataset.page||'',entryTab=document.body.dataset.entryTab||'',validTabs=new Set(['lounge','desk','chain','macro','game','chars','domestic','analysis','learn','watch','research','about']),tab=validTabs.has(entryTab)?entryTab:page==='markets'?'domestic':page==='decision'?'game':page==='learn'||page.startsWith('learn/')?'learn':['watch','research','about'].includes(page)?page:page===''?'lounge':'chars';
 let input=performance.now(),last=input,hidden=document.hidden,ended=false,qualified=false,qualifyTimer=null;
+let qualificationVisibleSeconds=0,visibleSince=hidden?null:input;
 let ref=null;try{const h=new URL(document.referrer).hostname;if(h!==location.hostname)ref=h;}catch{}
 const campaign=window.TapeCampaign?.route(location.search)||{rpc:'record_site_activity',fields:{}};
 function send(seconds=0,view=false,keepalive=false){if(internal||automated)return;fetch('__PUBLIC_URL__/rest/v1/rpc/'+campaign.rpc,{method:'POST',keepalive,headers:{apikey:'__PUBLISHABLE_KEY__','Content-Type':'application/json'},body:JSON.stringify({p_visitor_id:id,p_session_id:session,p_tab:tab,p_active_seconds:Math.max(0,Math.min(60,Math.round(seconds))),p_is_view:view,p_referrer_host:ref,p_internal:false,...campaign.fields})}).catch(()=>{});}
-function qualify(){if(qualified||automated||hidden)return;qualified=true;clearTimeout(qualifyTimer);qualifyTimer=null;input=last=performance.now();send(0,true);}
+function qualify(){if(qualified||automated||hidden)return;const now=performance.now(),visibleSeconds=qualificationVisibleSeconds+(visibleSince===null?0:Math.max(0,(now-visibleSince)/1000));qualified=true;clearTimeout(qualifyTimer);qualifyTimer=null;qualificationVisibleSeconds=0;visibleSince=null;input=last=now;send(visibleSeconds,true);}
 function scheduleQualification(){if(qualified||automated||hidden||qualifyTimer!==null)return;qualifyTimer=setTimeout(()=>{qualifyTimer=null;qualify();},5000);}
 function flush(keepalive=false){const now=performance.now();if(qualified&&!hidden){const seconds=Math.max(0,(Math.min(now,input+300000)-last)/1000);if(seconds>=1)send(seconds,false,keepalive);}last=now;}
 ['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();qualify();},{capture:true,passive:true}));
 scheduleQualification();const timer=setInterval(()=>{if(qualified)flush();},60000);
-document.addEventListener('visibilitychange',()=>{flush(document.hidden);hidden=document.hidden;last=performance.now();if(hidden){clearTimeout(qualifyTimer);qualifyTimer=null;}else scheduleQualification();});
+document.addEventListener('visibilitychange',()=>{const now=performance.now();flush(document.hidden);if(!qualified){if(document.hidden){if(visibleSince!==null)qualificationVisibleSeconds+=Math.max(0,(now-visibleSince)/1000);visibleSince=null;}else visibleSince=now;}hidden=document.hidden;last=now;if(hidden){clearTimeout(qualifyTimer);qualifyTimer=null;}else scheduleQualification();});
 addEventListener('pagehide',()=>{if(ended)return;ended=true;flush(true);clearInterval(timer);clearTimeout(qualifyTimer);});
 addEventListener('pageshow',ev=>{if(ev.persisted)location.reload();});
 })();
