@@ -38,6 +38,14 @@ TOOL_PAGES = [
     ('strategists', 'chars', '크립토 전략가 리포트 · Tape Lounge',
      '정마담의 운용 장부, Andy의 종목 관찰과 Prof. Justin의 월간 시장 국면 판정을 확인하는 AI 전략가 리포트입니다.'),
 ]
+REPORT_METADATA = [
+    ('reports/andy_scan.html', 'Andy · 오늘의 스캔 — Tape Lounge',
+     'BTC 추세를 기준으로 코인 일봉·4시간봉을 훑어 돌파, 추세 지속, 바닥 반전과 눌림 지지 후보를 정리한 관찰 기록입니다. 실시간 매수 신호가 아닙니다.'),
+    ('reports/madam_daily.html', '鄭마담 · 운용 장부 — Tape Lounge',
+     'BTC와 금(PAXG)의 운용 기록을 과거 재현과 실제 체결로 구분해 보여줍니다. 가격 마커는 체결가가 아니며 두 구간을 하나의 실거래 성과로 합산하지 않습니다.'),
+    ('reports/justin_lab.html', 'Prof. Justin · 월간 소견서 — Tape Lounge',
+     'Prof. Justin의 월간 시장 국면 판정과 최근 흐름을 확인하세요. 모형 판정은 단독 매수·매도 신호가 아니며, 판단 수치와 기준값은 공개하지 않습니다.'),
+]
 
 def tool_page(classic, slug, selected, title, description):
     """Serve the selected tool as HTML, with the same app and no redirect hop."""
@@ -92,6 +100,47 @@ def write(path, text):
     temporary = target.with_suffix(target.suffix + '.tmp')
     temporary.write_text(text, encoding='utf-8', newline='\n')
     temporary.replace(target)
+
+def ensure_report_metadata():
+    changed = False
+    for path, title, description in REPORT_METADATA:
+        target = ROOT / path
+        text = target.read_text(encoding='utf-8')
+        original = text
+        canonical = BASE + '/' + path
+        tags = [
+            (r'<meta\s+name=["\']description["\'][^>]*>',
+             f"<meta name='description' content='{e(description, quote=True)}'>"),
+            (r'<meta\s+name=["\']robots["\'][^>]*>',
+             "<meta name='robots' content='index,follow'>"),
+            (r'<meta\s+property=["\']og:type["\'][^>]*>',
+             "<meta property='og:type' content='article'>"),
+            (r'<meta\s+property=["\']og:title["\'][^>]*>',
+             f"<meta property='og:title' content='{e(title, quote=True)}'>"),
+            (r'<meta\s+property=["\']og:description["\'][^>]*>',
+             f"<meta property='og:description' content='{e(description, quote=True)}'>"),
+            (r'<meta\s+property=["\']og:url["\'][^>]*>',
+             f"<meta property='og:url' content='{canonical}'>"),
+            (r'<meta\s+property=["\']og:image["\'][^>]*>',
+             f"<meta property='og:image' content='{BASE}/og.png'>"),
+            (r'<meta\s+name=["\']twitter:card["\'][^>]*>',
+             "<meta name='twitter:card' content='summary_large_image'>"),
+            (r'<link\s+rel=["\']canonical["\'][^>]*>',
+             f"<link rel='canonical' href='{canonical}'>"),
+        ]
+        missing = []
+        for pattern, tag in tags:
+            if re.search(pattern, text, flags=re.IGNORECASE):
+                text = re.sub(pattern, lambda _: tag, text, count=1, flags=re.IGNORECASE)
+            else:
+                missing.append(tag)
+        if missing:
+            if '</head>' not in text:
+                raise ValueError(f'Report has no closing head tag: {path}')
+            text = text.replace('</head>', '\n' + '\n'.join(missing) + '\n</head>', 1)
+        write(path, text)
+        changed |= text != original
+    return changed
 
 def url(lang, page=''):
     return f'/{lang}/' + (page.rstrip('/') + '/' if page else '')
@@ -203,10 +252,11 @@ def render(lang, page, data, letters, generated, root=False):
 
 def build(force=False):
     daily_changed=ensure_rounds(ROOT)
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + ASSETS + TOOL_ASSETS
+    report_metadata_changed=ensure_report_metadata()
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
-    if not force and not daily_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
+    if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
         return {'changed':False}
     data=read('data/andy-watch.json'); letters=read('reports/letters.json')
     generated=datetime.now(timezone.utc).isoformat()
