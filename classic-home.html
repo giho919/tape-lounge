@@ -3511,6 +3511,7 @@ function bgShowDailyOverlay() {
   const today = window.BlindDaily.dayKey();
   bgDailySelection = window.BlindDaily.selection(day);
   const stockRound = bgDailySelection.version === 2, marketName = stockRound ? '미국 주식' : '코인', unit = stockRound ? '거래일' : '일';
+  document.getElementById('bgSym').textContent = stockRound ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   let first = null;
   try { first = window.BlindDaily.read(localStorage,bgDailySelection.version).find(r => r.day === day); } catch {}
   let run = {days:0,playedToday:false};

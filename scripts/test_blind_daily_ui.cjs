@@ -40,12 +40,13 @@ function candles(url){
    await page.waitForFunction(()=>typeof bgMode!=='undefined'&&bgMode==='daily'&&bgCh);
    assert.ok((await page.locator('#bgOverBox').textContent()).includes(day));
    assert.equal(await page.locator('#bgTrackRow').isVisible(),false);
+   assert.equal(await page.locator('#bgSym').textContent(), selected.version===2 ? '❓ ??? · 미국 증시' : '❓ ??? / USDT');
    assert.equal(await page.locator('.blindModeBtn.on').getAttribute('data-m'),'daily');
    await page.locator('#bgOverBox .go').click();
    await page.waitForFunction(()=>bg?.gameMode==='daily');
    await page.evaluate(()=>{if(bg.playing)soloPauseToggle();});
    const round=await page.evaluate(()=>({day:bg.daily.day,sym:bg.sym,speed:bgSpeed,lev:bgLev,pct:bgPct,base:bg.base,total:bg.norm.length,visible:bgS.data().length,idx:bg.idx,osc:bgOsc.last.count,st:bgST.last.count,price:bg.norm[bg.base].close}));
-   assert.equal(round.day,day);assert.equal(round.sym,selected.symbol);assert.equal(round.total,1000);assert.equal(round.base,799);assert.equal(round.speed,4);assert.equal(round.lev,1);assert.equal(round.pct,25);assert.equal(round.price,100);
+   assert.equal(round.day,day);assert.equal(round.sym,selected.symbol);assert.equal(round.total,1000);assert.equal(round.base,799);assert.equal(round.speed,2);assert.equal(round.lev,1);assert.equal(round.pct,25);assert.equal(round.price,100);
    assert.equal(round.visible,round.idx+1);assert.equal(round.osc,round.visible);assert.equal(round.st,round.visible);
    const beforeWrites=await page.evaluate(()=>__tapeTestBlockedWrites);
    // Orders below execute only the local simulation branch.
