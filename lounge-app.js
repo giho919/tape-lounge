@@ -3277,7 +3277,7 @@ function paperRender() {
   $('pEquity').textContent = paper ? '$' + fmt(paperEquity()) : '$' + fmt(10000);
   $('paperBadge').textContent = paper
     ? `청산 ${paper.liquidations} · 파산 ${paper.refills} · 최고 $${fmt(paper.peak)}`
-    : '가짜 돈 $10,000';
+    : '가상 자금 $10,000';
 }
 // 실시간 시세가 청산가를 넘어서면 서버에 확정을 요청한다 (5초에 한 번까지)
 function paperTick(px) {
