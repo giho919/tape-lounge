@@ -160,6 +160,13 @@ in sync. Its search title and description are defined in `TOOL_PAGES`; keep thos
 keywords aligned with the visible US-stock/crypto historical-chart simulation. The
 lounge homepage keeps the separate general `og.png`.
 
+The three standalone strategist reports have their own canonical URL, description,
+index/follow, Open Graph and Twitter metadata. `scripts/build_discovery.py` repairs
+published report HTML during a static build; the Mirage `report_reading_room.py`
+generator also reapplies those fields whenever Andy, Madam or Justin is rendered.
+Keep descriptions aligned with the visible report and preserve the distinction
+between historical simulation, observation and confirmed live fills.
+
 The localized blind-chart explainer lives in `scripts/discovery_content.py`. Keep
 its hindsight and no-real-orders caveats accurate in every language; its publication
 date feeds the rendered byline, Article metadata, RSS and sitemap. The current game
