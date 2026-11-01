@@ -17,6 +17,9 @@
     '발표장':['Calendar','经济日历','経済カレンダー'], '전략가들':['Strategists','策略师','ストラテジスト'],
     '실시간 시세·청산·채팅이 흐르는 메인 화면':['Live prices, liquidations and conversation','实时行情、清算与讨论','価格・清算・会話のライブ画面'],
     '블라인드 — 종목명을 가린 실제 차트 맞히기':['Blind chart practice with the asset hidden','隐藏资产名称的盲图练习','銘柄名を伏せたチャート練習'],
+    '🎴 그때 나라면':['What would you have done?','如果当时是你？','あの時、自分なら？'],
+    '선택은 둘, 다음 5일은 직접 확인':['Two choices. Reveal the next five days.','二选一，揭晓之后五天。','選択は二つ。次の5日間を確認。'],
+    '판을 시작 →':['Take a seat →','开始这一局 →','ゲームを始める →'],
     '국내 시세·김프·관심 코인·Andy 후보':['Korean prices, premium, watchlist and Andy picks','韩国行情、溢价、自选与 Andy 观察','韓国価格・プレミアム・ウォッチリスト・Andy候補'],
     '데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서':['Futures trend, key levels, funding and order book','合约趋势、关键价位、资金费率与盘口','先物トレンド・重要水準・資金調達率・板情報'],
     '차트 분석 — BTC 장기 빗각과 선형 평행 채널':['BTC long-term channels and chart analysis','BTC 长期通道与图表分析','BTC長期チャネルとチャート分析'],
@@ -149,7 +152,13 @@
     }
   }
 
+  function refreshDecisionLinks() {
+    const target = ['en', 'zh', 'ja'].includes(lang) ? `/${lang}/decision/` : '/decision/';
+    for (const link of document.querySelectorAll('a[data-decision-link]')) link.setAttribute('href', target);
+  }
+
   refreshLanguageLinks();
+  refreshDecisionLinks();
   const tabList = document.querySelector('[role="tablist"]');
   if (tabList) new MutationObserver(refreshLanguageLinks).observe(tabList, {
     subtree: true, attributes: true, attributeFilter: ['aria-selected', 'class'],

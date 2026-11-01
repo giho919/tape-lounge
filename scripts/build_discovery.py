@@ -117,6 +117,8 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
         path = parts.path.rstrip('/') or '/'
         if path == '/':
             new_path = live_app_url(lang, '')
+        elif path == '/decision':
+            new_path = decision_url(lang)
         elif path.strip('/') in route_slugs:
             new_path = live_app_url(lang, path.strip('/'))
         elif live_tools and lang != 'ko' and path.startswith('/ko/'):
@@ -208,6 +210,29 @@ def locale_url(lang, page=''):
         return '/'
     return url(lang, page)
 
+DECISION_COPY = {
+    'ko': ('그때 나라면? BTC 의사결정 연습 게임 · Tape Lounge', '과거 BTC 차트의 한 장면에서 매수·대기·보유·청산을 선택하고 이후 흐름, 낙폭과 수수료를 함께 복기하는 교육용 모의 연습입니다.'),
+    'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice decisions on historical Bitcoin charts. Choose to enter, wait, hold or exit, then review the outcome, drawdown and fees.'),
+    'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中练习买入、等待、持有和卖出，并一起回顾后续走势、回撤和手续费。'),
+    'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', 'ビットコインの過去チャートで売買判断を練習し、その後の値動き、ドローダウン、手数料を振り返ります。'),
+}
+
+def decision_url(lang):
+    return '/decision/' if lang == 'ko' else f'/{lang}/decision/'
+
+def build_decision_pages():
+    template=(ROOT/'scripts/decision-template.html').read_text(encoding='utf-8')
+    alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+decision_url(lang)}">' for lang in LANGS)
+    alternates+=f'<link rel="alternate" hreflang="x-default" href="{BASE}/decision/">'
+    for lang in LANGS:
+        title,description=DECISION_COPY[lang]
+        page=(template.replace('__LANG__',lang).replace('__TITLE__',e(title))
+              .replace('__DESCRIPTION__',e(description,quote=True))
+              .replace('__CANONICAL__',BASE+decision_url(lang)).replace('__ALTERNATES__',alternates)
+              .replace('__ANALYTICS_VERSION__',VERSION))
+        write(decision_url(lang).strip('/')+'/index.html',page)
+    return {'pages':len(LANGS),'routes':[decision_url(lang) for lang in LANGS]}
+
 LIVE_TAB_SLUGS = {
     'lounge':'', 'game':'blind', 'domestic':'domestic', 'desk':'desk',
     'analysis':'analysis', 'chain':'onchain', 'macro':'calendar', 'chars':'strategists',
@@ -280,6 +305,7 @@ def prepare_classic_home():
 def build_live_tools_only():
     """Regenerate the shared Korean live-lounge shell and its localized entries."""
     classic=prepare_classic_home()
+    build_decision_pages()
     home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
     localized_home=classic.replace('</head>',home_alternates+'\n</head>',1)
     write('index.html',localized_home)
@@ -418,7 +444,7 @@ def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
     classic=prepare_classic_home()
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
@@ -463,6 +489,7 @@ def build(force=False):
             title, description = pages_copy[slug]
             write(f'{lang}/tools/{slug}/index.html',
                   tool_page(classic, slug, selected, title, description, lang=lang, live_tools=True))
+    build_decision_pages()
     write('data/discovery.json',json.dumps({'schema':1,'sourceHash':fingerprint,'toolSourceHash':tool_hash,'toolUpdatedAt':tool_updated,'generatedAt':generated,'reportAt':data['reportAt'],'coverage':data['coverage'],'candidates':data['candidates'],'letters':letters,'copy':COPY,'stages':STAGES},ensure_ascii=False,separators=(',',':'))+'\n')
     sitemap=Element('urlset',xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     root_entry=SubElement(sitemap,'url');SubElement(root_entry,'loc').text=BASE+'/'
@@ -470,6 +497,9 @@ def build(force=False):
     for slug, *_ in TOOL_PAGES:
         entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+'/'+slug+'/'
         SubElement(entry,'lastmod').text=tool_updated
+    for lang in LANGS:
+        entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+decision_url(lang)
+        SubElement(entry,'lastmod').text=generated[:10]
     for lang in LANGS:
         for page in pages:
             if lang=='ko' and page=='':continue
@@ -537,7 +567,7 @@ def build_editorial_only():
 
     data['copy']=COPY
     data['generatedAt']=generated
-    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS
     data['sourceHash']=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     write('data/discovery.json',json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
