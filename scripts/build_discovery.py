@@ -345,7 +345,15 @@ def write_live_home_pages(classic):
         f'<link rel="alternate" hreflang="{lang}" href="{BASE + locale_home_url(lang)}">'
         for lang in LANGS
     ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    korean_home = classic.replace('</head>', alternates + '\n</head>', 1)
+    site_schema = json.dumps({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Tape Lounge',
+        'alternateName': ['테이프라운지', 'tapelounge.com'],
+        'url': BASE + '/',
+    }, ensure_ascii=False, separators=(',', ':'))
+    site_schema_tag = f'<script type="application/ld+json">{site_schema}</script>'
+    korean_home = classic.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
     write('index.html', korean_home)
     write('ko/index.html', korean_home)
     for lang in LIVE_PAGE_COPY:

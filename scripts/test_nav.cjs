@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\n/g,'\n');
 const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
+const builder=fs.readFileSync(require.resolve('./build_discovery.py'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
 const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
@@ -40,6 +41,19 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
   assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${page} lang`);
   assert.ok(source.includes('/live-home-locale.js?v='),`${page} must translate dynamic live labels`);
  }
+});
+
+test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지한다',()=>{
+ const block=html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+ assert.ok(block,'canonical homepage must publish WebSite JSON-LD');
+ const schema=JSON.parse(block[1]);
+ assert.equal(schema['@type'],'WebSite');
+ assert.equal(schema.name,'Tape Lounge');
+ assert.equal(schema.url,'https://tapelounge.com/');
+ assert.deepEqual(schema.alternateName,['테이프라운지','tapelounge.com']);
+ const ko=fs.readFileSync(require.resolve('../ko/index.html'),'utf8');
+ assert.ok(ko.includes(block[0]),'the canonical Korean alias must carry the same site identity');
+ assert.ok(builder.includes("'@type': 'WebSite'")&&builder.includes('application/ld+json'),'the generator must preserve homepage structured data');
 });
 
 test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가로 시작한다',()=>{
