@@ -109,8 +109,56 @@
   const textMap = new Map(Object.entries(copy).map(([source, translations]) => [source, translations[langIndex] || translations[0]]));
   const liveToolsRoot = document.documentElement.dataset.liveToolsRoot;
   const liveToolPages = new Set(['blind', 'domestic', 'desk', 'analysis', 'onchain', 'calendar', 'strategists']);
+  const tabSlugs = {
+    lounge: '', game: 'blind', domestic: 'domestic', desk: 'desk',
+    analysis: 'analysis', chain: 'onchain', macro: 'calendar', chars: 'strategists',
+  };
+  const routeTabs = Object.fromEntries(Object.entries(tabSlugs).map(([tab, slug]) => [slug, tab]));
+  const preservedQuery = ['internal', 'utm_source', 'utm_medium', 'utm_campaign', 'asset', 'interval', 'tf', 'daily'];
+
+  function selectedTabSlug() {
+    const activeTab = document.querySelector('a[data-tab][aria-selected="true"], a[data-tab].on');
+    if (activeTab && Object.hasOwn(tabSlugs, activeTab.dataset.tab)) return tabSlugs[activeTab.dataset.tab];
+    const path = location.pathname.replace(/^\/+|\/+$/g, '').replace(/\/index\.html$/, '');
+    const route = path.replace(/^(?:en|zh|ja)\/tools\/?/, '');
+    return Object.hasOwn(routeTabs, route) ? route : '';
+  }
+
+  function localizedHref(targetLang) {
+    const slug = selectedTabSlug();
+    const pathname = targetLang === 'ko'
+      ? (slug ? `/${slug}/` : '/')
+      : `/${targetLang}/tools/${slug ? `${slug}/` : ''}`;
+    const target = new URL(pathname, location.origin);
+    const current = new URL(location.href);
+    for (const key of preservedQuery) {
+      if (current.searchParams.has(key)) target.searchParams.set(key, current.searchParams.get(key));
+    }
+    return target;
+  }
+
+  function refreshLanguageLinks() {
+    for (const link of document.querySelectorAll('a[data-language]')) {
+      if (['ko', 'en', 'zh', 'ja'].includes(link.dataset.language)) {
+        const target = localizedHref(link.dataset.language);
+        link.setAttribute('href', `${target.pathname}${target.search}`);
+      }
+    }
+  }
+
+  refreshLanguageLinks();
+  const tabList = document.querySelector('[role="tablist"]');
+  if (tabList) new MutationObserver(refreshLanguageLinks).observe(tabList, {
+    subtree: true, attributes: true, attributeFilter: ['aria-selected', 'class'],
+  });
 
   document.addEventListener('click', event => {
+    const languageLink = event.target.closest?.('a[data-language]');
+    if (languageLink && ['ko', 'en', 'zh', 'ja'].includes(languageLink.dataset.language)) {
+      const target = localizedHref(languageLink.dataset.language);
+      languageLink.setAttribute('href', `${target.pathname}${target.search}`);
+      return;
+    }
     const link = event.target.closest?.('a[href]');
     if (!link || !liveToolsRoot) return;
     try {
