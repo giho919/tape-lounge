@@ -30,6 +30,7 @@
 <script src="blind-daily.js?v=20261101a"></script>
 <script src="blind-daily-share.js?v=20261031b" defer></script>
 <script src="/site-campaign.js?v=df0adefd7918e"></script>
+<script defer src="/lounge-rotation.js?v=1"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -398,6 +399,30 @@ body.shake { animation:shake .5s; }
 .gbtn.sell.solid:hover { filter:brightness(1.1); color:#2a0a0a; }
 
 /* ═══ 세션 관전석 ═══ */
+.loungeRotation { position:relative; overflow:hidden; margin:0 0 12px; padding:15px 18px 12px; border:1px solid rgba(212,175,55,.34); border-radius:15px; background:radial-gradient(ellipse at 88% 0,rgba(212,175,55,.10),transparent 40%),linear-gradient(135deg,#15171c,#101218 68%,#11151a); box-shadow:inset 0 1px 0 rgba(255,255,255,.025); }
+.loungeRotation:after { content:'♠'; position:absolute; right:92px; top:-34px; color:rgba(212,175,55,.055); font:110px Georgia,serif; pointer-events:none; }
+.loungeRotationTop,.loungeRotationControls { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.loungeRotationTop { color:var(--gold); font:700 9px Menlo,monospace; letter-spacing:1.7px; }
+.loungeRotationCount { color:#8a805f; letter-spacing:.8px; }
+.loungeRotationMain { position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:18px; min-height:88px; padding:8px 0 7px; }
+.loungeRotationEyebrow { margin:0 0 5px; color:#bca44e; font:700 8px Menlo,monospace; letter-spacing:1.3px; }
+.loungeRotationTitle { margin:0; color:#f1eee4; font:700 clamp(17px,2.2vw,22px) Georgia,'Apple SD Gothic Neo',serif; letter-spacing:.1px; }
+.loungeRotationCopy { margin:6px 0 0; color:#9ba0a9; font-size:10.5px; line-height:1.65; }
+.loungeRotationLink { position:relative; z-index:2; display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 12px; border:1px solid rgba(212,175,55,.46); border-radius:8px; background:rgba(212,175,55,.08); color:#f1d776; font-size:10px; font-weight:800; white-space:nowrap; text-decoration:none; }
+.loungeRotationLink:hover { background:rgba(212,175,55,.16); border-color:var(--gold); }
+.loungeRotationLink:focus-visible,.loungeRotationControls button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.loungeRotationControls { min-height:23px; border-top:1px solid rgba(255,255,255,.055); padding-top:8px; }
+.loungeRotationDots,.loungeRotationButtons { display:flex; align-items:center; gap:6px; }
+.loungeRotationDots button,.loungeRotationButtons button { appearance:none; display:inline-grid; place-items:center; min-width:25px; height:22px; padding:0; border:1px solid transparent; border-radius:6px; background:transparent; color:#777b85; cursor:pointer; }
+.loungeRotationDots button { width:20px; min-width:20px; height:18px; }
+.loungeRotationDots button:before { content:''; width:5px; height:5px; border-radius:50%; background:#5d6068; transition:width .2s,background .2s; }
+.loungeRotationDots button[aria-pressed="true"]:before { width:13px; border-radius:5px; background:var(--gold); }
+.loungeRotationButtons button { font:700 12px Menlo,monospace; }
+.loungeRotationButtons button:hover { color:var(--gold); border-color:var(--gold-dim); }
+.loungeRotation.is-changing .loungeRotationMain { animation:loungeRotationIn .26s ease-out; }
+@keyframes loungeRotationIn { from { opacity:.35; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:620px) { .loungeRotation { padding:13px 13px 10px; } .loungeRotationMain { grid-template-columns:1fr; gap:9px; min-height:0; padding:9px 0; } .loungeRotationLink { width:max-content; min-height:32px; } .loungeRotationCopy { max-width:52ch; } }
+@media(prefers-reduced-motion:reduce) { .loungeRotation.is-changing .loungeRotationMain { animation:none; } .loungeRotationDots button:before { transition:none; } }
 .spectatorFloor { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
 .spectatorGrid { display:grid; grid-template-columns:1fr; gap:12px; }
 .spectatorCard { min-height:288px; }
@@ -783,6 +808,25 @@ body.shake { animation:shake .5s; }
 
 <!-- ═══════════ 라운지 탭 ═══════════ -->
 <div id="tab-lounge">
+<section class="loungeRotation" id="loungeRotation" aria-label="라운지 주요 기록" aria-roledescription="carousel">
+  <div class="loungeRotationTop"><span>AT THE TABLE</span><span class="loungeRotationCount" id="loungeRotationCount">01 / 03</span></div>
+  <div class="loungeRotationMain" id="loungeRotationMain" aria-live="off">
+    <div><p class="loungeRotationEyebrow" id="loungeRotationEyebrow">TODAY'S DEAL</p><h2 class="loungeRotationTitle" id="loungeRotationTitle">오늘의 판, 200일 버텨볼래?</h2><p class="loungeRotationCopy" id="loungeRotationCopy">종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.</p></div>
+    <a class="loungeRotationLink" id="loungeRotationLink" href="/blind/?daily=1">오늘의 판 열기 ↗</a>
+  </div>
+  <div class="loungeRotationControls">
+    <div class="loungeRotationDots" role="group" aria-label="라운지 정보 선택">
+      <button type="button" data-rotation-to="0" aria-label="오늘의 판" aria-pressed="true"></button>
+      <button type="button" data-rotation-to="1" aria-label="세션 챔피언십" aria-pressed="false"></button>
+      <button type="button" data-rotation-to="2" aria-label="Andy 관찰" aria-pressed="false"></button>
+    </div>
+    <div class="loungeRotationButtons" role="group" aria-label="라운지 정보 넘기기">
+      <button type="button" data-rotation-prev aria-label="이전 정보">‹</button>
+      <button type="button" data-rotation-toggle aria-label="자동 넘김 멈추기" aria-pressed="false">Ⅱ</button>
+      <button type="button" data-rotation-next aria-label="다음 정보">›</button>
+    </div>
+  </div>
+</section>
 <section class="spectatorFloor" aria-label="세션 관전석">
   <div class="panel sessionPanel" id="sessionPanel">
     <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 최근 한 바퀴 비교</small><b class="deckTrack" id="sessionBadge">LATEST</b></h3>

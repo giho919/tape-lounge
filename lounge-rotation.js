@@ -1,0 +1,160 @@
+(() => {
+  'use strict';
+
+  const root = document.getElementById('loungeRotation');
+  if (!root) return;
+
+  const eyebrow = document.getElementById('loungeRotationEyebrow');
+  const title = document.getElementById('loungeRotationTitle');
+  const copy = document.getElementById('loungeRotationCopy');
+  const link = document.getElementById('loungeRotationLink');
+  const count = document.getElementById('loungeRotationCount');
+  const main = document.getElementById('loungeRotationMain');
+  const dots = [...root.querySelectorAll('[data-rotation-to]')];
+  const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+  const slides = [
+    {
+      eyebrow: "TODAY'S DEAL",
+      title: '오늘의 판, 200일 버텨볼래?',
+      copy: '종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.',
+      link: '/blind/?daily=1',
+      label: '오늘의 판 열기 ↗',
+    },
+    {
+      eyebrow: 'SESSION CHAMPIONSHIP',
+      title: '세션마다 다른 판이 열립니다',
+      copy: '아시아·유럽·미국의 최근 회차를 같은 기준으로 비교합니다.',
+      link: '#sessionPanel',
+      label: '세션 기록 보기 ↓',
+    },
+    {
+      eyebrow: "ANDY'S WATCH",
+      title: 'Andy의 후보 관찰 기록',
+      copy: '돌파와 눌림이 어떻게 이어졌는지 공개된 기록에서 확인해 보세요.',
+      link: '/domestic/',
+      label: '관찰 목록 보기 ↗',
+    },
+  ];
+
+  const currentUrl = new URL(window.location.href);
+  function withVisitContext(value) {
+    if (value.startsWith('#')) return value;
+    const target = new URL(value, window.location.origin);
+    for (const key of ['internal', 'utm_source', 'utm_medium', 'utm_campaign']) {
+      const current = currentUrl.searchParams.get(key);
+      if (current && !target.searchParams.has(key)) target.searchParams.set(key, current);
+    }
+    return `${target.pathname}${target.search}${target.hash}`;
+  }
+
+  let active = 0;
+  let paused = reduceMotion;
+  let pointerInside = false;
+  let focusInside = false;
+  let andyRequested = false;
+
+  function show(index) {
+    active = (index + slides.length) % slides.length;
+    const item = slides[active];
+    main.classList.remove('is-changing');
+    void main.offsetWidth;
+    main.classList.add('is-changing');
+    eyebrow.textContent = item.eyebrow;
+    title.textContent = item.title;
+    copy.textContent = item.copy;
+    link.href = withVisitContext(item.link);
+    link.textContent = item.label;
+    count.textContent = `${String(active + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+    dots.forEach((dot, dotIndex) => dot.setAttribute('aria-pressed', String(dotIndex === active)));
+    root.dataset.current = String(active);
+    if (active === 2) loadAndy();
+  }
+
+  function updateDailyRound() {
+    try {
+      const daily = window.BlindDaily;
+      if (!daily) return;
+      const day = daily.dayKey();
+      const selection = daily.selection(day);
+      const market = selection.track === 'stock' ? '미국 주식' : '코인';
+      const date = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul', month: 'long', day: 'numeric',
+      }).format(new Date(`${day}T00:00:00+09:00`));
+      slides[0].eyebrow = `TODAY'S DEAL · ${date} · ${market}`;
+      slides[0].title = selection.track === 'stock' ? '오늘의 미국 주식 판, 200거래일' : '오늘의 판, 200일 버텨볼래?';
+      slides[0].copy = selection.track === 'stock'
+        ? '종목과 날짜를 가린 과거 주식 차트. 끝나면 같은 기간 보유와 비교합니다.'
+        : '종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.';
+      slides[0].link = daily.url(day, selection.version);
+      if (active === 0) show(active);
+    } catch { /* Keep the useful static invitation if local date or storage is unavailable. */ }
+  }
+
+  function loadAndy() {
+    if (andyRequested) return;
+    andyRequested = true;
+    fetch('/data/discovery.json', { cache: 'no-store' })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        const candidates = Array.isArray(data?.candidates) ? data.candidates.filter(item => item?.active) : [];
+        if (!candidates.length) return;
+        const daily = candidates.filter(item => item.timeframe === '1d').length;
+        const fourHour = candidates.filter(item => item.timeframe === '4h').length;
+        const support = candidates.filter(item => item.timeframe === '4h' && item.stage === '지지 확인').length;
+        const observedAt = data.reportAt ? new Intl.DateTimeFormat('ko-KR', {
+          timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric',
+        }).format(new Date(data.reportAt)) : '';
+        slides[2].eyebrow = `ANDY'S WATCH${observedAt ? ` · ${observedAt} 기준` : ''}`;
+        slides[2].title = `일봉 ${daily} · 4시간봉 ${fourHour}`;
+        slides[2].copy = support
+          ? `그중 ${support}종목은 4시간봉 지지 확인 단계. 공개된 관찰 기록을 이어 볼 수 있어요.`
+          : '돌파와 눌림이 어떻게 이어졌는지 공개된 기록에서 확인해 보세요.';
+        if (active === 2) show(active);
+      })
+      .catch(() => { /* The live lounge remains usable if the public summary is unavailable. */ });
+  }
+
+  function updatePauseButton() {
+    const button = root.querySelector('[data-rotation-toggle]');
+    if (!button) return;
+    button.textContent = paused ? '▶' : 'Ⅱ';
+    button.setAttribute('aria-pressed', String(paused));
+    button.setAttribute('aria-label', paused ? '자동 넘김 시작' : '자동 넘김 멈추기');
+  }
+
+  root.querySelector('[data-rotation-prev]')?.addEventListener('click', () => show(active - 1));
+  root.querySelector('[data-rotation-next]')?.addEventListener('click', () => show(active + 1));
+  root.querySelector('[data-rotation-toggle]')?.addEventListener('click', () => {
+    paused = !paused;
+    updatePauseButton();
+  });
+  dots.forEach((dot, index) => dot.addEventListener('click', () => show(index)));
+  root.addEventListener('pointerenter', () => { pointerInside = true; });
+  root.addEventListener('pointerleave', () => { pointerInside = false; });
+  root.addEventListener('focusin', () => { focusInside = true; });
+  root.addEventListener('focusout', event => {
+    if (!root.contains(event.relatedTarget)) focusInside = false;
+  });
+  document.addEventListener('visibilitychange', updatePauseButton);
+
+  const sessionObserver = new MutationObserver(() => {
+    const badge = document.getElementById('sessionBadge')?.textContent?.trim();
+    const summary = document.getElementById('sessionCopy')?.textContent?.trim();
+    if (!summary) return;
+    slides[1].eyebrow = badge && badge !== 'LATEST' ? `SESSION CHAMPIONSHIP · ${badge}` : 'SESSION CHAMPIONSHIP';
+    const leader = summary.match(/^([A-Z]+) 세션이 등락률 ([+-]?[0-9.]+%)/);
+    slides[1].title = leader ? `${leader[1]} 세션 ${leader[2]}` : '세션마다 다른 판이 열립니다';
+    slides[1].copy = summary || '아시아·유럽·미국의 최근 회차를 같은 기준으로 비교합니다.';
+    if (active === 1) show(active);
+  });
+  const sessionCopy = document.getElementById('sessionCopy');
+  if (sessionCopy) sessionObserver.observe(sessionCopy, { childList: true, characterData: true, subtree: true });
+
+  updateDailyRound();
+  show(0);
+  updatePauseButton();
+  window.setInterval(() => {
+    if (!paused && !pointerInside && !focusInside && !document.hidden && root.offsetParent !== null) show(active + 1);
+  }, 12000);
+})();

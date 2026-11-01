@@ -14,7 +14,7 @@ from blind_daily_stock_rounds import ensure_rounds
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
@@ -260,6 +260,12 @@ def build(force=False):
         classic, count=1)
     if campaign_script_count != 1:
         raise ValueError('Could not refresh the social campaign script version in the lounge template')
+    classic, rotation_script_count = re.subn(
+        r'<script defer src="/?lounge-rotation\.js\?v=[^"]+"></script>',
+        f'<script defer src="/lounge-rotation.js?v={VERSION}"></script>',
+        classic, count=1)
+    if rotation_script_count != 1:
+        raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
     write('classic-home.html', classic)
     inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
