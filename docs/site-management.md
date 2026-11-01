@@ -241,13 +241,23 @@ that delegates to the existing collector and attaches the first valid campaign
 to that visitor/session pair. It preserves the original function and its limits.
 Never store the full incoming URL or arbitrary UTM values.
 
+The decision-game share action builds a canonical URL from the current public
+language path and round identifier, then adds only the fixed
+`share` / `referral` / `decision_game` labels. It discards unrelated query values
+such as internal-access or prior campaign parameters. Decision pages load the
+campaign parser before analytics so these visits are recorded as shared-game
+referrals.
+
 Apply the recorded `add_site_campaign_attribution` migration before deploying the
 matching client. `supabase/site_campaign_analytics.sql` is its reviewed SQL snapshot,
 not an old-bootstrap replacement or an automatically replayed setup script. It
 adds nullable session labels, private aggregate views and an RLS-protected daily
 table. The later `allow_instagram_campaign_attribution` migration expands only the
 source allowlist; its reviewed SQL snapshot is
-`supabase/site_campaign_instagram_source.sql`. The existing maintenance job rolls
+`supabase/site_campaign_instagram_source.sql`. The
+`allow_decision_game_share_attribution` migration adds the single fixed share
+campaign pair; its reviewed snapshot is
+`supabase/site_campaign_direct_share.sql`. The existing maintenance job rolls
 campaigns before its raw-session purge; its owner, ACL, schedule and other actions
 are preserved. No public read access is added. The public anonymous write-only
 SECURITY DEFINER endpoint is intentional.

@@ -1,4 +1,6 @@
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 const campaign=require('../site-campaign.js');
 const query=(source,name,medium='social')=>new URLSearchParams({utm_source:source,utm_medium:medium,utm_campaign:name}).toString();
 for(const source of ['threads','x','twitter'])for(const name of campaign.topics){
@@ -12,6 +14,10 @@ for(const raw of ['',query('google','site_launch'),query('threads','private-secr
  assert.deepEqual(campaign.route(raw),{rpc:'record_site_activity',fields:{}});
 }
 assert.deepEqual(campaign.parse(query(' THREADS ',' ANDY_SCAN ')),{source:'threads',campaign:'andy_scan'});
+const shared=query('share','decision_game','referral');
+assert.deepEqual(campaign.parse(shared),{source:'share',campaign:'decision_game'});
+assert.deepEqual(campaign.route(shared),{rpc:'record_site_campaign_activity',fields:{p_campaign_source:'share',p_campaign_name:'decision_game'}});
+for(const raw of [query('share','decision_game'),query('threads','decision_game','referral'),query('share','site_launch','referral')]) assert.equal(campaign.parse(raw),null,raw);
 const link=new URL(campaign.tag('https://tapelounge.com/?chart=ETH&tf=4h&internal=1&room=PRIVATE&token=SECRET#loungeChart','threads','andy_scan_20261031'));
 assert.equal(link.origin,'https://tapelounge.com');
 assert.equal(link.searchParams.get('chart'),'ETH');assert.equal(link.searchParams.get('tf'),'4h');assert.equal(link.hash,'#loungeChart');
@@ -20,4 +26,8 @@ assert.equal([...link.searchParams.keys()].length,5);
 assert.equal(new URL(campaign.tag('https://tapelounge.com/blind/?daily=2026-10-31','x','daily_blind')).searchParams.get('daily'),'2026-10-31');
 for(const target of ['https://evil.example/','http://tapelounge.com/','https://tapelounge.com/ops/','https://user:pass@tapelounge.com/'])assert.throws(()=>campaign.tag(target,'threads','site_launch'));
 assert.throws(()=>campaign.tag('https://tapelounge.com/','threads','anything-private'));
+const decisionTemplate=fs.readFileSync(path.join(__dirname,'decision-template.html'),'utf8');
+assert.match(decisionTemplate,/<script defer src="\/site-campaign\.js\?v=__ANALYTICS_VERSION__"><\/script>\s*<script defer src="\/discovery-analytics\.js\?v=__ANALYTICS_VERSION__"><\/script>/);
+assert.match(decisionTemplate,/new URL\(location\.pathname,'https:\/\/tapelounge\.com'\)/);
+assert.match(decisionTemplate,/utm_source','share'.*utm_medium','referral'.*utm_campaign','decision_game'/);
 console.log('Owned campaign parsing, canonical labels, strict allowlists, separate RPC selection, safe deep links and private-query stripping passed.');

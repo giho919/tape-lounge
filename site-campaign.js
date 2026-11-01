@@ -2,7 +2,7 @@
 ((root) => {
   'use strict';
   const topics = ['andy_scan','kimchi_fx','session_championship','daily_blind','site_launch'];
-  const sources = ['threads','x','instagram'];
+  const socialSources = ['threads','x','instagram'];
   const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/blind/','/strategists/'];
   const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$/;
   const sourceName = value => value === 'twitter' ? 'x' : value;
@@ -15,7 +15,9 @@
     // Keep already-published blind-chart links attributable after the topic was
     // standardized to daily_blind; the database only receives the canonical label.
     campaign = campaign.replace(/^blind_chart_game(?=_|$)/, 'daily_blind');
-    if (!sources.includes(source) || medium !== 'social' || !campaignPattern.test(campaign)) return null;
+    const isSocial = socialSources.includes(source) && medium === 'social' && campaignPattern.test(campaign);
+    const isDirectShare = source === 'share' && medium === 'referral' && campaign === 'decision_game';
+    if (!isSocial && !isDirectShare) return null;
     return {source,campaign};
   }
   function route(search) {
