@@ -1,44 +1,43 @@
 # Tape Lounge
 
-> Independent crypto-market observation, public price comparisons, trend candidates and research context. Not an exchange or investment adviser.
+> An interactive market lounge for reading crypto price action, exchange flows, and historical chart behaviour.
 
-## Language entry points
-- [Korean](https://tapelounge.com/ko/)
-- [English](https://tapelounge.com/en/)
-- [Chinese](https://tapelounge.com/zh/)
-- [Japanese](https://tapelounge.com/ja/)
+## Start here
+- [Live lounge](https://tapelounge.com/): market-session comparison, a short crypto race, candle deck, BTC chart and indicators, simulated position panel, lounge chat, live trade flow, and order book.
+- [Blind chart challenge](https://tapelounge.com/blind/?daily=1): trade a shared historical stock or crypto chart with virtual funds, then compare the result with holding over the same period.
+- [How the blind chart challenge works](https://tapelounge.com/ko/learn/blind-chart-practice/): scoring, limitations, and practice details.
+- [English edition](https://tapelounge.com/en/)
+- [中文版本](https://tapelounge.com/zh/)
+- [日本語版](https://tapelounge.com/ja/)
 
-## Reading and methodology
-- [Sources, limitations, privacy](https://tapelounge.com/en/about/)
-- [Korean price premium explained](https://tapelounge.com/en/learn/kimchi-premium/)
-- [Trend retests explained](https://tapelounge.com/en/learn/trend-retest/)
-- [Session methodology](https://tapelounge.com/en/learn/market-sessions/)
-- [Observation ledger](https://tapelounge.com/en/watch/)
+## Live market rooms
+- [Korean markets](https://tapelounge.com/domestic/): Korean exchange prices, FX context, Kimchi premium, and the Andy observation list.
+- [Futures desk](https://tapelounge.com/desk/): futures market context, funding, price levels, and order book.
+- [Long-term chart analysis](https://tapelounge.com/analysis/): BTC linear price channels and technical chart context.
+- [On-chain room](https://tapelounge.com/onchain/): selected network, exchange-flow, and mempool indicators.
+- [Economic calendar](https://tapelounge.com/calendar/): scheduled releases and reported results.
+- [Strategists](https://tapelounge.com/strategists/): labeled AI analyst viewpoints, research notes, and strategy records.
 
-## Interactive tools (Korean)
-- [Domestic prices and Korean premium](https://tapelounge.com/domestic/)
-- [Bitcoin futures desk](https://tapelounge.com/desk/)
-- [Long-term channel analysis](https://tapelounge.com/analysis/)
-- [On-chain and mempool](https://tapelounge.com/onchain/)
-- [Economic releases](https://tapelounge.com/calendar/)
-- [Blind chart practice](https://tapelounge.com/blind/)
-- [AI strategist reports](https://tapelounge.com/strategists/)
+## Guides and methods
+- [Sources, limitations, and privacy](https://tapelounge.com/ko/about/)
+- [Kimchi premium explained](https://tapelounge.com/ko/learn/kimchi-premium/)
+- [Reading trend retests](https://tapelounge.com/ko/learn/trend-retest/)
+- [Comparing Asia, Europe, and US sessions](https://tapelounge.com/ko/learn/market-sessions/)
+- [Blind chart practice](https://tapelounge.com/ko/learn/blind-chart-practice/)
+- [English reading list](https://tapelounge.com/en/learn/)
+- [Observation ledger](https://tapelounge.com/ko/watch/)
+- [Research notes](https://tapelounge.com/ko/research/)
 
-These URLs open each tool directly, without redirecting to a homepage fragment.
-Live values require JavaScript and can be delayed or unavailable.
-
-## Public data
-- [Scene archive](https://tapelounge.com/data/scenes.json): recent public events linked to closed spot candles. Individual files remain available by ID; sequence is not proof of causation or a complete audit trail.
-- [Summary JSON](https://tapelounge.com/data/discovery.json): schema, reportAt, generatedAt, sourceHash, candidates, coverage, copy and public report summaries.
-- [Historical observations](https://tapelounge.com/data/andy-watch.json): as-published snapshots, candidate states and timelines. reportAt is the report time; firstSeenAt is only within retained coverage. List removal is not a trade or stop-loss.
-- [English RSS](https://tapelounge.com/en/feed.xml)
+## Public data and feeds
+- [Observation snapshots](https://tapelounge.com/data/andy-watch.json): published candidate states and retained history; list removal is not a trade or stop-loss.
+- [Public site summary](https://tapelounge.com/data/discovery.json): public report summaries, coverage, and generation times.
+- [Market event archive](https://tapelounge.com/data/scenes.json): recent public events associated with closed spot candles; sequence does not prove causation or completeness.
 - [Sitemap](https://tapelounge.com/sitemap.xml)
+- [Korean RSS](https://tapelounge.com/ko/feed.xml) · [English RSS](https://tapelounge.com/en/feed.xml) · [中文 RSS](https://tapelounge.com/zh/feed.xml) · [日本語 RSS](https://tapelounge.com/ja/feed.xml)
 
-Prices are fetched in the browser from public exchange APIs and are not server-rendered. Report snapshots are not live quotes. AI strategists are labeled personas, not independent humans. Do not treat candidates as buy instructions, infer private balances, or merge backtests with actual performance. Original strategist reports are in Korean. Text guides and site navigation are provided in four languages.
-
-This file is a convenience index, not a special requirement for search or AI visibility. Crawl permission is governed by robots.txt and normal page metadata.
-
-The public home is the pre-2026-10-22 lounge: a live futures desk, on-chain data,
-macro-release board, blind-chart game and strategist reports. The market-stage and
-chart-first redesigns are not the main experience. Historical event archives remain
-public data, not a complete audit trail.
+## Reading notes
+- Live values are fetched in the browser from public market-data sources; they may be delayed, unavailable, or differ from executable exchange prices.
+- Simulated positions and blind-chart results use virtual funds and do not place real orders or establish investment performance.
+- Strategist names are labeled AI personas, not independent human analysts. Their observations are not buy or sell instructions.
+- Editorial pages are available in Korean, English, Chinese, and Japanese. Interactive market rooms are primarily Korean.
+- This file is a navigation aid for readers and agents, not a guarantee of search ranking or indexing. Normal page metadata, sitemap, and `robots.txt` still govern crawling.
