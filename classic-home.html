@@ -3049,22 +3049,25 @@ function buildRace() {
   });
 }
 function raceValues() {
-  return RACE_COINS.map(sym => ({sym, pct:race[sym].start && race[sym].last ? (race[sym].last/race[sym].start-1)*100 : 0})).sort((a,b)=>b.pct-a.pct);
+  return RACE_COINS.map(sym => ({sym, pct:Number.isFinite(race[sym].start) && race[sym].start > 0 && Number.isFinite(race[sym].last) ? (race[sym].last/race[sym].start-1)*100 : null})).sort((a,b)=>(b.pct ?? -Infinity)-(a.pct ?? -Infinity));
 }
 function renderRace() {
-  const vals = raceValues(), maxAbs = Math.max(.05,...vals.map(x=>Math.abs(x.pct)));
+  const vals = raceValues(), ready = vals.filter(v=>Number.isFinite(v.pct)), maxAbs = Math.max(.05,...ready.map(x=>Math.abs(x.pct)));
   vals.forEach((v, rank) => {
     const row = document.querySelector(`.raceRow[data-sym="${v.sym}"]`); if (!row) return;
-    row.style.order = rank; row.classList.toggle('leader', rank === 0); row.querySelector('.raceRunner').style.left = (5 + (v.pct/maxAbs+1)*43) + '%';
-    const pct = row.querySelector('.racePct'); pct.textContent = (v.pct>=0?'+':'') + v.pct.toFixed(2) + '%'; pct.className = 'racePct num ' + (v.pct>=0?'up':'dn');
+    row.style.order = rank; row.classList.toggle('leader', ready.length > 0 && v === ready[0]);
+    const runner = row.querySelector('.raceRunner'), pct = row.querySelector('.racePct');
+    if (!Number.isFinite(v.pct)) { runner.style.left = '50%'; pct.textContent = '—'; pct.className = 'racePct num'; return; }
+    runner.style.left = (5 + (v.pct/maxAbs+1)*43) + '%';
+    pct.textContent = (v.pct>=0?'+':'') + v.pct.toFixed(2) + '%'; pct.className = 'racePct num ' + (v.pct>=0?'up':'dn');
   });
-  if (!Object.values(race).some(x=>x.start)) {
-    $('raceLeader').textContent = '출발 준비';
+  if (!ready.length) {
+    $('raceLeader').textContent = '시세 연결 중';
     $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
     return;
   }
-  const lead = vals[0];
-  const spread = lead.pct - vals[1].pct;
+  const lead = ready[0];
+  const spread = lead.pct - (ready[1]?.pct ?? lead.pct);
   $('raceLeader').textContent = `${lead.sym} 선두 · 격차 ${spread.toFixed(2)}%p`;
   $('raceClock').textContent = mmss(raceRoundEnd-Date.now());
 }
