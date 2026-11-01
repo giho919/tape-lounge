@@ -377,10 +377,13 @@
     if (dailyStreak) return lang === 'en' ? `Round complete · ${dailyStreak[1]}-day streak`
       : lang === 'zh' ? `今日完成 · 连续 ${dailyStreak[1]} 天` : `本日完走・${dailyStreak[1]}日連続`;
     const pendingStreak = value.match(/^(♠ )?어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.$/);
-    if (pendingStreak) return lang === 'en'
-      ? `${pendingStreak[1] || ''}Through yesterday: ${pendingStreak[2]} days in a row · finish today to keep it going.`
+    if (pendingStreak) {
+      const dayCount = Number(pendingStreak[2]), dayWord = dayCount === 1 ? 'day' : 'days';
+      return lang === 'en'
+      ? `${pendingStreak[1] || ''}Through yesterday: ${dayCount} ${dayWord} in a row · finish today to keep it going.`
       : lang === 'zh' ? `${pendingStreak[1] || ''}截至昨天已连续 ${pendingStreak[2]} 天 · 完成今天即可延续。`
         : `${pendingStreak[1] || ''}昨日まで${pendingStreak[2]}日連続・今日完走で記録が続きます。`;
+    }
     const dailyMarket = value.match(/^(\d{4}-\d{2}-\d{2}) · (미국 주식|코인)$/);
     if (dailyMarket) {
       const market = dailyMarket[2] === '미국 주식'
