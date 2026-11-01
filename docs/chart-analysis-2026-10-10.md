@@ -55,3 +55,11 @@
 - Updated both linear SVG live-price markers, the report's current-week row and snapshot time, and the chart cache key across pages.
 - The analysis tab now links to a timestamped copy of this report so a cached prior report cannot hide the refreshed quote.
 - Historical anchors, slope, channel spacing and the separate 75k reference remain unchanged. The lounge Market Context carousel remains removed.
+
+
+## Snapshot refresh — 2026-11-01 11:28 KST
+
+- Binance Spot BTC/USDT: $77,737.47; current weekly candle (opened 2026-10-26) O $80,154.09 / H $81,971.00 / L $76,325.98.
+- Updated the live price guide and in-progress candle body on both linear channel charts; preserved the fixed 2018/2022 low anchors, 2021 width reference, 13 rails, and the separate $75k horizontal reference.
+- Kept the 11:16 snapshot assets intact and linked the current chart/report to timestamped 11:28 assets.
+- The lounge Market Context carousel was already absent from the public lounge; no duplicate removal was needed.
