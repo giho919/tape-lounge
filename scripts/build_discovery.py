@@ -17,6 +17,25 @@ from frontend_config import read_public_config
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
+HOME_OG_VERSION = '20261102'
+HOME_OG_ALT = {
+    'ko': '이름과 날짜를 숨긴 과거 미국 주식·비트코인 차트에서 가상 매매를 연습하고 보유 결과와 비교하는 Tape Lounge',
+    'en': 'Practice virtual trades on historical US stock and Bitcoin charts with the ticker and date hidden, then compare with holding on Tape Lounge',
+    'zh': '在隐藏标的和日期的美股与比特币历史图表上进行虚拟交易练习，并与持有结果比较',
+    'ja': '銘柄と日付を隠した米国株・ビットコインの過去チャートで仮想売買を練習し、保有結果と比べるTape Lounge',
+}
+BLIND_OG_ALT = {
+    'ko': HOME_OG_ALT['ko'],
+    'en': HOME_OG_ALT['en'],
+    'zh': HOME_OG_ALT['zh'],
+    'ja': HOME_OG_ALT['ja'],
+}
+TOOL_OG_ALT = {
+    'ko': 'Tape Lounge 실시간 시장 정보와 차트 분석 화면',
+    'en': 'Live market information and chart analysis at Tape Lounge',
+    'zh': 'Tape Lounge 实时行情与图表分析页面',
+    'ja': 'Tape Loungeのリアルタイム相場情報とチャート分析',
+}
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-02'
 WATCH_PAGE_UPDATED = '2026-11-02'
@@ -80,15 +99,27 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
     if slug == 'blind':
         image = BASE + '/blind-og-20261101.png?v=20261101a'
-        image_alt = '종목과 날짜를 숨긴 과거 차트 모의 매매 게임'
+        image_alt = BLIND_OG_ALT[lang]
+    elif live_tools and not slug:
+        image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
+        image_alt = HOME_OG_ALT[lang]
+    elif slug:
+        image = BASE + '/og.png'
+        image_alt = TOOL_OG_ALT[lang]
+    else:
+        image = None
+        image_alt = None
+    if image:
         text = re.sub(r'<meta property="og:image" content="[^"]*">',
                       f'<meta property="og:image" content="{image}">', text, count=1)
-        text = text.replace('<meta property="og:image:width" content="1200">',
-                            '<meta property="og:image:width" content="1200">\n'
-                            f'<meta property="og:image:alt" content="{image_alt}">', 1)
+        text = re.sub(r'<meta property="og:image:alt" content="[^"]*">',
+                      lambda _: f'<meta property="og:image:alt" content="{e(image_alt, quote=True)}">',
+                      text, count=1)
         text = re.sub(r'<meta name="twitter:image" content="[^"]*">',
-                      f'<meta name="twitter:image" content="{image}">\n'
-                      f'<meta name="twitter:image:alt" content="{image_alt}">', text, count=1)
+                      f'<meta name="twitter:image" content="{image}">', text, count=1)
+        text = re.sub(r'<meta name="twitter:image:alt" content="[^"]*">',
+                      lambda _: f'<meta name="twitter:image:alt" content="{e(image_alt, quote=True)}">',
+                      text, count=1)
     text = text.replace(f'<link rel="canonical" href="{BASE}/">',
                         f'<link rel="canonical" href="{canonical}">', 1)
 

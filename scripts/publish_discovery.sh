@@ -10,7 +10,7 @@ cleanup() {
 }
 trap cleanup EXIT
 stage_public_files() {
-  git add -- index.html ko en zh ja terminal/index.html domestic/index.html desk/index.html analysis/index.html onchain/index.html calendar/index.html blind/index.html strategists/index.html decision/index.html en/decision/index.html zh/decision/index.html ja/decision/index.html decision-og-ko-20261101.png decision-og-en-20261101.png decision-og-zh-20261101.png decision-og-ja-20261101.png reports/andy_scan.html reports/madam_daily.html reports/justin_lab.html sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js classic-home.html home-language.js lounge-rotation.js live-home-locale.js avatars/madam.jpg avatars/andy.jpg avatars/prof.jpg
+  git add -- index.html ko en zh ja terminal/index.html domestic/index.html desk/index.html analysis/index.html onchain/index.html calendar/index.html blind/index.html strategists/index.html decision/index.html en/decision/index.html zh/decision/index.html ja/decision/index.html decision-og-ko-20261101.png decision-og-en-20261101.png decision-og-zh-20261101.png decision-og-ja-20261101.png home-og-ko-20261102.png home-og-en-20261102.png home-og-zh-20261102.png home-og-ja-20261102.png reports/andy_scan.html reports/madam_daily.html reports/justin_lab.html sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js classic-home.html home-language.js lounge-rotation.js live-home-locale.js avatars/madam.jpg avatars/andy.jpg avatars/prof.jpg
   # Keep the active day's game payload available, but never publish future answers early.
   git add -u -- reports/blind_daily_stock_v2/
   local today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
@@ -32,6 +32,7 @@ git -C "$publish_dir" checkout -q -B discovery-build origin/main
 git -C "$publish_dir" config user.name 'Salon Bot'
 git -C "$publish_dir" config user.email salon-bot@mirage
 cd "$publish_dir"
+python3 scripts/generate_home_og.py
 python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
 python3 scripts/build_discovery.py
 stage_public_files
@@ -61,6 +62,7 @@ for attempt in 1 2 3; do
     echo 'Publish rebase conflicted with newer main; the next hourly run will retry.' >&2
     exit 1
   fi
+  python3 scripts/generate_home_og.py
   python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
   python3 scripts/build_discovery.py
   stage_public_files
