@@ -115,6 +115,8 @@ canvas { display:block; }
 .rainlbl { position:absolute; bottom:8px; font-size:10px; letter-spacing:2px; color:var(--dim); z-index:4; }
 
 #feed { flex:1; overflow-y:auto; overflow-anchor:none; padding:12px 16px; display:flex; flex-direction:column; gap:10px; min-height:0; scrollbar-width:thin; }
+.chatEmpty { margin:auto; max-width:360px; padding:18px 20px; border:1px dashed var(--line); border-radius:10px; background:rgba(18,21,28,.65); color:var(--dim); text-align:center; font-size:12px; line-height:1.65; }
+.chatEmpty strong { display:block; margin-bottom:5px; color:var(--gold); font-size:13px; letter-spacing:.4px; }
 .msg { flex-shrink:0; overflow-wrap:anywhere; font-size:13px; line-height:1.55; animation:fadein .4s; }
 .chatTime { float:right; margin:3px 0 2px 9px; color:#929aa9; font:10px Menlo,monospace; }
 #chatJump { align-self:center; margin:4px 12px 8px; padding:7px 15px; border:1px solid var(--gold-dim); border-radius:20px; background:rgba(212,175,55,.08); color:var(--gold); font-size:11px; cursor:pointer; }
@@ -2666,8 +2668,21 @@ window.chatSend = chatSend;
 let chatChannel = null, chatChannelSeq = 0;
 const chatRows = new Map();
 let chatArrivalSequence = 0, chatHistoryGeneration = 0;
+const CHAT_RECENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+function chatRowIsRecent(row) {
+  const created = Date.parse(row?.created_at || '');
+  return Number.isFinite(created) && created >= Date.now() - CHAT_RECENT_WINDOW_MS;
+}
+function renderChatEmptyState() {
+  const empty = document.createElement('div');
+  empty.className = 'chatEmpty';
+  empty.setAttribute('role', 'status');
+  empty.innerHTML = '<strong>최근 대화가 없어요</strong><span>오늘 시장에서 눈에 들어온 장면을 먼저 남겨보세요.</span>';
+  return empty;
+}
 function renderChatRow(row) {
-  if (!row || row.id == null || chatRows.has(String(row.id))) return;
+  if (!row || row.id == null || !chatRowIsRecent(row) || chatRows.has(String(row.id))) return;
+  feed.querySelector('.chatEmpty')?.remove();
   chatRows.set(String(row.id), {row, sequence:++chatArrivalSequence});
   while (chatRows.size > 120) chatRows.delete(chatRows.keys().next().value);
   sayUser(row.nick, row.body, row.author_type, row.agent_key, row.created_at, row.id);
@@ -2676,20 +2691,20 @@ async function loadChatHistory() {
   if (!sbc) return;
   const generation = ++chatHistoryGeneration, startedSequence = chatArrivalSequence;
   try {
-    const { data, error } = await sbc.from('salon_chat').select('*').order('id', { ascending: false }).limit(60);
+    const { data, error } = await sbc.from('salon_chat').select('id,created_at,nick,body,author_type,agent_key').gte('created_at', new Date(Date.now() - CHAT_RECENT_WINDOW_MS).toISOString()).order('id', { ascending: false }).limit(60);
     if (generation !== chatHistoryGeneration) return;
     if (error) throw error;
     // Keep INSERTs received during the history request, but remove deleted old rows.
     const merged = new Map((data || []).map(row => [String(row.id), row]));
     chatRows.forEach(({row,sequence}, key) => { if (sequence > startedSequence) merged.set(key,row); });
-    const rows = [...merged.values()].sort((a,b) => Number(a.id) - Number(b.id)).slice(-60);
+    const rows = [...merged.values()].filter(chatRowIsRecent).sort((a,b) => Number(a.id) - Number(b.id)).slice(-60);
     const view = chatViewport();
     chatRows.clear();
     const nodes = rows.map(row => {
       chatRows.set(String(row.id), {row,sequence:chatArrivalSequence});
       return sayUser(row.nick,row.body,row.author_type,row.agent_key,row.created_at,row.id,false);
     });
-    feed.replaceChildren(...nodes);
+    feed.replaceChildren(...(nodes.length ? nodes : [renderChatEmptyState()]));
     restoreChatViewport(view);
     $('chatConnection').textContent = '실시간 · 한국시간';
   } catch (error) {
