@@ -38,7 +38,7 @@ const root=path.resolve(__dirname,'..');
   assert.equal(await page.locator('.loungeGuide').count(),0,'lounge guide must stay absent');
   assert.equal(await page.locator('#highlightList,#towerLong,#jackpotCard').count(),0,'removed lounge panels must stay absent');
   assert.equal(await page.locator('#pitStage,.rooms').count(),0,'short-term pit boss and duplicate room links stay removed');
-  assert.equal(await page.locator('#marketContext,.marketContext,.contextDot').count(),0,'removed market context carousel must stay absent');
+  assert.equal(await page.locator('#marketContext,.marketContext,.contextDot,.strip,#btcUsd,#kimchi,#fngGauge,#usdKrw,#usdtKrwPx,#dom,#fund').count(),0,'lounge market context tiles must stay absent');
   assert.ok(await page.locator('#raceRows').count(),'coin race remains available');
   // The no-socket smoke path cannot exercise the race after its first quote.
   // Feed deterministic prices so a live-ticker-only exception cannot pass again.

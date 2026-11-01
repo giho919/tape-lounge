@@ -91,16 +91,6 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .languageOptions a:hover,.languageOptions a:focus-visible { outline:none; color:var(--gold); background:rgba(212,175,55,.09); }
 .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--grn); margin-right:5px; animation:blink 2s infinite; }
 @keyframes blink { 50% { opacity:.3; } }
-
-.strip { display:grid; grid-template-columns:1.15fr 1.35fr 1.35fr repeat(4,1fr); gap:9px; padding:14px 0; }
-.tile { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 15px; }
-.tile .l { font-size:10px; letter-spacing:2px; color:var(--dim); }
-.tile .v { font-size:clamp(14px,1.4vw,20px); margin-top:4px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tile .s { font-size:11px; color:var(--dim); margin-top:2px; }
-.gaugeTile { display:flex; gap:8px; align-items:center; padding:8px 10px; }
-.gaugeTile canvas { flex:0 0 112px; width:112px; height:auto; }
-.gaugeTile .v { font-size:17px; }
-@media(max-width:1100px){.strip{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .up { color:var(--grn); } .dn { color:var(--red); } .gold { color:var(--gold); }
 
 .main { display:grid; grid-template-columns:2.1fr 1fr; gap:12px; align-items:stretch; }
@@ -519,15 +509,7 @@ body.shake { animation:shake .5s; }
 .studyCalls { max-height:120px; overflow:auto; margin-top:10px; text-align:left; }.studyCallRow { padding:6px 0; border-bottom:1px solid var(--line); font-size:9.5px; color:var(--dim); }.studyCallRow b { color:#d8dce5; }.studyCallRow em { color:var(--gold); font-style:normal; }
 @media(max-width:760px){
   .wrap{padding:0 10px calc(70px + env(safe-area-inset-bottom))}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}
-  .strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tile{padding:10px}.gaugeTile{padding:7px 8px;gap:4px}.gaugeTile canvas{flex-basis:92px;width:92px}.main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
-  /* 모바일 시세 스트립 — 7개 타일이 같은 무게로 4줄을 먹던 것을 위계에 맞게 재배치.
-     BTC는 전폭으로 키우고, 보조 지표 4개(환율·도미넌스·펀딩)는 촘촘하게 접는다. */
-  .strip .tile:first-child{grid-column:1/-1}
-  .strip .tile:first-child .v{font-size:26px}
-  .strip .tile:nth-child(n+4){padding:8px 10px}
-  .strip .tile:nth-child(n+4) .l{font-size:9px;letter-spacing:1.2px}
-  .strip .tile:nth-child(n+4) .v{font-size:14px;margin-top:2px}
-  .strip .tile:nth-child(n+4) .s{font-size:9.5px}
+  .main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
   #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:100px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
@@ -538,7 +520,7 @@ body.shake { animation:shake .5s; }
 @media(max-width:380px){.wrap{padding-left:7px;padding-right:7px}.tab{font-size:8px}.tab .ic{font-size:16px}.bgModeRow{padding-left:9px;padding-right:9px}.studyBtns{grid-template-columns:1fr}#bgChart{height:300px!important}}
 @media(max-width:760px){
   .chartFunHud span,#rainIntro,#bgOver{backdrop-filter:none}
-  .panel,.tile,.char{box-shadow:none}
+  .panel,.char{box-shadow:none}
   #fx{opacity:.82}
 }
 @media(prefers-reduced-motion:reduce){
@@ -787,30 +769,6 @@ body.shake { animation:shake .5s; }
 
 <!-- ═══════════ 라운지 탭 ═══════════ -->
 <div id="tab-lounge" class="hidden">
-<div class="strip">
-  <a class="tile chartJump" href="/#loungeChart" aria-label="비트코인 차트로 이동">
-    <div class="l">BTC / USDT</div>
-    <div class="v num" id="btcUsd">—</div>
-    <div class="s num" id="btcKrw">—</div>
-  </a>
-  <div class="tile gaugeTile">
-    <canvas id="gauge" width="150" height="86"></canvas>
-    <div>
-      <div class="l">김치 프리미엄</div>
-      <div class="v num" id="kimchi">—</div>
-      <div class="s">빗썸 vs 바이낸스 · USD/KRW 기준</div>
-    </div>
-  </div>
-  <div class="tile gaugeTile">
-    <canvas id="fngGauge" width="150" height="86"></canvas>
-    <div><div class="l">공포 · 탐욕</div><div class="v num" id="fng">—</div><div class="s" id="fngW">—</div></div>
-  </div>
-  <div class="tile"><div class="l">USD / KRW</div><div class="v num" id="usdKrw">—</div><div class="s" id="usdKrwAt">일일 기준환율</div></div>
-  <div class="tile"><div class="l">USDT / KRW</div><div class="v num" id="usdtKrwPx">—</div><div class="s num" id="usdtKrwBasis">달러 대비 —</div></div>
-  <div class="tile"><div class="l">BTC 도미넌스</div><div class="v num" id="dom">—</div><div class="s">시총 점유율</div></div>
-  <div class="tile"><div class="l">펀딩비</div><div class="v num" id="fund">—</div><div class="s">무기한 · 8h</div></div>
-</div>
-
 <section class="spectatorFloor" aria-label="세션 관전석">
   <div class="panel sessionPanel" id="sessionPanel">
     <h3>🏆 세션 챔피언십 <small>아시아 · 유럽 · 미국장 — 최근 한 바퀴 비교</small><b class="deckTrack" id="sessionBadge">LATEST</b></h3>
@@ -982,18 +940,18 @@ body.shake { animation:shake .5s; }
 <section id="tab-analysis" role="tabpanel" aria-labelledby="analysis-tab" class="hidden">
   <header class="ca-header">
     <div><p class="ca-kicker">CHART STUDY · BTC / USDT</p><h2>장기 빗각</h2><p class="ca-meta">확정 주봉 2017.08–2026.10.25 · 선형 가격축 · 2026.11.01 스냅샷</p></div>
-    <div class="ca-actions"><button type="button" id="caZoom" aria-pressed="false">확대해서 보기</button><a href="reports/btc-channels-2026-11-01-1151.html" target="_blank" rel="noopener">분석 원본</a></div>
+    <div class="ca-actions"><button type="button" id="caZoom" aria-pressed="false">확대해서 보기</button><a href="reports/btc-channels-2026-11-01-1205.html" target="_blank" rel="noopener">분석 원본</a></div>
   </header>
   <div class="panel ca-panel">
     <div class="ca-panel-head"><h3>📐 장기 평행 채널</h3><p>2018년과 2022년 주봉 저점을 잇고 2021년 주봉 고점으로 폭을 정한 13개 선형 평행선이다. 2026년 6월 저점도 기존 +2선 부근에 있어 기준점은 유지했다.</p></div>
     <p id="caStatus" class="ca-status" role="status">분석 탭을 열면 차트를 불러옵니다.</p>
-    <div class="ca-scroll" tabindex="0" role="region" aria-label="BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다."><img id="caLongImage" data-ca-image data-src="reports/btc-channels-2026-11-01-1151-linear-long.svg?v=202611011151" width="1600" height="1040" alt="2017년 8월부터 2026년 10월까지 BTC 확정 주봉과 진행 중인 주봉, 2018년과 2022년 저점을 잇는 선형 평행 채널 13개."></div>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다."><img id="caLongImage" data-ca-image data-src="reports/btc-channels-2026-11-01-1205-linear-long.svg?v=202611011205" width="1600" height="1040" alt="2017년 8월부터 2026년 10월까지 BTC 확정 주봉과 진행 중인 주봉, 2018년과 2022년 저점을 잇는 선형 평행 채널 13개."></div>
     <p class="ca-caption">최근 확정 주봉은 10월 25일 마감이다. 점선 봉은 아직 진행 중이며, 오른쪽 채널 연장은 미래 캔들이 아니다. 보라색 75k는 별도 수평 참고선이다.</p>
   </div>
   <details class="ca-recent" id="caRecent">
     <summary>2022년 이후 빗각과 비교</summary>
     <p>2022년 저점과 2024년 8월 저점을 잇는 별도 기울기다. 장기 채널과 같은 선으로 해석하지 않는다.</p>
-    <div class="ca-scroll" tabindex="0" role="region" aria-label="2022년 이후 선형 채널 비교 차트"><img data-ca-image data-src="reports/btc-channels-2026-11-01-1151-linear-recent.svg?v=202611011151" width="1600" height="1040" alt="2022년 11월부터 2026년 10월까지 BTC 주봉과 선형 평행 채널 13개."></div>
+    <div class="ca-scroll" tabindex="0" role="region" aria-label="2022년 이후 선형 채널 비교 차트"><img data-ca-image data-src="reports/btc-channels-2026-11-01-1205-linear-recent.svg?v=202611011205" width="1600" height="1040" alt="2022년 11월부터 2026년 10월까지 BTC 주봉과 선형 평행 채널 13개."></div>
   </details>
   <aside class="ca-note"><b>선은 참고 기준이지 매매 신호가 아니다.</b><p>최근 확정 주봉 데이터는 2026년 10월 25일까지다. 현재 주봉은 미완결이라 별도 점선으로 표시했다. 기준점은 과거를 보고 선택했으며 미래 점선은 단순 연장이다. 가격 예측이나 검증된 지지·저항으로 보지 않는다. 2010–2017년은 포함하지 않았다.</p></aside>
 </section>
@@ -1455,115 +1413,6 @@ setTimeout(applyTabFromLocation, 0);
   bar.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
   update();
-})();
-
-let usd = 0, krw = 0, usdKrw = 0, usdtKrw = 0, kimchi = null;
-
-// ═══ 김프 게이지 ═══
-const gctx = $('gauge').getContext('2d');
-const fngCtx = $('fngGauge').getContext('2d');
-let needleNow = 0, needleTarget = 0;
-let fngNeedleNow = 50, fngNeedleTarget = 50;
-let gaugeRaf = null;
-function drawArcGauge(c, value, min, max, ticks, colors) {
-  const W = 150, H = 86, cx = W/2, cy = H-8, r = 62;
-  c.clearRect(0,0,W,H);
-  const grad = c.createLinearGradient(0,0,W,0);
-  colors.forEach(([at,color]) => grad.addColorStop(at,color));
-  c.beginPath(); c.arc(cx,cy,r,Math.PI,2*Math.PI); c.strokeStyle=grad; c.lineWidth=7; c.stroke();
-  c.fillStyle='#6b7280'; c.font='8px Menlo'; c.textAlign='center';
-  ticks.forEach(([v,t]) => {
-    const ang = Math.PI * (1 + (v-min)/(max-min));
-    c.fillText(t, cx + Math.cos(ang)*(r+11), cy + Math.sin(ang)*(r+11)+3);
-  });
-  const safe = Math.max(min, Math.min(max, value));
-  const ang = Math.PI * (1 + (safe-min)/(max-min));
-  c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx + Math.cos(ang)*(r-6), cy + Math.sin(ang)*(r-6));
-  c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
-  c.beginPath(); c.arc(cx,cy,4,0,7); c.fillStyle='#d4af37'; c.fill();
-}
-function drawGauges() {
-  gaugeRaf = null;
-  if (!tabLive('lounge')) return;
-  needleNow += (needleTarget - needleNow) * 0.08;
-  fngNeedleNow += (fngNeedleTarget - fngNeedleNow) * 0.08;
-  drawArcGauge(gctx, needleNow, -2, 8, [[-2,'-2'],[0,'0'],[2,'2'],[4,'4'],[6,'6'],[8,'8']], [[0,'#22d3ee'],[.35,'#4ade80'],[.7,'#d4af37'],[1,'#f87171']]);
-  drawArcGauge(fngCtx, fngNeedleNow, 0, 100, [[0,'0'],[25,'25'],[50,'50'],[75,'75'],[100,'100']], [[0,'#f87171'],[.48,'#d4af37'],[1,'#4ade80']]);
-  if (Math.abs(needleTarget-needleNow)>.01 || Math.abs(fngNeedleTarget-fngNeedleNow)>.01) gaugeRaf = requestAnimationFrame(drawGauges);
-}
-function startGauges() { if (!gaugeRaf && tabLive('lounge')) gaugeRaf = requestAnimationFrame(drawGauges); }
-startGauges();
-function updateKimchi() {
-  if (!usd || !krw || !usdKrw) return;
-  // 김프는 원화 BTC와 달러 환산 글로벌 BTC를 비교한다.
-  // 국내 USDT 가격을 쓰면 테더 자체의 프리미엄/역프가 상쇄되어 왜곡된다.
-  kimchi = (krw / (usd * usdKrw) - 1) * 100;
-  needleTarget = kimchi;
-  startGauges();
-  const el = $('kimchi');
-  el.textContent = (kimchi>=0?'+':'') + kimchi.toFixed(2) + '%';
-  el.className = 'v num ' + (kimchi >= 2 ? 'dn' : kimchi >= 0 ? 'gold' : 'up');
-  if (usdtKrw) {
-    const basis = (usdtKrw / usdKrw - 1) * 100;
-    const basisEl = $('usdtKrwBasis');
-    basisEl.textContent = `달러 대비 ${basis>=0?'+':''}${basis.toFixed(2)}%`;
-    basisEl.className = 's num ' + (basis >= 1 ? 'dn' : basis >= 0 ? 'gold' : 'up');
-  }
-}
-
-// ═══ 국내 원화 시세 (브라우저 CORS 허용 공개 API) ═══
-async function pollKrwMarket() {
-  try {
-    const [btc, usdt] = await Promise.all([
-      fetch('https://api.bithumb.com/public/ticker/BTC_KRW').then(r => r.json()),
-      fetch('https://api.bithumb.com/public/ticker/USDT_KRW').then(r => r.json()),
-    ]);
-    if (btc.status !== '0000' || usdt.status !== '0000') throw new Error('KRW ticker unavailable');
-    krw = +btc.data.closing_price;
-    usdtKrw = +usdt.data.closing_price;
-    $('btcKrw').textContent = '₩ ' + fmt(krw);
-    $('usdtKrwPx').textContent = '₩ ' + fmt(usdtKrw);
-    updateKimchi();
-  } catch(e) {}
-}
-pollKrwMarket(); setInterval(() => { if (tabLive('lounge')) pollKrwMarket(); }, 3000);
-
-async function pollUsdKrw() {
-  try {
-    const r = await fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=KRW');
-    if (!r.ok) throw new Error('USD/KRW unavailable');
-    const data = await r.json(), rate = +data.rates?.KRW;
-    if (!Number.isFinite(rate)) throw new Error('USD/KRW invalid');
-    usdKrw = rate;
-    $('usdKrw').textContent = '₩ ' + fmt(usdKrw, 2);
-    $('usdKrwAt').textContent = `${data.date} · 일일 기준`;
-    updateKimchi();
-  } catch(e) {}
-}
-pollUsdKrw(); setInterval(pollUsdKrw, 60 * 60 * 1000);
-
-// ═══ 지표 타일 ═══
-(async () => {
-  try {
-    const f = await (await fetch('https://api.alternative.me/fng/?limit=1')).json();
-    const v = +f.data[0].value;
-    fngNeedleTarget = v;
-    startGauges();
-    $('fng').textContent = v;
-    $('fng').className = 'v num ' + (v<45?'dn':v>55?'up':'gold');
-    $('fngW').textContent = v<25?'극단적 공포':v<45?'공포':v<55?'중립':v<75?'탐욕':'극단적 탐욕';
-  } catch(e) {}
-  try {
-    const g = await (await fetch('https://api.coingecko.com/api/v3/global')).json();
-    $('dom').textContent = g.data.market_cap_percentage.btc.toFixed(1) + '%';
-    $('domPct').textContent = '시장점유 ' + g.data.market_cap_percentage.btc.toFixed(1) + '%';
-  } catch(e) {}
-  try {
-    const p = await (await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT')).json();
-    const fr = +p.lastFundingRate * 100;
-    $('fund').textContent = (fr>=0?'+':'') + fr.toFixed(4) + '%';
-    $('fund').className = 'v num ' + (fr>=0?'up':'dn');
-  } catch(e) {}
 })();
 
 // ═══ 라이브 차트 (lightweight-charts) ═══
@@ -3299,7 +3148,6 @@ function queueMarketUi(px, isBuy) {
     const next = pendingMarketUi; pendingMarketUi = null;
     if (!next || !tabLive('lounge')) return;
     const {px,isBuy} = next;
-    $('btcUsd').textContent = '$ ' + fmt(px, 0);
     setFlap(fmt(px, 1));
     $('livePx').style.color = isBuy ? 'var(--grn)' : 'var(--red)';
     if (dayOpen) {
@@ -3307,7 +3155,7 @@ function queueMarketUi(px, isBuy) {
       $('liveChg').textContent = (chg>=0?'+':'') + chg.toFixed(2) + '% (24h)';
       $('liveChg').className = 'num ' + (chg>=0?'up':'dn');
     }
-    updateKimchi();
+
   }, 120);
 }
 function queueDepthUi() {
@@ -3322,7 +3170,6 @@ function connectMainWS() {
   const { stream, data } = JSON.parse(ev.data);
   if (stream.endsWith('aggTrade')) {
     const px = +data.p, qty = +data.q, val = px*qty, isBuy = !data.m;
-    usd = px;
     queueMarketUi(px, isBuy);
     queueTapeVisual(val, isBuy);
     checkBreakout(px);
@@ -5374,10 +5221,9 @@ function startLoungeRuntime() {
   if (!loungeRuntimeOn) {
     loungeRuntimeOn = true;
     connectChartWS(); connectMainWS(); connectRaceWS(); connectLiquidations();
-    pollKrwMarket();
   }
   sizeRain();   // 숨김 중 리사이즈로 어긋난 캔버스 치수를 복귀 시 복구
-  startGauges(); startRain(); startFx();
+  startRain(); startFx();
 }
 function stopLoungeRuntime() {
   if (!loungeRuntimeOn) return;
@@ -5385,8 +5231,8 @@ function stopLoungeRuntime() {
   disconnectChartWS(); disconnectMainWS(); disconnectRaceWS(); disconnectLiquidations();
   drops.length = 0; rings.length = 0; fxP.length = 0; buyVol = sellVol = 0;
   tapeVisualBucket.buy = tapeVisualBucket.sell = tapeVisualBucket.buyMax = tapeVisualBucket.sellMax = 0;
-  if (rainRaf) cancelAnimationFrame(rainRaf); if (fxRaf) cancelAnimationFrame(fxRaf); if (gaugeRaf) cancelAnimationFrame(gaugeRaf);
-  rainRaf = fxRaf = gaugeRaf = null;
+  if (rainRaf) cancelAnimationFrame(rainRaf); if (fxRaf) cancelAnimationFrame(fxRaf);
+  rainRaf = fxRaf = null;
   rctx.clearRect(0,0,rain.width,rain.height); fctx.clearRect(0,0,fx.width,fx.height);
 }
 function syncRuntimeState() {

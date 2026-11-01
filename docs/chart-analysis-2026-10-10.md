@@ -63,3 +63,10 @@
 - Updated the live price guide and in-progress candle body on both linear channel charts; preserved the fixed 2018/2022 low anchors, 2021 width reference, 13 rails, and the separate $75k horizontal reference.
 - Kept the 11:16 snapshot assets intact and linked the current chart/report to timestamped 11:28 assets.
 - The lounge Market Context carousel was already absent from the public lounge; no duplicate removal was needed.
+
+
+## Snapshot refresh — 2026-11-01 12:05 KST
+
+- Binance Spot BTC/USDT ticker and the open 2026-10-26 weekly kline: $77,750.01. The week remains O $80,154.09 / H $81,971.00 / L $76,325.98; volume 96,778.83857 BTC. Last fully closed week: 2026-10-25.
+- Refreshed the live-price guides, provisional candle bodies and volume bars in both linear SVGs, plus the timestamped report and all chart-entry cache keys. Preserved historical anchors, slope, 13 rails and the separate $75k reference.
+- The old separate Market Context carousel was already absent. Removed the remaining Lounge top market-metrics strip (BTC/KRW quote, Kimchi premium, Fear & Greed, FX, BTC dominance and funding) and the polling used only by those tiles. The live chart price and Session Championship remain.
