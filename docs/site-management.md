@@ -256,7 +256,7 @@ referrals.
 
 The result-share control is user-initiated and reports what happened: native
 sharing when available, clipboard copy otherwise, and a visible localized text
-area when clipboard access is denied. A cancelled native share does not copy or
+area when clipboard access is denied or takes longer than four seconds. A cancelled native share does not copy or
 send anything. Do not describe opening the share sheet as a published post.
 
 Apply the recorded `add_site_campaign_attribution` migration before deploying the
