@@ -31,8 +31,8 @@
 <script src="chart-share.js?v=20261031a" defer></script>
 <script src="blind-daily.js?v=20261101a"></script>
 <script src="blind-daily-share.js?v=20261031b" defer></script>
-<script src="/site-campaign.js?v=de0bfd5d9a6ce"></script>
-<script defer src="/lounge-rotation.js?v=de0bfd5d9a6ce"></script>
+<script src="/site-campaign.js?v=d5ea06fcb19ee"></script>
+<script defer src="/lounge-rotation.js?v=d5ea06fcb19ee"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -2446,6 +2446,7 @@ try {
 } catch(e) { analyticsVisitorId = siteUuid(); }
 const analyticsSessionId = siteUuid();
 let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null;
+let analyticsQualificationVisibleSeconds = 0, analyticsVisibleSince = document.hidden ? null : analyticsLastActiveAt;
 
 // ── 유휴 상한 ──
 // 예전에는 탭이 화면에 떠 있기만 하면 60초마다 60초를 그대로 적립했다.
@@ -2507,10 +2508,14 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
 }
 function qualifySiteAnalytics() {
   if (analyticsQualified || analyticsAutomated || document.hidden) return false;
+  const now = performance.now();
+  const visibleSeconds = analyticsQualificationVisibleSeconds +
+    (analyticsVisibleSince === null ? 0 : Math.max(0, (now - analyticsVisibleSince) / 1000));
   analyticsQualified = true;
   clearTimeout(analyticsQualificationTimer); analyticsQualificationTimer = null;
-  analyticsLastActiveAt = analyticsLastInputAt = performance.now();
-  recordSiteActivity(0, false, !analyticsStarted);
+  analyticsQualificationVisibleSeconds = 0; analyticsVisibleSince = null;
+  analyticsLastActiveAt = analyticsLastInputAt = now;
+  recordSiteActivity(visibleSeconds, false, !analyticsStarted);
   analyticsStarted = true;
   startSitePresence();
   if (!analyticsTimer) analyticsTimer = setInterval(() => siteAnalyticsFlush(false), 60000);
@@ -2570,6 +2575,15 @@ function stopSitePresence() {
   $('viewerCount').textContent = '자리 비움';
 }
 function syncSiteAudience() {
+  const now = performance.now();
+  if (!analyticsQualified) {
+    if (document.hidden) {
+      if (analyticsVisibleSince !== null) analyticsQualificationVisibleSeconds += Math.max(0, (now - analyticsVisibleSince) / 1000);
+      analyticsVisibleSince = null;
+    } else if (analyticsVisibleSince === null) {
+      analyticsVisibleSince = now;
+    }
+  }
   if (document.hidden) {
     siteAnalyticsFlush(true); stopSitePresence(); clearInterval(analyticsTimer); analyticsTimer = null;
     if (!analyticsQualified) { clearTimeout(analyticsQualificationTimer); analyticsQualificationTimer = null; }
