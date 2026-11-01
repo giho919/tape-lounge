@@ -233,6 +233,8 @@ and normal solo play at desktop/mobile widths. Block writes with
 `site-campaign.js` recognizes owned Threads/X/Instagram links with `utm_medium=social`
 and a known topic: `andy_scan`, `kimchi_fx`, `session_championship`, `daily_blind`,
 or `site_launch`, optionally followed by `_YYYYMMDD`. `twitter` normalizes to `x`.
+The legacy `blind_chart_game` topic normalizes to `daily_blind` so existing shared
+links retain campaign attribution.
 Unknown, partial or duplicate labels use the unchanged seven-argument analytics
 RPC. Valid links use `record_site_campaign_activity`, a separate write-only RPC
 that delegates to the existing collector and attaches the first valid campaign

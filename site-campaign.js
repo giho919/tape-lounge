@@ -11,7 +11,10 @@
     for (const key of ['utm_source','utm_medium','utm_campaign']) if (params.getAll(key).length !== 1) return null;
     const source = sourceName(params.get('utm_source').trim().toLowerCase());
     const medium = params.get('utm_medium').trim().toLowerCase();
-    const campaign = params.get('utm_campaign').trim().toLowerCase();
+    let campaign = params.get('utm_campaign').trim().toLowerCase();
+    // Keep already-published blind-chart links attributable after the topic was
+    // standardized to daily_blind; the database only receives the canonical label.
+    campaign = campaign.replace(/^blind_chart_game(?=_|$)/, 'daily_blind');
     if (!sources.includes(source) || medium !== 'social' || !campaignPattern.test(campaign)) return null;
     return {source,campaign};
   }
