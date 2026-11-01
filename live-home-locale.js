@@ -124,6 +124,149 @@
     '본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다. · 데이터: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026':['For information only, not investment advice. You are responsible for your investment decisions. · Data: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me and CoinGecko (live; may be delayed) · TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026','本网站仅供信息参考，不构成投资建议。投资决定与责任由用户自行承担。· 数据：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（实时，可能延迟）· TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026','本サイトは情報提供を目的とし、投資助言ではありません。投資判断と責任は利用者ご自身にあります。・データ：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（リアルタイム、遅延の可能性あり）・TAPE LOUNGE・CRYPTO LOUNGE・EST. 2026'],
   };
 
+  // Blind chart controls and game copy use the Korean source markup. Keep the
+  // same layout and translate both initial text and dynamically-created rounds.
+  Object.assign(copy, {
+    '🎰 블라인드 차트':['🎰 Blind chart','🎰 盲图挑战','🎰 ブラインドチャート'],
+    '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다':['A real past market, identity hidden. Time moves on.','真实历史市场，隐藏标的身份。时间持续前进。','実際の過去相場。銘柄を伏せて時間が進みます。'],
+    '🎲 나만의 판':['🎲 Solo table','🎲 单人牌局','🎲 ソロプレイ'],
+    '🎴 오늘의 판':['🎴 Daily table','🎴 今日牌局','🎴 今日の一局'],
+    '👥 함께 보는 판':['👥 Shared table','👥 同桌对局','👥 みんなでプレイ'],
+    '🎴 그때 나라면':['🎴 What would you have done?','🎴 如果当时是你？','🎴 あの時、自分なら？'],
+    '시장 선택':['Choose a market','选择市场','市場を選択'],
+    '🪙 코인':['🪙 Crypto','🪙 加密资产','🪙 暗号資産'],
+    '📈 미국주식':['📈 U.S. stocks','📈 美股','📈 米国株'],
+    '미국 증시':['U.S. market','美国市场','米国市場'],
+    '코인 시장':['crypto market','加密市场','暗号資産市場'],
+    '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체':['One chart a day · same past market for everyone · resets at midnight KST','每日一局 · 所有人挑战同一段历史行情 · 韩国时间午夜更新','1日1回 · 全員同じ過去チャート · KSTの午前0時に更新'],
+    '지난 판 재연 · 오늘의 연속 출전 기록과 별도':['Replay a past round · does not count toward today’s streak','重玩历史牌局 · 不计入今日连续挑战','過去の一局を再プレイ · 今日の連続記録には含まれません'],
+    '과거의 어느 실제 ':['You land in a real past ','进入真实的历史','実際の過去の'],
+    '에 던져집니다. ':['. ','。','に飛び込みます。'],
+    '종목도, 날짜도 비밀.':['The asset and date stay hidden.','币种和日期暂不公开。','銘柄も日付も秘密です。'],
+    '시작가는 100으로 환산되어 힌트가 없습니다.':['Prices are rebased to 100, so there are no clues.','价格统一换算为100，不提供额外线索。','開始価格は100に換算し、手掛かりを隠します。'],
+    '가상 자금 ':['Virtual funds ','虚拟资金','仮想資金'],
+    '으로 매매합니다. 실제 주문은 없습니다.':[' to trade. No real orders are placed.','用于模拟交易，不会下达真实订单。','で売買します。実際の注文は行いません。'],
+    '시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.':['Candles advance automatically. You can play, pause, or change the pace.','行情自动推进，可播放、暂停或调整速度。','チャートは自動で進み、再生・一時停止・速度を変更できます。'],
+    '200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.':['After 200 days, the asset and dates are revealed. Compare your trades with holding over the same period.','200天后揭晓币种和日期，并与同期持有收益率比较。','200日後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
+    '판에 앉는다 →':['Take your seat →','入座 →','席に着く →'],
+    '게임 방식과 정산 기준 ↗':['How it works and how results are settled ↗','玩法与结算规则 ↗','遊び方と精算ルール ↗'],
+    '💼 내 판돈':['💼 Your bankroll','💼 你的筹码','💼 持ち金'],
+    '지갑 잔고':['Wallet balance','钱包余额','ウォレット残高'],
+    '포지션':['Position','持仓','ポジション'],
+    '없음':['None','无','なし'],
+    '진입가':['Entry price','入场价','エントリー価格'],
+    '청산가':['Liquidation price','强平价格','清算価格'],
+    '명목가':['Notional value','名义价值','想定元本'],
+    '증거금':['Margin','保证金','証拠金'],
+    '미실현 손익':['Unrealized P&L','未实现盈亏','含み損益'],
+    '총자산':['Total equity','总权益','総資産'],
+    '수익률':['Return','收益率','リターン'],
+    '레버리지 · 격리':['Leverage · isolated','杠杆 · 逐仓','レバレッジ・分離'],
+    '최대 주문가능':['Max order size','最大可下单金额','最大注文額'],
+    '주문 비율 · 수수료 0.10%':['Order size · 0.10% fee','下单比例 · 手续费 0.10%','注文比率・手数料 0.10%'],
+    '증거금 비율 · 수수료 0.10%':['Margin allocation · 0.10% fee','保证金比例 · 手续费 0.10%','証拠金比率・手数料 0.10%'],
+    '롱':['Long','做多','ロング'],
+    '숏':['Short','做空','ショート'],
+    '🏳 여기서 정산':['🏳 Settle here','🏳 在此结算','🏳 ここで精算'],
+    '📒 거래 장부':['📒 Trade journal','📒 交易记录','📒 取引履歴'],
+    '최고 기록 —':['Best —','最佳 —','最高記録 —'],
+    '아직 거래가 없습니다':['No trades yet','尚无交易','まだ取引はありません'],
+    '📊 구간 전망':['📊 Segment outlook','📊 区间预测','📊 区間予想'],
+    '그룹 대기':['Waiting for group','等待加入牌局','グループ待機中'],
+    '함께 보는 판에 입장하면 활성화됩니다.':['Available after you join a shared table.','加入同桌牌局后即可使用。','共有テーブルに参加すると利用できます。'],
+    '차트 진행 속도':['Chart speed','图表速度','チャート速度'],
+    '일시정지':['Pause','暂停','一時停止'],
+    '⏸ 일시정지':['⏸ Pause','⏸ 暂停','⏸ 一時停止'],
+    '속도 낮추기':['Decrease speed','降低速度','速度を下げる'],
+    '차트 진행 속도 선택':['Choose chart speed','选择图表速度','チャート速度を選択'],
+    '차트 속도를 1배로 바로 낮추기':['Set chart speed to 1×','立即将图表速度设为1倍','チャート速度を1倍にする'],
+    '속도 높이기':['Increase speed','提高速度','速度を上げる'],
+    '− 속도':['− Speed','− 速度','− 速度'],
+    '강하게 돌파한 뒤 추세 지지선을 지켜내는 종목을 찾습니다.':['Find assets that break out strongly, then hold their trend support.','寻找强势突破后守住趋势支撑的资产。','強く上抜けた後、トレンドサポートを保つ銘柄を探します。'],
+    '연속 출전은 당일 오늘의 판 완주로 기록됩니다.':['A streak advances only when you finish today’s daily round.','只有完成当天的今日牌局，连续挑战天数才会增加。','連続記録は当日の「今日の一局」を完走した場合に更新されます。'],
+    '오늘 완주하면 연속 출전 기록이 갱신됩니다.':['Finish today’s round to extend your streak.','完成今日牌局即可延续连续挑战记录。','今日の一局を完走すると連続記録が更新されます。'],
+    '오늘 완주하면 연속 출전 기록이 시작됩니다.':['Finish today’s round to start a streak.','完成今日牌局即可开始连续挑战。','今日の一局を完走すると連続記録が始まります。'],
+    '완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.':['Completion and streak records are stored only in this browser.','完赛与连续挑战记录仅保存在此浏览器。','完走・連続記録はこのブラウザーにのみ保存されます。'],
+    '지난 판 완주 기록은 저장되지만 연속 출전에는 반영되지 않습니다.':['Past-round results are saved, but do not extend your streak.','历史牌局成绩会保存，但不会延长连续挑战记录。','過去の一局の結果は保存されますが、連続記録には加算されません。'],
+    '오늘 출전 완료 ·':['Today’s round complete ·','今日已完成 ·','今日の一局完了・'],
+    '어제까지 ':['Through yesterday: ','截至昨天已连续','昨日まで'],
+    '일 연속 · 오늘 완주하면 이어집니다.':[' days in a row · finish today to keep it going.','天连续 · 完成今天即可延续。','日連続・今日完走で記録が続きます。'],
+    '오늘 완주하면 이어집니다.':['Finish today to keep it going.','完成今日牌局即可延续。','今日完走で記録が続きます。'],
+    '오늘의 과거 차트를 준비하고 있습니다…':['Preparing today’s past chart…','正在准备今日历史行情…','今日の過去チャートを準備中…'],
+    '과거의 판을 뒤지는 중…':['Searching the historical rounds…','正在筛选历史行情…','過去の相場を探しています…'],
+    '주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':['Could not load stock data. Please try again shortly.','无法加载股票数据，请稍后重试。','株価データを読み込めませんでした。少し待ってから再試行してください。'],
+    '판을 차리지 못했습니다. 잠시 후 다시 시도해 주세요.':['Could not set up the round. Please try again shortly.','无法准备牌局，请稍后重试。','ゲームを準備できませんでした。少し待ってから再試行してください。'],
+    '오늘의 미국 주식 차트를 준비하지 못했습니다. 잠시 후 다시 시도해 주세요.':['Could not prepare today’s U.S. stock chart. Please try again shortly.','无法准备今日美股行情，请稍后重试。','今日の米国株チャートを準備できませんでした。少し待ってから再試行してください。'],
+    '오늘의 차트에 연결하지 못했습니다. 같은 판으로 다시 시도해 주세요.':['Could not load today’s chart. Please retry the same round.','无法加载今日行情，请重试同一局。','今日のチャートを読み込めませんでした。同じ一局を再試行してください。'],
+    '같은 판 재시도':['Retry this round','重试本局','同じ一局を再試行'],
+    '같은 판 다시 연습':['Practice this round again','再次练习本局','同じ一局をもう一度練習'],
+    '지난 판 다시 보기':['Replay a past round','重玩历史牌局','過去の一局を再プレイ'],
+    '오늘·지난 날짜 바꾸기':['Choose today or a past date','选择今日或历史日期','今日・過去の日付を選択'],
+    '미국 주식':['U.S. stocks','美股','米国株'],
+    '거래일':['trading days','个交易日','取引日'],
+    '일':['days','天','日'],
+    '같은 판으로 다시 시도해 주세요.':['Please retry the same round.','请重试同一局。','同じ一局を再試行してください。'],
+    '공유할 앱을 선택했어요.':['Choose an app to share with.','请选择要分享的应用。','共有するアプリを選択してください。'],
+    '초대 문구와 판 링크를 복사했어요.':['Invitation and round link copied.','已复制邀请语和牌局链接。','招待文とゲームリンクをコピーしました。'],
+    '아래 초대 문구와 링크를 선택해 복사해 주세요.':['Select and copy the invitation and link below.','请选中并复制下方的邀请语和链接。','下の招待文とリンクを選択してコピーしてください。'],
+    '결과와 같은 판의 링크를 복사했습니다.':['Copied the result and link to this round.','已复制结果和本局链接。','結果と同じ一局のリンクをコピーしました。'],
+    '아래 내용을 선택해 복사해 주세요.':['Select and copy the text below.','请选中并复制下方内容。','下の内容を選択してコピーしてください。'],
+    '결과 카드 저장·공유':['Save and share result card','保存并分享结果卡片','結果カードを保存・共有'],
+    '결과와 같은 판 링크 복사':['Copy result and round link','复制结果与牌局链接','結果と一局のリンクをコピー'],
+    '시장이 수업료를 받아갔습니다.':['The market charged tuition this round.','这局交了市场学费。','今回は市場に授業料を払いました。'],
+    '이번엔 존버가 이겼네요. 다음 판이 있습니다.':['Holding won this round. There’s always another.','这局持有策略胜出。下一局还在等你。','今回は保有が勝ちました。次の一局があります。'],
+    '시장이 한 수 위였습니다. 판은 늘 다시 열립니다.':['The market had the better hand. The table will reopen.','这局市场技高一筹，牌桌还会再开。','今回は市場の一枚上でした。また次の一局があります。'],
+    '가만히 있는 것도 실력이라는 걸 시장이 알려주는군요.':['The market reminds us that doing nothing can be a decision too.','市场提醒我们，有时不动也是一种选择。','動かないことも判断の一つだと、市場が教えてくれます。'],
+    '강제청산':['Liquidated','强制平仓','強制清算'],
+    '증거금 소멸':['Margin lost','保证金耗尽','証拠金消失'],
+    '정리할 수량이 없습니다':['No position size to close','没有可平仓数量','決済できる数量がありません'],
+    '주문 가능 금액이 부족합니다':['Insufficient available order value','可下单金额不足','注文可能額が不足しています'],
+    '증거금이 부족합니다':['Insufficient margin','保证金不足','証拠金が不足しています'],
+    '💀 파산':['💀 Bankrupt','💀 破产','💀 破産'],
+    '🏳 중간 정산':['🏳 Early settlement','🏳 提前结算','🏳 途中精算'],
+    '🎰 정체 공개':['🎰 Identity revealed','🎰 揭晓标的','🎰 銘柄を公開'],
+    '한 판 더 🎲':['Another round 🎲','再来一局 🎲','もう一局 🎲'],
+    '그룹을 만들거나 초대 코드로 입장하세요.':['Create a group or join with an invite code.','创建牌局，或使用邀请码加入。','グループを作るか、招待コードで参加してください。'],
+    '숨은 차트와 주문 결과는 서버가 판정합니다.':['The server validates the hidden chart and trade results.','隐藏行情与交易结果由服务器判定。','隠されたチャートと取引結果はサーバーが判定します。'],
+    '같은 차트 · 같은 시각':['Same chart · same start time','同一行情 · 同一开始时间','同じチャート・同じ開始時刻'],
+    '새 그룹':['New group','新建牌局','新しいグループ'],
+    '시작 지연':['Delayed start','延迟开始','開始を遅らせる'],
+    '모두 READY하면 방장이 판을 엽니다.':['The host starts once everyone is READY.','所有人 READY 后由房主开始。','全員がREADYになるとホストが開始します。'],
+    '전원 READY · 방장이 시작할 수 있습니다.':['Everyone is READY · the host can start.','全员 READY · 房主可以开始。','全員READY・ホストが開始できます。'],
+    '한 명 이상 더 기다리는 중입니다.':['Waiting for at least one more player.','还需等待至少一位玩家。','あと1人以上の参加を待っています。'],
+    'READY를 기다리는 중입니다.':['Waiting for players to be READY.','正在等待玩家 READY。','プレイヤーのREADYを待っています。'],
+    '○ 대기':['○ Waiting','○ 等待中','○ 待機中'],
+    '· 방장':['· Host','· 房主','・ホスト'],
+    '방장':['Host','房主','ホスト'],
+    '진행 중인 테이블은 정산 뒤에 나갈 수 있습니다.':['You can leave an active table after settlement.','牌局进行中，结算后才能离开。','進行中のテーブルは精算後に退出できます。'],
+    '아직 READY하지 않은 사람이 있습니다.':['Some players are not READY yet.','还有玩家尚未 READY。','まだREADYしていない参加者がいます。'],
+    '방장만 이 기능을 사용할 수 있습니다.':['Only the host can use this feature.','只有房主可以使用此功能。','この機能はホストのみ利用できます。'],
+    '공동 진행이 시작된 뒤에 조작할 수 있습니다.':['Controls unlock after the shared round starts.','同桌牌局开始后才能操作。','共有ラウンド開始後に操作できます。'],
+    '아직 공동 정산 시각이 되지 않았습니다.':['It is not time to settle the shared round yet.','还未到同桌牌局的结算时间。','共有ラウンドの精算時刻にはまだ達していません。'],
+    '현재 이 판에서 나갈 수 없습니다.':['You cannot leave this round right now.','现在无法离开本局。','現在この一局から退出できません。'],
+    '진행 중인 판에서 나갈까요? 현재 수익률과 판단 기록은 방에서 제거됩니다.':['Leave the active round? Your current return and decision history will be removed from the table.','要离开正在进行的牌局吗？当前收益率和判断记录将从牌桌移除。','進行中の一局から退出しますか？現在のリターンと判断記録はテーブルから削除されます。'],
+    '같은 종목 · 같은 출발 · 구간 전망은 공개 때까지 비공개':['Same asset · same start · outlooks stay hidden until reveal','同一标的 · 同时开始 · 区间预测在揭晓前保密','同じ銘柄・同時スタート・区間予想は公開まで非表示'],
+    '선택한 ':['Selected ','已选择','選択した'],
+    ' 시장으로 방을 엽니다.':[' market for the table.','市场创建牌局。','市場でテーブルを開きます。'],
+    'READY':['READY','READY','READY'],
+    '나':['Me','我','自分'],
+    '테이블을 여는 중…':['Opening the table…','正在创建牌桌…','テーブルを開いています…'],
+    '손님 확인이 필요합니다.':['Please confirm your guest name.','请确认访客昵称。','ゲスト名を確認してください。'],
+    '6자리 코드를 입력해 주세요.':['Enter the 6-digit code.','请输入6位代码。','6桁のコードを入力してください。'],
+    '테이블을 찾는 중…':['Finding the table…','正在查找牌桌…','テーブルを探しています…'],
+    '테이블 연결에 실패했습니다. 입장 기록을 정리했으니 다시 시도해 주세요.':['Could not connect to the table. Your join attempt was cleared; please try again.','无法连接牌桌，已清理本次加入记录，请重试。','テーブルに接続できませんでした。参加記録を整理したので、もう一度お試しください。'],
+    '참가자':['Players','参与者','参加者'],
+    '현재 전망 구간':['Current outlook segment','当前预测区间','現在の予想区間'],
+    '차트에서 의견 보기':['View decisions on chart','在图表中查看判断','チャートで判断を見る'],
+    '방 선택':['Choose a table','选择牌桌','テーブルを選ぶ'],
+    '초대 링크 복사':['Copy invite link','复制邀请链接','招待リンクをコピー'],
+    '이 구간 전망은 이미 선택했습니다.':['You have already submitted an outlook for this segment.','你已经选择过本区间的预测。','この区間の予想はすでに選択済みです。'],
+    '두 명 이상 앉아야 시작할 수 있습니다.':['At least two players are needed to start.','至少需要两名玩家才能开始。','開始には2人以上が必要です。'],
+    '그룹 서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.':['Could not connect to the group server. Please try again shortly.','无法连接牌局服务器，请稍后重试。','グループサーバーに接続できませんでした。少し待って再試行してください。'],
+    '접속 확인이 필요합니다. 새로고침 후 다시 시도해 주세요.':['Connection check required. Refresh and try again.','需要验证连接，请刷新后重试。','接続確認が必要です。更新して再試行してください。'],
+    '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.':['Could not process the request. Please try again shortly.','无法处理请求，请稍后重试。','リクエストを処理できませんでした。少し待って再試行してください。'],
+  });
+
   const textMap = new Map(Object.entries(copy).map(([source, translations]) => [source, translations[langIndex] || translations[0]]));
   const liveToolsRoot = document.documentElement.dataset.liveToolsRoot;
   const liveToolPages = new Set(['blind', 'domestic', 'desk', 'analysis', 'onchain', 'calendar', 'strategists']);
@@ -203,6 +346,53 @@
   }, true);
 
   const dynamic = value => {
+    const hiddenMarket = value.startsWith('❓ ??? · ') ? value.slice('❓ ??? · '.length) : null;
+    if (hiddenMarket === '미국 증시' || hiddenMarket === '코인 시장') {
+      const market = hiddenMarket === '미국 증시'
+        ? ['U.S. market', '美国市场', '米国市場']
+        : ['Crypto market', '加密市场', '暗号資産市場'];
+      return `❓ ??? · ${market[langIndex]}`;
+    }
+    const blindProgress = value.match(/^D\+(\d+) \/ (\d+)$/);
+    if (blindProgress) return lang === 'en'
+      ? `Day ${blindProgress[1]} / ${blindProgress[2]}`
+      : lang === 'zh' ? `第 ${blindProgress[1]} / ${blindProgress[2]} 天`
+        : `${blindProgress[1]}日目 / ${blindProgress[2]}日`;
+    const bestRecord = value.match(/^최고 기록 ([+-]?\d+(?:\.\d+)?%)$/);
+    if (bestRecord) return lang === 'en' ? `Best ${bestRecord[1]}`
+      : lang === 'zh' ? `最佳 ${bestRecord[1]}` : `最高 ${bestRecord[1]}`;
+    const dailyStreak = value.match(/^오늘 출전 완료 · (\d+)일 연속$/);
+    if (dailyStreak) return lang === 'en' ? `Round complete · ${dailyStreak[1]}-day streak`
+      : lang === 'zh' ? `今日完成 · 连续 ${dailyStreak[1]} 天` : `本日完走・${dailyStreak[1]}日連続`;
+    const pendingStreak = value.match(/^어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.$/);
+    if (pendingStreak) return lang === 'en'
+      ? `Through yesterday: ${pendingStreak[1]} days in a row · finish today to keep it going.`
+      : lang === 'zh' ? `截至昨天已连续 ${pendingStreak[1]} 天 · 完成今天即可延续。`
+        : `昨日まで${pendingStreak[1]}日連続・今日完走で記録が続きます。`;
+    const replayHeader = value.match(/^🎴 (\d{4}-\d{2}-\d{2}) · 지난 판$/);
+    if (replayHeader) return lang === 'en' ? `🎴 ${replayHeader[1]} · Past round`
+      : lang === 'zh' ? `🎴 ${replayHeader[1]} · 历史牌局` : `🎴 ${replayHeader[1]}・過去の一局`;
+    const archiveChoice = value.match(/^(오늘 · )?(\d{2}\/\d{2}) · (미국주식|코인)$/);
+    if (archiveChoice) {
+      const today = archiveChoice[1] ? (lang === 'en' ? 'Today · ' : lang === 'zh' ? '今日 · ' : '今日・') : '';
+      const market = archiveChoice[3] === '미국주식'
+        ? ['U.S. stocks', '美股', '米国株'] : ['Crypto', '加密资产', '暗号資産'];
+      return `${today}${archiveChoice[2]} · ${market[langIndex]}`;
+    }
+    const groupSegment = value.match(/^D\+(\d+) → D\+(\d+)$/);
+    if (groupSegment) return `D+${groupSegment[1]} → D+${groupSegment[2]}`;
+    const groupStart = value.match(/^동시 출발까지 (\d+)초$/);
+    if (groupStart) return lang === 'en' ? `Starting together in ${groupStart[1]} sec`
+      : lang === 'zh' ? `${groupStart[1]} 秒后同时开始` : `${groupStart[1]}秒後に同時スタート`;
+    const groupProgress = value.match(/^([●⏸]) GROUP (LIVE|PAUSED) · (\d+)명 · D\+(\d+)\/(\d+)$/);
+    if (groupProgress) {
+      const state = groupProgress[2] === 'LIVE'
+        ? ['LIVE', '进行中', '進行中'] : ['PAUSED', '已暂停', '一時停止'];
+      const players = lang === 'en' ? `${groupProgress[3]} players` : lang === 'zh' ? `${groupProgress[3]} 人` : `${groupProgress[3]}人`;
+      const day = lang === 'en' ? `Day ${groupProgress[4]} / ${groupProgress[5]}`
+        : lang === 'zh' ? `第 ${groupProgress[4]} / ${groupProgress[5]} 天` : `${groupProgress[4]}日目 / ${groupProgress[5]}日`;
+      return `${groupProgress[1]} ${state[langIndex]} · ${players} · ${day}`;
+    }
     const deckTimeframe = value.match(/^([A-Z0-9.]+) · (1분|15분|60분|240분|일봉|주봉|월봉)$/);
     if (deckTimeframe) {
       const intervals = {
@@ -246,12 +436,12 @@
           ? `${names[session[1]] || session[1]}以 ${session[2]} 领先，波动幅度 ${session[3]}。`
           : `${names[session[1]] || session[1]}が ${session[2]} で首位。値幅は ${session[3]}。`;
     }
-    const paperSide = value.match(/^(롱|숏)\s+(\d+(?:\.\d+)?)%$/);
+    const paperSide = value.match(/^(롱|숏)\s+(\d+(?:\.\d+)?)%(\s+\d+×)?$/);
     if (paperSide) {
       const side = paperSide[1] === '롱'
         ? ['Long', '做多', 'ロング']
         : ['Short', '做空', 'ショート'];
-      return `${side[langIndex]} ${paperSide[2]}%`;
+      return `${side[langIndex]} ${paperSide[2]}%${paperSide[3] || ''}`;
     }
     return null;
   };
