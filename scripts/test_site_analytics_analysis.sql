@@ -52,7 +52,7 @@ begin
     raise exception 'Internal verification changed external audience totals';
   end if;
 
-  foreach v_tab in array array['lounge','domestic','desk','analysis','chain','macro','game','chars'] loop
+  foreach v_tab in array array['lounge','domestic','desk','analysis','chain','macro','game','chars','learn','watch','research','about'] loop
     perform public.record_site_activity(v_visitor,v_session,v_tab,0,false,null,true);
   end loop;
   begin
