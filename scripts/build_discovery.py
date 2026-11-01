@@ -253,6 +253,14 @@ def render(lang, page, data, letters, generated, root=False):
 def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
+    classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
+    classic, campaign_script_count = re.subn(
+        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
+        f'<script src="/site-campaign.js?v={VERSION}"></script>',
+        classic, count=1)
+    if campaign_script_count != 1:
+        raise ValueError('Could not refresh the social campaign script version in the lounge template')
+    write('classic-home.html', classic)
     inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS
     fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
@@ -282,13 +290,6 @@ def build(force=False):
         write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
     # Keep the pre-redesign lounge as the public home while the hourly discovery
     # build refreshes localized research pages. The source snapshot is intentional.
-    classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
-    classic, campaign_script_count = re.subn(
-        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
-        f'<script src="/site-campaign.js?v={VERSION}"></script>',
-        classic, count=1)
-    if campaign_script_count != 1:
-        raise ValueError('Could not refresh the social campaign script version in the lounge template')
     viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
     if '<head>' not in classic or viewport not in classic:
         raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
