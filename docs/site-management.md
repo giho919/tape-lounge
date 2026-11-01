@@ -42,6 +42,11 @@ promise a ranking. Check search-console evidence when available.
 The Korean live lounge exposes direct links to the localized editorial entry
 pages (`/en/`, `/zh/`, `/ja/`) from its header. Those pages label the full live
 tools as Korean so visitors know what opens before leaving the translated view.
+The Korean live app also offers a first-visit language suggestion based on the
+connection country, with browser-language fallback. It never redirects
+automatically, remembers an explicit language choice or dismissal, and states
+that country.is receives the lookup request IP while Tape Lounge does not store
+IP or location. Translated editorial pages are linked; live tools remain Korean.
 
 ## Daily blind-chart return loop
 

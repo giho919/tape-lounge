@@ -14,7 +14,7 @@ from blind_daily_stock_rounds import ensure_rounds
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
@@ -237,6 +237,8 @@ def build(force=False):
     if '<head>' not in classic or viewport not in classic:
         raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
     classic=classic.replace('<head>','<head>\n<base href="/">',1)
+    home_language_version=sha256((ROOT/'home-language.js').read_bytes()).hexdigest()[:12]
+    classic=classic.replace('</head>',f'<script defer src="/home-language.js?v={home_language_version}"></script>\n</head>',1)
     classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     home_alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+locale_url(lang)}">' for lang in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
