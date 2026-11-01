@@ -8,13 +8,13 @@ import re
 from pathlib import Path
 import sys
 from xml.etree.ElementTree import Element, SubElement, tostring
-from discovery_content import COPY, LANGS, STAGES
+from discovery_content import COPY, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'https://tapelounge.com'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css']
 VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
@@ -180,6 +180,17 @@ def guide_cards(lang):
     c=COPY[lang]
     return '<div class="reading-grid">'+''.join(f'<article class="reading-card"><span class="reading-no">0{i+1} / FIELD NOTES</span><h3>{link(url(lang,"learn/"+g[0]),g[1])}</h3><p>{e(g[2])}</p>{link(url(lang,"learn/"+g[0]),c["read"]+" ↗")}</article>' for i,g in enumerate(c['guides']))+'</div>'
 
+def kimchi_calculator(lang):
+    t=KIMCHI_TOOL_COPY[lang]
+    fields=[('kp-local',t['local'],t['hintLocal']),('kp-binance',t['binance'],t['hintBinance']),('kp-usd',t['usd'],t['hintUsd']),('kp-usdt',t['usdt'],t['hintUsdt'])]
+    inputs=''.join(f'<label class="kp-field" for="{ident}"><span>{e(label)}</span><input id="{ident}" type="text" inputmode="decimal" autocomplete="off" placeholder="{e(hint,quote=True)}" required></label>' for ident,label,hint in fields)
+    return f'''<section class="kp-calculator" id="kimchi-calculator" aria-labelledby="kp-title"><header class="kp-head"><p class="eyebrow">{e(t['kicker'])}</p><h2 id="kp-title">{e(t['title'])}</h2><p>{e(t['intro'])}</p></header><form id="kp-form" novalidate><div class="kp-fields">{inputs}</div><div class="kp-actions"><button type="button" id="kp-example">{e(t['example'])}</button><button type="reset" class="kp-clear">{e(t['clear'])}</button></div><div class="kp-results" id="kp-results" aria-live="polite"><article class="kp-result"><span>{e(t['usdResult'])}</span><strong id="kp-usd-value">—</strong><small>{e(t['usdNote'])}: <b id="kp-usd-premium">—</b></small></article><article class="kp-result"><span>{e(t['usdtResult'])}</span><strong id="kp-usdt-value">—</strong><small>{e(t['usdtNote'])}: <b id="kp-usdt-gap">—</b></small></article><article class="kp-result"><span>{e(t['basisResult'])}</span><strong id="kp-basis-value">—</strong><small>USD/KRW {e('↔')} USDT/KRW</small></article></div><p class="kp-status" id="kp-status" role="status">{e(t['pending'])}</p><p class="kp-note" id="kp-note">{e(t['disclaimer'])}</p><p class="kp-live">{link(url(lang,'markets'),t['live']+' ↗')}</p></form></section>'''
+
+def kimchi_faq(lang):
+    t=KIMCHI_TOOL_COPY[lang]
+    items=''.join(f'<details><summary>{e(question)}</summary><p>{e(answer)}</p></details>' for question,answer in t['faqs'])
+    return f'<section class="kp-faq"><h2>{e(t["faqTitle"])}</h2>{items}</section>'
+
 def guide_date(guide):
     return guide[4] if len(guide)>4 else '2026-10-22'
 
@@ -205,6 +216,8 @@ def render(lang, page, data, letters, generated, root=False):
     schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':title,'description':desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
         schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':article_date,'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
+        if guide[0]=='kimchi-premium':
+            schema.append({'@context':'https://schema.org','@type':'FAQPage','mainEntity':[{'@type':'Question','name':question,'acceptedAnswer':{'@type':'Answer','text':answer}} for question,answer in KIMCHI_TOOL_COPY[lang]['faqs']]})
     stamp=f'<span class="report-stamp">{e(c["report"])} <time datetime="{data["reportAt"]}">{data["reportAt"][:16]} UTC</time></span>'
     filters=f'<div class="filter-row" role="group" aria-label="{e(c["radar"])}">'+''.join(f'<button data-filter="{value}" aria-pressed="{"true" if value=="all" else "false"}">{e(c[key])}</button>' for value,key in [('all','allStages'),('지지 확인','confirmed'),('눌림 대기','waiting'),('1d','daily'),('saved','saved'),('archive','archive')])+'</div>'
     pulse=f'<section class="pulse"><header><span class="eyebrow">01 / {e(c["chart"])}</span><div class="chart-assets">'+''.join(f'<button data-chart-symbol="{s}" aria-pressed="{"true" if s=="BTC" else "false"}">{s}</button>' for s in SYMBOLS[:4])+f'</div></header><div class="pulse-price"><strong id="pulse-price">—</strong><span id="pulse-change"></span></div><div id="pulse-chart" role="img" aria-label="{e(c["chart"])}"><p>{e(c["loading"])}</p></div><div class="pulse-bottom"><div class="chart-ranges">'+''.join(f'<button data-range="{r}" aria-pressed="{"true" if r=="7d" else "false"}">{r.upper()}</button>' for r in ['1d','7d','30d'])+f'</div>{link("/terminal/#desk",c["openChart"]+" ↗")}</div><p class="data-note" id="chart-status">{e(c["chartNote"])}</p></section>'
@@ -224,7 +237,10 @@ def render(lang, page, data, letters, generated, root=False):
     elif guide:
         game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Try today’s chart game (Korean UI) ↗','zh':'开始今天的盲图游戏（韩文界面）↗','ja':'今日のチャートゲームへ（韓国語 UI）↗'}
         game_cta=f'<p>{link("/blind/?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p></aside></article><section>{section_head(c["next"])}{guide_cards(lang)}</section>'
+        kimchi=guide[0]=='kimchi-premium'
+        tool=kimchi_calculator(lang) if kimchi else ''
+        faq=kimchi_faq(lang) if kimchi else ''
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p></aside></article><section>{section_head(c["next"])}{guide_cards(lang)}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -236,6 +252,10 @@ def render(lang, page, data, letters, generated, root=False):
         schema[1].update(name=title,description=desc)
     schema_json=json.dumps(schema,ensure_ascii=False).replace('<','\\u003c')
     app_scripts=(f'<script defer src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous"></script><script defer src="/stage.js?v={VERSION}"></script><script defer src="/stage-community.js?v={VERSION}"></script>' if page=='' else f'<script defer src="/discovery.js?v={VERSION}"></script>')
+    kimchi_assets=''
+    if guide and guide[0]=='kimchi-premium':
+        kimchi_assets=f'<link rel="stylesheet" href="/kimchi-premium.css?v={VERSION}">'
+        app_scripts+=f'<script defer src="/kimchi-premium.js?v={VERSION}"></script>'
     if page=='':
         nav=''.join(link(url(lang,p),WORDS[lang]['home'] if i==0 else c['nav'][i], 'selected' if i==0 else '') for i,p in enumerate(['','markets','watch','learn']))
     app_scripts=f'<script src="/site-campaign.js?v={VERSION}"></script>'+app_scripts
@@ -244,7 +264,7 @@ def render(lang, page, data, letters, generated, root=False):
 <title>{e(title)} — Tape Lounge</title><meta name="description" content="{e(desc,quote=True)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{current}">{alts}
 <meta property="og:type" content="{'article' if guide else 'website'}"><meta property="og:title" content="{e(title,quote=True)} — Tape Lounge"><meta property="og:description" content="{e(desc,quote=True)}"><meta property="og:url" content="{current}"><meta property="og:image" content="{BASE}/og.png"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0d1114"><meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://data-api.binance.vision https://api.upbit.com https://api.frankfurter.dev https://api.country.is https://*.supabase.co wss://stream.binance.com:9443; frame-src https://challenges.cloudflare.com">
-<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}"><link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/discovery.css?v={VERSION}"><link rel="stylesheet" href="/stage.css?v={VERSION}">{kimchi_assets}<link rel="alternate" type="application/rss+xml" href="/{lang}/feed.xml" title="Tape Lounge"><script type="application/ld+json">{schema_json}</script>{app_scripts}<script defer src="/discovery-analytics.js?v={VERSION}"></script></head>
 <body class="{'market-stage' if page=='' else ''}" data-page="{page}" data-entry="{'root' if root else 'locale'}"><a class="skip" href="#content">Skip to content</a><div class="edition-bar"><span>{e(c['edition'])}</span><span>INDEPENDENT / CRYPTO / OBSERVATION</span></div>
 <header class="masthead"><a class="wordmark" href="{url(lang)}" aria-label="Tape Lounge"><span class="brand-icon">t.</span><span>TAPE<span class="wordmark-light">LOUNGE</span><small>A PLACE TO READ THE MARKET.</small></span></a><nav class="primary-nav" aria-label="Navigation">{nav}</nav><div class="header-actions"><a class="terminal-link" href="/terminal/">{e(c['tools'])} ↗</a><details class="languages"><summary aria-label="Language">◎ {lang.upper()}</summary><div>{languages}</div></details></div></header>
 <div id="locale-suggestion" hidden role="status"></div><main id="content"><div class="site-search"><label for="site-search">⌕ <span class="sr-only">{e(c['find'])}</span></label><input id="site-search" type="search" placeholder="{e(c['searchHint'])}" autocomplete="off" aria-controls="search-results"><span class="search-caption">MARKETS / IDEAS / PERSPECTIVES</span><div id="search-results" hidden></div></div>{body}</main>
@@ -349,5 +369,50 @@ def build(force=False):
     write('data/stage-config.json',json.dumps({'schema':1,'url':supa_url,'key':key,'turnstile':turnstile,'sdk':{'url':sdk[1],'integrity':sdk[2]},'words':WORDS},ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'pages':len(LANGS)*len(pages)+1+len(TOOL_PAGES),'reportAt':data['reportAt']}
 
+def build_editorial_only():
+    """Refresh localized discovery/editorial pages without generating blind-game rounds."""
+    data=read('data/discovery.json')
+    letters=read('reports/letters.json')
+    generated=datetime.now(timezone.utc).isoformat()
+    pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
+    for lang in LANGS:
+        for page in pages:
+            if lang=='ko' and page=='':
+                continue
+            write(url(lang,page).strip('/')+'/index.html',render(lang,page,data,letters,generated))
+        rss=Element('rss',version='2.0')
+        channel=SubElement(rss,'channel')
+        for key,val in [('title','Tape Lounge'),('link',BASE+url(lang)),('description',COPY[lang]['intro']),('language',lang)]:
+            SubElement(channel,key).text=val
+        item=SubElement(channel,'item')
+        for key,val in [('title',COPY[lang]['radar']+' · '+data['reportAt'][:10]),('link',BASE+url(lang,'watch')),('guid',BASE+'/observations/'+data['reportAt']),('description',COPY[lang]['radarNote']),('pubDate',format_datetime(datetime.fromisoformat(data['reportAt'])) )]:
+            SubElement(item,key).text=val
+        for guide in COPY[lang]['guides']:
+            item=SubElement(channel,'item')
+            published=datetime.fromisoformat(guide_date(guide)).replace(tzinfo=timezone.utc)
+            for key,val in [('title',guide[1]),('link',BASE+url(lang,'learn/'+guide[0])),('guid',BASE+url(lang,'learn/'+guide[0])),('description',guide[2]),('pubDate',format_datetime(published))]:
+                SubElement(item,key).text=val
+        write(lang+'/feed.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(rss,encoding='unicode'))
+
+    sitemap=(ROOT/'sitemap.xml').read_text(encoding='utf-8')
+    for lang in LANGS:
+        guide=next(g for g in COPY[lang]['guides'] if g[0]=='kimchi-premium')
+        loc=BASE+url(lang,'learn/kimchi-premium')
+        pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
+        sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_date(guide)+m.group(2),sitemap,count=1)
+        if count!=1:
+            raise ValueError(f'Could not update sitemap lastmod for {loc}')
+    write('sitemap.xml',sitemap)
+
+    data['copy']=COPY
+    data['generatedAt']=generated
+    inputs=['scripts/build_discovery.py','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS
+    data['sourceHash']=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
+    write('data/discovery.json',json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n')
+    return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
+
 if __name__=='__main__':
-    print(json.dumps(build('--force' in sys.argv)))
+    if '--editorial-only' in sys.argv:
+        print(json.dumps(build_editorial_only()))
+    else:
+        print(json.dumps(build('--force' in sys.argv)))
