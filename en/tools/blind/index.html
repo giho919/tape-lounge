@@ -61,7 +61,7 @@
 <style>
 :root {
   --bg:#0a0c10; --panel:#12151c; --panel2:#161a23; --line:#232838;
-  --tx:#d6d9e0; --dim:#6b7280; --gold:#d4af37; --gold-dim:#8a7325;
+  --tx:#d6d9e0; --dim:#9299a6; --gold:#d4af37; --gold-dim:#8a7325;
   --grn:#4ade80; --red:#f87171; --cyan:#22d3ee;
 }
 * { box-sizing:border-box; margin:0; min-width:0; }
@@ -808,7 +808,7 @@ body.shake { animation:shake .5s; }
 <script defer src="/live-home-locale.js?v=7b0c22320a14"></script>
 </head>
 <body data-entry-tab="game">
-<div class="wrap">
+<div class="wrap" role="main">
 
 <div class="hdr">
   <div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>
@@ -838,7 +838,7 @@ body.shake { animation:shake .5s; }
   </div>
 </div>
 
-<aside class="homeLocale" id="homeLocaleSuggestion" role="status" aria-live="polite" hidden></aside>
+<div class="homeLocale" id="homeLocaleSuggestion" role="status" aria-live="polite" hidden></div>
 
 <!-- ═══════════ 라운지 탭 ═══════════ -->
 <div id="tab-lounge" class="hidden">
@@ -959,10 +959,10 @@ body.shake { animation:shake .5s; }
         <div class="levMax">최대 주문가능 <b class="num" id="pMaxOrd">$0</b></div>
       </div>
       <div class="ordBox">
-        <div class="ordHead"><span>주문 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="pPctNum" min="0" max="100" value="25" oninput="pPctSync(this.value)"><span class="ordPct">%</span></div></div>
+        <div class="ordHead"><span>주문 비율 · 수수료 0.10%</span><div class="ordNumWrap"><input type="number" id="pPctNum" aria-label="주문 비율 (%)" min="0" max="100" value="25" oninput="pPctSync(this.value)"><span class="ordPct">%</span></div></div>
         <div class="ordSlider">
           <div class="ordFill" id="pPctFill" style="width:25%"></div>
-          <input type="range" id="pPctSlider" min="0" max="100" value="25" oninput="pPctSync(this.value)">
+          <input type="range" id="pPctSlider" aria-label="주문 비율 조정 (%)" min="0" max="100" value="25" oninput="pPctSync(this.value)">
         </div>
         <div class="ordTicks">
           <span onclick="pPctSync(0)">0</span><span onclick="pPctSync(25)">25</span><span onclick="pPctSync(50)">50</span>
@@ -987,7 +987,7 @@ body.shake { animation:shake .5s; }
   <div class="panel" id="chatPanel">
     <h3>🥂 라운지 채팅 <small id="chatConnection">연결 중</small><b class="nickBtn" id="nickBtn" onclick="setNick()">—</b></h3>
     <p class="crewHint">크루 이름을 누르면 소개와 최근 발언을 볼 수 있어요.</p>
-    <div id="feed" tabindex="0" aria-label="라운지 대화 · 작성 시각은 한국시간"></div>
+    <div id="feed" role="log" tabindex="0" aria-label="라운지 대화 · 작성 시각은 한국시간"></div>
     <button type="button" id="chatJump" onclick="jumpToLatestChat()" hidden aria-live="polite">새 메시지 ↓</button>
     <div id="chatIn">
       <input id="chatTxt" maxlength="200" aria-label="채팅 메시지" placeholder="한마디 남기기…" onkeydown="if(event.key==='Enter'&&!event.isComposing)chatSend()">
