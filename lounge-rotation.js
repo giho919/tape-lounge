@@ -53,6 +53,7 @@
   let pointerInside = false;
   let focusInside = false;
   let andyRequested = false;
+  let dailyState = '';
 
   function show(index) {
     active = (index + slides.length) % slides.length;
@@ -77,6 +78,10 @@
       if (!daily) return;
       const day = daily.dayKey();
       const selection = daily.selection(day);
+      const streak = daily.streak(localStorage);
+      const state = `${day}:${streak.days}:${streak.playedToday}`;
+      if (state === dailyState) return;
+      dailyState = state;
       const market = selection.track === 'stock' ? '미국 주식' : '코인';
       const date = new Intl.DateTimeFormat('ko-KR', {
         timeZone: 'Asia/Seoul', month: 'long', day: 'numeric',
@@ -86,6 +91,14 @@
       slides[0].copy = selection.track === 'stock'
         ? '종목과 날짜를 가린 과거 주식 차트. 끝나면 같은 기간 보유와 비교합니다.'
         : '종목과 날짜를 가린 실제 과거 차트. 끝나면 같은 기간 보유와 비교합니다.';
+      slides[0].label = '오늘의 판 열기 ↗';
+      if (streak.playedToday) {
+        slides[0].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
+        slides[0].label = '오늘 결과 다시 보기 ↗';
+      } else if (streak.days > 0) {
+        slides[0].copy = `어제까지 ${streak.days}일 연속 출전. 오늘 완주하면 기록이 이어져요.`;
+        slides[0].label = '오늘 이어서 도전 ↗';
+      }
       slides[0].link = daily.url(day, selection.version);
       if (active === 0) show(active);
     } catch { /* Keep the useful static invitation if local date or storage is unavailable. */ }
@@ -137,6 +150,12 @@
     if (!root.contains(event.relatedTarget)) focusInside = false;
   });
   document.addEventListener('visibilitychange', updatePauseButton);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateDailyRound(); });
+  window.addEventListener('pageshow', updateDailyRound);
+  window.addEventListener('storage', event => {
+    if (!event.key || event.key === 'tapeBlindDailyStreakV1') updateDailyRound();
+  });
+  window.addEventListener('tape-blind-daily-updated', updateDailyRound);
 
   const sessionObserver = new MutationObserver(() => {
     const badge = document.getElementById('sessionBadge')?.textContent?.trim();

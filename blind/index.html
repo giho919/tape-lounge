@@ -34,7 +34,7 @@
 <script src="blind-daily.js?v=20261101a"></script>
 <script src="blind-daily-share.js?v=20261031b" defer></script>
 <script src="/site-campaign.js?v=d230515a8ec99"></script>
-<script defer src="/lounge-rotation.js?v=d230515a8ec99"></script>
+<script defer src="/lounge-rotation.js?v=df87997e17e87"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -3913,6 +3913,7 @@ async function blindFinish(early) {
     const completed = bg.idx === bg.norm.length - 1;
     let recorded = {saved:false,first:null,streak:{days:0,playedToday:false}};
     try { recorded = window.BlindDaily.record(localStorage, bg.daily.day, {roi,bh,completed,finishedAt:new Date().toISOString()},bg.daily.version); } catch {}
+    window.dispatchEvent(new Event('tape-blind-daily-updated'));
     const first = recorded.first;
     const run = recorded.streak || {days:0,playedToday:false};
     const runCopy = bg.daily.day===window.BlindDaily.dayKey() ? run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : '오늘 판을 완주하면 연속 출전 기록이 갱신됩니다.' : '';
