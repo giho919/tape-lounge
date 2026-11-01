@@ -10,7 +10,7 @@ cleanup() {
 }
 trap cleanup EXIT
 stage_public_files() {
-  git add -- index.html ko en zh ja terminal/index.html domestic/index.html desk/index.html analysis/index.html onchain/index.html calendar/index.html blind/index.html strategists/index.html sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js home-language.js
+  git add -- index.html ko en zh ja terminal/index.html domestic/index.html desk/index.html analysis/index.html onchain/index.html calendar/index.html blind/index.html strategists/index.html sitemap.xml data/discovery.json data/stage-config.json data/scenes.json data/scenes discovery-analytics.js classic-home.html home-language.js lounge-rotation.js live-home-locale.js
   # Keep the active day's game payload available, but never publish future answers early.
   git add -u -- reports/blind_daily_stock_v2/
   local today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
