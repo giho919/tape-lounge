@@ -74,7 +74,9 @@ const time=x=>new Date(x).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
 const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const guidePath={en:'/en/learn/kimchi-premium/',zh:'/zh/learn/kimchi-premium/',ja:'/ja/learn/kimchi-premium/'}[document.documentElement?.lang]||'/ko/learn/kimchi-premium/';
 el.innerHTML=`<div class="dm-top"><h1>마켓</h1><a href="#research">후보 관찰 · 리서치 ↗</a></div>
+<p class="dm-intro"><span>국내 원화 가격과 해외 USDT 현물가를 비교합니다. 김프는 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.</span> <a href="${guidePath}">계산 방식 ↗</a></p>
 <div class="dm-pair"><label class="dm-card"><span>기준 거래소</span><select id="dm-venue"><option value="upbit">업비트 KRW</option><option value="bithumb">빗썸 KRW</option></select></label><span class="dm-swap" aria-hidden="true">⇄</span><label class="dm-card"><span>비교 거래소</span><select id="dm-foreign">${Object.entries(FOREIGN).map(([k,v])=>`<option value="${k}">${v.label} USDT</option>`).join('')}</select></label></div>
 <div class="dm-find"><button id="dm-favorites" aria-pressed="false" title="관심 코인만 보기">☆</button><button id="dm-andy-only" aria-pressed="false" title="Andy 후보만 보기">Andy</button><input id="dm-search" type="search" placeholder="BTC, 비트코인…" maxlength="40" aria-label="종목 찾기"><span id="dm-count"></span></div>
 <div class="dm-scroll"><table><thead><tr id="dm-head"></tr></thead><tbody id="dm-table"></tbody><tbody id="dm-chart"></tbody><tbody id="dm-rest"></tbody></table></div>
@@ -230,7 +232,7 @@ const streams=root.DomesticStreams?.createStreams({onState:(kind,on)=>{live[kind
  else {const map=new Map(state.tickers[kind].map(x=>[x.market,x]));for(const x of updates){const old=map.get(x.market);if(!old||x.trade_timestamp>=old.trade_timestamp)map.set(x.market,{...old,...x});}state.tickers[kind]=[...map.values()];state.at[kind]=Date.now();}
  delete state.errors[kind==='binance'?'foreign':kind];paint();}});
 root.TapeMarket={open(symbol){if(!safeSymbol(symbol))return;state.query=symbol.toLowerCase();state.selected=symbol;state.only=state.andyOnly=false;$('dm-search').value=symbol;$('dm-favorites').setAttribute('aria-pressed','false');$('dm-andy-only').setAttribute('aria-pressed','false');render();refresh(true);}};
-window.addEventListener('tl:favorites',e=>{if(!Array.isArray(e.detail?.symbols))return;favorites=new Set(e.detail.symbols.filter(safeSymbol).slice(0,500));if(visible())render();});
-window.addEventListener('storage',e=>{if(e.key!=='tl_domestic_favorites')return;try{const s=JSON.parse(e.newValue||'[]');if(Array.isArray(s))favorites=new Set(s.filter(safeSymbol).slice(0,500));}catch{}if(visible())render();});
+window.addEventListener?.('tl:favorites',e=>{if(!Array.isArray(e.detail?.symbols))return;favorites=new Set(e.detail.symbols.filter(safeSymbol).slice(0,500));if(visible())render();});
+window.addEventListener?.('storage',e=>{if(e.key!=='tl_domestic_favorites')return;try{const s=JSON.parse(e.newValue||'[]');if(Array.isArray(s))favorites=new Set(s.filter(safeSymbol).slice(0,500));}catch{}if(visible())render();});
 new MutationObserver(sync).observe(el,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',sync);sync();
 })(typeof window!=='undefined'?window:globalThis);

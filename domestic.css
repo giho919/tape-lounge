@@ -1,6 +1,7 @@
 /* 국내장 탭 — 김프 비교 사이트형 2행 페어 표 */
 #tab-domestic{padding-top:14px;font-size:15px;line-height:1.5}
 #tab-domestic .dm-top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
+#tab-domestic .dm-intro{max-width:900px;margin:-8px 0 14px;color:#8d95a6;font-size:12px;line-height:1.6}
 #tab-domestic h1{font-size:24px;color:var(--gold);font-weight:600}
 #tab-domestic h2{font-size:17px;margin-bottom:8px}
 #tab-domestic a{color:var(--gold)}
