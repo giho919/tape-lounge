@@ -59,7 +59,7 @@ test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지�
 test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가로 시작한다',()=>{
  assert.ok(app.includes("const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');"));
  assert.ok(app.includes("new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS)"));
- assert.ok(app.includes('api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=5m&limit=1'));
+ assert.ok(app.includes('`${SPOT_DATA_API}/klines?symbol=${symbol}USDT&interval=5m&limit=1`'));
  const src=app.match(/function applyRaceKline\(data\) \{[\s\S]*?\n\}/)?.[0];
  const snapshotSrc=app.match(/function applyRaceSnapshot\(symbol, candle\) \{[\s\S]*?\n\}/)?.[0];
  const valuesSrc=app.match(/function raceValues\(\) \{[\s\S]*?\n\}/)?.[0];
@@ -86,6 +86,17 @@ test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가
  assert.ok(Number.isFinite(current.find(x=>x.sym==='ETH').pct),'the first coin in a new round should update immediately');
  vm.runInContext('applyRaceKline({e:"kline",k:{s:"XYZUSDT",i:"5m",t:'+now+',o:"1",c:"2",T:'+(now+299999)+'}})',ctx);
  assert.equal(ctx.raceRoundEnd,now+600000,'unknown symbols must not move the shared race clock');
+});
+
+test('현물 REST는 Binance 공개 시세용 API를 사용하고, 조회 실패가 초기화를 깨지 않는다',()=>{
+ assert.ok(app.includes("const SPOT_DATA_API = 'https://data-api.binance.vision/api/v3';"));
+ assert.ok(!app.includes('https://api.binance.com/api/v3'),'spot reads should not use the general API host');
+ assert.ok(app.includes("if (!quoteResponse.ok) return;"),'failed quote seed must not reject the startup task');
+ assert.ok(app.includes('if (!Array.isArray(kl)) return;'),'invalid candle payload must be ignored');
+ assert.ok(app.includes("'https://fapi.binance.com/fapi/v1'"),'futures market endpoint must remain unchanged');
+ const policy=html.match(/Content-Security-Policy[^>]*content="([^"]+)"/)?.[1]||'';
+ assert.ok(policy.includes('https://data-api.binance.vision'),'the spot data endpoint must be allowed by the home CSP');
+ assert.ok(!policy.includes('https://api.binance.com'),'the unused general API origin should leave the home CSP');
 });
 
 test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 쪽이든 늘 보인다',()=>{

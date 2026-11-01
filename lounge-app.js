@@ -2,6 +2,7 @@ const $ = id => document.getElementById(id);
 const fmt = (n, d=0) => n.toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d});
 let activeTab = document.body.dataset.entryTab || 'lounge';
 const tabLive = name => activeTab === name && !document.hidden;
+const SPOT_DATA_API = 'https://data-api.binance.vision/api/v3';
 
 // ═══ 탭 ═══
 // ═══ 탭별 주소 ═══
@@ -419,19 +420,28 @@ function updateHomeQuote(px, chg) {
   }
 }
 // 장대/돌파·베팅 판정용 1분봉 이력 시딩 (BTC 고정 — 이펙트는 항상 1분 기준)
+// REST 실패는 실시간 스트림까지 중단시키지 않고 조용히 건너뛴다.
 (async () => {
-  const d = await (await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT')).json();
-  dayOpen = +d.openPrice;
-  updateHomeQuote(+d.lastPrice, +d.priceChangePercent);
-  const kl = await (await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=61')).json();
-  kl.slice(0, -1).forEach(k => {
-    bodyHist.push(Math.abs(+k[4]-+k[1])/+k[1]*100);
-    hiHist.push(+k[2]); loHist.push(+k[3]);
-  });
-  while (bodyHist.length > 30) bodyHist.shift();
+  try {
+    const quoteResponse = await fetch(`${SPOT_DATA_API}/ticker/24hr?symbol=BTCUSDT`);
+    if (!quoteResponse.ok) return;
+    const d = await quoteResponse.json();
+    const open = +d.openPrice, last = +d.lastPrice, change = +d.priceChangePercent;
+    if (Number.isFinite(open)) dayOpen = open;
+    if (Number.isFinite(last) && Number.isFinite(change)) updateHomeQuote(last, change);
+    const candleResponse = await fetch(`${SPOT_DATA_API}/klines?symbol=BTCUSDT&interval=1m&limit=61`);
+    if (!candleResponse.ok) return;
+    const kl = await candleResponse.json();
+    if (!Array.isArray(kl)) return;
+    kl.slice(0, -1).forEach(k => {
+      bodyHist.push(Math.abs(+k[4]-+k[1])/+k[1]*100);
+      hiHist.push(+k[2]); loHist.push(+k[3]);
+    });
+    while (bodyHist.length > 30) bodyHist.shift();
+  } catch(e) {}
 })();
-(async () => { try { ethOpen = +(await (await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT')).json()).openPrice; } catch(e) {} })();
-(async () => { try { qqqOpen = +(await (await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=QQQBUSDT')).json()).openPrice; } catch(e) {} })();
+(async () => { try { const r=await fetch(`${SPOT_DATA_API}/ticker/24hr?symbol=ETHUSDT`);if(r.ok){const n=+(await r.json()).openPrice;if(Number.isFinite(n))ethOpen=n;} } catch(e) {} })();
+(async () => { try { const r=await fetch(`${SPOT_DATA_API}/ticker/24hr?symbol=QQQBUSDT`);if(r.ok){const n=+(await r.json()).openPrice;if(Number.isFinite(n))qqqOpen=n;} } catch(e) {} })();
 
 // ═══ 타임프레임 공용 차트 피드 (4차트 + 캔들 덱) ═══
 const TF_LABEL = { '1m':'1분', '15m':'15분', '1h':'60분', '4h':'240분', '1d':'일봉', '1w':'주봉', '1M':'월봉' };
@@ -536,7 +546,7 @@ const chartSeedGeneration = [0,0,0,0];
 async function seedChart(i) {
   const cs = CHART_SYMS[i], tf = chartTf, generation = ++chartSeedGeneration[i];
   try {
-    const base = cs.spot ? 'https://api.binance.com/api/v3' : 'https://fapi.binance.com/fapi/v1';
+    const base = cs.spot ? SPOT_DATA_API : 'https://fapi.binance.com/fapi/v1';
     const kl = await (await fetch(`${base}/klines?symbol=${cs.sym}&interval=${tf}&limit=${LOUNGE_KL_LIMIT}`)).json();
     if (tf !== chartTf || generation !== chartSeedGeneration[i]) return;
     if (!Array.isArray(kl) || !kl.length) throw new Error('bad');
@@ -1809,7 +1819,7 @@ async function bootstrapRaceSnapshot() {
   await Promise.all(RACE_COINS.map(async symbol => {
     if (race[symbol].last !== null) return;
     try {
-      const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}USDT&interval=5m&limit=1`, {cache:'no-store'});
+      const response = await fetch(`${SPOT_DATA_API}/klines?symbol=${symbol}USDT&interval=5m&limit=1`, {cache:'no-store'});
       if (!response.ok) return;
       const candles = await response.json();
       if (Array.isArray(candles?.[0])) applyRaceSnapshot(symbol, candles[0]);
@@ -2214,7 +2224,7 @@ async function blindStart() {
     const minEnd = Date.parse('2021-06-01'), maxEnd = Date.now() - 10 * 86400e3;
     const endTime = minEnd + Math.floor(Math.random() * (maxEnd - minEnd));
     try {
-      const kl = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
+      const kl = await (await fetch(`${SPOT_DATA_API}/klines?symbol=${sym}&interval=1d&limit=${BG_TOTAL}&endTime=${endTime}`)).json();
       if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
       if (!Array.isArray(kl) || kl.length < BG_MIN_TOTAL) continue;
       bgSetupSolo(kl, sym, 'crypto');
@@ -2305,7 +2315,7 @@ async function bgStartDaily(generation) {
       symbol = payload.symbol; track = 'stock';
       bgDailySelection = {...chosen,symbol};
     } else {
-      const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${chosen.symbol}&interval=1d&limit=${BG_TOTAL}&endTime=${chosen.endTime}`);
+      const response = await fetch(`${SPOT_DATA_API}/klines?symbol=${chosen.symbol}&interval=1d&limit=${BG_TOTAL}&endTime=${chosen.endTime}`);
       if (!response.ok) throw new Error('오늘의 차트에 연결하지 못했습니다. 같은 판으로 다시 시도해 주세요.');
       kl = window.BlindDaily.validate(await response.json(), chosen);
       symbol = chosen.symbol; track = 'crypto';
@@ -3732,7 +3742,7 @@ async function fetchSessions() {
   if (sessionFetching) return;
   sessionFetching = true;
   try {
-    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionFetchStart()}&limit=360`);
+    const r = await fetch(`${SPOT_DATA_API}/klines?symbol=BTCUSDT&interval=5m&startTime=${sessionFetchStart()}&limit=360`);
     const k = await r.json();
     if (Array.isArray(k)) {
       sessionBars = k.map(x => ({ t:+x[0], o:+x[1], h:+x[2], l:+x[3], c:+x[4] }));
