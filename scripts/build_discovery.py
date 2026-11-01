@@ -283,6 +283,12 @@ def build(force=False):
     # Keep the pre-redesign lounge as the public home while the hourly discovery
     # build refreshes localized research pages. The source snapshot is intentional.
     classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
+    classic, campaign_script_count = re.subn(
+        r'<script src="/?site-campaign\.js\?v=[^"]+"></script>',
+        f'<script src="/site-campaign.js?v={VERSION}"></script>',
+        classic, count=1)
+    if campaign_script_count != 1:
+        raise ValueError('Could not refresh the social campaign script version in the lounge template')
     viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
     if '<head>' not in classic or viewport not in classic:
         raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
