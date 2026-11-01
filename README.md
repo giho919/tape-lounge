@@ -27,6 +27,7 @@ History API; legacy fragment bookmarks continue to work. See
 
 - Anonymous Presence remains connected; Presence state is not written to the database / 익명 Presence 유지, Presence 상태는 DB에 저장하지 않음
 - No IP address, device fingerprint, nickname, or user-agent is collected / IP·기기 지문·닉네임·브라우저 정보는 수집하지 않음
+- Known crawler, social-preview, and headless-browser traffic is filtered locally before analytics sends; the user-agent string itself is never transmitted or stored / 알려진 크롤러·소셜 미리보기·헤드리스 브라우저는 분석 전 브라우저 안에서 제외하며 사용자 에이전트 문자열은 전송·저장하지 않음
 - A random browser ID is hashed inside Postgres; raw sessions are retained for 14 days, then only daily aggregates remain / 브라우저 무작위 ID는 DB에서 해시하며 원본 세션은 14일 뒤 삭제하고 일별 집계만 유지
 - Admin-only views live in the private schema: `site_analytics_today`, `site_analytics_tabs_today`, `site_analytics_daily`, and `site_analytics_tabs_daily` / 관리자 통계는 Supabase의 private 스키마에서만 조회
 - The daily rollup runs at 00:15 KST through Supabase Cron / 일별 집계는 Supabase Cron으로 매일 00:15 KST 실행
