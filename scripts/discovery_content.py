@@ -19,7 +19,7 @@ COPY = {
 'original':'한국어 원문 리포트', 'read':'자세히 읽기', 'next':'이어서 보기', 'method':'출처와 방법', 'privacy':'개인정보와 언어', 'about':'이곳에 대하여', 'disclaimer':'정보 제공과 시장 관찰을 위한 사이트입니다. 투자 권유나 미래 수익의 보장이 아닙니다.',
 'country':'접속 국가에 맞는 언어를 추천합니다.', 'browser':'브라우저 언어를 기준으로 추천합니다.', 'dismiss':'닫기', 'countryPrivacy':'첫 방문의 언어 추천에 country.is 국가 조회를 사용합니다. 이 제공자는 요청 IP를 보게 됩니다. Tape Lounge는 IP나 위치를 저장하지 않습니다. 조회 실패 시 브라우저 언어를 사용하며, 선택한 언어가 우선입니다.',
 'aboutText':'Tape Lounge는 암호화폐 시장의 가격, 추세 후보, 공개 리포트를 연결하는 독립적인 관찰 공간입니다. 거래소가 아니며 이 웹사이트에서 실제 주문을 집행하지 않습니다. 가상의 인기 순위나 방문자 수를 만들지 않습니다.',
-'sourceText':'가격: Binance 공개 현물 API. 원화: Upbit 공개 API. 환율: Frankfurter 일일 기준환율. 레이더: 당시 게시된 Andy 리포트. 원문과 관측 시각을 함께 확인하세요. API 장애나 거래소별 종목 불일치 시 해당 값을 비워둡니다.',
+'sourceText':'해외 가격: Binance 공개 현물 API. 원화 가격: Upbit 공개 API. 테더 원화 시세: Bithumb 공개 API. 환율: Frankfurter 일일 기준환율. 레이더: 당시 게시된 Andy 리포트. 원문과 관측 시각을 함께 확인하세요. API 장애나 거래소별 종목 불일치 시 해당 값을 비워둡니다.',
 'dataText':'공개 관찰 JSON과 RSS를 제공합니다. JSON의 reportAt이 관찰 시각이며 웹페이지 생성 시각이 아닙니다. 과거 최초 관측은 보관 범위 안에서의 최초이며 전체 시장의 최초 신호가 아닙니다. 백테스트와 실제 매매 성과를 합치지 않습니다.',
 'analyticsText':'기존 익명 방문 통계를 사용합니다. 무작위 브라우저 ID, 화면 종류, 실제 활동 시간, 유입 도메인만 기록하며 IP·기기 지문·검색어를 수집하지 않습니다. 화면이 보이는 상태로 5초 머물거나 처음 조작한 뒤 방문으로 집계합니다. 내부 방문 표시는 유지됩니다. 원본 세션은 14일 뒤 일별 집계만 남깁니다.',
 'roles':['정마담 · 운용의 판단','Andy · 추세의 발견','Prof. Justin · 국면의 근거'],
@@ -48,7 +48,7 @@ COPY = {
 'original':'Original report · Korean', 'read':'Read more', 'next':'Keep exploring', 'method':'Sources & methodology', 'privacy':'Privacy & language', 'about':'About this room', 'disclaimer':'For information and market observation, not investment advice or a promise of future returns.',
 'country':'A language suggestion for your connection country.', 'browser':'A suggestion based on your browser language.', 'dismiss':'Dismiss', 'countryPrivacy':'For a first-visit language suggestion, country.is receives your request IP. Tape Lounge does not store your IP or location. Browser language is the fallback; your explicit language choice always takes priority.',
 'aboutText':'Tape Lounge is an independent space connecting crypto prices, trend candidates and public reports. It is not an exchange and this website does not execute real orders. We do not fabricate popularity rankings or visitor counts.',
-'sourceText':'Prices: Binance public spot API. Korean quotes: Upbit public API. FX: Frankfurter daily reference. Radar: Andy reports as originally published. Check the source and observation time. Missing APIs or unmatched listings are left blank.',
+'sourceText':'Overseas prices: Binance public spot API. Korean BTC quotes: Upbit public API. Korean tether quotes: Bithumb public API. FX: Frankfurter daily reference. Radar: Andy reports as originally published. Check the source and observation time. Missing APIs or unmatched listings are left blank.',
 'dataText':'Public observation JSON and RSS are available. reportAt is the observation time, not the page build time. First seen means first within the retained archive, not the first signal in the market. Backtests are not merged into live trading performance.',
 'analyticsText':'Existing anonymous analytics record a random browser ID, screen category, active time and referring domain. A visit is counted after the page has remained visible for 5 seconds or a visitor first interacts with it. We do not collect IPs, fingerprints or search terms. Internal traffic flags persist. Raw sessions are retained for 14 days, then only daily aggregates remain.',
 'roles':['Madam · Portfolio perspective','Andy · Trend discovery','Prof. Justin · Regime research'],
@@ -75,7 +75,7 @@ COPY = {
 'original':'韩语原始报告', 'read':'阅读全文', 'next':'继续探索', 'method':'来源与方法', 'privacy':'隐私与语言', 'about':'关于这里', 'disclaimer':'仅供信息与市场观察，不构成投资建议，也不保证未来收益。',
 'country':'根据连接国家推荐语言。', 'browser':'根据浏览器语言推荐。', 'dismiss':'关闭', 'countryPrivacy':'首次访问的语言推荐使用 country.is，该服务会接收到请求 IP。Tape Lounge 不保存 IP 或位置。查询失败时使用浏览器语言；您的主动选择始终优先。',
 'aboutText':'Tape Lounge 是连接加密市场报价、趋势候选和公开报告的独立观察空间，并非交易所，也不会通过此网站执行真实订单。我们不虚构人气排行或访问人数。',
-'sourceText':'价格来自 Binance 公开现货 API，韩元报价来自 Upbit，汇率来自 Frankfurter 每日参考数据，雷达来自当时发布的 Andy 报告。请核对来源与观测时间。接口不可用或交易对不匹配时留空。',
+'sourceText':'海外价格来自 Binance 公开现货 API，韩国 BTC/KRW 报价来自 Upbit，韩国 USDT/KRW 报价来自 Bithumb，汇率来自 Frankfurter 每日参考数据，雷达来自当时发布的 Andy 报告。请核对来源与观测时间。接口不可用或交易对不匹配时留空。',
 'dataText':'提供公开观察 JSON 与 RSS。reportAt 是观察时间，不是网页构建时间。首次观察仅指保留存档内的首次，不是全市场首次信号。不会将回测与实盘业绩合并。',
 'analyticsText':'沿用匿名访问统计，仅记录随机浏览器标识、页面类别、活跃时间和来源域名。页面在前台停留5秒或用户首次操作后，才计为一次访问。不采集 IP、设备指纹或搜索词。保留内部访问标记。原始会话保存14天，之后仅保留每日汇总。',
 'roles':['郑女士 · 运用判断','Andy · 趋势发现','Prof. Justin · 市场状态研究'],
@@ -102,7 +102,7 @@ COPY = {
 'original':'韓国語の原文レポート', 'read':'詳しく読む', 'next':'続けて見る', 'method':'出典と方法', 'privacy':'プライバシーと言語', 'about':'この場所について', 'disclaimer':'情報提供と市場観察を目的とし、投資推奨や将来の利益の保証ではありません。',
 'country':'接続国に合わせた言語の提案です。', 'browser':'ブラウザー言語をもとに提案しています。', 'dismiss':'閉じる', 'countryPrivacy':'初回の言語提案に country.is を使用し、同サービスにはリクエストIPが伝わります。Tape Lounge は IP や位置を保存しません。失敗時はブラウザー言語を使い、明示的な選択を優先します。',
 'aboutText':'Tape Lounge は暗号資産の価格、トレンド候補、公開レポートをつなぐ独立した観察空間です。取引所ではなく、このサイトから実注文を執行しません。人気順位や訪問者数を捏造しません。',
-'sourceText':'価格は Binance 公開現物 API、KRW 価格は Upbit、為替は Frankfurter 日次参考レート、レーダーは当時公開された Andy レポートが出典です。観測時刻と原文を確認してください。障害や銘柄の不一致時は空欄にします。',
+'sourceText':'海外価格は Binance 公開現物 API、韓国の BTC/KRW は Upbit、韓国の USDT/KRW は Bithumb、為替は Frankfurter 日次参考レート、レーダーは当時公開された Andy レポートが出典です。観測時刻と原文を確認してください。障害や銘柄の不一致時は空欄にします。',
 'dataText':'公開観察 JSON と RSS を提供します。reportAt は観測時刻でありページ生成時刻ではありません。初観測は保存範囲内の最初で、市場全体の初シグナルではありません。バックテストと実運用成績を合算しません。',
 'analyticsText':'従来の匿名統計を使用し、ランダムなブラウザー ID、画面分類、活動時間、流入ドメインのみ記録します。ページが表示された状態で5秒経過するか、最初の操作があった時点で訪問として数えます。IP、端末指紋、検索語は収集しません。内部アクセス設定を維持します。元セッションは14日後に日次集計のみ残します。',
 'roles':['鄭マダム · 運用判断','Andy · トレンド発見','Prof. Justin · 相場局面研究'],
@@ -127,6 +127,20 @@ STAGES = {
 
 for language, label in zip(LANGS, ['과거 관찰','Past observations','历史观察','過去の観察']):
     COPY[language]['archive'] = label
+
+KIMCHI_LIVE_COPY = {
+    'ko': {'button':'최신 시세 불러와 계산','loading':'공개 시세와 환율을 불러오는 중…','success':'시세 조회 완료 · KST {time} · USD/KRW 기준일 {date}','error':'시세를 모두 불러오지 못했습니다. 잠시 뒤 다시 시도하거나 직접 입력해 주세요.','sources':'시세 출처: BTC/KRW Upbit · BTC/USDT Binance · USDT/KRW Bithumb · USD/KRW Frankfurter','disclaimer':'거래소 최근 체결가와 일일 기준환율을 이용한 참고값입니다. 관측 시각 차이, 호가 간격, 수수료·슬리피지·입출금 제한은 반영하지 않아 실제 체결이나 차익을 보장하지 않습니다.'},
+    'en': {'button':'Load current quotes','loading':'Fetching public market quotes and reference FX…','success':'Quotes loaded · KST {time} · USD/KRW reference date {date}','error':'Could not retrieve all quotes. Try again or enter the values manually.','sources':'Sources: BTC/KRW Upbit · BTC/USDT Binance · USDT/KRW Bithumb · USD/KRW Frankfurter.','disclaimer':'Indicative calculation using recent exchange trades and a daily FX reference. Quote times and order-book spreads may differ; fees, slippage, and transfer limits are excluded. This does not guarantee an executable price or arbitrage.'},
+    'zh': {'button':'读取最新报价并计算','loading':'正在读取公开行情与参考汇率…','success':'报价已载入 · KST {time} · USD/KRW 汇率日期 {date}','error':'未能取得全部报价。请稍后重试，或手动输入数值。','sources':'数据来源：BTC/KRW Upbit · BTC/USDT Binance · USDT/KRW Bithumb · USD/KRW Frankfurter。','disclaimer':'使用交易所近期成交价和每日参考汇率进行估算。报价时间及盘口价差可能不同，且未计入手续费、滑点和转账限制；不保证可成交价格或套利机会。'},
+    'ja': {'button':'最新価格を読み込んで計算','loading':'公開価格と参考為替を取得中…','success':'価格を取得しました · KST {time} · USD/KRW 参考日 {date}','error':'すべての価格を取得できませんでした。再試行するか、手動で入力してください。','sources':'データ出典：BTC/KRW Upbit · BTC/USDT Binance · USDT/KRW Bithumb · USD/KRW Frankfurter。','disclaimer':'取引所の直近約定値と日次参考為替による概算です。観測時刻や板のスプレッドは異なる場合があり、手数料・スリッページ・送金制限も含みません。約定価格や裁定機会を保証しません。'}
+}
+
+KIMCHI_LIVE_INTRO = {
+    'ko':'네 가격을 직접 입력하거나 최신 공개 시세를 불러와 달러 환율 기준과 테더 시세 기준을 비교합니다. 입력과 계산은 이 브라우저에서 처리됩니다.',
+    'en':'Enter four quotes or load current public prices to compare the USD-converted premium with the local tether basis. Inputs and calculations stay in this browser.',
+    'zh':'手动输入四个报价，或读取最新公开行情，对比美元换算溢价与本地泰达币价差。输入和计算均在当前浏览器中完成。',
+    'ja':'4つの価格を手入力するか最新の公開価格を読み込み、ドル換算のプレミアムと現地テザー価格の差を比較します。入力と計算はこのブラウザー内で行います。'
+}
 
 KIMCHI_TOOL_COPY = {
     'ko': {'kicker':'PRICE GAP / QUICK CALC','title':'김치 프리미엄 계산기','intro':'같은 시점의 네 가지 값을 입력하면 달러 환율 기준과 테더 시세 기준을 나눠 계산합니다. 입력한 값은 이 브라우저에서만 계산하며 서버로 보내지 않습니다.','local':'국내 BTC/KRW','binance':'해외 BTC/USDT','usd':'USD/KRW 참고환율','usdt':'국내 USDT/KRW','hintLocal':'예: 106,500,000','hintBinance':'예: 75,000','hintUsd':'예: 1,400','hintUsdt':'예: 1,410','example':'계산 예시 보기','clear':'초기화','usdResult':'USD/KRW 기준 해외환산가','usdNote':'달러 환산 김프','usdtResult':'USDT/KRW 기준 해외환산가','usdtNote':'테더 시세 반영 차이','basisResult':'USDT의 원화 괴리','pending':'네 값을 입력하면 계산 결과가 표시됩니다.','invalid':'네 값 모두 0보다 큰 숫자로 입력해 주세요.','disclaimer':'직접 입력한 호가를 이용한 참고 계산입니다. 실시간 시세·체결 가능 가격이 아니며 거래 비용은 포함하지 않습니다.','live':'실시간 국내·해외 시세 보기','faqTitle':'자주 묻는 질문','faqs':[('김치 프리미엄은 어떻게 계산하나요?','국내 BTC/KRW를 해외 BTC/USDT에 USD/KRW 참고환율을 곱한 값과 비교합니다. 이 페이지는 국내 USDT/KRW를 적용한 별도 비교값도 함께 보여줍니다.'),('역프리미엄은 무슨 뜻인가요?','같은 기준으로 환산했을 때 국내 가격이 해외 기준가보다 낮은 상태를 말합니다. 거래소와 환율 기준, 관측 시각에 따라 수치가 달라질 수 있습니다.'),('역프면 해외에서 사서 국내에서 팔면 되나요?','그 숫자만으로 실행 가능한 차익거래라고 볼 수 없습니다. 양쪽 호가와 수수료, 슬리피지, 입출금 제한, 송금 시간과 환율을 함께 확인해야 합니다.')]},

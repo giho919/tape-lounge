@@ -10,6 +10,8 @@
 .kp-actions button{padding:9px 13px;border-color:var(--line);background:var(--paper);font-size:12px}
 .kp-actions button:first-child{border-color:var(--ink);background:var(--ink);color:var(--white)}
 .kp-actions button:hover{filter:brightness(1.08)}
+.kp-actions button:disabled{cursor:wait;opacity:.72}
+.kp-sources{margin:10px 0 0;color:var(--muted);font-size:10px;line-height:1.6}
 .kp-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:22px}
 .kp-result{display:flex;min-height:116px;flex-direction:column;justify-content:space-between;gap:8px;padding:14px;border:1px solid var(--line);background:#f7f6f0}
 .kp-result>span{color:var(--muted);font-size:11px;line-height:1.5}
