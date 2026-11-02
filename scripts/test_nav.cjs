@@ -174,6 +174,18 @@ test('넓은 화면은 우측 인덱스, 좁은 화면은 하단 독 — 어느 
  assert.ok(!/\.tabsWrap\{width:100%;order:3\}/.test(html),'탭바를 헤더 아래로 내리던 규칙이 남아 있다');
 });
 
+test('공유 앱 버전 갱신이 한국어 바로가기 7개에도 반영된다',()=>{
+ const appVersion=crypto.createHash('sha256').update(fs.readFileSync(require.resolve('../lounge-app.js'))).digest('hex').slice(0,12);
+ const pages=['../index.html','../blind/index.html','../domestic/index.html','../desk/index.html','../analysis/index.html','../onchain/index.html','../calendar/index.html','../strategists/index.html'];
+ for(const page of pages){
+  const source=fs.readFileSync(require.resolve(page),'utf8');
+  assert.ok(source.includes(`/lounge-app.js?v=${appVersion}`),`${page} must load the current shared app`);
+ }
+ const start=builder.indexOf('def build_live_tools_only():');
+ const liveOnly=builder.slice(start,builder.indexOf('\ndef stage(',start));
+ assert.match(liveOnly,/for slug, selected, title, description in TOOL_PAGES:[\s\S]*?write\(f'\{slug\}\/index\.html'/,'live-only publishing must regenerate direct Korean tool routes');
+});
+
 // 배지: 라운지가 이미 들고 있는 macroData 로만 만든다
 function badge(events, nowIso){
   const src=app.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];

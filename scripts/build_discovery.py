@@ -403,6 +403,8 @@ def build_live_tools_only():
     classic=prepare_classic_home()
     build_decision_pages()
     write_live_home_pages(classic)
+    for slug, selected, title, description in TOOL_PAGES:
+        write(f'{slug}/index.html', tool_page(classic, slug, selected, title, description))
     for lang, pages_copy in LIVE_PAGE_COPY.items():
         title, description = pages_copy['']
         write(f'{lang}/tools/index.html',
