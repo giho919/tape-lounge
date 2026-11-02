@@ -82,7 +82,8 @@
 
   fields.forEach(field => field.addEventListener('input', update));
   form.addEventListener('reset', () => window.setTimeout(update, 0));
-  liveButton?.addEventListener('click', async () => {
+  const loadQuotes = async () => {
+    if (!liveButton || liveButton.disabled) return;
     liveButton.disabled = true;
     liveButton.setAttribute('aria-busy', 'true');
     status.textContent = copy.loading;
@@ -110,11 +111,12 @@
       liveButton.disabled = false;
       liveButton.removeAttribute('aria-busy');
     }
-  });
+  };
+  liveButton?.addEventListener('click', loadQuotes);
   example?.addEventListener('click', () => {
     ['106500000', '75000', '1400', '1410'].forEach((value, index) => { fields[index].value = value; });
     update();
   });
   update();
-  if (liveButton && fields.every(field => !field.value.trim())) liveButton.click();
+  if (liveButton && fields.every(field => !field.value.trim())) void loadQuotes();
 })();
