@@ -718,7 +718,7 @@ body.shake { animation:shake .5s; }
 
 /* ═══ 세션 챔피언십 (라운지) ═══ */
 .sessionGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 16px 6px; }
-.sessionCard { padding:14px 15px; border:1px solid var(--line); border-radius:11px; background:rgba(0,0,0,.16); }
+.sessionCard { min-height:90px; box-sizing:border-box; padding:14px 15px; border:1px solid var(--line); border-radius:11px; background:rgba(0,0,0,.16); }
 .sessionCard.live { border-color:var(--gold-dim); background:linear-gradient(145deg,rgba(212,175,55,.09),rgba(0,0,0,.2)); box-shadow:inset 0 0 22px rgba(212,175,55,.04); }
 .sessionCard span { display:flex; align-items:center; gap:7px; color:var(--dim); font-size:9px; letter-spacing:1.2px; }
 .sessionState { font-style:normal; padding:2px 6px; border:1px solid var(--line); border-radius:10px; font-size:8px; letter-spacing:.6px; color:var(--dim); }

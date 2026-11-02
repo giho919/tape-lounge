@@ -50,6 +50,15 @@ test('국가별 언어 제안은 본문을 밀지 않고 화면 위에 표시된
  assert.match(classicHome,/@media\(max-width:760px\)\{\.homeLocale\{left:10px;right:10px;bottom:calc\(82px \+ env\(safe-area-inset-bottom\)\)/);
 });
 
+test('세션 관전석 카드가 실시간 값 도착 뒤 높이를 늘리지 않도록 공간을 예약한다',()=>{
+ const htmlFiles=[];
+ const collect=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collect(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
+ collect(path.resolve(__dirname,'..'));
+ const pages=htmlFiles.map(file=>fs.readFileSync(file,'utf8')).filter(page=>page.includes('.sessionCard {'));
+ assert.ok(pages.length>=30,'생성된 라운지 페이지의 세션 카드 CSS를 찾지 못했다');
+ for(const page of pages) assert.match(page,/\.sessionCard \{ min-height:90px; box-sizing:border-box;/);
+});
+
 test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
  const chat=app.slice(app.indexOf('// ═══ 채팅 실시간 연결'),app.indexOf('renderNick();',app.indexOf('// ═══ 채팅 실시간 연결')));
  const create=chat.indexOf('chatChannel = channel;'),subscribe=chat.indexOf('channel.subscribe(status =>',create);
