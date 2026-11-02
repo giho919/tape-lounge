@@ -117,7 +117,7 @@
         slides[0].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
         slides[0].label = '오늘 결과 다시 보기 ↗';
       } else if (streak.days > 0) {
-        slides[0].copy = `어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
+        slides[0].copy = `${slides[0].copy} 어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
         slides[0].label = '오늘 이어서 도전 ↗';
       }
       slides[0].link = daily.url(day, selection.version);

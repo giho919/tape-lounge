@@ -402,15 +402,22 @@
         ? ['U.S. stocks', '美股', '米国株'] : ['Crypto', '加密资产', '暗号資産'];
       return `${dailyMarket[1]} · ${market[langIndex]}`;
     }
-    const dailyIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\.$/);
+    const dailyIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\.(?: 어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.)?$/);
     if (dailyIntro) {
       const period = dailyIntro[1] === '거래일'
         ? ['trading days', '个交易日', '取引日'] : ['days', '天', '日'];
-      return lang === 'en'
+      const translatedIntro = lang === 'en'
         ? `Try to last 200 ${period[0]} on the same chart, with the asset and dates hidden. Then compare your trades with holding over that period.`
         : lang === 'zh'
           ? `在标的和日期均隐藏的同一张图表上坚持200${period[1]}，再将自己的交易与同期持有收益率比较。`
           : `銘柄と日付を伏せた同じチャートで200${period[2]}続け、取引結果を同期間の保有リターンと比較します。`;
+      if (!dailyIntro[2]) return translatedIntro;
+      const dayCount = Number(dailyIntro[2]);
+      const translatedStreak = lang === 'en'
+        ? `Yesterday’s ${dayCount}-day streak continues if you finish today.`
+        : lang === 'zh' ? `截至昨天已连续完成 ${dayCount} 天，今天完赛即可延续。`
+          : `昨日まで${dayCount}日連続。今日完走すれば記録が続きます。`;
+      return `${translatedIntro} ${translatedStreak}`;
     }
     const firstFinish = value.match(/^첫 완주 ([+-]?\d+(?:\.\d+)?%) · 같은 기간 보유 ([+-]?\d+(?:\.\d+)?%)$/);
     if (firstFinish) return lang === 'en'

@@ -46,6 +46,14 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
  }
 });
 
+test('연속 도전 카드도 게임 설명을 유지하고 네 언어에서 오늘 기록을 함께 안내한다',()=>{
+ const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
+ const locale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
+ assert.match(rotation,/slides\[0\]\.copy = `\$\{slides\[0\]\.copy\} 어제까지 \$\{streak\.days\}일 연속 · 오늘 완주하면 이어집니다\.`/);
+ assert.match(locale,/비교합니다\\\..*어제까지 \(\\d\+\)일 연속 · 오늘 완주하면 이어집니다/);
+ for(const phrase of ['Yesterday’s ${dayCount}-day streak continues if you finish today.','截至昨天已连续完成 ${dayCount} 天，今天完赛即可延续。','昨日まで${dayCount}日連続。今日完走すれば記録が続きます。'])assert.ok(locale.includes(phrase),`missing localized streak text: ${phrase}`);
+});
+
 test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게임 조작부까지 번역한다',()=>{
  const localePath=path.resolve(__dirname,'../live-home-locale.js');
  const localeBytes=fs.readFileSync(localePath,'utf8').replace(/\r\n/g,'\n');
