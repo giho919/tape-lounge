@@ -2,10 +2,30 @@
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm'), crypto=require('node:crypto'), path=require('node:path');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\n/g,'\n');
 const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
+const homeLocale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
 const builder=fs.readFileSync(require.resolve('./build_discovery.py'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
 const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
+
+test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
+ const chat=app.slice(app.indexOf('// ═══ 채팅 실시간 연결'),app.indexOf('renderNick();',app.indexOf('// ═══ 채팅 실시간 연결')));
+ const create=chat.indexOf('chatChannel = channel;'),subscribe=chat.indexOf('channel.subscribe(status =>',create);
+ assert.ok(create>=0&&subscribe>create,'채팅 구독 경로를 찾지 못했다');
+ assert.ok(chat.slice(create,subscribe).includes('loadChatHistory();'),'채팅 기록을 구독 성공까지 미루면 안 된다');
+ assert.ok(chat.includes('CHAT_REALTIME_TIMEOUT_MS = 8000'),'실시간 연결 상태에 유한한 대기 기준이 없다');
+ assert.ok(chat.includes("if (chatRealtimeState === 'connected') return '실시간 · 한국시간'"),'소켓 연결 전 실시간으로 표시하면 안 된다');
+ for(const label of ['실시간 연결 중','실시간 연결 지연','재연결 중','대화 잠시 멈춤']) assert.ok(homeLocale.includes(`'${label}':`),`${label} 다국어 문구가 없다`);
+});
+
+test('접속자 수가 실시간 연결을 기다릴 때 무한히 연결 중으로 남지 않는다',()=>{
+ const presence=app.slice(app.indexOf('function renderViewerCount()'),app.indexOf('function syncSiteAudience()'));
+ assert.ok(app.includes('PRESENCE_REALTIME_TIMEOUT_MS = 8000'),'접속자 연결에 유한한 대기 기준이 없다');
+ assert.ok(presence.includes("presenceRealtimeState = 'connecting'"),'접속 중 상태를 표시하지 않는다');
+ assert.ok(presence.includes("presenceRealtimeState = 'delayed'"),'연결 지연 상태가 없다');
+ assert.ok(presence.includes("presenceRealtimeState = 'connected'"),'구독 확인 전에 현재 접속자 수를 확정하면 안 된다');
+ for(const label of ['접속자 연결 중','접속자 확인 지연','자리 비움']) assert.ok(homeLocale.includes(`'${label}':`),`${label} 다국어 문구가 없다`);
+});
 
 test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로직 계약을 지킨다',()=>{
  const block=html.slice(html.indexOf('<div class="tabs"'), html.indexOf('</div>',html.indexOf('data-tab="chars"'))+6);

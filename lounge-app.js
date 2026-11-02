@@ -1028,7 +1028,9 @@ try {
   if (!analyticsVisitorId) { analyticsVisitorId = siteUuid(); localStorage.setItem('tapeVisitorId', analyticsVisitorId); }
 } catch(e) { analyticsVisitorId = siteUuid(); }
 const analyticsSessionId = siteUuid();
-let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false, presenceChannel = null;
+let analyticsLastActiveAt = performance.now(), analyticsTimer = null, analyticsStarted = false;
+let presenceChannel = null, presenceConnectionTimer = null, presenceRealtimeState = 'idle';
+const PRESENCE_REALTIME_TIMEOUT_MS = 8000;
 let analyticsQualificationVisibleSeconds = 0, analyticsVisibleSince = document.hidden ? null : analyticsLastActiveAt;
 
 // ── 유휴 상한 ──
@@ -1132,8 +1134,27 @@ window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
 
 function renderViewerCount() {
   if (!presenceChannel) return;
+  if (presenceRealtimeState !== 'connected') {
+    $('viewerCount').textContent = presenceRealtimeLabel();
+    return;
+  }
   const count = Object.keys(presenceChannel.presenceState() || {}).length;
   $('viewerCount').textContent = `${count}명 관전 중`;
+}
+function presenceRealtimeLabel() {
+  if (presenceRealtimeState === 'connected') return `${Object.keys(presenceChannel?.presenceState() || {}).length}명 관전 중`;
+  if (presenceRealtimeState === 'reconnecting') return '재연결 중';
+  if (presenceRealtimeState === 'delayed') return '접속자 확인 지연';
+  if (presenceRealtimeState === 'idle') return '자리 비움';
+  return '접속자 연결 중';
+}
+function armPresenceConnectionTimer(channel) {
+  clearTimeout(presenceConnectionTimer);
+  presenceConnectionTimer = setTimeout(() => {
+    if (presenceChannel !== channel || presenceRealtimeState === 'connected') return;
+    presenceRealtimeState = 'delayed';
+    renderViewerCount();
+  }, PRESENCE_REALTIME_TIMEOUT_MS);
 }
 function startSitePresence() {
   if (!sbc || document.hidden || presenceChannel || analyticsAutomated || !analyticsQualified) return;
@@ -1142,20 +1163,32 @@ function startSitePresence() {
   const channel = sbc.channel('tape-lounge-presence', { config:{ presence:{ key:analyticsSessionId } } })
     .on('presence', { event:'sync' }, renderViewerCount);
   presenceChannel = channel;
+  presenceRealtimeState = 'connecting';
+  renderViewerCount();
+  armPresenceConnectionTimer(channel);
   channel.subscribe(async status => {
     if (status === 'SUBSCRIBED' && presenceChannel === channel) {
-      if (!analyticsInternal) await channel.track({ online_at:new Date().toISOString() });
+      presenceRealtimeState = 'connected';
+      clearTimeout(presenceConnectionTimer); presenceConnectionTimer = null;
+      if (!analyticsInternal) {
+        try { await channel.track({ online_at:new Date().toISOString() }); }
+        catch (error) { console.warn('presence track unavailable'); }
+      }
       renderViewerCount();
     } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-      $('viewerCount').textContent = '연결 대기';
+      presenceRealtimeState = 'reconnecting';
+      renderViewerCount();
+      armPresenceConnectionTimer(channel);
     }
   });
 }
 function stopSitePresence() {
   if (!presenceChannel) return;
   const channel = presenceChannel; presenceChannel = null;
+  presenceRealtimeState = 'idle';
+  clearTimeout(presenceConnectionTimer); presenceConnectionTimer = null;
   channel.untrack().catch(() => {}); sbc.removeChannel(channel);
-  $('viewerCount').textContent = '자리 비움';
+  $('viewerCount').textContent = presenceRealtimeLabel();
 }
 function syncSiteAudience() {
   const now = performance.now();
@@ -1360,10 +1393,27 @@ window.chatSend = chatSend;
 
 
 // ═══ 채팅 실시간 연결 — 라운지가 보일 때만 유지하고 복귀 시 누락분 동기화 ═══
-let chatChannel = null, chatChannelSeq = 0;
+let chatChannel = null, chatChannelSeq = 0, chatConnectionTimer = null;
+let chatRealtimeState = 'idle';
 const chatRows = new Map();
 let chatArrivalSequence = 0, chatHistoryGeneration = 0;
 const CHAT_RECENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const CHAT_REALTIME_TIMEOUT_MS = 8000;
+function chatRealtimeLabel() {
+  if (chatRealtimeState === 'connected') return '실시간 · 한국시간';
+  if (chatRealtimeState === 'reconnecting') return '재연결 중';
+  if (chatRealtimeState === 'delayed') return '실시간 연결 지연';
+  if (chatRealtimeState === 'idle') return '대화 잠시 멈춤';
+  return '실시간 연결 중';
+}
+function armChatConnectionTimer(channel) {
+  clearTimeout(chatConnectionTimer);
+  chatConnectionTimer = setTimeout(() => {
+    if (chatChannel !== channel || chatRealtimeState === 'connected') return;
+    chatRealtimeState = 'delayed';
+    $('chatConnection').textContent = chatRealtimeLabel();
+  }, CHAT_REALTIME_TIMEOUT_MS);
+}
 function chatRowIsRecent(row) {
   const created = Date.parse(row?.created_at || '');
   return Number.isFinite(created) && created >= Date.now() - CHAT_RECENT_WINDOW_MS;
@@ -1401,7 +1451,7 @@ async function loadChatHistory() {
     });
     feed.replaceChildren(...(nodes.length ? nodes : [renderChatEmptyState()]));
     restoreChatViewport(view);
-    $('chatConnection').textContent = '실시간 · 한국시간';
+    $('chatConnection').textContent = chatRealtimeLabel();
   } catch (error) {
     if (generation === chatHistoryGeneration) $('chatConnection').textContent = '대화 불러오기 지연';
     console.warn('chat history unavailable');
@@ -1418,18 +1468,32 @@ async function syncChat() {
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'salon_chat' },
             p => { if (chatChannel === channel) renderChatRow(p.new); });
       chatChannel = channel;
+      chatRealtimeState = 'connecting';
+      $('chatConnection').textContent = chatRealtimeLabel();
+      // Show recent conversation even when this browser cannot open a realtime socket.
+      loadChatHistory();
+      armChatConnectionTimer(channel);
       channel.subscribe(status => {
-        if (status === 'SUBSCRIBED' && chatChannel === channel) loadChatHistory();
+        if (status === 'SUBSCRIBED' && chatChannel === channel) {
+          chatRealtimeState = 'connected';
+          clearTimeout(chatConnectionTimer); chatConnectionTimer = null;
+          $('chatConnection').textContent = chatRealtimeLabel();
+          loadChatHistory();
+        }
         if (chatChannel === channel && (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT')) {
-          $('chatConnection').textContent = '재연결 중';
+          chatRealtimeState = 'reconnecting';
+          $('chatConnection').textContent = chatRealtimeLabel();
+          armChatConnectionTimer(channel);
           console.warn('chat realtime', status);
         }
       });
     }
   } else if (chatChannel) {
     const channel = chatChannel; chatChannel = null;
+    chatRealtimeState = 'idle';
+    clearTimeout(chatConnectionTimer); chatConnectionTimer = null;
     chatHistoryGeneration++;  // Ignore a history response from a closed connection.
-    $('chatConnection').textContent = '대화 잠시 멈춤';
+    $('chatConnection').textContent = chatRealtimeLabel();
     sbc.removeChannel(channel);   // 백그라운드·타 탭에서는 회선 반납
   }
 }
