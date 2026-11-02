@@ -95,6 +95,20 @@ test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지�
  assert.ok(builder.includes("'@type': 'WebSite'")&&builder.includes('application/ld+json'),'the generator must preserve homepage structured data');
 });
 
+test('홈 검색 제목은 차트 연습을 앞세우고 시세·김프를 설명에 유지한다',()=>{
+ const ko=fs.readFileSync(require.resolve('../index.html'),'utf8');
+ assert.match(ko,/<title>미국주식 차트 게임·실시간 비트코인 시세와 김프 \| Tape Lounge<\/title>/);
+ assert.match(ko,/name="description" content="종목과 날짜를 가린 과거 미국주식·비트코인 차트에서 가상 매매를 연습하고 같은 기간 보유와 비교하세요\. 실시간 비트코인 시세와 김치 프리미엄도 확인할 수 있습니다\./);
+ for(const [path,terms] of [
+  ['../en/index.html',['Blind chart practice','live crypto markets','hidden-date historical stock and crypto charts']],
+  ['../zh/index.html',['盲图交易练习','隐藏标的和日期','实时行情']],
+  ['../ja/index.html',['ブラインドチャート練習','銘柄名と日付を隠した過去','リアルタイム相場']],
+ ]){
+  const page=fs.readFileSync(require.resolve(path),'utf8');
+  for(const term of terms)assert.ok(page.includes(term),`${path} missing ${term}`);
+ }
+});
+
 test('코인 경마는 방문 시각이 아니라 Binance 공통 5분 봉 시가로 시작한다',()=>{
  assert.ok(app.includes("const RACE_STREAMS = RACE_COINS.map(sym => `${sym.toLowerCase()}usdt@kline_5m`).join('/');"));
  assert.ok(app.includes("new WebSocket('wss://stream.binance.com:9443/stream?streams=' + RACE_STREAMS)"));

@@ -281,7 +281,7 @@ LIVE_TAB_SLUGS = {
 }
 LIVE_PAGE_COPY = {
     'en': {
-        '': ('Live market lounge | Tape Lounge', 'A live market lounge with price action, chart practice, market data and trader conversations.'),
+        '': ('Blind chart practice & live crypto markets | Tape Lounge', 'Practice on hidden-date historical stock and crypto charts, compare your trades with holding, and follow live market data.'),
         'blind': ('Blind chart practice | Tape Lounge', 'Practice on historical stock and crypto charts with the same live lounge layout.'),
         'domestic': ('Korean Crypto Prices & Kimchi Premium | Tape Lounge', 'Compare live Upbit and Bithumb KRW prices with overseas USDT spot markets; the premium uses the selected exchange’s latest USDT/KRW trade.'),
         'desk': ('Bitcoin futures desk | Tape Lounge', 'Review Bitcoin futures context, funding, open interest and order flow.'),
@@ -291,7 +291,7 @@ LIVE_PAGE_COPY = {
         'strategists': ('Strategist reports | Tape Lounge', 'Read the public market observations and research notes.'),
     },
     'zh': {
-        '': ('实时行情大厅 | Tape Lounge', '在同一大厅查看行情、历史图表练习、市场数据与交易讨论。'),
+        '': ('盲图交易练习与实时行情 | Tape Lounge', '在隐藏标的和日期的历史美股与加密货币图表上练习，比较交易结果与同期持有，并查看实时行情。'),
         'blind': ('盲图练习 | Tape Lounge', '在统一的大厅界面中，用历史美股和加密货币图表练习。'),
         'domestic': ('韩国加密货币行情与溢价 | Tape Lounge', '比较 Upbit、Bithumb 的韩元实时价格与海外 USDT 现货价格，并说明溢价换算基准。'),
         'desk': ('比特币合约行情台 | Tape Lounge', '查看比特币合约背景、资金费率、持仓量与订单流。'),
@@ -301,7 +301,7 @@ LIVE_PAGE_COPY = {
         'strategists': ('策略师报告 | Tape Lounge', '阅读公开市场观察与研究记录。'),
     },
     'ja': {
-        '': ('ライブマーケットラウンジ | Tape Lounge', '相場、過去チャート練習、市場データ、トレーダーの会話を一つのラウンジで確認できます。'),
+        '': ('ブラインドチャート練習とリアルタイム相場 | Tape Lounge', '銘柄名と日付を隠した過去の株式・暗号資産チャートで練習し、同期間の保有と比較しながらリアルタイム相場を確認できます。'),
         'blind': ('ブラインドチャート練習 | Tape Lounge', '同じラウンジ画面で、株式と暗号資産の過去チャートを練習できます。'),
         'domestic': ('韓国暗号資産価格・プレミアム | Tape Lounge', 'Upbit・Bithumbのウォン建て価格と海外USDT現物価格を比較し、換算基準も確認できます。'),
         'desk': ('ビットコイン先物デスク | Tape Lounge', 'ビットコイン先物の背景、資金調達率、建玉、注文フローを確認します。'),
