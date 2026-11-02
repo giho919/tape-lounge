@@ -24,12 +24,17 @@ test('오늘의 판 홈 카드에서 친구 초대와 추적 가능한 공유 �
  for(const label of ['친구와 한 판 ↗','오늘의 판 초대','복사할 초대 문구와 링크']) assert.ok(homeLocale.includes(`'${label}'`),`${label} 번역이 없다`);
 });
 
-test('오늘의 판 카드가 200일 도전의 예상 플레이 시간을 안내한다',()=>{
- assert.match(rotation,/기본 2× 속도로 약 4분이면 끝납니다\./);
- assert.match(homeLocale,/About 4 minutes at the default 2× speed\./);
- assert.match(homeLocale,/默认2倍速约4分钟/);
- assert.match(homeLocale,/標準の2倍速で約4分/);
- assert.match(homeLocale,/비교합니다\\\. 기본 2× 속도로 약 4분이면 끝납니다\\\./);
+test('오늘의 판 카드가 4분 소요와 매수·매도 연습 방식을 앞세운다',()=>{
+ assert.match(rotation,/오늘의 미국 주식 판 · 약 4분/);
+ assert.match(rotation,/오늘의 판 · 약 4분/);
+ assert.match(rotation,/로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요/);
+ assert.match(homeLocale,/Today’s U\.S\. stock chart · about 4 min/);
+ assert.match(homeLocale,/今日美股盲图 · 约4分钟/);
+ assert.match(homeLocale,/今日の米国株チャート・約4分/);
+ assert.match(homeLocale,/No login needed\. Practice buy and sell timing/);
+ assert.match(homeLocale,/无需登录。.*练习买卖/);
+ assert.match(homeLocale,/ログイン不要。.*売買を練習/);
+ assert.match(homeLocale,/200\(거래일\|일\) 후 같은 기간 보유와 비교합니다/);
 });
 
 test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
@@ -131,7 +136,7 @@ test('연속 도전 카드도 게임 설명을 유지하고 네 언어에서 오
  const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
  const locale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
  assert.match(rotation,/slides\[0\]\.copy = `\$\{slides\[0\]\.copy\} 어제까지 \$\{streak\.days\}일 연속 · 오늘 완주하면 이어집니다\.`/);
- assert.match(locale,/비교합니다\\\..*기본 2× 속도로 약 4분이면 끝납니다\\\..*어제까지 \(\\d\+\)일 연속 · 오늘 완주하면 이어집니다/);
+ assert.match(locale,/로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요.*어제까지 \(\\d\+\)일 연속 · 오늘 완주하면 이어집니다/);
  for(const phrase of ['Yesterday’s ${dayCount}-day streak continues if you finish today.','截至昨天已连续完成 ${dayCount} 天，今天完赛即可延续。','昨日まで${dayCount}日連続。今日完走すれば記録が続きます。'])assert.ok(locale.includes(phrase),`missing localized streak text: ${phrase}`);
 });
 
