@@ -50,7 +50,7 @@ test('오늘의 판 첫 화면 버튼은 모바일에서 누르기 쉬운 높이
 test('오늘의 판 카드가 4분 소요와 매수·매도 연습 방식을 앞세운다',()=>{
  assert.match(rotation,/오늘의 미국 주식 판 · 약 4분/);
  assert.match(rotation,/오늘의 판 · 약 4분/);
- assert.match(rotation,/로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요/);
+ assert.match(rotation,/실제(?: 미국 주식)? 차트 200(?:거래일|일)을 모의 매매하고/);
  assert.match(homeLocale,/Today’s U\.S\. stock chart · about 4 min/);
  assert.match(homeLocale,/今日美股盲图 · 约4分钟/);
  assert.match(homeLocale,/今日の米国株チャート・約4分/);
@@ -151,7 +151,8 @@ test('BTC 판단 연습 페이지 네 언어판은 JavaScript 실행 전에도 �
 });
 
 test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로직 계약을 지킨다',()=>{
- const block=html.slice(html.indexOf('<div class="tabs"'), html.indexOf('</div>',html.indexOf('data-tab="chars"'))+6);
+ const tabsStart=html.indexOf('<div class="tabs"'), charsIndex=html.indexOf('data-tab="chars"',tabsStart);
+ const block=html.slice(tabsStart,html.indexOf('</div>',charsIndex)+6);
  for(const t of TABS){
   const re=new RegExp(`data-tab="${t}"[^>]*>\\s*<i class="ic" aria-hidden="true">([^<]+)</i><span class="nm">([^<]+)</span>`);
   const m=block.match(re);
@@ -274,11 +275,11 @@ test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지�
 test('홈 검색 제목은 차트 연습을 앞세우고 시세·김프를 설명에 유지한다',()=>{
  const ko=fs.readFileSync(require.resolve('../index.html'),'utf8');
  assert.match(ko,/<title>미국주식 차트 게임·실시간 비트코인 시세와 김프 \| Tape Lounge<\/title>/);
- assert.match(ko,/name="description" content="종목과 날짜를 가린 과거 미국주식·비트코인 차트에서 가상 매매를 연습하고 같은 기간 보유와 비교하세요\. 실시간 비트코인 시세와 김치 프리미엄도 확인할 수 있습니다\./);
+ assert.match(ko,/name="description" content="로그인 없이 매일 무료로 도전하는 미국주식 차트 게임\. 종목·날짜를 가린 실제 과거 일봉 200개를 매매하고, 결과를 같은 기간 보유와 비교하세요\. 실시간 비트코인 시세와 김치 프리미엄도 확인할 수 있습니다\./);
  for(const [path,terms] of [
-  ['../en/index.html',['Blind chart practice','live crypto markets','hidden-date historical stock and crypto charts']],
-  ['../zh/index.html',['盲图交易练习','隐藏标的和日期','实时行情']],
-  ['../ja/index.html',['ブラインドチャート練習','銘柄名と日付を隠した過去','リアルタイム相場']],
+  ['../en/index.html',['U.S. stock chart game','Live crypto markets','ticker and dates hidden']],
+  ['../zh/index.html',['美股图表','隐藏代码和日期','实时加密行情']],
+  ['../ja/index.html',['米国株の日足200本','銘柄名と日付を隠した','暗号資産の相場']],
  ]){
   const page=fs.readFileSync(require.resolve(path),'utf8');
   for(const term of terms)assert.ok(page.includes(term),`${path} missing ${term}`);
@@ -466,7 +467,7 @@ test('홈은 첫 화면에 필요 없는 CSS를 늦게 적용하고 기능 탭�
   }
  }
  assert.ok(builder.includes('home_shell = defer_home_shell_styles(classic)'),'the generator must defer styles on generated home pages');
- assert.ok(builder.includes('def defer_home_shell_styles(home):'),'the reusable home stylesheet transform is missing');
+ assert.ok(builder.includes("def defer_home_shell_styles(home, selected='lounge'):"),'the reusable home stylesheet transform is missing');
  const domestic=fs.readFileSync(require.resolve('../domestic/index.html'),'utf8');
  assert.match(domestic,/<link rel="stylesheet" href="domestic\.css\?v=[^"]+">/,'the dedicated domestic tab should load its styles immediately');
 });
