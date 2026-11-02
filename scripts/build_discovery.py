@@ -247,6 +247,12 @@ DECISION_COPY = {
     'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中查看多个周期、前一日恐惧与贪婪指数及历史资金费率，练习买入、等待、持有和卖出，并回顾后续走势与手续费。'),
     'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', 'ビットコインの過去チャートを複数時間軸で見て、前日のFear & Greed指数とFundingを参考に判断し、その後の値動きや手数料を振り返ります。'),
 }
+DECISION_LANDING_COPY = {
+    'ko': ('과거 비트코인 차트, 그때 나라면?', '과거 시장의 한 장면에서 선택하고, 다음 5일을 열어보세요. 한 번의 수익보다 내가 세운 원칙과 위험을 돌아보는 연습입니다.'),
+    'en': ('What would you have done?', 'Make a call at a moment from the past, then reveal the next five days. The point is to review your rules and risk, not to celebrate one profitable outcome.'),
+    'zh': ('如果当时是你，会怎么做？', '在一段历史行情中做出选择，再揭晓之后五天。练习重点是回看自己的规则与风险，而不是只看一次盈亏。'),
+    'ja': ('あの時、自分ならどうした？', '過去の相場で選択し、その後5日間を確認します。一度の損益より、自分のルールとリスクを振り返る練習です。'),
+}
 
 def decision_url(lang):
     return '/decision/' if lang == 'ko' else f'/{lang}/decision/'
@@ -263,9 +269,12 @@ def build_decision_pages():
     }
     for lang in LANGS:
         title,description=DECISION_COPY[lang]
+        landing_title,landing_lead=DECISION_LANDING_COPY[lang]
         image=f'{BASE}/decision-og-{lang}-20261101.png?v=20261101a'
         page=(template.replace('__LANG__',lang).replace('__TITLE__',e(title))
               .replace('__DESCRIPTION__',e(description,quote=True))
+              .replace('__INITIAL_TITLE__',e(landing_title))
+              .replace('__INITIAL_LEAD__',e(landing_lead))
               .replace('__CANONICAL__',BASE+decision_url(lang)).replace('__ALTERNATES__',alternates)
               .replace('__OG_IMAGE__',image).replace('__OG_IMAGE_ALT__',e(image_alt[lang],quote=True))
               .replace('__ANALYTICS_VERSION__',VERSION))

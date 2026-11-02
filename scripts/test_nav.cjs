@@ -4,6 +4,7 @@ const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\
 const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
 const homeLocale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
 const builder=fs.readFileSync(require.resolve('./build_discovery.py'),'utf8');
+const decisionTemplate=fs.readFileSync(require.resolve('./decision-template.html'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
 const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
@@ -25,6 +26,24 @@ test('접속자 수가 실시간 연결을 기다릴 때 무한히 연결 중으
  assert.ok(presence.includes("presenceRealtimeState = 'delayed'"),'연결 지연 상태가 없다');
  assert.ok(presence.includes("presenceRealtimeState = 'connected'"),'구독 확인 전에 현재 접속자 수를 확정하면 안 된다');
  for(const label of ['접속자 연결 중','접속자 확인 지연','자리 비움']) assert.ok(homeLocale.includes(`'${label}':`),`${label} 다국어 문구가 없다`);
+});
+
+test('BTC 판단 연습 페이지 네 언어판은 JavaScript 실행 전에도 제목과 소개를 제공한다',()=>{
+ assert.ok(decisionTemplate.includes('__INITIAL_TITLE__')&&decisionTemplate.includes('__INITIAL_LEAD__'),'정적 소개문 자리가 템플릿에 없다');
+ assert.ok(builder.includes('DECISION_LANDING_COPY'),'생성기가 언어별 정적 소개문을 제공하지 않는다');
+ const expected={
+  ko:['과거 비트코인 차트, 그때 나라면?','decision/index.html'],
+  en:['What would you have done?','en/decision/index.html'],
+  zh:['如果当时是你，会怎么做？','zh/decision/index.html'],
+  ja:['あの時、自分ならどうした？','ja/decision/index.html']
+ };
+ for(const [lang,[title,file]] of Object.entries(expected)){
+  const page=fs.readFileSync(path.resolve(__dirname,'..',file),'utf8');
+  const h1=page.match(/<h1 data-t="title">([^<]*)<\/h1>/),lead=page.match(/<p data-t="lead">([^<]*)<\/p>/);
+  assert.equal(h1?.[1],title,`${lang} 정적 제목이 비어 있거나 다른 언어다`);
+  assert.ok(lead?.[1]?.trim(),`${lang} 정적 소개문이 비어 있다`);
+  assert.ok(!page.includes('__INITIAL_'),`${lang}에 생성기 치환용 문구가 남아 있다`);
+ }
 });
 
 test('탭 여덟 개가 아이콘과 이름을 따로 들고, 기존 선택 로직 계약을 지킨다',()=>{
