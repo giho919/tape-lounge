@@ -187,6 +187,17 @@ test('공유 앱 버전 갱신이 한국어 바로가기 7개에도 반영된다
  assert.match(liveOnly,/for slug, selected, title, description in TOOL_PAGES:[\s\S]*?write\(f'\{slug\}\/index\.html'/,'live-only publishing must regenerate direct Korean tool routes');
 });
 
+test('블라인드 판 공유 이미지는 페이지 언어를 따라간다',()=>{
+ const routes={ko:'../blind/index.html',en:'../en/tools/blind/index.html',zh:'../zh/tools/blind/index.html',ja:'../ja/tools/blind/index.html'};
+ for(const [lang,path] of Object.entries(routes)){
+  const page=fs.readFileSync(require.resolve(path),'utf8');
+  const image=`https://tapelounge.com/home-og-${lang}-20261102.png`;
+  assert.ok(fs.existsSync(require.resolve(`../home-og-${lang}-20261102.png`)),`${lang} preview asset must exist`);
+  assert.ok(page.includes(`<meta property="og:image" content="${image}">`),`${lang} OG preview must use its localized card`);
+  assert.ok(page.includes(`<meta name="twitter:image" content="${image}">`),`${lang} Twitter preview must use its localized card`);
+ }
+});
+
 // 배지: 라운지가 이미 들고 있는 macroData 로만 만든다
 function badge(events, nowIso){
   const src=app.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];

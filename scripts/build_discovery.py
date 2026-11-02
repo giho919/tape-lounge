@@ -24,12 +24,6 @@ HOME_OG_ALT = {
     'zh': '在隐藏标的和日期的美股与比特币历史图表上进行虚拟交易练习，并与持有结果比较',
     'ja': '銘柄と日付を隠した米国株・ビットコインの過去チャートで仮想売買を練習し、保有結果と比べるTape Lounge',
 }
-BLIND_OG_ALT = {
-    'ko': HOME_OG_ALT['ko'],
-    'en': HOME_OG_ALT['en'],
-    'zh': HOME_OG_ALT['zh'],
-    'ja': HOME_OG_ALT['ja'],
-}
 TOOL_OG_ALT = {
     'ko': 'Tape Lounge 실시간 시장 정보와 차트 분석 화면',
     'en': 'Live market information and chart analysis at Tape Lounge',
@@ -46,7 +40,8 @@ NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', '
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
-               'site-campaign.js', 'blind-og-20261101.png', 'lounge-rotation.js',
+               'site-campaign.js', 'home-og-ko-20261102.png', 'home-og-en-20261102.png',
+               'home-og-zh-20261102.png', 'home-og-ja-20261102.png', 'lounge-rotation.js',
                'live-home-locale.js']
 SHARE_ASSETS = ['article-share.js', 'article-share.css']
 SHARE_VERSION = sha256(b''.join((ROOT / p).read_bytes() for p in SHARE_ASSETS)).hexdigest()[:12]
@@ -98,8 +93,10 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
         text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
     if slug == 'blind':
-        image = BASE + '/blind-og-20261101.png?v=20261101a'
-        image_alt = BLIND_OG_ALT[lang]
+        # Social shares of translated routes must preview in that route's language.
+        # The localized home card already describes this exact blind-chart game.
+        image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
+        image_alt = HOME_OG_ALT[lang]
     elif live_tools and not slug:
         image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
         image_alt = HOME_OG_ALT[lang]
