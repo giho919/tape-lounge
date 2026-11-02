@@ -820,7 +820,25 @@ body.shake { animation:shake .5s; }
 </style>
 <link rel="preload" as="style" href="strategists.css?v=20260909" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="strategists.css?v=20260909"></noscript>
 <script defer src="/home-language.js?v=8c5c652ab244"></script>
-<script defer src="/live-home-locale.js?v=f64f95e2996a"></script>
+<script defer src="/live-home-locale.js?v=cd06855383f9"></script>
+<style id="mobileNavCss">
+.mobileMoreToggle,.mobileMoreMenu { display:none; }
+.mobileMoreMenu[hidden] { display:none !important; }
+@media(max-width:760px){
+  .tabsWrap{display:flex;align-items:stretch}
+  .tabs{flex:1 1 0;min-width:0}
+  .tabs > .tab[data-tab="analysis"],.tabs > .tab[data-tab="chain"],.tabs > .tab[data-tab="macro"],.tabs > .tab[data-tab="chars"]{display:none}
+  .mobileMoreToggle{display:flex;flex:0 0 20%;position:relative;color:var(--dim)}
+  .mobileMoreToggle.has-active{color:var(--gold);background:rgba(212,175,110,.13)}
+  .mobileMoreDot{display:none;position:absolute;top:4px;right:calc(50% - 16px);width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(212,175,55,.65)}
+  .mobileMoreToggle.has-active .mobileMoreDot{display:block}
+  .mobileMoreMenu:not([hidden]){display:grid;position:absolute;right:8px;bottom:calc(100% + 8px);z-index:1;width:min(272px,calc(100vw - 20px));box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid var(--gold-dim);border-radius:12px;background:rgba(15,18,24,.98);box-shadow:0 12px 34px rgba(0,0,0,.55);backdrop-filter:blur(14px)}
+  .mobileMoreItem{display:flex;align-items:center;gap:7px;min-width:0;min-height:44px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025);color:#c7cbd2;font-size:10px;text-decoration:none;white-space:nowrap}
+  .mobileMoreItem .ic{flex:none;width:19px;text-align:center;font-size:15px}
+  .mobileMoreItem.on{border-color:var(--gold-dim);background:rgba(212,175,110,.1);color:var(--gold)}
+  .mobileMoreItem:focus-visible,.mobileMoreToggle:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+}
+</style>
 </head>
 <body data-entry-tab="chain">
 <div class="wrap" role="main">
@@ -838,6 +856,13 @@ body.shake { animation:shake .5s; }
     <a href="/en/tools/calendar/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="macro" title="발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과"><i class="ic" aria-hidden="true">📣</i><span class="nm">발표장</span></a>
     <a href="/en/tools/strategists/" class="tab" role="tab" tabindex="0" aria-selected="false" data-tab="chars" title="전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부"><i class="ic" aria-hidden="true">🎩</i><span class="nm">전략가들</span></a>
   </div>
+  <button type="button" class="tab mobileMoreToggle" id="mobileMoreToggle" aria-label="더보기" aria-controls="mobileMoreMenu" aria-expanded="false"><i class="ic" aria-hidden="true">•••</i><span class="nm">더보기</span><span class="mobileMoreDot" aria-hidden="true"></span></button>
+  <nav class="mobileMoreMenu" id="mobileMoreMenu" aria-label="추가 라운지 기능" hidden>
+    <a href="/en/tools/analysis/" class="mobileMoreItem" data-mobile-nav="analysis"><i class="ic" aria-hidden="true">📐</i><span>차트 분석</span></a>
+    <a href="/en/tools/onchain/" class="mobileMoreItem" data-mobile-nav="chain"><i class="ic" aria-hidden="true">⛓</i><span>온체인</span></a>
+    <a href="/en/tools/calendar/" class="mobileMoreItem" data-mobile-nav="macro"><i class="ic" aria-hidden="true">📣</i><span>발표장</span></a>
+    <a href="/en/tools/strategists/" class="mobileMoreItem" data-mobile-nav="chars"><i class="ic" aria-hidden="true">🎩</i><span>전략가들</span></a>
+  </nav>
   </div>
   <div class="hdrActions">
     <details class="languagePicker">
@@ -1463,5 +1488,39 @@ body.shake { animation:shake .5s; }
   <p class="crewDisclaimer" id="crewDisclaimer">공개 자료를 바탕으로 대화하는 AI예요. 실제 투자자나 투자 자문가가 아니며, 발언에 오류가 있을 수 있어요.</p>
 </dialog>
 <script defer src="/lounge-app.js?v=4a7e85abb604"></script>
+<script>
+(() => {
+  const toggle = document.getElementById('mobileMoreToggle');
+  const menu = document.getElementById('mobileMoreMenu');
+  if (!toggle || !menu) return;
+  const secondary = new Set(['analysis','chain','macro','chars']);
+  const active = [...document.querySelectorAll('.tabs > .tab.on[data-tab]')]
+    .find(link => secondary.has(link.dataset.tab));
+  if (active) {
+    const item = menu.querySelector(`[data-mobile-nav="${active.dataset.tab}"]`);
+    if (item) {
+      item.classList.add('on');
+      item.setAttribute('aria-current','page');
+      toggle.classList.add('has-active');
+    }
+  }
+  function setOpen(open) {
+    menu.hidden = !open;
+    toggle.setAttribute('aria-expanded',String(open));
+  }
+  toggle.addEventListener('click',() => setOpen(menu.hidden));
+  menu.addEventListener('click',event => {
+    if (event.target.closest('a')) setOpen(false);
+  });
+  document.addEventListener('pointerdown',event => {
+    if (!menu.hidden && !menu.contains(event.target) && !toggle.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener('keydown',event => {
+    if (event.key === 'Escape' && !menu.hidden) { setOpen(false); toggle.focus(); }
+  });
+  const mobile = window.matchMedia('(max-width:760px)');
+  mobile.addEventListener?.('change',event => { if (!event.matches) setOpen(false); });
+})();
+</script>
 </body>
 </html>

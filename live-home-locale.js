@@ -10,6 +10,8 @@
     '다른 언어 페이지 열기':['Open this lounge in another language','以其他语言打开大厅','別の言語でラウンジを開く'],
     '언어별 Tape Lounge 페이지':['Tape Lounge languages','Tape Lounge 语言','Tape Lounge の言語'],
     '라운지 섹션':['Lounge sections','大厅栏目','ラウンジのセクション'],
+    '더보기':['More','更多','その他'],
+    '추가 라운지 기능':['More lounge tools','更多休息室工具','ラウンジの追加機能'],
     '지금 이 페이지를 열어 둔 창의 수 — 같은 사람이 탭을 여러 개 열면 함께 집계됩니다':['Open windows on this page; multiple tabs from one person are counted together.','当前打开此页面的窗口数；同一人的多个标签页会合并统计。','このページを開いているウィンドウ数。同じ人の複数タブはまとめて数えます。'],
     '라운지':['Lounge','大厅','ラウンジ'], '블라인드':['Blind chart','盲图','ブラインドチャート'],
     '국내장':['Markets','韩国市场','韓国市場'], '데스크':['Futures','合约交易台','先物デスク'],
