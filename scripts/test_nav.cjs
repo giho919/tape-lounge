@@ -379,10 +379,12 @@ test('블라인드 판 공유 이미지는 페이지 언어를 따라간다',()=
  const routes={ko:'../blind/index.html',en:'../en/tools/blind/index.html',zh:'../zh/tools/blind/index.html',ja:'../ja/tools/blind/index.html'};
  for(const [lang,path] of Object.entries(routes)){
   const page=fs.readFileSync(require.resolve(path),'utf8');
-  const image=`https://tapelounge.com/home-og-${lang}-20261102.png`;
-  assert.ok(fs.existsSync(require.resolve(`../home-og-${lang}-20261102.png`)),`${lang} preview asset must exist`);
+  const image=`https://tapelounge.com/home-og-${lang}-20261103.png`;
+  assert.ok(fs.existsSync(require.resolve(`../home-og-${lang}-20261103.png`)),`${lang} preview asset must exist`);
   assert.ok(page.includes(`<meta property="og:image" content="${image}">`),`${lang} OG preview must use its localized card`);
   assert.ok(page.includes(`<meta name="twitter:image" content="${image}">`),`${lang} Twitter preview must use its localized card`);
+  const sameRoundCopy={ko:'매일 모두가 같은 미국 주식 차트',en:'Everyone gets the same U.S. stock chart each day',zh:'每天所有人挑战同一张美股图表',ja:'毎日全員が同じ米国株チャートに挑戦'};
+  assert.ok(page.includes(sameRoundCopy[lang]),`${lang} share description must explain the shared daily round`);
  }
 });
 

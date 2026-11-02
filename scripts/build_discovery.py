@@ -47,12 +47,12 @@ def normalize_conflicting_justin_letter(letters):
 
 
 BASE = 'https://tapelounge.com'
-HOME_OG_VERSION = '20261102'
+HOME_OG_VERSION = '20261103'
 HOME_OG_ALT = {
-    'ko': '종목과 날짜를 숨긴 미국주식 차트 게임에서 매매를 연습하고 보유 결과와 비교하는 Tape Lounge',
-    'en': 'A daily U.S. stock chart game with the ticker and dates hidden, compared with buy-and-hold at Tape Lounge',
-    'zh': 'Tape Lounge 每日美股盲图练习：隐藏代码和日期，完成后与同期持有比较',
-    'ja': '銘柄名と日付を隠した米国株の毎日チャート練習。結果を同期間保有と比べるTape Lounge',
+    'ko': '모두가 종목과 날짜를 숨긴 같은 오늘의 미국 주식 차트에 도전하고 가상 매매를 보유 결과와 비교하는 Tape Lounge',
+    'en': 'Everyone gets the same daily U.S. stock chart with ticker and date hidden, then compares virtual trades with holding at Tape Lounge',
+    'zh': 'Tape Lounge 每日同一张美股盲图挑战：隐藏标的和日期，完成模拟交易后与同期持有比较',
+    'ja': '全員が銘柄と日付を隠した同じ米国株チャートに挑戦し、模擬売買を同期間保有と比べるTape Lounge',
 }
 TOOL_OG_ALT = {
     'ko': 'Tape Lounge 실시간 시장 정보와 차트 분석 화면',
@@ -70,8 +70,8 @@ NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', '
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
-               'site-campaign.js', 'home-og-ko-20261102.png', 'home-og-en-20261102.png',
-               'home-og-zh-20261102.png', 'home-og-ja-20261102.png', 'lounge-rotation.js',
+               'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
+               'home-og-zh-20261103.png', 'home-og-ja-20261103.png', 'lounge-rotation.js',
                'live-home-locale.js']
 SHARE_ASSETS = ['article-share.js', 'article-share.css']
 SHARE_VERSION = sha256(b''.join(stable_bytes(ROOT / p) for p in SHARE_ASSETS)).hexdigest()[:12]
@@ -87,7 +87,7 @@ TOOL_PAGES = [
     ('calendar', 'macro', '미국 경제지표 발표 일정 · Tape Lounge',
      'CPI, 고용, GDP와 FOMC의 공식 발표 일정, 확인된 결과와 발표 이후 비트코인 가격 반응을 한국시간으로 확인합니다.'),
     ('blind', 'game', '미국주식·비트코인 블라인드 차트 모의투자 게임 · Tape Lounge',
-     '미국주식과 비트코인의 실제 과거 차트로 하는 블라인드 모의투자 게임입니다. 종목과 날짜를 가리고 가상 자금으로 200개 봉을 매매한 뒤 같은 기간 매수 후 보유 수익률과 비교하세요. 혼자 또는 친구와 플레이하며 실제 주문은 없습니다.'),
+     '매일 모두가 같은 미국 주식 차트에 도전합니다. 종목과 날짜를 가린 실제 과거 차트 200거래일을 약 4분간 매매하고, 결과를 같은 기간 매수 후 보유와 비교하세요. 혼자 또는 친구와 즐길 수 있으며 실제 주문은 없습니다.'),
     ('strategists', 'chars', '크립토 전략가 리포트 · Tape Lounge',
      '정마담의 운용 장부, Andy의 종목 관찰과 Prof. Justin의 월간 시장 국면 판정을 확인하는 AI 전략가 리포트입니다.'),
 ]
@@ -319,7 +319,7 @@ LIVE_TAB_SLUGS = {
 LIVE_PAGE_COPY = {
     'en': {
         '': ('U.S. Stock Chart Game & Live Crypto Data | Tape Lounge', 'No login needed: play a free daily U.S. stock chart game with ticker and dates hidden. Trade 200 real daily candles, then compare with buy-and-hold. Live crypto markets, too.'),
-        'blind': ('Blind chart practice | Tape Lounge', 'Practice on historical stock and crypto charts with the same live lounge layout.'),
+        'blind': ('Same chart, daily challenge | Tape Lounge', 'Everyone gets the same U.S. stock chart each day. Trade 200 hidden sessions in about four minutes, then compare with buy-and-hold. Play solo or with a friend; no real orders.'),
         'domestic': ('Korean Crypto Prices & Kimchi Premium | Tape Lounge', 'Compare live Upbit and Bithumb KRW prices with overseas USDT spot markets; the premium uses the selected exchange’s latest USDT/KRW trade.'),
         'desk': ('Bitcoin futures desk | Tape Lounge', 'Review Bitcoin futures context, funding, open interest and order flow.'),
         'analysis': ('Bitcoin chart analysis | Tape Lounge', 'Explore Bitcoin long-term channels and chart indicators.'),
@@ -329,7 +329,7 @@ LIVE_PAGE_COPY = {
     },
     'zh': {
         '': ('美股历史图表练习游戏与实时行情 | Tape Lounge', '无需登录，免费挑战每日美股图表。隐藏代码和日期，在真实历史日K线上完成200步交易，再与同期持有比较；另有实时加密行情。'),
-        'blind': ('盲图练习 | Tape Lounge', '在统一的大厅界面中，用历史美股和加密货币图表练习。'),
+        'blind': ('每日同一张盲图 | Tape Lounge', '每天所有人挑战同一张美股图表。隐藏标的和日期，约4分钟交易200个历史交易日，再与同期持有比较。可独自或与朋友游玩，不会真实下单。'),
         'domestic': ('韩国加密货币行情与溢价 | Tape Lounge', '比较 Upbit、Bithumb 的韩元实时价格与海外 USDT 现货价格，并说明溢价换算基准。'),
         'desk': ('比特币合约行情台 | Tape Lounge', '查看比特币合约背景、资金费率、持仓量与订单流。'),
         'analysis': ('比特币图表分析 | Tape Lounge', '查看比特币长期通道与图表指标。'),
@@ -339,7 +339,7 @@ LIVE_PAGE_COPY = {
     },
     'ja': {
         '': ('米国株チャート売買練習ゲームとリアルタイム相場 | Tape Lounge', 'ログイン不要の無料・毎日チャートゲーム。銘柄名と日付を隠した実際の米国株の日足200本で売買し、同期間の保有結果と比較できます。暗号資産の相場も確認できます。'),
-        'blind': ('ブラインドチャート練習 | Tape Lounge', '同じラウンジ画面で、株式と暗号資産の過去チャートを練習できます。'),
+        'blind': ('毎日同じチャートに挑戦 | Tape Lounge', '毎日全員が同じ米国株チャートに挑戦。銘柄と日付を伏せた過去200営業日を約4分で売買し、同期間の買い持ちと比較。ひとりでも友人とでも遊べ、実注文はありません。'),
         'domestic': ('韓国暗号資産価格・プレミアム | Tape Lounge', 'Upbit・Bithumbのウォン建て価格と海外USDT現物価格を比較し、換算基準も確認できます。'),
         'desk': ('ビットコイン先物デスク | Tape Lounge', 'ビットコイン先物の背景、資金調達率、建玉、注文フローを確認します。'),
         'analysis': ('ビットコインチャート分析 | Tape Lounge', 'ビットコインの長期チャネルとチャート指標を確認します。'),

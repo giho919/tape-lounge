@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
 # Bump when the composition or copy changes so social-preview caches refresh.
-VERSION = "20261102"
+VERSION = "20261103"
 W, H = 1200, 630
 BG_TOP = (10, 13, 18)
 BG_BOTTOM = (17, 20, 25)
@@ -21,52 +21,52 @@ RED = (222, 108, 120)
 
 COPY = {
     "ko": {
-        "eyebrow": "BLIND CHART · DAILY PRACTICE",
-        "headline": ["종목은 가리고,", "판단을 연습하다."],
-        "subhead": ["미국 주식·비트코인의 실제 과거 차트로", "가상 매매 후 보유와 비교해 보세요."],
-        "cta": "오늘의 판 열기  ↗",
-        "note": "과거 차트 · 가상 자금 · 실제 주문 없음",
+        "eyebrow": "TODAY'S ROUND · SAME CHART",
+        "headline": ["모두 같은 차트,", "판단은 다르게."],
+        "subhead": ["오늘은 모두가 같은 미국 주식 판.", "200거래일 매매 후 보유와 비교해요."],
+        "cta": "오늘 판에 도전하기  ↗",
+        "note": "실제 과거 차트 · 가상 자금 · 실제 주문 없음",
         "hidden": "종목명 숨김",
         "date": "날짜 숨김",
-        "panel": "이 흐름에서, 당신의 선택은?",
+        "panel": "한 판은 같고, 선택은 다르다",
         "foot": "같은 구간 보유 결과와 비교",
-        "alt": "이름과 날짜를 숨긴 과거 미국 주식·비트코인 차트에서 가상 매매를 연습하고 보유 결과와 비교하는 Tape Lounge",
+        "alt": "종목과 날짜를 숨긴 같은 오늘의 미국 주식 차트에서 모두가 가상 매매를 겨루고 보유 결과와 비교하는 Tape Lounge",
     },
     "en": {
-        "eyebrow": "BLIND CHART · DAILY PRACTICE",
-        "headline": ["Hide the ticker.", "Test your judgment."],
-        "subhead": ["Practice on historical US stock and Bitcoin charts.", "Compare virtual trades with simply holding."],
-        "cta": "Open today's chart  ↗",
+        "eyebrow": "TODAY'S ROUND · SAME CHART",
+        "headline": ["One chart today.", "Every call is yours."],
+        "subhead": ["Everyone gets the same U.S. stock chart.", "Trade 200 sessions; compare with holding."],
+        "cta": "Take today's round  ↗",
         "note": "Historical charts · virtual funds · no real orders",
         "hidden": "TICKER HIDDEN",
         "date": "DATE HIDDEN",
         "panel": "What would you do here?",
         "foot": "Compare with holding over the same period",
-        "alt": "Practice virtual trades on historical US stock and Bitcoin charts with the ticker and date hidden, then compare with holding on Tape Lounge",
+        "alt": "Everyone gets the same daily U.S. stock chart with ticker and date hidden, then compares virtual trades with holding on Tape Lounge",
     },
     "zh": {
-        "eyebrow": "BLIND CHART · DAILY PRACTICE",
-        "headline": ["隐藏币种，", "检验判断。"],
-        "subhead": ["用美股与比特币的历史图表练习，", "再与同一时段持有结果比较。"],
-        "cta": "打开今日挑战  ↗",
+        "eyebrow": "TODAY'S ROUND · SAME CHART",
+        "headline": ["今日同一张图，", "判断各不同。"],
+        "subhead": ["今天所有人挑战同一张美股图表。", "交易200个交易日，再与同期持有比较。"],
+        "cta": "挑战今日牌局  ↗",
         "note": "历史图表 · 虚拟资金 · 不会真实下单",
         "hidden": "隐藏标的",
         "date": "隐藏日期",
         "panel": "此刻，你会怎么选？",
         "foot": "与同一时段持有结果比较",
-        "alt": "在隐藏标的和日期的美股与比特币历史图表上进行虚拟交易练习，并与持有结果比较",
+        "alt": "所有人挑战同一张隐藏标的和日期的美股图表，完成模拟交易后与同期持有结果比较",
     },
     "ja": {
-        "eyebrow": "BLIND CHART · DAILY PRACTICE",
-        "headline": ["銘柄を隠して、", "判断力を試す。"],
-        "subhead": ["米国株・ビットコインの過去チャートで練習。", "仮想売買を保有した場合と比べます。"],
-        "cta": "今日のチャートを開く  ↗",
+        "eyebrow": "TODAY'S ROUND · SAME CHART",
+        "headline": ["今日は同じ一枚。", "判断で差がつく。"],
+        "subhead": ["今日は全員が同じ米国株に挑戦。", "200営業日売買して保有結果と比較。"],
+        "cta": "今日の一局に挑戦  ↗",
         "note": "過去チャート · 仮想資金 · 実注文なし",
         "hidden": "銘柄を非表示",
         "date": "日付を非表示",
         "panel": "ここで、どう判断する？",
         "foot": "同じ期間の保有結果と比較",
-        "alt": "銘柄と日付を隠した米国株・ビットコインの過去チャートで仮想売買を練習し、保有結果と比べるTape Lounge",
+        "alt": "全員が銘柄と日付を隠した同じ米国株チャートに挑戦し、模擬売買を同期間の保有と比べるTape Lounge",
     },
 }
 
