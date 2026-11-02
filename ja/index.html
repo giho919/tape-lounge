@@ -45,8 +45,8 @@
 <script src="chart-share.js?v=20261031a" defer></script>
 <script defer src="blind-daily.js?v=bd18cac8228a"></script>
 <script src="blind-daily-share.js?v=38e6aa211cf2" defer></script>
-<script defer src="/site-campaign.js?v=d0bd955ad34c6"></script>
-<script defer src="/lounge-rotation.js?v=dff48d918e55f"></script>
+<script defer src="/site-campaign.js?v=dd43cb09cd679"></script>
+<script defer src="/lounge-rotation.js?v=dd43cb09cd679"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script defer src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -697,10 +697,10 @@ body.shake { animation:shake .5s; }
 .sourceChip { display:flex; justify-content:space-between; gap:8px; padding:9px; border:1px solid var(--line); border-radius:7px; font-size:9px; color:var(--dim); background:var(--bg); }.sourceChip b { color:#cfd5df; }.sourceChip span { color:var(--grn); }
 .macroRule { padding:0 15px 14px; font-size:9.5px; line-height:1.65; color:var(--dim); }
 @media(max-width:760px){
-.tabsWrap{top:auto;left:0;right:0;bottom:0;transform:none;z-index:40;
+.tabsWrap{top:auto;left:0;right:0;bottom:0;transform:none;z-index:40;display:flex;align-items:stretch;
   padding:5px 2px calc(5px + env(safe-area-inset-bottom));
   background:rgba(10,12,16,.94);backdrop-filter:blur(14px);border-top:1px solid var(--gold-dim)}
-.tabs{flex-direction:row;gap:0;justify-content:space-around}
+.tabs{flex:1 1 0;min-width:0;flex-direction:row;gap:0;justify-content:space-around}
 .tab{flex:1 1 0;width:auto;min-width:0;flex-direction:column;gap:2px;padding:6px 1px;
   font-size:8.5px;letter-spacing:0;text-align:center;
   background:transparent;border:0;border-radius:9px;box-shadow:none;transform:none}
@@ -819,9 +819,6 @@ body.shake { animation:shake .5s; }
 @media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
 <link rel="preload" as="style" href="strategists.css?v=20260909" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="strategists.css?v=20260909"></noscript>
-<script defer src="/home-language.js?v=8c5c652ab244"></script>
-<script defer src="/live-home-locale.js?v=3ddaeb67b916"></script>
-<link rel="alternate" hreflang="ko" href="https://tapelounge.com/"><link rel="alternate" hreflang="en" href="https://tapelounge.com/en/"><link rel="alternate" hreflang="zh" href="https://tapelounge.com/zh/"><link rel="alternate" hreflang="ja" href="https://tapelounge.com/ja/"><link rel="alternate" hreflang="x-default" href="https://tapelounge.com/"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"Tape Lounge","alternateName":["테이프라운지","tapelounge.com"],"url":"https://tapelounge.com/"},{"@context":"https://schema.org","@type":"WebPage","name":"米国株チャート売買練習ゲームとリアルタイム相場 | Tape Lounge","description":"ログイン不要の無料・毎日チャートゲーム。銘柄名と日付を隠した実際の米国株の日足200本で売買し、同期間の保有結果と比較できます。暗号資産の相場も確認できます。","url":"https://tapelounge.com/ja/","inLanguage":"ja","isPartOf":{"@type":"WebSite","url":"https://tapelounge.com/"}}]</script>
 <style id="mobileNavCss">
 .mobileMoreToggle,.mobileMoreMenu { display:none; }
 .mobileMoreMenu[hidden] { display:none !important; }
@@ -840,6 +837,9 @@ body.shake { animation:shake .5s; }
   .mobileMoreItem:focus-visible,.mobileMoreToggle:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 }
 </style>
+<script defer src="/home-language.js?v=8c5c652ab244"></script>
+<script defer src="/live-home-locale.js?v=e70ab086ff69"></script>
+<link rel="alternate" hreflang="ko" href="https://tapelounge.com/"><link rel="alternate" hreflang="en" href="https://tapelounge.com/en/"><link rel="alternate" hreflang="zh" href="https://tapelounge.com/zh/"><link rel="alternate" hreflang="ja" href="https://tapelounge.com/ja/"><link rel="alternate" hreflang="x-default" href="https://tapelounge.com/"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"Tape Lounge","alternateName":["테이프라운지","tapelounge.com"],"url":"https://tapelounge.com/"},{"@context":"https://schema.org","@type":"WebPage","name":"米国株チャート売買練習ゲームとリアルタイム相場 | Tape Lounge","description":"ログイン不要の無料・毎日チャートゲーム。銘柄名と日付を隠した実際の米国株の日足200本で売買し、同期間の保有結果と比較できます。暗号資産の相場も確認できます。","url":"https://tapelounge.com/ja/","inLanguage":"ja","isPartOf":{"@type":"WebSite","url":"https://tapelounge.com/"}}]</script>
 </head>
 <body data-entry-tab="lounge">
 <div class="wrap" role="main">
@@ -1488,7 +1488,6 @@ body.shake { animation:shake .5s; }
   <details id="crewRecent"><summary>최근 발언 보기</summary><p class="crewRecentNote">명함을 열 때 불러온 대화 중 최신 3개 · 한국시간<br>전체 발언 기록은 아니에요.</p><ul id="crewQuotes"></ul><p id="crewEmpty" hidden>불러온 대화에 이 크루의 발언이 아직 없어요.</p></details>
   <p class="crewDisclaimer" id="crewDisclaimer">공개 자료를 바탕으로 대화하는 AI예요. 실제 투자자나 투자 자문가가 아니며, 발언에 오류가 있을 수 있어요.</p>
 </dialog>
-<script defer src="/lounge-app.js?v=9034f2e7de8c"></script>
 <script>
 (() => {
   const toggle = document.getElementById('mobileMoreToggle');
@@ -1523,5 +1522,6 @@ body.shake { animation:shake .5s; }
   mobile.addEventListener?.('change',event => { if (!event.matches) setOpen(false); });
 })();
 </script>
+<script defer src="/lounge-app.js?v=1fa4ab6dcd34"></script>
 </body>
 </html>
