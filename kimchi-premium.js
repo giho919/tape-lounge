@@ -116,4 +116,5 @@
     update();
   });
   update();
+  if (liveButton && fields.every(field => !field.value.trim())) liveButton.click();
 })();
