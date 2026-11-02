@@ -44,6 +44,7 @@
     '복사할 초대 문구와 링크':['Invitation text and link to copy','可复制的邀请文案和链接','コピーする招待文とリンク'],
     '그때 나라면?':['What would you have done?','如果当时是你？','あの時、自分なら？'],
     '그때 나라면':['Decision practice','决策练习','判断練習'],
+    '그때 나라면 한 판 ↗':['Try a decision round ↗','来做一局判断练习 ↗','判断練習を一局 ↗'],
     '그때 나라면, 과거 시장에서 선택 연습하기':['Practice decisions on past markets','在历史行情中练习判断','過去の相場で判断を練習'],
     '매수·대기·보유·청산을 고르고 다음 5일을 확인해요. 1D·4H·1H 차트와 당시 심리·펀딩비도 볼 수 있어요.':['Choose buy, wait, hold or exit, then reveal the next five days. Switch 1D, 4H and 1H charts; check the prior-day Fear & Greed reading and historical funding.','选择买入、等待、持有或卖出，再揭晓之后五天。可切换1D、4H、1H图表，并查看前一日恐惧与贪婪指数和历史资金费率。','買う・待つ・保有・決済を選び、その後5日を確認。1D・4H・1H足を切り替え、前日のFear & Greedと当時のFundingも見られます。'],
     '한 판 시작 ↗':['Play a round ↗','开始一局 ↗','一局始める ↗'],

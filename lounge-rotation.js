@@ -8,6 +8,7 @@
   const title = document.getElementById('loungeRotationTitle');
   const copy = document.getElementById('loungeRotationCopy');
   const link = document.getElementById('loungeRotationLink');
+  const decisionLink = document.getElementById('loungeRotationDecisionLink');
   const share = document.getElementById('loungeRotationShare');
   const shareStatus = document.getElementById('loungeRotationShareStatus');
   const inviteCopy = document.getElementById('loungeRotationInviteCopy');
@@ -90,6 +91,7 @@
     copy.textContent = item.copy;
     link.href = withVisitContext(item.link);
     link.textContent = item.label;
+    if (decisionLink) decisionLink.hidden = active === 1;
     // Keep the invitation visible while other lounge cards rotate so visitors
     // do not have to wait for the daily-deal slide to share today's round.
     if (share) share.hidden = false;

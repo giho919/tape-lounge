@@ -46,7 +46,7 @@
 <script defer src="blind-daily.js?v=bd18cac8228a"></script>
 <script src="blind-daily-share.js?v=38e6aa211cf2" defer></script>
 <script defer src="/site-campaign.js?v=dd43cb09cd679"></script>
-<script defer src="/lounge-rotation.js?v=dd43cb09cd679"></script>
+<script defer src="/lounge-rotation.js?v=d757b5dcf2a61"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script defer src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -442,13 +442,16 @@ body.shake { animation:shake .5s; }
 .loungeRotationCopy { margin:6px 0 0; color:#9ba0a9; font-size:10.5px; line-height:1.65; }
 .loungeRotationLink { position:relative; z-index:2; display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 16px; border:1px solid rgba(212,175,55,.62); border-radius:8px; background:rgba(212,175,55,.12); color:#f1d776; font-size:11px; font-weight:800; white-space:nowrap; text-decoration:none; }
 .loungeRotationLink:hover { background:rgba(212,175,55,.16); border-color:var(--gold); }
+.loungeRotationDecisionLink { position:relative; z-index:2; display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 11px; border:1px solid rgba(212,175,55,.32); border-radius:8px; background:rgba(212,175,55,.045); color:#c4b36e; font-size:10px; font-weight:700; white-space:nowrap; text-decoration:none; }
+.loungeRotationDecisionLink:hover { border-color:rgba(212,175,55,.58); background:rgba(212,175,55,.09); color:#f1d776; }
+.loungeRotationDecisionLink[hidden] { display:none; }
 .loungeRotation[data-current="0"] .loungeRotationLink { border-color:#e7c75f; background:linear-gradient(180deg,#e1c34f,#c9a736); color:#15130d; font-size:12px; box-shadow:0 4px 14px rgba(212,175,55,.18); }
 .loungeRotation[data-current="0"] .loungeRotationLink:hover { border-color:#f1d776; background:linear-gradient(180deg,#efd56c,#d7b749); box-shadow:0 5px 18px rgba(212,175,55,.24); }
 .loungeRotationActions { position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
 .loungeRotationShare { appearance:none; display:inline-flex; align-items:center; justify-content:center; min-height:29px; padding:0 10px; border:1px solid rgba(255,255,255,.13); border-radius:8px; background:rgba(255,255,255,.025); color:#a9a7a0; font:600 9px/1.3 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; white-space:nowrap; cursor:pointer; }
 .loungeRotationShare:hover { color:#f1d776; border-color:rgba(212,175,55,.42); background:rgba(212,175,55,.06); }
 .loungeRotationShare[hidden],.loungeRotationShareStatus[hidden],.loungeRotationInviteCopy[hidden] { display:none; }
-.loungeRotationShare:focus-visible,.loungeRotationLink:focus-visible,.loungeRotationControls button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.loungeRotationShare:focus-visible,.loungeRotationLink:focus-visible,.loungeRotationDecisionLink:focus-visible,.loungeRotationControls button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .loungeRotationShareStatus { position:relative; z-index:1; margin:0; color:var(--dim); font-size:9px; line-height:1.5; text-align:right; }
 .loungeRotationInviteCopy { position:relative; z-index:1; width:100%; min-height:58px; margin:6px 0 0; padding:8px 10px; border:1px solid var(--line); border-radius:7px; background:var(--bg); color:var(--tx); font:11px/1.55 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; resize:vertical; }
 .loungeRotationControls { min-height:23px; border-top:1px solid rgba(255,255,255,.055); padding-top:8px; }
@@ -838,7 +841,7 @@ body.shake { animation:shake .5s; }
 }
 </style>
 <script defer src="/home-language.js?v=8c5c652ab244"></script>
-<script defer src="/live-home-locale.js?v=e70ab086ff69"></script>
+<script defer src="/live-home-locale.js?v=367230c5d167"></script>
 </head>
 <body data-entry-tab="analysis">
 <div class="wrap" role="main">
@@ -893,6 +896,7 @@ body.shake { animation:shake .5s; }
     <div><p class="loungeRotationEyebrow" id="loungeRotationEyebrow">TODAY'S DEAL</p><h2 class="loungeRotationTitle" id="loungeRotationTitle">오늘의 판 · 약 4분</h2><p class="loungeRotationCopy" id="loungeRotationCopy">로그인 없이 무료 4분 한 판. 종목·날짜를 가린 실제 미국주식 차트 200거래일을 매매해 보세요. 그냥 보유했을 때보다 잘할 수 있을까요?</p></div>
     <div class="loungeRotationActions">
       <a class="loungeRotationLink" id="loungeRotationLink" href="/zh/tools/blind/?daily=1&start=1">오늘 판 바로 시작 ↗</a>
+      <a class="loungeRotationDecisionLink" id="loungeRotationDecisionLink" data-decision-link href="/decision/" aria-label="그때 나라면, 과거 시장에서 선택 연습하기" hidden>그때 나라면 한 판 ↗</a>
       <button class="loungeRotationShare" id="loungeRotationShare" type="button" aria-label="오늘의 판 초대" hidden>친구와 한 판 ↗</button>
     </div>
   </div>
