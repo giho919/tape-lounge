@@ -358,7 +358,7 @@ def prepare_classic_home():
         classic, count=1)
     if rotation_script_count != 1:
         raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
-    for asset in ['blind-daily.js','blind-daily-share.js']:
+    for asset in ['blind-daily.js','blind-daily-share.js','domestic.js']:
         asset_version=sha256(stable_bytes(ROOT/asset)).hexdigest()[:12]
         pattern=rf'(<script\b[^>]*\bsrc="/?{re.escape(asset)}\?v=)[^"]+("[^>]*></script>)'
         classic, asset_count = re.subn(pattern,lambda m:m.group(1)+asset_version+m.group(2),classic,count=1)
