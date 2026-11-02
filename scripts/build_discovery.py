@@ -186,6 +186,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
 
     text = re.sub(r'<(div|section) id="tab-([a-z]+)"([^>]*)>', panel, text)
     text = re.sub(r'<a([^>]*\bdata-tab="([a-z]+)"[^>]*)>', nav, text)
+    text = defer_home_shell_styles(text, selected)
     return text
 
 def read(path):
@@ -430,9 +431,19 @@ def write_live_home_pages(classic):
     for lang in LIVE_PAGE_COPY:
         write(f'{lang}/index.html', localized_live_home(home_shell, lang))
 
-def defer_home_shell_styles(home):
-    """Load feature-only styles without blocking the lounge's first paint."""
+def defer_home_shell_styles(home, selected='lounge'):
+    """Keep the selected feature styled immediately; preload other panel styles without blocking first paint."""
+    critical = {
+        'domestic': 'domestic.css',
+        'analysis': 'chart-analysis.css',
+        'chars': 'strategists.css',
+    }.get(selected)
     for asset in ('domestic.css', 'chart-analysis.css', 'chart-share.css', 'strategists.css'):
+        if asset == critical:
+            continue
+        preload_pattern = rf'<link rel="preload" as="style" href="{re.escape(asset)}\?v=[^"]+"'
+        if re.search(preload_pattern, home):
+            continue
         pattern = rf'<link rel="stylesheet" href="({re.escape(asset)}\?v=[^"]+)">'
         def replace(match):
             href = match.group(1)
@@ -451,6 +462,8 @@ def build_live_tools_only():
     classic=prepare_classic_home()
     build_decision_pages()
     write_live_home_pages(classic)
+    terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
+    write('terminal/index.html', defer_home_shell_styles(terminal))
     for slug, selected, title, description in TOOL_PAGES:
         write(f'{slug}/index.html', tool_page(classic, slug, selected, title, description))
     for lang, pages_copy in LIVE_PAGE_COPY.items():
@@ -646,6 +659,7 @@ def build(force=False):
     # Keep the Korean lounge as the base shell and use it for every language home.
     write_live_home_pages(classic)
     terminal=classic.replace('<meta name="robots" content="index,follow">','<meta name="robots" content="noindex,follow">',1)
+    terminal=defer_home_shell_styles(terminal)
     write('terminal/index.html',terminal)
     for slug, selected, title, description in TOOL_PAGES:
         write(slug+'/index.html', tool_page(classic, slug, selected, title, description))
