@@ -15,15 +15,8 @@ stage_public_files() {
   git add -u -- reports/blind_daily_stock_v2/
   local today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
   if [[ -f "$today_payload" ]]; then git add -- "$today_payload"; fi
-  # The builder prepares the next two rounds locally, but those answer files
-  # must stay unpublished and must not block the isolated checkout's rebase.
-  local candidate
-  for candidate in reports/blind_daily_stock_v2/*.json; do
-    [[ -f "$candidate" && "$candidate" != "$today_payload" ]] || continue
-    if ! git ls-files --error-unmatch -- "$candidate" >/dev/null 2>&1; then
-      rm -f -- "$candidate"
-    fi
-  done
+  # Keep historical rounds for replay, but publish no future answer payloads.
+  python3 scripts/prune_future_blind_rounds.py "$today_payload"
 }
 git clone --shared --no-checkout -q "$site_repo" "$publish_dir"
 git -C "$publish_dir" remote set-url origin github-salon:giho919/tape-lounge.git
@@ -32,6 +25,7 @@ git -C "$publish_dir" checkout -q -B discovery-build origin/main
 git -C "$publish_dir" config user.name 'Salon Bot'
 git -C "$publish_dir" config user.email salon-bot@mirage
 cd "$publish_dir"
+python3 scripts/test_prune_future_blind_rounds.py
 python3 scripts/generate_home_og.py
 python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
 python3 scripts/build_discovery.py
