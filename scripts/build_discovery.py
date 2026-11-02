@@ -806,12 +806,12 @@ def build_editorial_only():
         if count!=1:
             raise ValueError(f'Could not update sitemap lastmod for {loc}')
     for lang in LANGS:
-        guide=next(g for g in COPY[lang]['guides'] if g[0]=='kimchi-premium')
-        loc=BASE+url(lang,'learn/kimchi-premium')
-        pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
-        sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_modified(guide)+m.group(2),sitemap,count=1)
-        if count!=1:
-            raise ValueError(f'Could not update sitemap lastmod for {loc}')
+        for guide in COPY[lang]['guides']:
+            loc=BASE+url(lang,'learn/'+guide[0])
+            pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
+            sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_modified(guide)+m.group(2),sitemap,count=1)
+            if count!=1:
+                raise ValueError(f'Could not update sitemap lastmod for {loc}')
     write('sitemap.xml',sitemap)
 
     data['copy']=COPY

@@ -252,7 +252,7 @@ test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게�
  }
  assert.ok(builder.includes("game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'"),'guide CTA must stay in the selected language');
  for(const languageClaim of ['The live game controls are available in Korean, English, Simplified Chinese, and Japanese.','游戏界面支持韩语、英语、简体中文和日语。','ゲーム操作は韓国語・英語・簡体字中国語・日本語に対応しています。'])assert.ok(fs.readFileSync(require.resolve('../scripts/discovery_content.py'),'utf8').includes(languageClaim),`editorial copy must match localized game: ${languageClaim}`);
- assert.ok(fs.readFileSync(require.resolve('../scripts/discovery_content.py'),'utf8').includes("'2026-11-01','2026-11-02']"),'updated game guide must preserve publish date and record a modified date');
+ assert.ok(fs.readFileSync(require.resolve('../scripts/discovery_content.py'),'utf8').includes("'2026-11-01','2026-11-03']"),'updated game guide must preserve publish date and record a modified date');
  assert.equal((app.match(/href="\$\{bgGuideHref\(\)\}"/g)||[]).length,2,'daily and solo overlays must both use the localized guide');
 });
 
@@ -407,7 +407,21 @@ test('블라인드 차트 안내문에서 오늘의 판으로 바로 갈 수 있
  const sitemap=fs.readFileSync(require.resolve('../sitemap.xml'),'utf8');
  for(const lang of Object.keys(routes)){
   const loc=`https://tapelounge.com/${lang==='ko'?'ko/':`${lang}/`}learn/blind-chart-practice/`;
-  assert.ok(sitemap.includes(`<loc>${loc}</loc><lastmod>2026-11-02</lastmod>`),`${lang} guide sitemap date must match its actual last edit`);
+  assert.ok(sitemap.includes(`<loc>${loc}</loc><lastmod>2026-11-03</lastmod>`),`${lang} guide sitemap date must match its actual last edit`);
+ }
+});
+
+test('공통 일일 판의 차별점이 네 언어 검색 제목과 설명에 나타난다',()=>{
+ const routes={
+  ko:['../ko/learn/blind-chart-practice/index.html','매일 같은 미국 주식 차트로 연습하는 블라인드 매매 게임','모두가 같은 미국 주식 200거래일 차트를 종목과 날짜를 가린 채 약 4분간 플레이하고, 결과를 같은 기간 매수 후 보유와 비교하세요. 실제 주문은 없습니다. 개인 연습에서는 코인도 선택할 수 있습니다.'],
+  en:['../en/learn/blind-chart-practice/index.html','Daily blind U.S. stock chart game','Trade 200 hidden sessions on the same U.S. stock chart as everyone else in about four minutes, then compare with buy-and-hold. No real orders. Solo practice also offers crypto.'],
+  zh:['../zh/learn/blind-chart-practice/index.html','每日同一张美股盲图：模拟交易练习','与所有访客挑战同一张隐藏标的与日期的美股200交易日图表，约4分钟完成，并与同期买入持有比较。不会提交真实订单；个人练习也可选择加密货币。'],
+  ja:['../ja/learn/blind-chart-practice/index.html','毎日同じ米国株チャートで練習するブラインド売買ゲーム','銘柄と日付を伏せた米国株200営業日の共通チャートに約4分で挑戦し、同期間の買い持ちと比較。実注文はありません。個人練習では暗号資産も選べます。'],
+ };
+ for(const [lang,[path,title,description]] of Object.entries(routes)){
+  const page=fs.readFileSync(require.resolve(path),'utf8');
+  assert.ok(page.includes(`<title>${title} — Tape Lounge</title>`),`${lang} guide title must foreground the shared daily round`);
+  assert.ok(page.includes(`<meta name="description" content="${description}">`),`${lang} guide description must explain the game and no-real-orders rule`);
  }
 });
 
