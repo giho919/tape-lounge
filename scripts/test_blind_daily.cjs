@@ -1,7 +1,12 @@
 const assert=require('node:assert/strict');
 const daily=require('../blind-daily.js');
-const source=require('node:fs').readFileSync(require('node:path').join(__dirname,'../blind-daily.js'),'utf8');
-const localized=lang=>{const window={document:{documentElement:{lang}}};require('node:vm').runInNewContext(source,{window,URL,URLSearchParams});return window.BlindDaily;};
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
+const source=fs.readFileSync(path.join(__dirname,'../blind-daily.js'),'utf8');
+const shareSource=fs.readFileSync(path.join(__dirname,'../blind-daily-share.js'),'utf8');
+const localized=lang=>{const window={document:{documentElement:{lang}}};vm.runInNewContext(source,{window,URL,URLSearchParams});return window.BlindDaily;};
+const shareWindow={document:{documentElement:{lang:'ko'}}};
+vm.runInNewContext(shareSource,{window:shareWindow,document:shareWindow.document});
+const shareCopy=lang=>shareWindow.TapeDailyShare.copyFor(lang);
 const day='2026-10-31', chosen=daily.selection(day), DAY=86400000;
 assert.deepEqual(chosen,{version:1,id:'v1-2026-10-31',day,symbol:'BNBUSDT',endTime:1711670399999},'v1 date links must remain reproducible');
 assert.equal(daily.dayKey(new Date('2026-10-31T14:59:59Z')),'2026-10-31');
@@ -15,6 +20,30 @@ assert.equal(localized('ko').url('2026-11-02',2),'https://tapelounge.com/blind/?
 for(const lang of ['en','zh','ja'])assert.equal(localized(lang).url('2026-11-02',2),`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2`);
 assert.ok(localized('en').shareText(daily.selection('2026-11-02'),{roi:1,bh:2,completed:true,bankrupt:false},'en').includes('Completed 200 trading days'));
 assert.ok(localized('en').shareText(daily.selection('2026-11-02'),{roi:1,bh:2,completed:true,bankrupt:false},'en').endsWith('https://tapelounge.com/en/tools/blind/?daily=2026-11-02&v=2'));
+const cardCopyExpectations={
+ ko:{round:'오늘의 판',complete:'200거래일 완주',early:'12거래일 중간 정산',duration:'200거래일 플레이 · 가상 자금 $10,000',returnLabel:'내 수익률',save:'이미지 저장'},
+ en:{round:'Daily round',complete:'Completed 200 trading days',early:'12 trading days · settled early',duration:'200 trading days played · $10,000 virtual funds',returnLabel:'My return',save:'Save image'},
+ zh:{round:'今日牌局',complete:'完成200个交易日',early:'12个交易日 · 提前结算',duration:'200个交易日模拟 · 虚拟资金 $10,000',returnLabel:'我的收益',save:'保存图片'},
+ ja:{round:'今日の一局',complete:'200取引日完走',early:'12取引日・途中精算',duration:'200取引日プレイ · 仮想資金 $10,000',returnLabel:'自分のリターン',save:'画像を保存'},
+};
+for(const [lang,expected] of Object.entries(cardCopyExpectations)){
+ const copy=shareCopy(lang);
+ assert.equal(copy.round,expected.round,`${lang} result card title`);
+ assert.equal(copy.status({completed:true,market:'stock'}),expected.complete,`${lang} completed status`);
+ assert.equal(copy.status({completed:false,bankrupt:false,days:12,market:'stock'}),expected.early,`${lang} early status`);
+ assert.equal(copy.status({completed:false,bankrupt:true,days:12,market:'stock'}),copy.bankrupt,`${lang} liquidation status`);
+ assert.equal(copy.duration({days:200,market:'stock'}),expected.duration,`${lang} play duration`);
+ assert.equal(copy.returnLabel,expected.returnLabel,`${lang} return label`);
+ assert.equal(copy.saveButton,expected.save,`${lang} save button`);
+ assert.ok(copy.cardFailed,`${lang} image error must be localized`);
+ assert.ok(copy.dialogNote&&!/[가-힣]/.test(copy.dialogNote)||lang==='ko',`${lang} share note must be localized`);
+}
+const shareVersion=crypto.createHash('sha256').update(shareSource).digest('hex').slice(0,12),htmlFiles=[];
+const collectHtml=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collectHtml(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
+collectHtml(path.resolve(__dirname,'..'));
+const sharePages=htmlFiles.map(file=>({file,html:fs.readFileSync(file,'utf8')})).filter(page=>page.html.includes('blind-daily-share.js?v='));
+assert.ok(sharePages.length>=30,'generated pages loading the daily result card were not all found');
+for(const page of sharePages)assert.ok(page.html.includes(`blind-daily-share.js?v=${shareVersion}`),`${path.relative(path.resolve(__dirname,'..'),page.file)} loads a stale result-card script`);
 assert.ok(chosen.endTime<Date.parse('2026-01-01T00:00:00Z'));
 const bars=Array.from({length:1000},(_,i)=>{const t=chosen.endTime-DAY+1-(999-i)*DAY;return[t,'100','110','90','105','20',t+DAY-1];});
 assert.equal(daily.validate(bars,chosen),bars);
