@@ -30,6 +30,11 @@ assert.equal([...link.searchParams.keys()].length,5);
 assert.equal(new URL(campaign.tag('https://tapelounge.com/blind/?daily=2026-10-31','x','daily_blind')).searchParams.get('daily'),'2026-10-31');
 const directBlind=new URL(campaign.tagDailyBlindShare('https://tapelounge.com/blind/?daily=2026-11-02&v=2&internal=1&session=PRIVATE'));
 assert.equal(directBlind.href,'https://tapelounge.com/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind');
+for(const lang of ['en','zh','ja']){
+ const localizedBlind=new URL(campaign.tagDailyBlindShare(`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2&internal=1`));
+ assert.equal(localizedBlind.href,`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind`);
+ assert.equal(new URL(campaign.tag(`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02`,'threads','daily_blind')).searchParams.get('daily'),'2026-11-02');
+}
 for(const target of ['https://tapelounge.com/blind/?daily=2026-02-30','https://tapelounge.com/blind/?daily=2026-11-02&v=1','https://tapelounge.com/decision/?daily=2026-11-02','https://evil.example/blind/?daily=2026-11-02'])assert.throws(()=>campaign.tagDailyBlindShare(target));
 const inviteHelper=app.match(/function bgDailyInviteUrl\(day,version\) \{[\s\S]*?\n\}/)?.[0];
 const resultHelper=app.match(/function bgDailyShareText\(chosen,result\) \{[\s\S]*?\n\}/)?.[0];

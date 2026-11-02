@@ -2654,7 +2654,7 @@ function bgShowSoloOverlay() {
     시작가는 100으로 환산되어 힌트가 없습니다.<br>
     가상 자금 <b style="color:var(--gold)">$10,000</b>으로 매매합니다. 실제 주문은 없습니다.<br>
     시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.<br>
-    200일 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.</p>
+    일봉 200개 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.</p>
     <button type="button" class="go" onclick="blindStart()">판에 앉는다 →</button><a class="bgGuideLink" href="${bgGuideHref()}" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>`;
   $('bgSym').textContent = stock ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   bgRenderSpeed();

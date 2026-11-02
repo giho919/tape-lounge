@@ -342,6 +342,12 @@ def prepare_classic_home():
         classic, count=1)
     if rotation_script_count != 1:
         raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
+    for asset in ['blind-daily.js','blind-daily-share.js']:
+        asset_version=sha256((ROOT/asset).read_bytes()).hexdigest()[:12]
+        pattern=rf'(<script\b[^>]*\bsrc="/?{re.escape(asset)}\?v=)[^"]+("[^>]*></script>)'
+        classic, asset_count = re.subn(pattern,lambda m:m.group(1)+asset_version+m.group(2),classic,count=1)
+        if asset_count != 1:
+            raise ValueError(f'Could not refresh the {asset} script version in the lounge template')
     write('classic-home.html', classic)
 
     viewport='<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -456,6 +462,9 @@ def kimchi_faq(lang):
 def guide_date(guide):
     return guide[4] if len(guide)>4 else '2026-10-22'
 
+def guide_modified(guide):
+    return guide[5] if len(guide)>5 else guide_date(guide)
+
 def market_table(lang, home=False):
     c=COPY[lang]
     rows=''.join(f'<tr data-market-symbol="{s}"><td><button class="star" data-star="{s}" aria-label="{s} · {e(c["save"])}" aria-pressed="false">☆</button><a href="{url(lang,"watch")}?q={s}">{s}</a><small>{n}</small></td><td data-price>—</td><td data-change>—</td><td data-premium>—</td><td data-volume>—</td></tr>' for s,n in zip(SYMBOLS[:5 if home else 8],NAMES))
@@ -479,7 +488,7 @@ def render(lang, page, data, letters, generated, root=False):
     alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+locale_url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+locale_url("ko",page)}">'
     schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':search_title,'description':search_desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
-        schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':article_date,'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
+        schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':guide_modified(guide),'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
         if guide[0]=='kimchi-premium':
             schema.append({'@context':'https://schema.org','@type':'FAQPage','mainEntity':[{'@type':'Question','name':question,'acceptedAnswer':{'@type':'Answer','text':answer}} for question,answer in KIMCHI_TOOL_COPY[lang]['faqs']]})
     stamp=f'<span class="report-stamp">{e(c["report"])} <time datetime="{data["reportAt"]}">{data["reportAt"][:16]} UTC</time></span>'
@@ -499,8 +508,9 @@ def render(lang, page, data, letters, generated, root=False):
     elif page=='research':
         body=f'<div class="page-opening"><p class="eyebrow">RESEARCH ROOM / AI PERSONAS</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{reports(lang)}<section>{section_head(c["next"])}<div class="tool-links">{link(url(lang,"watch"),c["radar"]+" ↗")}{link("/terminal/#onchain","On-chain ↗")}{link("/terminal/#calendar","Calendar ↗")}{link("/terminal/#analysis","BTC channels ↗")}</div></section>'
     elif guide:
-        game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Try today’s chart game (Korean UI) ↗','zh':'开始今天的盲图游戏（韩文界面）↗','ja':'今日のチャートゲームへ（韓国語 UI）↗'}
-        game_cta=f'<p>{link("/blind/?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
+        game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Play today’s market replay ↗','zh':'开始今天的行情回放 ↗','ja':'今日の相場リプレイを始める ↗'}
+        game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'
+        game_cta=f'<p>{link(game_path+"?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
         kimchi=guide[0]=='kimchi-premium'
         tool=kimchi_calculator(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''

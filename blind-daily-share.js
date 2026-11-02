@@ -85,7 +85,8 @@
 
     ctx.strokeStyle = '#343947'; ctx.beginPath(); ctx.moveTo(64, 458); ctx.lineTo(1136, 458); ctx.stroke();
     text('다음 판은 당신 차례', 66, 501, 22, '#f0d77a', 700);
-    text(`tapelounge.com/blind/?daily=${data.day}${data.version === 2 ? '&v=2' : ''}`, 66, 536, 18, '#e5e7eb', 600);
+    const inviteUrl = window.BlindDaily?.url(data.day,data.version) || `https://tapelounge.com/blind/?daily=${data.day}${data.version === 2 ? '&v=2' : ''}`;
+    text(inviteUrl.replace('https://tapelounge.com','tapelounge.com'), 66, 536, 18, '#e5e7eb', 600);
     text('모의 연습 결과 · 실제 주문·투자 성과 아님 · 잔여 포지션은 마지막 종가 평가', 66, 578, 14, '#929aaa', 500);
     text('TAPE LOUNGE', 1134, 578, 13, '#756439', 700);
     return canvas;

@@ -43,7 +43,11 @@
     }
     return bars;
   }
-  function url(day,version=selection(day).version) { const u=new URL('https://tapelounge.com/blind/');u.searchParams.set('daily',day);if(version===STOCK_VERSION)u.searchParams.set('v',String(STOCK_VERSION));return u.href; }
+  function url(day,version=selection(day).version,lang=root.document?.documentElement?.lang||'ko') {
+    const locale=['en','zh','ja'].includes(lang)?lang:'ko';
+    const path=locale==='ko'?'/blind/':`/${locale}/tools/blind/`;
+    const u=new URL(path,'https://tapelounge.com');u.searchParams.set('daily',day);if(version===STOCK_VERSION)u.searchParams.set('v',String(STOCK_VERSION));return u.href;
+  }
   function read(storage,version=VERSION) {
     try { const value=JSON.parse(storage.getItem(STORES[version]));return value?.version===version && Array.isArray(value.records) ? value.records.filter(r=>validDay(r.day)&&Number.isFinite(r.roi)&&Number.isFinite(r.bh)).slice(-30) : []; } catch { return []; }
   }
@@ -90,10 +94,19 @@
     try { storage.setItem(STORES[version],JSON.stringify({version,records:[...records,first].sort((a,b)=>a.day.localeCompare(b.day)).slice(-30)}));return {saved:true,first,streak:day===dayKey()?updateStreak(storage,day):streak(storage)}; }
     catch { return {saved:false,first:null,streak:streak(storage)}; }
   }
-  function shareText(chosen,result) {
+  function shareText(chosen,result,lang=root.document?.documentElement?.lang||'ko') {
     const pct = value => `${value>=0?'+':''}${value.toFixed(2)}%`;
-    const unit=chosen.version===STOCK_VERSION?'거래일':'일';
-    return `Tape Lounge · ${chosen.day} ${chosen.day===dayKey()?'오늘의 판':'지난 판'}\n${result.completed?`200${unit} 완주`:result.bankrupt?'파산 정산':`${result.days}${unit} 중간 정산`} · 내 수익률 ${pct(result.roi)}\n같은 기간 보유 ${pct(result.bh)} (수수료 전)\n과거 차트 모의 연습 · 잔여 포지션은 마지막 종가 평가\n${url(chosen.day,chosen.version)}`;
+    const locale=['en','zh','ja'].includes(lang)?lang:'ko', stock=chosen.version===STOCK_VERSION, current=chosen.day===dayKey();
+    const unit=locale==='ko'?(stock?'거래일':'일'):locale==='en'?(stock?'trading days':'days'):locale==='zh'?(stock?'个交易日':'天'):(stock?'取引日':'日');
+    const status=result.completed
+      ? locale==='ko'?`200${unit} 완주`:locale==='en'?`Completed 200 ${unit}`:locale==='zh'?`完成200${unit}`:`${stock?'200取引日':'200日'}完走`
+      : result.bankrupt
+        ? locale==='ko'?'파산 정산':locale==='en'?'Settled after liquidation':locale==='zh'?'强平结算':'清算で決済'
+        : locale==='ko'?`${result.days}${unit} 중간 정산`:locale==='en'?`${result.days} ${unit} · settled early`:locale==='zh'?`${result.days}${unit} · 提前结算`:`${result.days}${unit}・途中精算`;
+    if(locale==='en') return `Tape Lounge · ${chosen.day} ${current?'Daily round':'Past round'}\n${status} · Return ${pct(result.roi)}\nBuy and hold over the same period ${pct(result.bh)} (before fees)\nPaper chart practice · Open positions valued at the final close\n${url(chosen.day,chosen.version,locale)}`;
+    if(locale==='zh') return `Tape Lounge · ${chosen.day} ${current?'今日牌局':'历史牌局'}\n${status} · 我的收益 ${pct(result.roi)}\n同期买入持有 ${pct(result.bh)}（未扣费用）\n历史行情模拟练习 · 未平仓位按最后收盘价估值\n${url(chosen.day,chosen.version,locale)}`;
+    if(locale==='ja') return `Tape Lounge · ${chosen.day} ${current?'今日の一局':'過去の一局'}\n${status}・リターン ${pct(result.roi)}\n同期間の買い持ち ${pct(result.bh)}（手数料前）\n過去チャートの模擬練習・残ったポジションは最終終値で評価\n${url(chosen.day,chosen.version,locale)}`;
+    return `Tape Lounge · ${chosen.day} ${current?'오늘의 판':'지난 판'}\n${status} · 내 수익률 ${pct(result.roi)}\n같은 기간 보유 ${pct(result.bh)} (수수료 전)\n과거 차트 모의 연습 · 잔여 포지션은 마지막 종가 평가\n${url(chosen.day,chosen.version,locale)}`;
   }
   const api=Object.freeze({dayKey,validDay,requestedDay,selection,validate,validateStock,url,read,previousDays,streak,record,shareText});
   if (typeof module === 'object' && module.exports) module.exports=api;

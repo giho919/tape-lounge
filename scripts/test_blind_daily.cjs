@@ -1,5 +1,7 @@
 const assert=require('node:assert/strict');
 const daily=require('../blind-daily.js');
+const source=require('node:fs').readFileSync(require('node:path').join(__dirname,'../blind-daily.js'),'utf8');
+const localized=lang=>{const window={document:{documentElement:{lang}}};require('node:vm').runInNewContext(source,{window,URL,URLSearchParams});return window.BlindDaily;};
 const day='2026-10-31', chosen=daily.selection(day), DAY=86400000;
 assert.deepEqual(chosen,{version:1,id:'v1-2026-10-31',day,symbol:'BNBUSDT',endTime:1711670399999},'v1 date links must remain reproducible');
 assert.equal(daily.dayKey(new Date('2026-10-31T14:59:59Z')),'2026-10-31');
@@ -9,6 +11,10 @@ for(const value of ['1','2020-01-01','2026-11-01','bad'])assert.equal(daily.requ
 assert.equal(daily.requestedDay(day,'2026-11-01'),day);
 assert.deepEqual(daily.selection(day),chosen);
 assert.notDeepEqual(daily.selection('2026-11-01'),chosen);
+assert.equal(localized('ko').url('2026-11-02',2),'https://tapelounge.com/blind/?daily=2026-11-02&v=2');
+for(const lang of ['en','zh','ja'])assert.equal(localized(lang).url('2026-11-02',2),`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2`);
+assert.ok(localized('en').shareText(daily.selection('2026-11-02'),{roi:1,bh:2,completed:true,bankrupt:false},'en').includes('Completed 200 trading days'));
+assert.ok(localized('en').shareText(daily.selection('2026-11-02'),{roi:1,bh:2,completed:true,bankrupt:false},'en').endsWith('https://tapelounge.com/en/tools/blind/?daily=2026-11-02&v=2'));
 assert.ok(chosen.endTime<Date.parse('2026-01-01T00:00:00Z'));
 const bars=Array.from({length:1000},(_,i)=>{const t=chosen.endTime-DAY+1-(999-i)*DAY;return[t,'100','110','90','105','20',t+DAY-1];});
 assert.equal(daily.validate(bars,chosen),bars);

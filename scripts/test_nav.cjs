@@ -67,6 +67,9 @@ test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게�
   const context={document:{documentElement:{lang}}};
   assert.equal(vm.runInNewContext(`${guide}; bgGuideHref()`,context),href,`${lang} guide URL`);
  }
+ assert.ok(builder.includes("game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'"),'guide CTA must stay in the selected language');
+ for(const languageClaim of ['The live game controls are available in Korean, English, Simplified Chinese, and Japanese.','游戏界面支持韩语、英语、简体中文和日语。','ゲーム操作は韓国語・英語・簡体字中国語・日本語に対応しています。'])assert.ok(fs.readFileSync(require.resolve('../scripts/discovery_content.py'),'utf8').includes(languageClaim),`editorial copy must match localized game: ${languageClaim}`);
+ assert.ok(fs.readFileSync(require.resolve('../scripts/discovery_content.py'),'utf8').includes("'2026-11-01','2026-11-02']"),'updated game guide must preserve publish date and record a modified date');
  assert.equal((app.match(/href="\$\{bgGuideHref\(\)\}"/g)||[]).length,2,'daily and solo overlays must both use the localized guide');
 });
 

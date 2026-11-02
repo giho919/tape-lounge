@@ -3,7 +3,8 @@
   'use strict';
   const topics = ['andy_scan','kimchi_fx','session_championship','daily_blind','site_launch'];
   const socialSources = ['threads','x','instagram'];
-  const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/blind/','/strategists/'];
+  const blindPaths = new Set(['/blind/','/en/tools/blind/','/zh/tools/blind/','/ja/tools/blind/']);
+  const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/strategists/',...blindPaths];
   const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$/;
   const sourceName = value => value === 'twitter' ? 'x' : value;
   function parse(search) {
@@ -34,7 +35,7 @@
     const chart = original.searchParams.get('chart'), tf = original.searchParams.get('tf'), daily = original.searchParams.get('daily');
     if (['BTC','ETH','BTC.D','NASDAQ'].includes(chart)) url.searchParams.set('chart',chart);
     if (['1m','15m','1h','4h','1d','1w','1M'].includes(tf)) url.searchParams.set('tf',tf);
-    if (original.pathname === '/blind/' && (daily === '1' || /^\d{4}-\d{2}-\d{2}$/.test(daily || ''))) url.searchParams.set('daily',daily);
+    if (blindPaths.has(original.pathname) && (daily === '1' || /^\d{4}-\d{2}-\d{2}$/.test(daily || ''))) url.searchParams.set('daily',daily);
     url.searchParams.set('utm_source',labels.source);url.searchParams.set('utm_medium','social');url.searchParams.set('utm_campaign',labels.campaign);
     if (original.pathname === '/' && original.hash === '#loungeChart') url.hash='loungeChart';
     return url.href;
@@ -45,10 +46,10 @@
     const dayTime = day && /^\d{4}-\d{2}-\d{2}$/.test(day) ? Date.parse(`${day}T00:00:00.000Z`) : NaN;
     const validDay = Number.isFinite(dayTime) && new Date(dayTime).toISOString().slice(0,10) === day;
     const version = original.searchParams.get('v');
-    if (original.origin !== 'https://tapelounge.com' || original.username || original.password || original.pathname !== '/blind/' || !validDay || (version && version !== '2')) {
+    if (original.origin !== 'https://tapelounge.com' || original.username || original.password || !blindPaths.has(original.pathname) || !validDay || (version && version !== '2')) {
       throw new Error('Only a valid daily blind-chart round can be shared');
     }
-    const url = new URL('/blind/', 'https://tapelounge.com');
+    const url = new URL(original.pathname, 'https://tapelounge.com');
     url.searchParams.set('daily',day);
     if (version === '2') url.searchParams.set('v','2');
     url.searchParams.set('utm_source','share');
