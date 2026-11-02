@@ -75,7 +75,7 @@
     '오늘의 미국 주식 판 · 약 4분':['Today’s U.S. stock chart · about 4 min','今日美股盲图 · 约4分钟','今日の米国株チャート・約4分'],
     '종목과 날짜를 가린 실제 과거 차트. 기본 2× 속도로 약 4분이면 끝나고, 같은 기간 보유와 비교합니다.':['A real historical chart with its ticker and dates hidden. A round takes about 4 minutes at the default 2× speed; compare your result with holding.','在隐藏标的和日期的真实历史图表上进行练习。默认2倍速约4分钟；结束后与同期持有比较。','銘柄と日付を伏せた実際の過去チャートで練習。標準の2倍速で約4分、同期間の保有と比べます。'],
     '로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요. 200일 후 같은 기간 보유와 비교합니다. 기본 2×로 약 4분.':['No login needed. Practice buy and sell timing on a real chart with its asset and dates hidden. Compare with holding after 200 days; about 4 min at default 2×.','无需登录。在隐藏标的和日期的真实图表上练习买卖，200天后与同期持有比较；默认2倍速约4分钟。','ログイン不要。銘柄と日付を伏せた実チャートで売買を練習し、200日後に同期間の保有と比較。標準2倍速で約4分。'],
-    '로그인 없이 무료 4분 한 판. 종목·날짜를 가린 실제 미국주식 차트 200거래일을 매매해 보세요. 그냥 보유했을 때보다 잘할 수 있을까요?':['Free, no-login 4-minute challenge: trade 200 days on a real U.S. stock chart with the ticker and dates hidden. Can your timing beat buy-and-hold?','无需登录，免费挑战一局，约4分钟：在隐藏代码和日期的真实美股图表上交易200个交易日。你的操作能胜过同期持有吗？','ログイン不要、無料で約4分の一局。銘柄名と日付を隠した実際の米国株チャート200営業日を売買し、同期間の保有に勝てるか試せます。'],
+    '종목과 날짜는 판이 끝나면 공개돼요. 실제 미국 주식 차트 200거래일을 모의 매매하고, 그냥 보유한 결과와 비교해 보세요. 로그인 없이 약 4분.':['The ticker and dates are revealed at the end. Trade 200 sessions on a real U.S. stock chart, then compare with holding. No login; about 4 minutes.','结束后揭晓标的和日期。在真实美股图表上模拟交易200个交易日，再与同期持有结果比较。无需登录，约4分钟。','銘柄と日付は最後に公開。実際の米国株チャート200営業日を模擬売買し、保有した場合と比較します。ログイン不要、約4分。'],
     '친구와 한 판 ↗':['Challenge a friend ↗','邀请朋友一起玩 ↗','友だちを誘う ↗'],
     '오늘의 판 초대':['Invite someone to today’s round','邀请朋友参加今日牌局','今日の一局に友だちを招待'],
     '복사할 초대 문구와 링크':['Invitation text and link to copy','可复制的邀请文案和链接','コピーする招待文とリンク'],
