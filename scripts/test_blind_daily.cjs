@@ -3,8 +3,11 @@ const daily=require('../blind-daily.js');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
 const source=fs.readFileSync(path.join(__dirname,'../blind-daily.js'),'utf8');
 const shareSource=fs.readFileSync(path.join(__dirname,'../blind-daily-share.js'),'utf8');
+const campaignSource=fs.readFileSync(path.join(__dirname,'../site-campaign.js'),'utf8');
 const localized=lang=>{const window={document:{documentElement:{lang}}};vm.runInNewContext(source,{window,URL,URLSearchParams});return window.BlindDaily;};
 const shareWindow={document:{documentElement:{lang:'ko'}}};
+vm.runInNewContext(campaignSource,{window:shareWindow,URL,URLSearchParams});
+shareWindow.BlindDaily=localized('ko');
 vm.runInNewContext(shareSource,{window:shareWindow,document:shareWindow.document});
 const shareCopy=lang=>shareWindow.TapeDailyShare.copyFor(lang);
 const day='2026-10-31', chosen=daily.selection(day), DAY=86400000;
@@ -37,7 +40,12 @@ for(const [lang,expected] of Object.entries(cardCopyExpectations)){
  assert.equal(copy.saveButton,expected.save,`${lang} save button`);
  assert.ok(copy.cardFailed,`${lang} image error must be localized`);
  assert.ok(copy.dialogNote&&!/[가-힣]/.test(copy.dialogNote)||lang==='ko',`${lang} share note must be localized`);
+ shareWindow.document.documentElement.lang=lang;shareWindow.BlindDaily=localized(lang);
+ const path=lang==='ko'?'/blind/':`/${lang}/tools/blind/`;
+ assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-11-02',version:2}),`https://tapelounge.com${path}?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind`,`${lang} result image link attribution`);
 }
+shareWindow.document.documentElement.lang='ko';shareWindow.BlindDaily=localized('ko');
+assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-10-31',version:1}),'https://tapelounge.com/blind/?daily=2026-10-31&utm_source=share&utm_medium=referral&utm_campaign=daily_blind','crypto result image link attribution');
 const shareVersion=crypto.createHash('sha256').update(shareSource).digest('hex').slice(0,12),htmlFiles=[];
 const collectHtml=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collectHtml(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
 collectHtml(path.resolve(__dirname,'..'));

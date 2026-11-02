@@ -80,6 +80,11 @@
   function durationLabel(data, copy) {
     return copy.duration(data.days,data.market === 'stock' ? copy.stockUnit : copy.dayUnit);
   }
+  function shareUrlFor(data) {
+    const plainUrl = window.BlindDaily?.url(data.day,data.version) || `https://tapelounge.com/blind/?daily=${data.day}${data.version === 2 ? '&v=2' : ''}`;
+    try { return window.TapeCampaign?.tagDailyBlindShare(plainUrl) || plainUrl; }
+    catch { return plainUrl; }
+  }
 
   function rounded(ctx, x, y, width, height, radius) {
     ctx.beginPath();
@@ -167,7 +172,7 @@
 
     ctx.strokeStyle = '#343947'; ctx.beginPath(); ctx.moveTo(64, 458); ctx.lineTo(1136, 458); ctx.stroke();
     text(copy.next, 66, 501, 22, '#f0d77a', 700);
-    const inviteUrl = window.BlindDaily?.url(data.day,data.version) || `https://tapelounge.com/blind/?daily=${data.day}${data.version === 2 ? '&v=2' : ''}`;
+    const inviteUrl = shareUrlFor(data);
     text(inviteUrl.replace('https://tapelounge.com','tapelounge.com'), 66, 536, 18, '#e5e7eb', 600);
     text(copy.disclaimer, 66, 578, 14, '#929aaa', 500);
     text('TAPE LOUNGE', 1134, 578, 13, '#756439', 700);
@@ -218,5 +223,5 @@
     } finally { button.disabled = false; }
   }
 
-  window.TapeDailyShare = Object.freeze({open,copyFor});
+  window.TapeDailyShare = Object.freeze({open,copyFor,shareUrlFor});
 })();
