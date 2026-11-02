@@ -508,6 +508,17 @@ body.shake { animation:shake .5s; }
 .bgGameHeading small { flex:1 1 180px; line-height:1.6; }
 .bgDailyInfo { color:var(--dim); font-size:11px; line-height:1.7; margin-top:10px; }
 .bgStreakBadge { display:inline-flex; align-items:center; margin-top:4px; padding:4px 8px; border:1px solid rgba(212,175,55,.34); border-radius:999px; background:rgba(212,175,55,.08); color:#f0d77a; font-size:10px; font-weight:700; line-height:1.45; }
+.bgDailySeason { margin-top:11px; padding:10px; border:1px solid rgba(212,175,55,.24); border-radius:9px; background:linear-gradient(135deg,rgba(212,175,55,.07),rgba(16,20,28,.72)); text-align:left; }
+.bgDailySeasonHead { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.bgDailySeasonHead b { color:#efd778; font-size:10px; letter-spacing:.35px; }
+.bgDailySeasonHead small { color:var(--dim); font-size:9px; white-space:nowrap; }
+.bgDailySeasonGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:8px; }
+.bgDailySeasonStat { min-width:0; padding:7px 6px; border:1px solid var(--line); border-radius:7px; background:rgba(0,0,0,.14); }
+.bgDailySeasonStat strong { display:block; color:var(--tx); font-size:13px; line-height:1.2; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.bgDailySeasonStat[data-tone="positive"] strong { color:var(--grn); }
+.bgDailySeasonStat[data-tone="negative"] strong { color:var(--red); }
+.bgDailySeasonStat small { display:block; margin-top:4px; color:var(--dim); font-size:9px; line-height:1.3; }
+.bgDailySeasonNote,.bgDailySeasonEmpty { margin:7px 1px 0; color:var(--dim); font-size:9px; line-height:1.45; }
 .bgGuideLink { display:block; width:max-content; max-width:100%; margin:11px auto 0; color:var(--gold); font-size:10px; line-height:1.5; text-decoration:underline; text-underline-offset:3px; }
 .bgGuideLink:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .bgDailyActions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
@@ -1526,6 +1537,6 @@ body.shake { animation:shake .5s; }
   mobile.addEventListener?.('change',event => { if (!event.matches) setOpen(false); });
 })();
 </script>
-<script defer src="/lounge-app.js?v=661b71aa2f3e"></script>
+<script defer src="/lounge-app.js?v=02160b7ebcf3"></script>
 </body>
 </html>
