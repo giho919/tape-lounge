@@ -43,7 +43,7 @@
     '그때 나라면?':['What would you have done?','如果当时是你？','あの時、自分なら？'],
     '그때 나라면':['Decision practice','决策练习','判断練習'],
     '그때 나라면, 과거 시장에서 선택 연습하기':['Practice decisions on past markets','在历史行情中练习判断','過去の相場で判断を練習'],
-    '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인해요.':['Choose buy, wait, hold or exit on a past BTC chart, then reveal the next five days.','在历史BTC行情中选择买入、等待、持有或卖出，再揭晓之后五天。','過去のBTCチャートで買い・待機・保有・決済を選び、その後の5日間を確認。'],
+    '매수·대기·보유·청산을 고르고 다음 5일을 확인해요. 1D·4H·1H 차트와 당시 심리·펀딩비도 볼 수 있어요.':['Choose buy, wait, hold or exit, then reveal the next five days. Switch 1D, 4H and 1H charts; check the prior-day Fear & Greed reading and historical funding.','选择买入、等待、持有或卖出，再揭晓之后五天。可切换1D、4H、1H图表，并查看前一日恐惧与贪婪指数和历史资金费率。','買う・待つ・保有・決済を選び、その後5日を確認。1D・4H・1H足を切り替え、前日のFear & Greedと当時のFundingも見られます。'],
     '한 판 시작 ↗':['Play a round ↗','开始一局 ↗','一局始める ↗'],
     '오늘 결과 다시 보기 ↗':['Review today’s result ↗','查看今日结果 ↗','今日の結果を見る ↗'],
     '라운지 정보 선택':['Choose lounge feature','选择大厅内容','ラウンジ表示を選択'],

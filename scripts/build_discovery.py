@@ -16,6 +16,16 @@ from blind_daily_stock_rounds import ensure_rounds
 from frontend_config import read_public_config
 
 ROOT = Path(__file__).resolve().parents[1]
+TEXT_SUFFIXES = {'.css', '.csv', '.html', '.js', '.json', '.md', '.py', '.sql', '.txt', '.xml'}
+
+
+def stable_bytes(path):
+    """Hash text assets identically on Windows and Linux checkouts."""
+    path = Path(path)
+    raw = path.read_bytes()
+    return raw.replace(b'\r\n', b'\n') if path.suffix.lower() in TEXT_SUFFIXES else raw
+
+
 BASE = 'https://tapelounge.com'
 HOME_OG_VERSION = '20261102'
 HOME_OG_ALT = {
@@ -34,7 +44,7 @@ TOOL_OG_ALT = {
 MARKET_PAGE_UPDATED = '2026-11-02'
 WATCH_PAGE_UPDATED = '2026-11-02'
 ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css', 'lounge-app.js']
-VERSION = 'd' + sha256(b''.join((ROOT / p).read_bytes() for p in ASSETS)).hexdigest()[:12]
+VERSION = 'd' + sha256(b''.join(stable_bytes(ROOT / p) for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
@@ -44,7 +54,7 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.
                'home-og-zh-20261102.png', 'home-og-ja-20261102.png', 'lounge-rotation.js',
                'live-home-locale.js']
 SHARE_ASSETS = ['article-share.js', 'article-share.css']
-SHARE_VERSION = sha256(b''.join((ROOT / p).read_bytes() for p in SHARE_ASSETS)).hexdigest()[:12]
+SHARE_VERSION = sha256(b''.join(stable_bytes(ROOT / p) for p in SHARE_ASSETS)).hexdigest()[:12]
 TOOL_PAGES = [
     ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
      '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
@@ -82,7 +92,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
                             '<meta name="robots" content="noindex,follow">', 1)
         text = re.sub(r'(<summary[^>]*>)🌐\s*KO(</summary>)',
                       lambda m: m.group(1) + '🌐 ' + lang.upper() + m.group(2), text, count=1)
-        locale_js_version = sha256((ROOT / 'live-home-locale.js').read_bytes()).hexdigest()[:12]
+        locale_js_version = sha256(stable_bytes(ROOT / 'live-home-locale.js')).hexdigest()[:12]
         text = text.replace('</head>',
                             f'<script defer src="/live-home-locale.js?v={locale_js_version}"></script>\n</head>', 1)
     text = re.sub(r'<title>[^<]*</title>', f'<title>{e(title)}</title>', text, count=1)
@@ -242,16 +252,16 @@ def locale_url(lang, page=''):
     return url(lang, page)
 
 DECISION_COPY = {
-    'ko': ('비트코인 과거 차트 매매 연습 | 그때 나라면? · Tape Lounge', '과거 비트코인 차트에서 매수·대기·보유·청산을 12번 선택해 보세요. 다음 5일의 흐름과 같은 기간 보유, 최대 낙폭·수수료를 비교하는 무료 모의 연습입니다. 실전 주문은 없습니다.'),
-    'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice historical Bitcoin decisions with multiple chart timeframes, the prior-day Fear & Greed Index and historical funding, then review the outcome and fees.'),
-    'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中查看多个周期、前一日恐惧与贪婪指数及历史资金费率，练习买入、等待、持有和卖出，并回顾后续走势与手续费。'),
-    'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', 'ビットコインの過去チャートを複数時間軸で見て、前日のFear & Greed指数とFundingを参考に判断し、その後の値動きや手数料を振り返ります。'),
+    'ko': ('비트코인 과거 차트 매매 연습 | 그때 나라면? · Tape Lounge', '과거 BTC 차트에서 12번 판단하고 다음 5일을 확인하세요. 1D·4H·1H 봉, 전일 공포·탐욕과 당시 펀딩비를 살펴본 뒤 같은 구간 보유·최대 낙폭·수수료를 비교하는 모의 연습입니다.'),
+    'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice 12 historical BTC decisions with 1D, 4H and 1H charts, the prior-day Fear & Greed reading and historical funding. Reveal five days at a time, then compare your result, buy and hold, drawdown and fees. Paper trading only.'),
+    'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中进行12次判断，查看1D、4H、1H图表、前一日恐惧与贪婪指数和历史资金费率。每次揭晓后续五天，并比较收益、同期持有、回撤与手续费。仅为模拟练习。'),
+    'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', '過去のBTC相場で12回判断し、1D・4H・1H足、前日のFear & Greedと当時のFundingを確認。5日後の値動きを開き、同期間保有・最大DD・手数料と比較する模擬練習です。'),
 }
 DECISION_LANDING_COPY = {
-    'ko': ('과거 비트코인 차트, 그때 나라면?', '과거 시장의 한 장면에서 선택하고, 다음 5일을 열어보세요. 한 번의 수익보다 내가 세운 원칙과 위험을 돌아보는 연습입니다.'),
-    'en': ('What would you have done?', 'Make a call at a moment from the past, then reveal the next five days. The point is to review your rules and risk, not to celebrate one profitable outcome.'),
-    'zh': ('如果当时是你，会怎么做？', '在一段历史行情中做出选择，再揭晓之后五天。练习重点是回看自己的规则与风险，而不是只看一次盈亏。'),
-    'ja': ('あの時、自分ならどうした？', '過去の相場で選択し、その後5日間を確認します。一度の損益より、自分のルールとリスクを振り返る練習です。'),
+    'ko': ('과거 비트코인 차트, 그때 나라면?', '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인하세요. 1D·4H·1H 봉과 전일 공포·탐욕, 당시 펀딩비를 함께 살펴보며 선택 이유와 위험을 돌아봅니다.'),
+    'en': ('What would you have done?', 'Choose buy, wait, hold or exit on a historical BTC chart, then reveal the next five days. Switch between 1D, 4H and 1H candles and check the prior-day Fear & Greed reading and historical funding as you review each choice.'),
+    'zh': ('如果当时是你，会怎么做？', '在BTC历史行情中选择买入、等待、持有或卖出，再揭晓之后五天。每次判断都可切换1D、4H、1H图表，并查看前一日恐惧与贪婪指数和当时的资金费率。'),
+    'ja': ('あの時、自分ならどうした？', '過去のBTCチャートで買う・待つ・保有・決済を選び、その後5日間を確認します。1D・4H・1H足を切り替え、前日のFear & Greedと当時のFundingも見ながら、選択理由とリスクを振り返れます。'),
 }
 
 def decision_url(lang):
@@ -329,7 +339,7 @@ def locale_home_url(lang):
 def prepare_classic_home():
     """Prepare the shared lounge shell for the public root and tool entries."""
     classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
-    app_version=sha256((ROOT/'lounge-app.js').read_bytes()).hexdigest()[:12]
+    app_version=sha256(stable_bytes(ROOT/'lounge-app.js')).hexdigest()[:12]
     classic, app_script_count = re.subn(
         r'(<script defer src="/lounge-app\.js\?v=)[^"]+("></script>)',
         lambda m: m.group(1) + app_version + m.group(2),
@@ -349,7 +359,7 @@ def prepare_classic_home():
     if rotation_script_count != 1:
         raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
     for asset in ['blind-daily.js','blind-daily-share.js']:
-        asset_version=sha256((ROOT/asset).read_bytes()).hexdigest()[:12]
+        asset_version=sha256(stable_bytes(ROOT/asset)).hexdigest()[:12]
         pattern=rf'(<script\b[^>]*\bsrc="/?{re.escape(asset)}\?v=)[^"]+("[^>]*></script>)'
         classic, asset_count = re.subn(pattern,lambda m:m.group(1)+asset_version+m.group(2),classic,count=1)
         if asset_count != 1:
@@ -360,7 +370,7 @@ def prepare_classic_home():
     if '<head>' not in classic or viewport not in classic:
         raise ValueError('The archived pre-redesign homepage is missing its expected head metadata')
     classic=classic.replace('<head>','<head>\n<base href="/">',1)
-    home_language_version=sha256((ROOT/'home-language.js').read_bytes()).hexdigest()[:12]
+    home_language_version=sha256(stable_bytes(ROOT/'home-language.js')).hexdigest()[:12]
     classic=classic.replace('</head>',f'<script defer src="/home-language.js?v={home_language_version}"></script>\n</head>',1)
     classic=classic.replace('<meta name="robots" content="noindex,follow">','<meta name="robots" content="index,follow">',1)
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
@@ -573,14 +583,14 @@ def build(force=False):
     report_metadata_changed=ensure_report_metadata()
     classic=prepare_classic_home()
     inputs=['scripts/build_discovery.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
-    fingerprint=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
+    fingerprint=sha256(b''.join(stable_bytes(ROOT/p) for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
         return {'changed':False}
     data=read('data/andy-watch.json'); letters=read('reports/letters.json')
     generated=datetime.now(timezone.utc).isoformat()
     generated_kst=datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
-    tool_hash=sha256((ROOT/'classic-home.html').read_bytes()+json.dumps(TOOL_PAGES,ensure_ascii=False).encode()+b''.join((ROOT/p).read_bytes() for p in TOOL_ASSETS)).hexdigest()
+    tool_hash=sha256(stable_bytes(ROOT/'classic-home.html')+json.dumps(TOOL_PAGES,ensure_ascii=False).encode()+b''.join(stable_bytes(ROOT/p) for p in TOOL_ASSETS)).hexdigest()
     previous=read('data/discovery.json') if target.exists() else {}
     tool_updated=previous.get('toolUpdatedAt',generated_kst) if previous.get('toolSourceHash')==tool_hash else generated_kst
     pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
@@ -716,7 +726,7 @@ def build_editorial_only():
     data['copy']=COPY
     data['generatedAt']=generated
     inputs=['scripts/build_discovery.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html']+[item[0] for item in REPORT_METADATA]+ASSETS+TOOL_ASSETS+SHARE_ASSETS
-    data['sourceHash']=sha256(b''.join((ROOT/p).read_bytes() for p in inputs)).hexdigest()
+    data['sourceHash']=sha256(b''.join(stable_bytes(ROOT/p) for p in inputs)).hexdigest()
     write('data/discovery.json',json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n')
     return {'changed':True,'scope':'localized editorial pages, feeds, sitemap and discovery copy','reportAt':data['reportAt'],'generatedAt':generated}
 

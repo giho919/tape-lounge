@@ -46,7 +46,7 @@ for(const [lang,expected] of Object.entries(cardCopyExpectations)){
 }
 shareWindow.document.documentElement.lang='ko';shareWindow.BlindDaily=localized('ko');
 assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-10-31',version:1}),'https://tapelounge.com/blind/?daily=2026-10-31&utm_source=share&utm_medium=referral&utm_campaign=daily_blind','crypto result image link attribution');
-const shareVersion=crypto.createHash('sha256').update(shareSource).digest('hex').slice(0,12),htmlFiles=[];
+const shareVersion=crypto.createHash('sha256').update(shareSource.replace(/\r\n/g,'\n')).digest('hex').slice(0,12),htmlFiles=[];
 const collectHtml=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collectHtml(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
 collectHtml(path.resolve(__dirname,'..'));
 const sharePages=htmlFiles.map(file=>({file,html:fs.readFileSync(file,'utf8')})).filter(page=>page.html.includes('blind-daily-share.js?v='));
