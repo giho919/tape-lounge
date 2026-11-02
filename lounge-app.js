@@ -2086,6 +2086,35 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) sche
 let bgLoadGeneration = 0;
 const bgDailyQuery = new URLSearchParams(location.search).get('daily');
 let bgDailySelection = null;
+function bgSaveDailyProgress() {
+  if (!bg || bg.gameMode !== 'daily' || bg.over || !bg.daily) return false;
+  const dayIndex = bg.idx - bg.base;
+  if (!Number.isSafeInteger(dayIndex) || dayIndex < 0 || dayIndex >= BG_PLAY) return false;
+  try {
+    return window.BlindDaily.writeProgress(window.localStorage, {
+      schema: 1, day: bg.daily.day, roundVersion: bg.daily.version, symbol: bg.sym,
+      dayIndex, wallet: bg.wallet, pos: bg.pos ? { ...bg.pos } : null,
+      trades: bg.trades.map(t => ({ day: t.day, side: t.side, intent: t.intent, px: t.px, amt: t.amt, fee: t.fee, lev: t.lev })),
+      speed: bgSpeed, orderPct: bgPct, leverage: bgLev, elapsedMs: bg.elapsedMs || 0,
+    });
+  } catch { return false; }
+}
+function bgClearDailyProgress(selection = bg?.daily || bgDailySelection) {
+  if (!selection?.day || !selection?.version) return false;
+  try { return window.BlindDaily.clearProgress(window.localStorage, selection.day, selection.version); }
+  catch { return false; }
+}
+function bgDailyMarkersFromTrades(trades, norm, base) {
+  return [...trades].reverse().map(t => {
+    const candle = norm[base + Math.max(0, Math.min(BG_PLAY, t.day))];
+    if (!candle) return null;
+    const buy = t.side === 'BUY', liq = t.intent === 'LIQ';
+    return { time: candle.time, position: liq ? (buy ? 'aboveBar' : 'belowBar') : (buy ? 'belowBar' : 'aboveBar'),
+      color: liq || !buy ? '#f87171' : '#4ade80', shape: buy ? 'arrowUp' : 'arrowDown', text: liq ? '청산' : buy ? 'B' : 'S' };
+  }).filter(Boolean);
+}
+window.addEventListener('pagehide', bgSaveDailyProgress);
+document.addEventListener('visibilitychange', () => { if (document.hidden) bgSaveDailyProgress(); });
 function bgPctSync(v) {
   v = Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
   bgPct = v;
@@ -2169,7 +2198,7 @@ function blindOpen() {
 }
 
 // kl([ts,o,h,l,c,v] 배열) → bg 세팅 (나만의 판 공용)
-function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
+function bgSetupSolo(kl, symName, track, gameMode = 'solo', resumeState = null) {
   // 서버가 보낸 라운드 길이에서 유도 — 예전에 저장된 짧은 라운드도 그대로 열린다
   const startIdx = Math.max(0, kl.length - BG_PLAY - 1);
   const base = +kl[startIdx][4];
@@ -2183,23 +2212,34 @@ function bgSetupSolo(kl, symName, track, gameMode = 'solo') {
     studyRoomId: gameMode === 'study' ? studyRoom?.id : null,
     daily: gameMode === 'daily' ? bgDailySelection : null,
   };
+  if (resumeState) {
+    bg.idx = bg.base + resumeState.dayIndex;
+    bg.wallet = resumeState.wallet;
+    bg.pos = resumeState.pos ? { ...resumeState.pos } : null;
+    bg.trades = resumeState.trades.map(t => ({ ...t }));
+    bg.elapsedMs = resumeState.elapsedMs;
+    bg.markers = bgDailyMarkersFromTrades(bg.trades, bg.norm, bg.base);
+    bgSpeed = resumeState.speed;
+    bgPct = resumeState.orderPct;
+    bgLev = resumeState.leverage;
+  }
   bgOsc.suspend=true;
   bgS.setData(bg.norm.slice(0, bg.idx + 1));
-  bgMASet(); bgVolSet(); bgS.setMarkers([]);
+  bgMASet(); bgVolSet(); bgS.setMarkers(bg.markers);
   chartShowRecent(bgCh, bg.idx + 1, BG_VIEW_BARS);
   scheduleBlindChartRecovery();
   $('bgOver').classList.add('hidden');
   $('bgSym').textContent = track === 'stock' ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
-  $('bgLog').innerHTML = '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
+  $('bgLog').innerHTML = bg.trades.length ? bg.trades.slice(0, 30).map(renderTradeRow).join('') : '<div style="padding:10px 0;color:var(--dim)">아직 거래가 없습니다</div>';
   if (gameMode === 'study') studyRestorePlayerState();
   blindStatus();
   if (gameMode === 'study') studyGameReady();
-  else soloStart();   // 시간 자동 진행 시작
+  else soloStart(resumeState?.elapsedMs || 0);   // 시간 자동 진행 시작
 }
 
-async function blindStart() {
+async function blindStart(resumeDaily = false) {
   const generation = ++bgLoadGeneration;
-  if (bgMode === 'daily') { await bgStartDaily(generation); return; }
+  if (bgMode === 'daily') { await bgStartDaily(generation, resumeDaily); return; }
   const track = bgTrack;
   $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>과거의 판을 뒤지는 중…</p>';
   if (track === 'stock') {
@@ -2263,6 +2303,9 @@ function bgShowDailyOverlay() {
   document.getElementById('bgSym').textContent = stockRound ? '❓ ??? · 미국 증시' : '❓ ??? / USDT';
   let first = null;
   try { first = window.BlindDaily.read(localStorage,bgDailySelection.version).find(r => r.day === day); } catch {}
+  let progress = null;
+  try { progress = window.BlindDaily.readProgress(localStorage, day, bgDailySelection.version); } catch {}
+  if (first && progress) { bgClearDailyProgress(bgDailySelection); progress = null; }
   let run = {days:0,playedToday:false};
   try { run = window.BlindDaily.streak(localStorage); } catch {}
   const runCopy = day !== today ? '연속 출전은 당일 오늘의 판 완주로 기록됩니다.' : run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : run.days ? `어제까지 ${run.days}일 연속 · 오늘 완주하면 이어집니다.` : '오늘 완주하면 연속 출전 기록이 시작됩니다.';
@@ -2270,8 +2313,12 @@ function bgShowDailyOverlay() {
   const archive = bgDailyArchiveMarkup(day,today), heading = day===today ? '🎴 오늘의 판' : `🎴 ${day} · 지난 판`;
   $('bgTrackRow').classList.add('hidden');
   $('bgModeDesc').textContent = day===today ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '지난 판 재연 · 오늘의 연속 출전 기록과 별도';
+  const startAction = progress
+    ? `<button class="go" type="button" onclick="blindStart(true)">D+${progress.dayIndex}부터 이어하기 →</button><button class="go" type="button" onclick="blindStart(false)">처음부터 다시</button>`
+    : `<button class="go" type="button" onclick="blindStart(false)">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button>`;
   $('bgOverBox').innerHTML = `<h4>${heading}</h4><p><b style="color:var(--gold)">${day} · ${marketName}</b><br>종목과 날짜를 가린 같은 차트로 200${unit} 동안 버텨 보세요. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다.</p>
-    <div class="bgDailyActions"><button class="go" type="button" onclick="blindStart()">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button><button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
+    <div class="bgDailyActions">${startAction}<button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
+    ${progress?`<p class="bgDailyInfo">이 기기에 D+${progress.dayIndex}까지 진행을 저장했습니다. 브라우저를 닫았다 열어도 이어갈 수 있어요.</p>`:''}
     <p class="bgDailyInfo">가상 자금 $10,000 · 실제 주문 없음 · 기본 속도 2×로 약 4분. 시작 전이나 진행 중에 속도를 바꾸고 잠시 멈출 수 있어요.</p>
     <p class="bgDailyInfo">${first ? `첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}% · 같은 기간 보유 ${first.bh>=0?'+':''}${first.bh.toFixed(2)}%<br>` : ''}${runBadge}<br>${day===today?'완주와 연속 출전 기록은 이 브라우저에만 저장됩니다.':'지난 판 완주 기록은 저장되지만 연속 출전에는 반영되지 않습니다.'}</p>
     ${archive}
@@ -2314,9 +2361,15 @@ function bgDailyShareText(chosen,result) {
   const plainUrl = window.BlindDaily.url(chosen.day,chosen.version);
   return window.BlindDaily.shareText(chosen,result).replace(plainUrl,bgDailyInviteUrl(chosen.day,chosen.version));
 }
-async function bgStartDaily(generation) {
+async function bgStartDaily(generation, resumeRequested = false) {
   const chosen = bgDailySelection || window.BlindDaily.selection(window.BlindDaily.requestedDay(bgDailyQuery));
   bgDailySelection = chosen;
+  let resumeState = null;
+  try { if (resumeRequested) resumeState = window.BlindDaily.readProgress(window.localStorage, chosen.day, chosen.version); } catch {}
+  if (resumeRequested && !resumeState) {
+    $('bgOverBox').innerHTML = '<h4>🎴 저장된 진행을 찾지 못했습니다.</h4><p>처음부터 새 판으로 시작해 주세요.</p><button type="button" class="go" onclick="blindStart(false)">처음부터 시작 →</button>';
+    return;
+  }
   $('bgOverBox').innerHTML = '<h4>🎴 오늘의 판</h4><p>오늘의 과거 차트를 준비하고 있습니다…</p>';
   try {
     let kl, symbol, track;
@@ -2326,6 +2379,7 @@ async function bgStartDaily(generation) {
       const payload = await response.json();
       kl = window.BlindDaily.validateStock(payload,chosen);
       symbol = payload.symbol; track = 'stock';
+      if (resumeState && resumeState.symbol !== symbol) throw new Error('저장된 판의 종목을 확인하지 못했습니다. 처음부터 다시 시작해 주세요.');
       bgDailySelection = {...chosen,symbol};
     } else {
       const response = await fetch(`${SPOT_DATA_API}/klines?symbol=${chosen.symbol}&interval=1d&limit=${BG_TOTAL}&endTime=${chosen.endTime}`);
@@ -2334,8 +2388,10 @@ async function bgStartDaily(generation) {
       symbol = chosen.symbol; track = 'crypto';
     }
     if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
-    bgLev = 1; bgPct = 25; bgLevRender(); bgRenderSpeed();
-    bgSetupSolo(kl, symbol, track, 'daily');
+    if (!resumeRequested) bgClearDailyProgress(chosen);
+    bgLev = resumeState?.leverage ?? 1; bgPct = resumeState?.orderPct ?? 25; bgSpeed = resumeState?.speed ?? 2;
+    bgLevRender(); bgRenderSpeed();
+    bgSetupSolo(kl, symbol, track, 'daily', resumeState);
   } catch (error) {
     if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
     $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p>${esc(error.message)}</p><button type="button" class="go" onclick="blindStart()">같은 판 재시도</button>`;
@@ -2530,6 +2586,7 @@ async function blindTrade(action, pct) {
   bgS.setMarkers(bg.markers);
   $('bgLog').innerHTML = bg.trades.slice(0, 30).map(renderTradeRow).join('');
   blindStatus();
+  bgSaveDailyProgress();
 }
 
 // 캔들 고저가 청산가를 스치면 증거금 전액 소멸
@@ -2574,6 +2631,7 @@ function bgAdvanceOneDay() {
     bg.bankrupt = true;
     blindFinish(true);   // 밑천이 다 녹으면 즉시 정산
   }
+  if ((bg.idx - bg.base) % 5 === 0) bgSaveDailyProgress();
 }
 async function blindFinish(early) {
   if (!bg || bg.over) return;
@@ -2591,6 +2649,7 @@ async function blindFinish(early) {
     return;
   }
   if (bg.daily) {
+    bgClearDailyProgress(bg.daily);
     const completed = bg.idx === bg.norm.length - 1;
     let recorded = {saved:false,first:null,streak:{days:0,playedToday:false}};
     try { recorded = window.BlindDaily.record(localStorage, bg.daily.day, {roi,bh,completed,finishedAt:new Date().toISOString()},bg.daily.version); } catch {}
@@ -2663,12 +2722,12 @@ function bgShowSoloOverlay() {
 }
 
 // 자동 진행 시작 (blindStart → bgSetupSolo 끝에서 호출)
-function soloStart() {
-  bg.elapsedMs = 0; bg.playing = true;
+function soloStart(elapsedMs = 0) {
+  bg.elapsedMs = Math.max(0, Number(elapsedMs) || 0); bg.playing = true;
   $('bgPlayRow').classList.remove('prestart');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
   $('bgLiveRow').classList.remove('hidden');
-  bgRenderSpeed(); soloTickStart(); soloStatus();
+  bgRenderSpeed(); soloTickStart(); soloStatus(); bgSaveDailyProgress();
 }
 function soloTickStart() {
   clearInterval(bgTimer);
@@ -2691,9 +2750,10 @@ function soloTick() {
 function soloPauseToggle() {
   if (!bg || bg.over) return;
   if (bg.gameMode === 'study') { studyHostControl(studyRoom?.playing ? 'pause' : 'play'); return; }
+  if (bg.playing) { soloTick(); if (!bg || bg.over) return; }
   bg.playing = !bg.playing;
   if (bg.playing) soloTickStart(); else { clearInterval(bgTimer); bgTimer = null; }
-  soloStatus();
+  soloStatus(); bgSaveDailyProgress();
 }
 function bgRenderSpeed(speed = bgSpeed) {
   const roomMode = bg?.gameMode === 'study';
@@ -2720,8 +2780,11 @@ function soloSetSpeed(requested) {
     return;
   }
   if (!BG_SPEEDS.includes(target)) return;
+  if (bg?.playing) soloTick();
+  if (!bg || bg.over) return;
   bgSpeed = target;
   bgRenderSpeed();
+  bgSaveDailyProgress();
 }
 function soloAdjustSpeed(direction) {
   if (bg?.gameMode === 'study') {
@@ -2817,6 +2880,7 @@ function bgSetMode(mode) {
     const e = studyErrorEl(); if (e) e.textContent = '진행 중인 테이블은 정산 뒤에 나갈 수 있습니다.';
     return;
   }
+  bgSaveDailyProgress();
   clearInterval(bgTimer); bgTimer = null; bg = null;
   bgLoadGeneration++;
   bgMode = mode;

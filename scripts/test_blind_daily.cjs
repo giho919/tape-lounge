@@ -21,7 +21,18 @@ assert.equal(daily.validate(bars,chosen),bars);
 for(const mutate of [a=>a.pop(),a=>{a[6][0]++;},a=>{a[5][4]='111';},a=>{a[2][1]='NaN';},a=>{a[4][5]='-1';},a=>{a[3][6]++;}]){
  const bad=structuredClone(bars);mutate(bad);assert.throws(()=>daily.validate(bad,chosen));
 }
-const memory=new Map(),storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};
+const memory=new Map(),storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)};
+const progress={schema:1,day,roundVersion:1,symbol:chosen.symbol,dayIndex:8,wallet:9500,pos:{side:'long',qty:2,entry:100,margin:200,lev:2},trades:[{day:2,side:'BUY',intent:'LONG',px:100,amt:200,fee:.2,lev:2}],speed:2,orderPct:25,leverage:2,elapsedMs:32000};
+assert.equal(daily.writeProgress(storage,progress),true);
+assert.deepEqual(daily.readProgress(storage,day,1),progress,'valid in-progress decisions and position survive local reload');
+assert.equal(daily.writeProgress(storage,{...progress,dayIndex:200}),false,'completed rounds cannot be kept as resumable progress');
+assert.equal(daily.writeProgress(storage,{...progress,symbol:'ETHUSDT'}),false,'a saved round cannot change its hidden symbol');
+assert.equal(daily.clearProgress(storage,day,1),true);assert.equal(daily.readProgress(storage,day,1),null);
+const stockProgress={schema:1,day:'2026-11-02',roundVersion:2,symbol:'AAPL',dayIndex:12,wallet:10000,pos:null,trades:[],speed:2,orderPct:25,leverage:1,elapsedMs:24000};
+assert.equal(daily.writeProgress(storage,stockProgress),true);assert.deepEqual(daily.readProgress(storage,stockProgress.day,2),stockProgress,'stock rounds keep a valid local resume checkpoint');
+assert.equal(daily.writeProgress(storage,{...stockProgress,symbol:'UNKNOWN'}),false,'a stock checkpoint must use a bundled symbol');
+assert.equal(daily.clearProgress(storage,stockProgress.day,2),true);
+assert.equal(daily.writeProgress({setItem(){throw Error('quota');}},progress),false,'storage failure does not break the game');
 const result={roi:0,bh:5.25,completed:true,finishedAt:'2026-10-31T08:00:00Z'};
 assert.deepEqual(daily.record(storage,day,{...result,completed:false}),{saved:false,first:null,streak:{days:0,playedToday:false,lastDay:null}});
 assert.equal(daily.read(storage).length,0);
@@ -38,4 +49,4 @@ assert.equal(shared.split('\n').at(-1),'https://tapelounge.com/blind/?daily=2026
 assert.ok(daily.shareText(chosen,{...result,completed:false,days:12}).includes('12일 중간 정산'));
 assert.ok(daily.shareText(chosen,{...result,completed:false,bankrupt:true,days:12}).includes('파산 정산'));
 console.log(JSON.stringify({selection:chosen}));
-console.log('Daily blind: fixed historical selection, KST rollover, full-candle validation, first-completion storage, retention cap and clean share text passed.');
+console.log('Daily blind: fixed historical selection, KST rollover, full-candle validation, resume checkpoint validation, first-completion storage, retention cap and clean share text passed.');

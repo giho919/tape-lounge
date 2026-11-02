@@ -48,6 +48,17 @@ function candles(url){
    const round=await page.evaluate(()=>({day:bg.daily.day,sym:bg.sym,speed:bgSpeed,lev:bgLev,pct:bgPct,base:bg.base,total:bg.norm.length,visible:bgS.data().length,idx:bg.idx,osc:bgOsc.last.count,st:bgST.last.count,price:bg.norm[bg.base].close}));
    assert.equal(round.day,day);assert.equal(round.sym,selected.symbol);assert.equal(round.total,1000);assert.equal(round.base,799);assert.equal(round.speed,2);assert.equal(round.lev,1);assert.equal(round.pct,25);assert.equal(round.price,100);
    assert.equal(round.visible,round.idx+1);assert.equal(round.osc,round.visible);assert.equal(round.st,round.visible);
+   await page.locator('#bgBuyCustom').click();
+   await page.evaluate(()=>{for(let i=0;i<5;i++)bgAdvanceOneDay();});
+   const saved=await page.evaluate(()=>BlindDaily.readProgress(localStorage,bg.daily.day,bg.daily.version));
+   assert.ok(saved);assert.equal(saved.dayIndex,5);assert.equal(saved.pos.side,'long');assert.equal(saved.trades.length,1);
+   await page.reload({waitUntil:'load'});await page.waitForFunction(()=>bgMode==='daily'&&bgCh&&document.getElementById('bgOverBox').textContent.includes('이어하기'));
+   await page.getByRole('button',{name:/D\+5부터 이어하기/}).click();
+   await page.waitForFunction(()=>bg?.gameMode==='daily'&&bg.idx-bg.base>=5);
+   await page.evaluate(()=>{if(bg.playing)soloPauseToggle();});
+   const resumed=await page.evaluate(()=>({dayIndex:bg.idx-bg.base,wallet:bg.wallet,pos:bg.pos,trades:bg.trades.length,visible:bgS.data().length,speed:bgSpeed,elapsedMs:bg.elapsedMs}));
+   assert.ok(resumed.dayIndex>=saved.dayIndex);assert.ok(resumed.dayIndex<200);assert.equal(resumed.pos.side,'long');assert.equal(resumed.trades,1);
+   assert.equal(resumed.wallet,saved.wallet);assert.equal(resumed.visible,resumed.dayIndex+800,'resumed chart contains only history and revealed candles');assert.equal(resumed.speed,saved.speed);
    const beforeWrites=await page.evaluate(()=>__tapeTestBlockedWrites);
    // Orders below execute only the local simulation branch.
    await page.locator('#bgBuyCustom').click();
@@ -57,6 +68,7 @@ function candles(url){
    await page.evaluate(()=>blindFinish(false));
    await page.waitForFunction(()=>bg.over&&!document.getElementById('bgOver').classList.contains('hidden'));
    assert.ok((await page.locator('#bgOverBox').textContent()).includes('완주'));
+   assert.equal(await page.evaluate(()=>BlindDaily.readProgress(localStorage,'2026-10-31',1)),null,'completed rounds remove their saved resume state');
    const record=await page.evaluate(()=>BlindDaily.read(localStorage));assert.equal(record.length,1);assert.equal(record[0].day,day);
    await page.getByRole('button',{name:'결과·도전 링크 복사'}).click();
    const text=await page.evaluate(()=>__copiedDaily);
@@ -91,6 +103,6 @@ function candles(url){
    assert.deepEqual(errors,[]);console.log(JSON.stringify({width,recordSaved:true,dailyRequests:dailyRequests.length,errors:errors.length}));
    await context.close();
   }
-  console.log('Daily blind UI passed: same chart, hidden future, local simulated trade, finish/record/reload, clean sharing, fallback and stale-load safety.');
+  console.log('Daily blind UI passed: same chart, hidden future, local simulated trade, resume after reload, finish/record, clean sharing, fallback and stale-load safety.');
  }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

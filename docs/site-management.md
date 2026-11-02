@@ -75,6 +75,13 @@ The friend-invite action uses the visitor's native share sheet when available.
 Clipboard fallback copies the Korean invitation and the exact round URL together;
 it never publishes to a social account automatically.
 
+An unfinished daily or archive round is checkpointed in that browser's local
+storage after trades, speed or pause changes, on page exit, and every five
+revealed bars. The intro offers resume or restart, and restores the hidden
+symbol, revealed-bar index, wallet, open position, order ledger and playback
+settings from the same round data. Completed or manually settled rounds clear
+the checkpoint. No account, server record, or analytics write is added.
+
 Route checks:
 
 ```
