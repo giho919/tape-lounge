@@ -1538,6 +1538,7 @@ async function syncChat() {
       chatChannel = channel;
       chatRealtimeState = 'connecting';
       $('chatConnection').textContent = chatRealtimeLabel();
+      if (!feed.childElementCount) feed.replaceChildren(renderChatEmptyState());
       // Show recent conversation even when this browser cannot open a realtime socket.
       loadChatHistory();
       armChatConnectionTimer(channel);
