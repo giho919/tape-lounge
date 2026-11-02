@@ -551,6 +551,11 @@
         : ['Short', '做空', 'ショート'];
       return `${side[langIndex]} ${paperSide[2]}%${paperSide[3] || ''}`;
     }
+    const generatedGuestNick = value.match(/^게스트 ([0-9a-f]{4})$/i);
+    if (generatedGuestNick) {
+      const guest = lang === 'en' ? 'Guest' : lang === 'zh' ? '访客' : 'ゲスト';
+      return `${guest} ${generatedGuestNick[1].toUpperCase()}`;
+    }
     return null;
   };
 
