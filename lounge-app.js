@@ -1418,11 +1418,64 @@ function chatRowIsRecent(row) {
   const created = Date.parse(row?.created_at || '');
   return Number.isFinite(created) && created >= Date.now() - CHAT_RECENT_WINDOW_MS;
 }
+function chatEmptyCopy() {
+  const copy = {
+    ko: {
+      group: '라운지 대화 시작 주제', title: '최근 대화가 없어요',
+      intro: '오늘 시장에서 눈에 들어온 장면을 한 줄로 나눠보세요.',
+      hint: '주제를 누르면 입력창에만 채워져요. 직접 보내야 게시됩니다.',
+      prompts: ['BTC, 어떤 가격을 보고 있어요?', '세션 중 어디가 강했나요?', '이 차트의 지지는 어디로 봐요?'],
+    },
+    en: {
+      group: 'Lounge conversation starters', title: 'Quiet at the table',
+      intro: 'Start with one market detail you noticed today.',
+      hint: 'A topic only fills the box. Edit and send it when ready.',
+      prompts: ['Which BTC level are you watching?', 'Which session is leading?', 'Where do you see support here?'],
+    },
+    zh: {
+      group: '休息室讨论话题', title: '桌边暂时很安静',
+      intro: '说说你今天注意到的一个市场细节吧。',
+      hint: '点击话题只会填入输入框，编辑后需手动发送。',
+      prompts: ['你在关注 BTC 哪个价位？', '今天哪个时段更强？', '你把哪里看作支撑？'],
+    },
+    ja: {
+      group: 'ラウンジの会話テーマ', title: 'テーブルはまだ静かです',
+      intro: '今日の相場で気になった場面を一言どうぞ。',
+      hint: 'テーマを押すと入力欄に入ります。編集して送信してください。',
+      prompts: ['BTCのどの価格を見ていますか？', '今日はどの時間帯が強い？', 'どこをサポートと見ますか？'],
+    },
+  };
+  return copy[document.documentElement.lang] || copy.ko;
+}
 function renderChatEmptyState() {
+  const copy = chatEmptyCopy();
   const empty = document.createElement('div');
   empty.className = 'chatEmpty';
-  empty.setAttribute('role', 'status');
-  empty.innerHTML = '<strong>최근 대화가 없어요</strong><span>오늘 시장에서 눈에 들어온 장면을 먼저 남겨보세요.</span>';
+  empty.setAttribute('role', 'group');
+  empty.setAttribute('aria-label', copy.group);
+  const title = document.createElement('strong');
+  title.textContent = copy.title;
+  const intro = document.createElement('span');
+  intro.textContent = copy.intro;
+  const prompts = document.createElement('div');
+  prompts.className = 'chatPromptList';
+  for (const prompt of copy.prompts) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'chatPrompt';
+    button.textContent = prompt;
+    button.addEventListener('click', () => {
+      const input = $('chatTxt');
+      if (!input) return;
+      input.value = prompt;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.focus();
+    });
+    prompts.append(button);
+  }
+  const hint = document.createElement('small');
+  hint.textContent = copy.hint;
+  empty.append(title, intro, prompts, hint);
   return empty;
 }
 function renderChatRow(row) {
