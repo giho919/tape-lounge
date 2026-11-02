@@ -198,6 +198,29 @@ test('블라인드 판 공유 이미지는 페이지 언어를 따라간다',()=
  }
 });
 
+test('블라인드 차트 안내문에서 오늘의 판으로 바로 갈 수 있다',()=>{
+ const routes={
+  ko:['../ko/learn/blind-chart-practice/index.html','/blind/?daily=1','오늘의 판 플레이하기 ↗'],
+  en:['../en/learn/blind-chart-practice/index.html','/en/tools/blind/?daily=1','Play today’s market replay ↗'],
+  zh:['../zh/learn/blind-chart-practice/index.html','/zh/tools/blind/?daily=1','开始今天的行情回放 ↗'],
+  ja:['../ja/learn/blind-chart-practice/index.html','/ja/tools/blind/?daily=1','今日の相場リプレイを始める ↗'],
+ };
+ for(const [lang,[path,href,label]] of Object.entries(routes)){
+  const page=fs.readFileSync(require.resolve(path),'utf8');
+  const byline=page.indexOf('<p class="byline">');
+  const afterByline=page.indexOf('</p>',byline)+4;
+  assert.ok(byline>=0&&afterByline>3,`${lang} guide must retain its byline`);
+  assert.ok(page.slice(afterByline,afterByline+250).includes(`href="${href}"`),`${lang} game CTA must follow the introduction`);
+  assert.ok(page.slice(afterByline,afterByline+250).includes(label),`${lang} CTA must be localized`);
+  assert.ok(page.includes(`<aside class="article-end"><p><a class="" href="${href}">${label}</a></p>`),`${lang} game CTA must remain at the article end`);
+ }
+ const sitemap=fs.readFileSync(require.resolve('../sitemap.xml'),'utf8');
+ for(const lang of Object.keys(routes)){
+  const loc=`https://tapelounge.com/${lang==='ko'?'ko/':`${lang}/`}learn/blind-chart-practice/`;
+  assert.ok(sitemap.includes(`<loc>${loc}</loc><lastmod>2026-11-02</lastmod>`),`${lang} guide sitemap date must match its actual last edit`);
+ }
+});
+
 // 배지: 라운지가 이미 들고 있는 macroData 로만 만든다
 function badge(events, nowIso){
   const src=app.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];

@@ -513,7 +513,7 @@ def render(lang, page, data, letters, generated, root=False):
         kimchi=guide[0]=='kimchi-premium'
         tool=kimchi_calculator(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -615,7 +615,7 @@ def build(force=False):
                 lastmod=max('2026-10-22',letters['updated'][:10])
             elif page.startswith('learn/'):
                 guide=next((g for g in COPY[lang]['guides'] if g[0]==page.split('/',1)[1]),None)
-                lastmod=guide_date(guide) if guide else '2026-10-22'
+                lastmod=guide_modified(guide) if guide else '2026-10-22'
             else:
                 lastmod='2026-10-22'
             SubElement(entry,'lastmod').text=lastmod
