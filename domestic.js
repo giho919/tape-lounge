@@ -96,7 +96,7 @@ const usdt=x=>num(x)===null?'—':x>=1e9?fmt(x/1e9,2)+'B':x>=1e6?fmt(x/1e6,1)+'M
 const time=x=>new Date(x).toLocaleTimeString(numberLocale,{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 let storageWarning=false;
 let favorites=new Set();try{const a=JSON.parse(localStorage.getItem('tl_domestic_favorites')||'[]');if(Array.isArray(a))favorites=new Set(a.filter(safeSymbol).slice(0,500));}catch{storageWarning=true;}
-const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
+const state={venue:'upbit',foreign:'binance',interval:'60',only:false,andyOnly:false,query:'',sort:'volume',dir:1,selected:null,tickers:{upbit:[],bithumb:[]},global:{},meta:[],andy:null,andyStatus:'loading',errors:{},tries:{},at:{},busy:false,again:false,timer:null,paint:null,controllers:new Set(),epoch:0,lastAttempt:0};
 const guidePath={en:'/en/learn/kimchi-premium/',zh:'/zh/learn/kimchi-premium/',ja:'/ja/learn/kimchi-premium/'}[lang]||'/ko/learn/kimchi-premium/';
 el.innerHTML=`<div class="dm-top"><h1>${tr('title')}</h1><a href="#research">${tr('watch')}</a></div>
 <p class="dm-intro"><span>${tr('intro')}</span> <a href="${guidePath}">${tr('guide')}</a></p>
@@ -169,7 +169,7 @@ function render(){
  const domesticState=live[state.venue]?tr('statusLive'):tr('statusWait'),foreignState=FOREIGN[state.foreign].stream?(live.binance?tr('statusLive'):tr('statusWait')):tr('statusPoll');
  $('dm-status').textContent=`${tr('base')}: ${domesticState} · ${tr('compare')}: ${foreignName()} ${foreignState} · ${tr('screen')}`+(state.at[state.venue]?` · ${time(state.at[state.venue])} KST`:'')+(failures.length?' · '+tr('retryList',failures.map(k=>k==='foreign'?foreignName():venueName()).join(', ')):'')+(storageWarning?' · '+tr('storageWarning'):'');
  $('dm-head').innerHTML=COLUMNS.map(c=>{const t=esc(c.label),on=state.sort===c.key;return `<th${on?` aria-sort="${state.dir===1?'descending':'ascending'}"`:''}><button data-sort="${c.key}" title="${esc(tr('sortTitle',c.label))}">${t}<span aria-hidden="true">${on?(state.dir===1?'▼':'▲'):'⇅'}</span></button></th>`;}).join('');
- $('dm-andy-at').textContent=state.andy?`${state.andy.label} · ${tr('andyDaily')}${andyFresh?' · '+tr('notCurrent'):' · '+tr('staleReport')}`:tr('reportFail');
+ $('dm-andy-at').textContent=state.andy?`${state.andy.label} · ${tr('andyDaily')}${andyFresh?' · '+tr('notCurrent'):' · '+tr('staleReport')}`:tr(state.andyStatus==='loading'?'reportLoading':'reportFail');
  const filtered=rows.filter(r=>(!state.only||favorites.has(r.symbol))&&(!state.andyOnly||stages[r.symbol])&&(!state.query||(r.symbol+' '+name(r.symbol)).toLowerCase().includes(state.query))).sort(order);
  $('dm-count').textContent=tr('count',filtered.length);
  const pending=!state.at.foreign;
@@ -186,7 +186,7 @@ async function get(url,epoch,asText=false){
  const c=new AbortController();state.controllers.add(c);const t=setTimeout(()=>c.abort(),12000);
  try{const r=await fetch(url,{signal:c.signal,cache:'no-store',credentials:'omit'});if(!r.ok)throw Error('HTTP '+r.status);const data=asText?await r.text():await r.json();if(epoch!==state.epoch)throw Error('Cancelled');return data;}finally{clearTimeout(t);state.controllers.delete(c);}
 }
-async function job(key,fn){try{await fn();delete state.errors[key];state.tries[key]=0;}catch(e){if(e.name!=='AbortError'&&e.message!=='Cancelled'){state.errors[key]=true;state.tries[key]=(state.tries[key]||0)+1;}}}
+async function job(key,fn){try{await fn();delete state.errors[key];state.tries[key]=0;if(key==='andy')state.andyStatus='ready';}catch(e){if(e.name!=='AbortError'&&e.message!=='Cancelled'){state.errors[key]=true;state.tries[key]=(state.tries[key]||0)+1;if(key==='andy')state.andyStatus='failed';}}}
 async function domestic(venue,epoch){
  let ticks;
  if(venue==='upbit')ticks=await get('https://api.upbit.com/v1/ticker/all?quote_currencies=KRW',epoch);
@@ -202,6 +202,7 @@ async function domestic(venue,epoch){
  const previous=new Map(state.tickers[venue].map(x=>[x.market,x]));state.tickers[venue]=ticks.map(x=>{const old=previous.get(x.market);return old&&old.trade_timestamp>x.trade_timestamp?old:x;});state.at[venue]=Date.now();
 }
 async function loadAndy(epoch){
+ state.andyStatus='loading';
  try{
   const data=await get('data/andy-watch.json',epoch),at=Date.parse(data.reportAt);
   if(data.schema!==1||!Number.isFinite(at)||!Array.isArray(data.candidates))throw Error('Invalid ledger');

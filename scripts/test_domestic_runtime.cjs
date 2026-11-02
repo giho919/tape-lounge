@@ -157,7 +157,8 @@ async function run({hidden=false,fail=false,storageFail=false,reportAge=0,hang='
  console.log('PASS the table paints as soon as the domestic quotes land');
 
  {const r3=await run({hang:'andy_scan'});
-  assert.ok(r3.nodes['dm-table'].innerHTML.includes('data-select="BTC"'),'Andy 리포트를 기다리지 않는다');}
+  assert.ok(r3.nodes['dm-table'].innerHTML.includes('data-select="BTC"'),'Andy 리포트를 기다리지 않는다');
+  assert.ok(r3.nodes['dm-andy-at'].textContent.includes('확인 중'),'응답을 기다리는 동안 확인 실패로 오인시키지 않는다');}
  console.log('PASS a slow report never holds the table back');
 
  {const r4=await run();
