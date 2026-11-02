@@ -38,11 +38,39 @@ for(const lang of ['en','zh','ja']){
 for(const target of ['https://tapelounge.com/blind/?daily=2026-02-30','https://tapelounge.com/blind/?daily=2026-11-02&v=1','https://tapelounge.com/decision/?daily=2026-11-02','https://evil.example/blind/?daily=2026-11-02'])assert.throws(()=>campaign.tagDailyBlindShare(target));
 const inviteHelper=app.match(/function bgDailyInviteUrl\(day,version\) \{[\s\S]*?\n\}/)?.[0];
 const resultHelper=app.match(/function bgDailyShareText\(chosen,result\) \{[\s\S]*?\n\}/)?.[0];
+const inviteAction=app.match(/async function bgShareDailyChallenge\(statusId = 'bgDailyInviteStatus', copyId = 'bgDailyInviteCopy'\) \{[\s\S]*?\n\}/)?.[0];
 assert.ok(inviteHelper&&resultHelper,'daily challenge and result shares must use one attributable link');
+assert.ok(inviteAction,'home and game invites must use the same daily share action');
 const rawDaily='https://tapelounge.com/blind/?daily=2026-11-02&v=2';
 const shareContext={window:{TapeCampaign:campaign,BlindDaily:{url:()=>rawDaily,shareText:()=>`Result\n${rawDaily}`}}};
 assert.equal(vm.runInNewContext(`${inviteHelper}; bgDailyInviteUrl('2026-11-02',2)`,shareContext),campaign.tagDailyBlindShare(rawDaily));
 assert.equal(vm.runInNewContext(`${resultHelper}; bgDailyShareText({day:'2026-11-02',version:2},{roi:1})`,shareContext),`Result\n${campaign.tagDailyBlindShare(rawDaily)}`);
+(async()=>{
+ const day='2026-11-02';
+ const run=async(lang,version,native=true)=>{
+  const status={isConnected:true,hidden:true,textContent:''},copy={isConnected:true,hidden:true,value:'',focus(){},select(){}};
+  const seen={};
+  const context={
+   bgDailySelection:null,bgDailyQuery:null,
+   window:{BlindDaily:{requestedDay:()=>day,selection:()=>({version}),dayKey:()=>day,url:(d,v)=>`https://tapelounge.com/${lang==='ko'?'':`${lang}/tools/`}blind/?daily=${d}${v===2?'&v=2':''}`},TapeCampaign:campaign},
+   document:{documentElement:{lang}},
+   navigator:{share:native?async value=>{seen.payload=value;}:undefined,clipboard:{writeText:async value=>{seen.clip=value;}}},
+   $:id=>id==='status'?status:copy,URL,URLSearchParams,
+  };
+  await vm.runInNewContext(`${inviteHelper};${inviteAction};bgShareDailyChallenge('status','copy')`,context);
+  return {status,copy,...seen};
+ };
+ const english=await run('en',2,true);
+ assert.match(english.payload.title,/today’s round/);
+ assert.match(english.payload.text,/U\.S\. stock chart.*200 trading days/);
+ assert.equal(english.payload.url,'https://tapelounge.com/en/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind');
+ assert.equal(english.status.textContent,'Choose an app to share with.');
+ const copied=await run('ko',2,false);
+ assert.match(copied.clip,/미국 주식 차트/);
+ assert.match(copied.clip,/utm_campaign=daily_blind/);
+ assert.equal(copied.status.textContent,'초대 문구와 판 링크를 복사했어요.');
+ console.log('Daily invite share sheet and clipboard fallback preserve locale and attributable public URLs.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
 for(const target of ['https://evil.example/','http://tapelounge.com/','https://tapelounge.com/ops/','https://user:pass@tapelounge.com/'])assert.throws(()=>campaign.tag(target,'threads','site_launch'));
 assert.throws(()=>campaign.tag('https://tapelounge.com/','threads','anything-private'));
 const decisionTemplate=fs.readFileSync(path.join(__dirname,'decision-template.html'),'utf8');

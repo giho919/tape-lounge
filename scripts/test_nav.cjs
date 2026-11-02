@@ -1,13 +1,27 @@
 // 측면 인덱스 탭 구조와 발표장 배지. 브라우저 없이 index.html 을 읽어 검사한다.
 const assert=require('node:assert/strict'), fs=require('node:fs'), vm=require('node:vm'), crypto=require('node:crypto'), path=require('node:path');
 const html=fs.readFileSync(require.resolve('../index.html'),'utf8').replace(/\r\n/g,'\n');
+const classicHome=fs.readFileSync(require.resolve('../classic-home.html'),'utf8').replace(/\r\n/g,'\n');
 const app=fs.readFileSync(require.resolve('../lounge-app.js'),'utf8');
+const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
 const homeLocale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
 const builder=fs.readFileSync(require.resolve('./build_discovery.py'),'utf8');
 const decisionTemplate=fs.readFileSync(require.resolve('./decision-template.html'),'utf8');
 let tests=0; const test=(l,f)=>{f();tests++;console.log('PASS',l);};
 
 const TABS=['lounge','domestic','desk','analysis','chain','macro','game','chars'];
+
+test('오늘의 판 홈 카드에서 친구 초대와 추적 가능한 공유 링크를 제공한다',()=>{
+ for(const page of [classicHome,html]){
+  assert.match(page,/<button class="loungeRotationShare" id="loungeRotationShare"[^>]*hidden>친구와 한 판 ↗<\/button>/);
+  assert.match(page,/id="loungeRotationShareStatus" role="status" aria-live="polite" hidden/);
+  assert.match(page,/id="loungeRotationInviteCopy"[^>]*readonly hidden/);
+ }
+ assert.match(rotation,/share\.hidden = active !== 0/,'초대는 오늘의 판 슬라이드에서만 보여야 한다');
+ assert.match(rotation,/bgShareDailyChallenge\('loungeRotationShareStatus', 'loungeRotationInviteCopy'\)/);
+ assert.match(app,/async function bgShareDailyChallenge\(statusId = 'bgDailyInviteStatus', copyId = 'bgDailyInviteCopy'\)/);
+ for(const label of ['친구와 한 판 ↗','오늘의 판 초대','복사할 초대 문구와 링크']) assert.ok(homeLocale.includes(`'${label}'`),`${label} 번역이 없다`);
+});
 
 test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
  const chat=app.slice(app.indexOf('// ═══ 채팅 실시간 연결'),app.indexOf('renderNick();',app.indexOf('// ═══ 채팅 실시간 연결')));

@@ -8,6 +8,9 @@
   const title = document.getElementById('loungeRotationTitle');
   const copy = document.getElementById('loungeRotationCopy');
   const link = document.getElementById('loungeRotationLink');
+  const share = document.getElementById('loungeRotationShare');
+  const shareStatus = document.getElementById('loungeRotationShareStatus');
+  const inviteCopy = document.getElementById('loungeRotationInviteCopy');
   const count = document.getElementById('loungeRotationCount');
   const main = document.getElementById('loungeRotationMain');
   const dots = [...root.querySelectorAll('[data-rotation-to]')];
@@ -87,6 +90,11 @@
     copy.textContent = item.copy;
     link.href = withVisitContext(item.link);
     link.textContent = item.label;
+    if (share) share.hidden = active !== 0;
+    if (active !== 0) {
+      if (shareStatus) { shareStatus.textContent = ''; shareStatus.hidden = true; }
+      if (inviteCopy) inviteCopy.hidden = true;
+    }
     count.textContent = `${String(active + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
     dots.forEach((dot, dotIndex) => dot.setAttribute('aria-pressed', String(dotIndex === active)));
     root.dataset.current = String(active);
@@ -159,6 +167,11 @@
 
   root.querySelector('[data-rotation-prev]')?.addEventListener('click', () => show(active - 1));
   root.querySelector('[data-rotation-next]')?.addEventListener('click', () => show(active + 1));
+  share?.addEventListener('click', () => {
+    if (typeof window.bgShareDailyChallenge === 'function') {
+      window.bgShareDailyChallenge('loungeRotationShareStatus', 'loungeRotationInviteCopy');
+    }
+  });
   root.querySelector('[data-rotation-toggle]')?.addEventListener('click', () => {
     paused = !paused;
     updatePauseButton();

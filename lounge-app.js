@@ -2389,30 +2389,42 @@ function bgShowDailyOverlay() {
     <a class="bgGuideLink" href="${bgGuideHref()}" target="_blank" rel="noopener noreferrer">게임 방식과 정산 기준 ↗</a>
     <p class="bgDailyInfo" id="bgDailyInviteStatus" role="status" aria-live="polite"></p><textarea readonly hidden id="bgDailyInviteCopy" aria-label="복사할 판 초대 문구와 링크"></textarea>`;
 }
-async function bgShareDailyChallenge() {
+async function bgShareDailyChallenge(statusId = 'bgDailyInviteStatus', copyId = 'bgDailyInviteCopy') {
   const day = bgDailySelection?.day || window.BlindDaily.requestedDay(bgDailyQuery);
   const version = bgDailySelection?.version || window.BlindDaily.selection(day).version;
   const url = bgDailyInviteUrl(day,version);
-  const current = day === window.BlindDaily.dayKey(), title = `Tape Lounge · ${day} ${current?'오늘의 판':'지난 판'}`;
-  const text = `${current?'오늘의 판':'지난 판'} 같이 해볼래? 같은 과거 ${version===2?'미국 주식':'코인'} 차트로 200${version===2?'거래일':'일'} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.`;
+  const current = day === window.BlindDaily.dayKey();
+  const lang = ['en','zh','ja'].includes(document.documentElement.lang) ? document.documentElement.lang : 'ko';
+  const words = {
+    ko: {today:'오늘의 판',past:'지난 판',stocks:'미국 주식',crypto:'코인',tradingDays:'거래일',days:'일',invite:'같이 해볼래? 같은 과거 {market} 차트로 200{period} 모의 매매하고, 마지막에 같은 기간 보유 수익률과 비교하는 판이야.',shared:'공유할 앱을 선택했어요.',cancelled:'공유를 취소했어요.',copied:'초대 문구와 판 링크를 복사했어요.',manual:'아래 초대 문구와 링크를 선택해 복사해 주세요.'},
+    en: {today:"today’s round",past:'a past round',stocks:'U.S. stock',crypto:'crypto',tradingDays:'trading days',days:'days',invite:'Want to try {round}? Trade a past {market} chart with the ticker and dates hidden for 200 {period}, then compare your choices with simply holding.',shared:'Choose an app to share with.',cancelled:'Share cancelled.',copied:'Invitation and round link copied.',manual:'Select and copy the invitation and link below.'},
+    zh: {today:'今日牌局',past:'历史牌局',stocks:'美股',crypto:'加密资产',tradingDays:'个交易日',days:'天',invite:'要不要一起玩{round}？在隐藏标的和日期的{market}历史图表上进行200{period}模拟交易，再与同期持有比较。',shared:'请选择要分享的应用。',cancelled:'已取消分享。',copied:'邀请文案和牌局链接已复制。',manual:'请在下方选择并复制邀请文案和链接。'},
+    ja: {today:'今日の一局',past:'過去の一局',stocks:'米国株',crypto:'暗号資産',tradingDays:'取引日',days:'日',invite:'{round}を一緒に試してみませんか？銘柄と日付を伏せた過去の{market}チャートで200{period}の模擬取引を行い、同期間の保有と比べます。',shared:'共有するアプリを選んでください。',cancelled:'共有をキャンセルしました。',copied:'招待文とラウンドリンクをコピーしました。',manual:'下の招待文とリンクを選択してコピーしてください。'},
+  }[lang];
+  const round = current ? words.today : words.past;
+  const market = version === 2 ? words.stocks : words.crypto;
+  const period = version === 2 ? words.tradingDays : words.days;
+  const title = `Tape Lounge · ${day} · ${round}`;
+  const text = words.invite.replace('{round}',round).replace('{market}',market).replace('{period}',period);
   const invite = `${text}\n${url}`;
-  const msg = $('bgDailyInviteStatus'), copy = $('bgDailyInviteCopy');
+  const msg = $(statusId), copy = $(copyId);
+  const setStatus = value => { if (msg?.isConnected) { msg.textContent = value; msg.hidden = false; } };
   if (navigator.share) {
     try {
       await navigator.share({title,text,url});
-      if (msg?.isConnected) msg.textContent = '공유할 앱을 선택했어요.';
+      setStatus(words.shared);
       return;
     } catch (error) {
-      if (error?.name === 'AbortError') return;
+      if (error?.name === 'AbortError') { setStatus(words.cancelled); return; }
     }
   }
   try {
     await navigator.clipboard.writeText(invite);
-    if (msg?.isConnected) msg.textContent = '초대 문구와 판 링크를 복사했어요.';
+    setStatus(words.copied);
   } catch {
     if (copy?.isConnected) {
       copy.value = invite; copy.hidden = false; copy.focus(); copy.select();
-      if (msg) msg.textContent = '아래 초대 문구와 링크를 선택해 복사해 주세요.';
+      setStatus(words.manual);
     }
   }
 }
