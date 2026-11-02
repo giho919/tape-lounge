@@ -32,6 +32,7 @@
     '오늘의 판, 일봉 200개 버텨볼래?':['Today’s chart: can you make it through 200 candles?','今日盲图：你能坚持走完200根K线吗？','今日のチャート、日足200本を乗り切れる？'],
     '오늘 이어서 도전 ↗':['Continue today’s round ↗','继续今天的牌局 ↗','今日の一局を続ける ↗'],
     '오늘의 판 열기 ↗':['Play today’s chart ↗','开始今日盲图 ↗','今日のチャートを始める ↗'],
+    '종목과 날짜를 가린 실제 과거 차트. 기본 2× 속도로 약 4분이면 끝나고, 같은 기간 보유와 비교합니다.':['A real historical chart with its ticker and dates hidden. A round takes about 4 minutes at the default 2× speed; compare your result with holding.','在隐藏标的和日期的真实历史图表上进行练习。默认2倍速约4分钟；结束后与同期持有比较。','銘柄と日付を伏せた実際の過去チャートで練習。標準の2倍速で約4分、同期間の保有と比べます。'],
     '친구와 한 판 ↗':['Challenge a friend ↗','邀请朋友一起玩 ↗','友だちを誘う ↗'],
     '오늘의 판 초대':['Invite someone to today’s round','邀请朋友参加今日牌局','今日の一局に友だちを招待'],
     '복사할 초대 문구와 링크':['Invitation text and link to copy','可复制的邀请文案和链接','コピーする招待文とリンク'],
@@ -423,15 +424,15 @@
         ? ['U.S. stocks', '美股', '米国株'] : ['Crypto', '加密资产', '暗号資産'];
       return `${dailyMarket[1]} · ${market[langIndex]}`;
     }
-    const dailyIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\.(?: 어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.)?$/);
+    const dailyIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\. 기본 2× 속도로 약 4분이면 끝납니다\.(?: 어제까지 (\d+)일 연속 · 오늘 완주하면 이어집니다\.)?$/);
     if (dailyIntro) {
       const period = dailyIntro[1] === '거래일'
         ? ['trading days', '个交易日', '取引日'] : ['days', '天', '日'];
       const translatedIntro = lang === 'en'
-        ? `Try to last 200 ${period[0]} on the same chart, with the asset and dates hidden. Then compare your trades with holding over that period.`
+        ? `Try to last 200 ${period[0]} on the same chart, with the asset and dates hidden. Then compare your trades with holding over that period. About 4 minutes at the default 2× speed.`
         : lang === 'zh'
-          ? `在标的和日期均隐藏的同一张图表上坚持200${period[1]}，再将自己的交易与同期持有收益率比较。`
-          : `銘柄と日付を伏せた同じチャートで200${period[2]}続け、取引結果を同期間の保有リターンと比較します。`;
+          ? `在标的和日期均隐藏的同一张图表上坚持200${period[1]}，再将自己的交易与同期持有收益率比较。默认2倍速约4分钟。`
+          : `銘柄と日付を伏せた同じチャートで200${period[2]}続け、取引結果を同期間の保有リターンと比較します。標準の2倍速で約4分です。`;
       if (!dailyIntro[2]) return translatedIntro;
       const dayCount = Number(dailyIntro[2]);
       const translatedStreak = lang === 'en'
