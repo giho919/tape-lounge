@@ -232,6 +232,20 @@ test('대표 홈페이지는 Google 사이트명 구조화 데이터를 유지�
  const ko=fs.readFileSync(require.resolve('../ko/index.html'),'utf8');
  assert.ok(ko.includes(block[0]),'the canonical Korean alias must carry the same site identity');
  assert.ok(builder.includes("'@type': 'WebSite'")&&builder.includes('application/ld+json'),'the generator must preserve homepage structured data');
+ for(const [lang,path] of [['en','../en/index.html'],['zh','../zh/index.html'],['ja','../ja/index.html']]){
+  const localized=fs.readFileSync(require.resolve(path),'utf8');
+  const localizedBlock=localized.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(localizedBlock,`${lang} homepage must publish structured data`);
+  const localizedSchema=JSON.parse(localizedBlock[1]);
+  assert.equal(localizedSchema[0]['@type'],'WebSite',`${lang} WebSite schema`);
+  assert.equal(localizedSchema[0].name,'Tape Lounge',`${lang} site identity`);
+  assert.deepEqual(localizedSchema[0].alternateName,['테이프라운지','tapelounge.com'],`${lang} site aliases`);
+  assert.equal(localizedSchema[0].url,'https://tapelounge.com/',`${lang} site URL`);
+  assert.equal(localizedSchema[1]['@type'],'WebPage',`${lang} WebPage schema`);
+  assert.equal(localizedSchema[1].inLanguage,lang,`${lang} page language`);
+  assert.equal(localizedSchema[1].url,`https://tapelounge.com/${lang}/`,`${lang} page URL`);
+  assert.equal(localizedSchema[1].isPartOf.url,'https://tapelounge.com/',`${lang} parent website URL`);
+ }
 });
 
 test('홈 검색 제목은 차트 연습을 앞세우고 시세·김프를 설명에 유지한다',()=>{

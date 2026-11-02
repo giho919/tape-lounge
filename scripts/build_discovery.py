@@ -366,6 +366,15 @@ def prepare_classic_home():
     classic=classic.replace(viewport,viewport+'\n<link rel="canonical" href="https://tapelounge.com/">',1)
     return classic
 
+def website_schema():
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Tape Lounge',
+        'alternateName': ['테이프라운지', 'tapelounge.com'],
+        'url': BASE + '/',
+    }
+
 def localized_live_home(classic, lang):
     """Render the same lounge home in each language; keep the shell and features identical."""
     title, description = LIVE_PAGE_COPY[lang]['']
@@ -382,7 +391,19 @@ def localized_live_home(classic, lang):
         f'<link rel="alternate" hreflang="{code}" href="{BASE + locale_home_url(code)}">'
         for code in LANGS
     ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    return text.replace('</head>', alternates + '\n</head>', 1)
+    page_schema = {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        'name': title,
+        'description': description,
+        'url': public_canonical,
+        'inLanguage': lang,
+        'isPartOf': {'@type': 'WebSite', 'url': BASE + '/'},
+    }
+    structured_data = json.dumps([website_schema(), page_schema], ensure_ascii=False,
+                                 separators=(',', ':'))
+    schema_tag = f'<script type="application/ld+json">{structured_data}</script>'
+    return text.replace('</head>', alternates + schema_tag + '\n</head>', 1)
 
 def write_live_home_pages(classic):
     """Write the canonical shared lounge home for Korean and all translated locales."""
@@ -390,13 +411,7 @@ def write_live_home_pages(classic):
         f'<link rel="alternate" hreflang="{lang}" href="{BASE + locale_home_url(lang)}">'
         for lang in LANGS
     ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
-    site_schema = json.dumps({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        'name': 'Tape Lounge',
-        'alternateName': ['테이프라운지', 'tapelounge.com'],
-        'url': BASE + '/',
-    }, ensure_ascii=False, separators=(',', ':'))
+    site_schema = json.dumps(website_schema(), ensure_ascii=False, separators=(',', ':'))
     site_schema_tag = f'<script type="application/ld+json">{site_schema}</script>'
     korean_home = classic.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
     write('index.html', korean_home)
