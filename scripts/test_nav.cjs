@@ -24,6 +24,19 @@ test('오늘의 판 홈 카드에서 친구 초대와 추적 가능한 공유 �
  for(const label of ['친구와 한 판 ↗','오늘의 판 초대','복사할 초대 문구와 링크']) assert.ok(homeLocale.includes(`'${label}'`),`${label} 번역이 없다`);
 });
 
+test('오늘의 판 첫 화면 버튼은 모바일에서 누르기 쉬운 높이와 대비를 유지한다',()=>{
+ for(const [name,page] of [
+  ['template',classicHome],['Korean home',html],
+  ['Korean locale',fs.readFileSync(require.resolve('../ko/index.html'),'utf8')],
+  ['English locale',fs.readFileSync(require.resolve('../en/index.html'),'utf8')],
+  ['Chinese locale',fs.readFileSync(require.resolve('../zh/index.html'),'utf8')],
+  ['Japanese locale',fs.readFileSync(require.resolve('../ja/index.html'),'utf8')],
+ ]){
+  assert.match(page,/\.loungeRotationLink \{[^}]*min-height:44px[^}]*background:rgba\(212,175,55,\.12\)[^}]*font-size:11px/,`${name}: primary action is still hard to tap or see`);
+  assert.match(page,/\.loungeRotationLink \{ width:max-content; min-height:44px; \}/,`${name}: mobile layout overrides the larger action target`);
+ }
+});
+
 test('오늘의 판 카드가 4분 소요와 매수·매도 연습 방식을 앞세운다',()=>{
  assert.match(rotation,/오늘의 미국 주식 판 · 약 4분/);
  assert.match(rotation,/오늘의 판 · 약 4분/);
