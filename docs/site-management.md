@@ -317,3 +317,25 @@ and ACL and review security/performance advisories.
 ## Localized all-market table
 
 The four localized market routes show the top 50 Binance USDT spot markets at first for a lighter mobile load. The View all control expands the complete current list in one action and stays expanded when the visitor searches, sorts or filters saved symbols. Use the latest active data.discovery.json scan records to mark Andy-observed symbols; the badge and its accessible description must remain an observation label, show timeframe/stage/as-of context, and never imply a trade signal.
+
+## Historical Korean premium chart
+
+The localized Kimchi Premium Calculator article includes a lazy-loaded 30/90-day
+reference chart for BTC/KRW versus BTC/USDT. Align Bithumb BTC/KRW and USDT/KRW
+daily candles by their KST date, compare each date with Binance's BTC/USDT hourly
+candle ending at KST midnight, and use Frankfurter's USD/KRW daily reference
+rate. Carry the last earlier published FX rate over weekends and holidays; omit
+dates without all required source observations. Exclude the current incomplete
+KST day. The USD series is `Bithumb BTC/KRW ÷ (Binance BTC/USDT × USD/KRW) − 1`;
+the local-USDT series substitutes Bithumb USDT/KRW for USD/KRW.
+
+The chart is historical context, not an executable quote, arbitrage signal or
+audited synchronized trade. Explain that exchange candles and daily reference
+FX are not simultaneous executable prices and exclude fees, spreads and transfer
+restrictions. Cache the computed public points in localStorage for six hours;
+never send calculator inputs or chart data to Tape Lounge analytics. Keep the
+section translated for KO/EN/ZH/JA and load it only near the viewport. Verify all
+four routes, API errors/stale-cache messaging, the 30/90 controls and mobile
+overflow before deployment. Source docs: [Bithumb daily candles](https://apidocs.bithumb.com/reference/%EC%9D%BCday-%EC%BA%94%EB%93%A4-%EC%A1%B0%ED%9A%8C),
+[Binance public market data](https://developers.binance.com/en/docs/products/spot/rest-api),
+and [Frankfurter](https://frankfurter.dev/).

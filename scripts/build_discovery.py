@@ -10,7 +10,7 @@ import sys
 from urllib.parse import urlsplit, urlunsplit
 from xml.etree.ElementTree import Element, SubElement, tostring
 from zoneinfo import ZoneInfo
-from discovery_content import COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
+from discovery_content import COPY, KIMCHI_HISTORY_COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
 from frontend_config import read_public_config
@@ -63,7 +63,7 @@ TOOL_OG_ALT = {
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-02'
 WATCH_PAGE_UPDATED = '2026-11-02'
-ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium.css', 'lounge-app.js']
+ASSETS = ['discovery.js', 'discovery.css', 'terminal-nav.js', 'stage.js', 'stage.css', 'stage-community.js', 'site-campaign.js', 'discovery-analytics.js', 'home-language.js', 'lounge-rotation.js', 'kimchi-premium.js', 'kimchi-premium-history.js', 'kimchi-premium.css', 'lounge-app.js']
 VERSION = 'd' + sha256(b''.join(stable_bytes(ROOT / p) for p in ASSETS)).hexdigest()[:12]
 SYMBOLS = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA', 'LINK']
 NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', 'Chainlink']
@@ -537,6 +537,14 @@ def kimchi_calculator(lang):
     inputs=''.join(f'<label class="kp-field" for="{ident}"><span>{e(label)}</span><input id="{ident}" type="text" inputmode="decimal" autocomplete="off" placeholder="{e(hint,quote=True)}" required></label>' for ident,label,hint in fields)
     return f'''<section class="kp-calculator" id="kimchi-calculator" aria-labelledby="kp-title"><header class="kp-head"><p class="eyebrow">{e(t['kicker'])}</p><h2 id="kp-title">{e(t['title'])}</h2><p>{e(t['intro'])}</p></header><form id="kp-form" novalidate><div class="kp-fields">{inputs}</div><div class="kp-actions"><button type="button" id="kp-live-quotes">{e(live['button'])}</button><button type="button" id="kp-example">{e(t['example'])}</button><button type="reset" class="kp-clear">{e(t['clear'])}</button></div><p class="kp-sources">{e(live['sources'])}</p><div class="kp-results" id="kp-results" aria-live="polite"><article class="kp-result"><span>{e(t['usdResult'])}</span><strong id="kp-usd-value">—</strong><small>{e(t['usdNote'])}: <b id="kp-usd-premium">—</b></small></article><article class="kp-result"><span>{e(t['usdtResult'])}</span><strong id="kp-usdt-value">—</strong><small>{e(t['usdtNote'])}: <b id="kp-usdt-gap">—</b></small></article><article class="kp-result"><span>{e(t['basisResult'])}</span><strong id="kp-basis-value">—</strong><small>USD/KRW {e('↔')} USDT/KRW</small></article></div><p class="kp-status" id="kp-status" role="status">{e(t['pending'])}</p><p class="kp-note" id="kp-note">{e(live['disclaimer'])}</p><p class="kp-live">{link(url(lang,'markets'),t['live']+' ↗')}</p></form></section>'''
 
+def kimchi_history_chart(lang):
+    t=KIMCHI_HISTORY_COPY[lang]
+    labels=e(json.dumps(t,ensure_ascii=False,separators=(',',':')),quote=True)
+    sources=(f'<a href="https://apidocs.bithumb.com/reference/%EC%9D%BCday-%EC%BA%94%EB%93%A4-%EC%A1%B0%ED%9A%8C" rel="noopener">Bithumb</a> · '
+             f'<a href="https://developers.binance.com/en/docs/products/spot/rest-api" rel="noopener">Binance</a> · '
+             f'<a href="https://frankfurter.dev/" rel="noopener">Frankfurter</a>')
+    return f'''<section class="kp-history" data-kp-history data-copy="{labels}" aria-labelledby="kp-history-title"><header class="kp-head"><p class="eyebrow">{e(t['kicker'])}</p><h2 id="kp-history-title">{e(t['title'])}</h2><p>{e(t['intro'])}</p></header><div class="kp-history-controls" role="group" aria-label="{e(t['rangeLabel'],quote=True)}"><button type="button" data-kp-days="30" aria-pressed="false">{e(t['range30'])}</button><button type="button" data-kp-days="90" aria-pressed="true">{e(t['range90'])}</button></div><div class="kp-history-summary"><article><span>{e(t['seriesUsd'])}</span><strong data-kp-latest-usd>—</strong></article><article><span>{e(t['seriesUsdt'])}</span><strong data-kp-latest-usdt>—</strong></article><p data-kp-asof></p></div><div class="kp-chart-wrap"><svg class="kp-history-chart" data-kp-chart viewBox="0 0 760 330" role="img" aria-label="{e(t['chartDescription'],quote=True)}"><title>{e(t['chartDescription'])}</title></svg></div><div class="kp-history-legend"><span><i class="kp-legend-usd"></i>{e(t['seriesUsd'])}</span><span><i class="kp-legend-usdt"></i>{e(t['seriesUsdt'])}</span></div><p class="kp-history-status" data-kp-status role="status" aria-live="polite">{e(t['pending'])}</p><details class="kp-history-method"><summary>{e(t['sourceTitle'])}</summary><p>{e(t['method'])}</p><p>{e(t['disclaimer'])}</p><p class="kp-sources">{sources}</p></details><ul class="sr-only" data-kp-table aria-label="{e(t['tableCaption'],quote=True)}"></ul></section>'''
+
 def kimchi_faq(lang):
     t=KIMCHI_TOOL_COPY[lang]
     items=''.join(f'<details><summary>{e(question)}</summary><p>{e(answer)}</p></details>' for question,answer in t['faqs'])
@@ -621,8 +629,9 @@ def render(lang, page, data, letters, generated, root=False):
         decision_callout=(f'<section class="learn-callout" aria-labelledby="decision-game-title"><p class="eyebrow">ANOTHER TABLE</p><h2 id="decision-game-title">{e(decision_copy[0])}</h2><p>{e(decision_copy[1])}</p>{link(decision_path,decision_copy[2])}</section>' if guide[0]=='blind-chart-practice' else '')
         kimchi=guide[0]=='kimchi-premium'
         tool=kimchi_calculator(lang) if kimchi else ''
+        history=kimchi_history_chart(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -639,6 +648,7 @@ def render(lang, page, data, letters, generated, root=False):
     if guide and guide[0]=='kimchi-premium':
         kimchi_assets=f'<link rel="stylesheet" href="/kimchi-premium.css?v={VERSION}">'
         app_scripts+=f'<script defer src="/kimchi-premium.js?v={VERSION}"></script>'
+        app_scripts+=f'<script defer src="/kimchi-premium-history.js?v={VERSION}"></script>'
     if page=='':
         nav=''.join(link(url(lang,p),WORDS[lang]['home'] if i==0 else c['nav'][i], 'selected' if i==0 else '') for i,p in enumerate(['','markets','watch','learn']))
     app_scripts=f'<script src="/site-campaign.js?v={VERSION}"></script>'+app_scripts
@@ -799,7 +809,7 @@ def build_editorial_only():
         guide=next(g for g in COPY[lang]['guides'] if g[0]=='kimchi-premium')
         loc=BASE+url(lang,'learn/kimchi-premium')
         pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
-        sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_date(guide)+m.group(2),sitemap,count=1)
+        sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_modified(guide)+m.group(2),sitemap,count=1)
         if count!=1:
             raise ValueError(f'Could not update sitemap lastmod for {loc}')
     write('sitemap.xml',sitemap)
