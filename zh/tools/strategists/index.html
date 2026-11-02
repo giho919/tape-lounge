@@ -96,7 +96,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .hdr .live { display:flex; align-items:center; padding:5px 9px; border:1px solid rgba(74,222,128,.22); border-radius:999px; background:rgba(74,222,128,.055); font-size:10px; color:#9ca3af; letter-spacing:.7px; white-space:nowrap; }
 .hdr .live b { margin-left:4px; color:#d7dce4; font:700 10px Menlo,monospace; }
 .hdrActions { display:flex; gap:8px; align-items:center; }
-.homeLocale { display:flex; align-items:center; gap:12px; margin:10px 0 0; padding:10px 12px; border:1px solid var(--gold-dim); border-radius:10px; background:linear-gradient(100deg,rgba(212,175,55,.08),rgba(17,20,27,.9) 58%); color:var(--tx); }
+.homeLocale { position:fixed; z-index:120; right:max(12px,calc((100vw - 900px)/2)); bottom:16px; width:min(560px,calc(100vw - 24px)); box-sizing:border-box; display:flex; align-items:center; gap:12px; margin:0; padding:10px 12px; border:1px solid var(--gold-dim); border-radius:10px; background:linear-gradient(100deg,rgba(212,175,55,.08),rgba(17,20,27,.96) 58%); color:var(--tx); box-shadow:0 14px 40px #000b; }
 .homeLocale[hidden] { display:none; }
 .homeLocaleCopy { flex:1; min-width:0; font-size:11px; line-height:1.55; }
 .homeLocaleCopy small { display:block; margin-top:2px; color:var(--dim); font-size:10px; }
@@ -106,6 +106,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .homeLocaleLink:hover,.homeLocaleLink:focus-visible { outline:none; border-color:var(--gold); background:rgba(212,175,55,.16); }
 .homeLocaleDismiss:hover,.homeLocaleDismiss:focus-visible { outline:none; color:var(--tx); }
 @media(max-width:620px){.homeLocale{align-items:flex-start;flex-wrap:wrap;gap:8px}.homeLocaleCopy{flex-basis:100%}.homeLocaleActions{margin-left:auto}}
+@media(max-width:760px){.homeLocale{left:10px;right:10px;bottom:calc(82px + env(safe-area-inset-bottom));width:auto}}
 .languagePicker { position:relative; z-index:40; }
 .languagePicker > summary { display:flex; align-items:center; min-height:30px; padding:5px 9px; list-style:none; cursor:pointer; border:1px solid var(--line); border-radius:999px; color:#c6cad3; background:var(--panel); font-size:10px; letter-spacing:.5px; white-space:nowrap; }
 .languagePicker > summary::-webkit-details-marker { display:none; }

@@ -37,6 +37,19 @@ test('오늘의 판 카드가 4분 소요와 매수·매도 연습 방식을 앞
  assert.match(homeLocale,/200\(거래일\|일\) 후 같은 기간 보유와 비교합니다/);
 });
 
+test('국가별 언어 제안은 본문을 밀지 않고 화면 위에 표시된다',()=>{
+ const htmlFiles=[];
+ const collect=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collect(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
+ collect(path.resolve(__dirname,'..'));
+ const pages=htmlFiles.map(file=>fs.readFileSync(file,'utf8')).filter(page=>page.includes('.homeLocale {'));
+ assert.ok(pages.length>=30,'생성된 언어·도구 페이지의 공통 언어 제안 CSS를 찾지 못했다');
+ for(const page of [classicHome,...pages]) {
+  assert.match(page,/\.homeLocale \{ position:fixed;[^}]*z-index:120;/);
+  assert.equal((page.match(/@media\(max-width:760px\)\{\.homeLocale\{/g)||[]).length,1,'모바일 고정 위치 규칙이 중복됐다');
+ }
+ assert.match(classicHome,/@media\(max-width:760px\)\{\.homeLocale\{left:10px;right:10px;bottom:calc\(82px \+ env\(safe-area-inset-bottom\)\)/);
+});
+
 test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
  const chat=app.slice(app.indexOf('// ═══ 채팅 실시간 연결'),app.indexOf('renderNick();',app.indexOf('// ═══ 채팅 실시간 연결')));
  const create=chat.indexOf('chatChannel = channel;'),subscribe=chat.indexOf('channel.subscribe(status =>',create);
