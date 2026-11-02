@@ -417,17 +417,34 @@ def localized_live_home(classic, lang):
 
 def write_live_home_pages(classic):
     """Write the canonical shared lounge home for Korean and all translated locales."""
+    home_shell = defer_home_shell_styles(classic)
     alternates = ''.join(
         f'<link rel="alternate" hreflang="{lang}" href="{BASE + locale_home_url(lang)}">'
         for lang in LANGS
     ) + f'<link rel="alternate" hreflang="x-default" href="{BASE}/">'
     site_schema = json.dumps(website_schema(), ensure_ascii=False, separators=(',', ':'))
     site_schema_tag = f'<script type="application/ld+json">{site_schema}</script>'
-    korean_home = classic.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
+    korean_home = home_shell.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
     write('index.html', korean_home)
     write('ko/index.html', korean_home)
     for lang in LIVE_PAGE_COPY:
-        write(f'{lang}/index.html', localized_live_home(classic, lang))
+        write(f'{lang}/index.html', localized_live_home(home_shell, lang))
+
+def defer_home_shell_styles(home):
+    """Load feature-only styles without blocking the lounge's first paint."""
+    for asset in ('domestic.css', 'chart-analysis.css', 'chart-share.css', 'strategists.css'):
+        pattern = rf'<link rel="stylesheet" href="({re.escape(asset)}\?v=[^"]+)">'
+        def replace(match):
+            href = match.group(1)
+            return (
+                f'<link rel="preload" as="style" href="{href}" '
+                "onload=\"this.onload=null;this.rel='stylesheet'\">"
+                f'<noscript><link rel="stylesheet" href="{href}"></noscript>'
+            )
+        home, count = re.subn(pattern, replace, home, count=1)
+        if count != 1:
+            raise ValueError(f'Could not defer the {asset} stylesheet in the lounge home')
+    return home
 
 def build_live_tools_only():
     """Regenerate the shared Korean live-lounge shell and its localized entries."""

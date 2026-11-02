@@ -425,4 +425,23 @@ test('배지는 라운지가 이미 받은 달력만 쓰고, 숨은 탭을 위�
  assert.ok(/refreshTabBadges\(\);\}/.test(app.match(/macroData=await response\.json\(\);[^\n]*/)[0]+'}'),'달력을 받은 뒤 갱신해야 한다');
 });
 
+test('홈은 첫 화면에 필요 없는 CSS를 늦게 적용하고 기능 탭에는 바로 불러온다',()=>{
+ const homeFiles=['../index.html','../ko/index.html','../en/index.html','../zh/index.html','../ja/index.html'];
+ const assets=['domestic.css','chart-analysis.css','chart-share.css','strategists.css'];
+ for(const file of homeFiles){
+  const page=fs.readFileSync(require.resolve(file),'utf8');
+  const activePage=page.replace(/<noscript>[\s\S]*?<\/noscript>/g,'');
+  for(const asset of assets){
+   const escaped=asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+   assert.equal((page.match(new RegExp(`<link rel="preload" as="style" href="${escaped}\\?v=[^"]+" onload="this.onload=null;this.rel='stylesheet'">`,'g'))||[]).length,1,`${file}: ${asset} must be preloaded without blocking first paint`);
+   assert.equal((page.match(new RegExp(`<noscript><link rel="stylesheet" href="${escaped}\\?v=[^"]+"></noscript>`,'g'))||[]).length,1,`${file}: ${asset} needs a no-script fallback`);
+   assert.doesNotMatch(activePage,new RegExp(`<link rel="stylesheet" href="${escaped}\\?v=`),`${file}: ${asset} must not block the home page`);
+  }
+ }
+ assert.ok(builder.includes('home_shell = defer_home_shell_styles(classic)'),'the generator must defer styles on generated home pages');
+ assert.ok(builder.includes('def defer_home_shell_styles(home):'),'the reusable home stylesheet transform is missing');
+ const domestic=fs.readFileSync(require.resolve('../domestic/index.html'),'utf8');
+ assert.match(domestic,/<link rel="stylesheet" href="domestic\.css\?v=[^"]+">/,'the dedicated domestic tab should load its styles immediately');
+});
+
 console.log(tests+' nav checks passed');
