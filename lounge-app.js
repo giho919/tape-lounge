@@ -2308,7 +2308,7 @@ function blindOpen() {
   $('bgStudyPanel').classList.add('hidden');
   $('bgTrackRow').classList.toggle('hidden', bgMode === 'daily');
   $('bgPlayRow').classList.remove('hidden'); $('bgSoloFinish').classList.remove('hidden');
-  $('bgModeDesc').textContent = bgMode === 'daily' ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다';
+  $('bgModeDesc').textContent = bgMode === 'daily' ? '오늘 모두 같은 차트 · 200거래일 · 한국시간 자정 교체' : '랜덤 과거 차트 · 종목·날짜는 정산 때 공개';
   // 게임 탭 복귀: 진행 중이면 재개, 없으면 시작 인트로
   if (bg && !bg.over) { if (bg.playing) soloTickStart(); soloStatus(); }
   else if (!bg) bgShowSoloOverlay();
@@ -2430,7 +2430,7 @@ function bgShowDailyOverlay() {
   const runBadge = `<span class="bgStreakBadge">♠ ${runCopy}</span>`;
   const archive = bgDailyArchiveMarkup(day,today), heading = day===today ? '🎴 오늘의 판' : `🎴 ${day} · 지난 판`;
   $('bgTrackRow').classList.add('hidden');
-  $('bgModeDesc').textContent = day===today ? '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체' : '지난 판 재연 · 오늘의 연속 출전 기록과 별도';
+  $('bgModeDesc').textContent = day===today ? '오늘 모두 같은 차트 · 200거래일 · 한국시간 자정 교체' : '지난 판 재연 · 오늘의 연속 출전 기록과 별도';
   const startAction = progress
     ? `<button class="go" type="button" onclick="blindStart(true)">D+${progress.dayIndex}부터 이어하기 →</button><button class="go" type="button" onclick="blindStart(false)">처음부터 다시</button>`
     : `<button class="go" type="button" onclick="blindStart(false)">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button>`;
@@ -3016,12 +3016,12 @@ function bgSetMode(mode) {
   bgMode = mode;
   document.querySelectorAll('.blindModeBtn').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
   if (mode === 'study') studyOpen();
-  else { studyDisconnect(); $('bgStudyPanel').classList.add('hidden'); $('bgModeDesc').textContent = '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다'; bgShowSoloOverlay(); }
+  else { studyDisconnect(); $('bgStudyPanel').classList.add('hidden'); $('bgModeDesc').textContent = '랜덤 과거 차트 · 종목·날짜는 정산 때 공개'; bgShowSoloOverlay(); }
 }
 window.bgSetMode = bgSetMode;
 
 function studyOpen() {
-  $('bgModeDesc').textContent = '같은 종목 · 같은 출발 · 구간 전망은 공개 때까지 비공개';
+  $('bgModeDesc').textContent = '같은 숨은 차트 · 같은 속도로 함께 출발';
   $('bgStudyPanel').classList.remove('hidden'); $('bgPlayRow').classList.add('hidden'); $('bgSoloFinish').classList.add('hidden');
   const saved = localStorage.getItem('tapeStudyRoom');
   if (studyRoom) { studySubscribe(); studyRefresh(); }

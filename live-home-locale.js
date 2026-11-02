@@ -160,7 +160,7 @@
   // same layout and translate both initial text and dynamically-created rounds.
   Object.assign(copy, {
     '🎰 블라인드 차트':['🎰 Blind chart','🎰 盲图挑战','🎰 ブラインドチャート'],
-    '정체를 숨긴 과거의 실제 시장 — 시간이 저절로 흐릅니다':['A real past market, identity hidden. Time moves on.','真实历史市场，隐藏标的身份。时间持续前进。','実際の過去相場。銘柄を伏せて時間が進みます。'],
+    '랜덤 과거 차트 · 종목·날짜는 정산 때 공개':['Random past chart · ticker and dates revealed at settlement','随机历史图表 · 结算时揭晓代码和日期','ランダムな過去チャート · 銘柄と日付は精算時に公開'],
     '🎲 나만의 판':['🎲 Solo table','🎲 单人牌局','🎲 ソロプレイ'],
     '🎴 오늘의 판':['🎴 Daily table','🎴 今日牌局','🎴 今日の一局'],
     '👥 함께 보는 판':['👥 Shared table','👥 同桌对局','👥 みんなでプレイ'],
@@ -170,7 +170,8 @@
     '📈 미국주식':['📈 U.S. stocks','📈 美股','📈 米国株'],
     '미국 증시':['U.S. market','美国市场','米国市場'],
     '코인 시장':['crypto market','加密市场','暗号資産市場'],
-    '하루 한 판 · 모두 같은 과거 차트 · 한국시간 자정 교체':['One chart a day · same past market for everyone · resets at midnight KST','每日一局 · 所有人挑战同一段历史行情 · 韩国时间午夜更新','1日1回 · 全員同じ過去チャート · KSTの午前0時に更新'],
+    '오늘 모두 같은 차트 · 200거래일 · 한국시간 자정 교체':['One shared chart today · 200 trading days · resets at midnight KST','今日所有人挑战同一张图 · 200个交易日 · 韩国时间午夜更新','今日の共通チャート · 200取引日 · KST午前0時に更新'],
+    '같은 숨은 차트 · 같은 속도로 함께 출발':['Start together with friends on the same hidden chart at the same speed','和朋友用同一张隐藏图表、相同速度一起开始','友だちと同じ非公開チャート・速度で一緒にスタート'],
     '지난 판 재연 · 오늘의 연속 출전 기록과 별도':['Replay a past round · does not count toward today’s streak','重玩历史牌局 · 不计入今日连续挑战','過去の一局を再プレイ · 今日の連続記録には含まれません'],
     '과거의 어느 실제 ':['You land in a real past ','进入真实的历史','実際の過去の'],
     '에 던져집니다. ':['. ','。','に飛び込みます。'],
@@ -289,7 +290,6 @@
     '아직 공동 정산 시각이 되지 않았습니다.':['It is not time to settle the shared round yet.','还未到同桌牌局的结算时间。','共有ラウンドの精算時刻にはまだ達していません。'],
     '현재 이 판에서 나갈 수 없습니다.':['You cannot leave this round right now.','现在无法离开本局。','現在この一局から退出できません。'],
     '진행 중인 판에서 나갈까요? 현재 수익률과 판단 기록은 방에서 제거됩니다.':['Leave the active round? Your current return and decision history will be removed from the table.','要离开正在进行的牌局吗？当前收益率和判断记录将从牌桌移除。','進行中の一局から退出しますか？現在のリターンと判断記録はテーブルから削除されます。'],
-    '같은 종목 · 같은 출발 · 구간 전망은 공개 때까지 비공개':['Same asset · same start · outlooks stay hidden until reveal','同一标的 · 同时开始 · 区间预测在揭晓前保密','同じ銘柄・同時スタート・区間予想は公開まで非表示'],
     '선택한 ':['Selected ','已选择','選択した'],
     ' 시장으로 방을 엽니다.':[' market for the table.','市场创建牌局。','市場でテーブルを開きます。'],
     'READY':['READY','READY','READY'],
