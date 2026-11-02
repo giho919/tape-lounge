@@ -56,8 +56,8 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.
 SHARE_ASSETS = ['article-share.js', 'article-share.css']
 SHARE_VERSION = sha256(b''.join(stable_bytes(ROOT / p) for p in SHARE_ASSETS)).hexdigest()[:12]
 TOOL_PAGES = [
-    ('domestic', 'domestic', '김치프리미엄·국내 코인 시세 · Tape Lounge',
-     '국내 거래소와 해외 거래소의 코인 시세, 김치프리미엄, 관심 종목과 Andy 관찰 후보를 비교합니다.'),
+    ('domestic', 'domestic', '김프 실시간 비교 · 업비트·빗썸 코인 시세 | Tape Lounge',
+     '선택한 업비트·빗썸 원화 시세를 해외 거래소 USDT 가격과 비교해 김프·김치프리미엄, 역프와 거래대금을 확인하세요. Andy 관찰 후보도 표시되며 시세는 약 30초마다 갱신됩니다.'),
     ('desk', 'desk', '비트코인 선물 데스크 · Tape Lounge',
      'BTC 무기한 선물의 추세, 주요 가격대, 펀딩비, 미결제약정과 주문 흐름을 한 화면에서 확인합니다.'),
     ('analysis', 'analysis', '비트코인 장기 채널·차트 분석 · Tape Lounge',
