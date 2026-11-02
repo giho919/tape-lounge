@@ -17,8 +17,9 @@ test('오늘의 판 홈 카드에서 친구 초대와 추적 가능한 공유 �
   assert.match(page,/id="loungeRotationShareStatus" role="status" aria-live="polite" hidden/);
   assert.match(page,/id="loungeRotationInviteCopy"[^>]*readonly hidden/);
  }
- assert.match(rotation,/share\.hidden = active !== 0/,'초대는 오늘의 판 슬라이드에서만 보여야 한다');
  assert.match(rotation,/bgShareDailyChallenge\('loungeRotationShareStatus', 'loungeRotationInviteCopy'\)/);
+ assert.match(rotation,/if \(share\) share\.hidden = false;/);
+ assert.doesNotMatch(rotation,/share\.hidden = active !== 0/);
  assert.match(app,/async function bgShareDailyChallenge\(statusId = 'bgDailyInviteStatus', copyId = 'bgDailyInviteCopy'\)/);
  for(const label of ['친구와 한 판 ↗','오늘의 판 초대','복사할 초대 문구와 링크']) assert.ok(homeLocale.includes(`'${label}'`),`${label} 번역이 없다`);
 });

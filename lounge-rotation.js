@@ -90,7 +90,9 @@
     copy.textContent = item.copy;
     link.href = withVisitContext(item.link);
     link.textContent = item.label;
-    if (share) share.hidden = active !== 0;
+    // Keep the invitation visible while other lounge cards rotate so visitors
+    // do not have to wait for the daily-deal slide to share today's round.
+    if (share) share.hidden = false;
     if (active !== 0) {
       if (shareStatus) { shareStatus.textContent = ''; shareStatus.hidden = true; }
       if (inviteCopy) inviteCopy.hidden = true;
