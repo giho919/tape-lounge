@@ -671,7 +671,12 @@ def build(force=False):
                 lastmod='2026-10-22'
             SubElement(entry,'lastmod').text=lastmod
     for name in ['andy_scan','madam_daily','justin_lab']:
+        report_html=(ROOT/'reports'/f'{name}.html').read_text(encoding='utf-8')
+        report_date=re.search(r'(\d{4}-\d{2}-\d{2}) \d{2}:\d{2} KST',report_html)
+        if not report_date:
+            raise ValueError(f'Could not find the visible publication date for reports/{name}.html')
         entry=SubElement(sitemap,'url');SubElement(entry,'loc').text=BASE+'/reports/'+name+'.html'
+        SubElement(entry,'lastmod').text=report_date.group(1)
     write('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n'+tostring(sitemap,encoding='unicode'))
     # Reuse the existing, explicitly public publishable key and RPC. No new table/schema.
     source=(ROOT/'terminal/index.html').read_text(encoding='utf-8')
