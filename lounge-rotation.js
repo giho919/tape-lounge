@@ -80,6 +80,28 @@
   let andyRequested = false;
   let dailyState = '';
 
+  function signedPercent(value, unit = '%') {
+    const rounded = Math.round(Number(value) * 10) / 10;
+    return `${rounded >= 0 ? '+' : ''}${rounded.toFixed(1)}${unit}`;
+  }
+
+  function personalRoundCopy(day, version, streak) {
+    try {
+      const daily = window.BlindDaily;
+      const records = daily.read(localStorage, version);
+      const recordDay = streak.playedToday ? day : streak.days ? streak.lastDay : null;
+      const result = records.find(item => item.day === recordDay);
+      if (!result) return '';
+      const label = streak.playedToday ? '오늘' : '어제';
+      const tail = streak.playedToday
+        ? `${streak.days}일 연속 출전`
+        : `${streak.days}일 연속 · 오늘 완주하면 이어집니다`;
+      return `이 브라우저 기록 · ${label} 결과 · 내 수익률 ${signedPercent(result.roi)} · 같은 기간 보유 ${signedPercent(result.bh)} · 격차 ${signedPercent(result.roi - result.bh, '%p')} · ${tail}`;
+    } catch {
+      return '';
+    }
+  }
+
   function show(index) {
     active = (index + slides.length) % slides.length;
     const item = slides[active];
@@ -126,10 +148,12 @@
         : '종목과 날짜는 판이 끝나면 공개돼요. 실제 차트 200일을 모의 매매하고, 그냥 보유한 결과와 비교해 보세요. 로그인 없이 약 4분.';
       slides[0].label = '오늘 판 바로 시작 ↗';
       if (streak.playedToday) {
-        slides[0].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
+        slides[0].copy = personalRoundCopy(day, selection.version, streak)
+          || `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
         slides[0].label = '오늘 결과 다시 보기 ↗';
       } else if (streak.days > 0) {
-        slides[0].copy = `${slides[0].copy} 어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
+        slides[0].copy = personalRoundCopy(day, selection.version, streak)
+          || `${slides[0].copy} 어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
         slides[0].label = '오늘 이어서 도전 ↗';
       }
       const target = new URL(daily.url(day, selection.version), window.location.origin);

@@ -590,6 +590,14 @@
       ? `You finished today. Review your ${streak[1]}-day streak or share the same round.`
       : lang === 'zh' ? `今天已完成。查看连续参与 ${streak[1]} 天的记录，或分享同一轮。`
         : `今日は完走しました。${streak[1]}日連続の記録を見返すか、同じ回を共有できます。`;
+    const personalRound = value.match(/^이 브라우저 기록 · (오늘|어제) 결과 · 내 수익률 ([+-]?\d+(?:\.\d+)?%) · 같은 기간 보유 ([+-]?\d+(?:\.\d+)?%) · 격차 ([+-]?\d+(?:\.\d+)?%p) · (\d+)일 연속( 출전| · 오늘 완주하면 이어집니다)$/);
+    if (personalRound) {
+      const count = Number(personalRound[5]), dayWord = count === 1 ? 'day' : 'days';
+      const isToday = personalRound[1] === '오늘';
+      if (lang === 'en') return `This browser · ${isToday ? 'Today' : 'Yesterday'} · Your return ${personalRound[2]} · Buy and hold ${personalRound[3]} · Gap ${personalRound[4]} · ${count} ${dayWord} in a row${personalRound[6] ? (isToday ? ' · round complete' : ' · finish today to continue') : ''}`;
+      if (lang === 'zh') return `本浏览器 · ${isToday ? '今日' : '昨日'} · 我的收益 ${personalRound[2]} · 同期持有 ${personalRound[3]} · 差距 ${personalRound[4]} · 连续 ${count} 天${personalRound[6] ? (isToday ? ' · 已完成' : ' · 今天完成即可延续') : ''}`;
+      return `このブラウザー・${isToday ? '今日' : '昨日'}・自分のリターン ${personalRound[2]}・同期間保有 ${personalRound[3]}・差 ${personalRound[4]}・${count}日連続${personalRound[6] ? (isToday ? '・完走済み' : '・今日完走で継続') : ''}`;
+    }
     const range = value.match(/^변동폭 ([0-9.]+%) · (\d+)분$/);
     if (range) return lang === 'en' ? `Range ${range[1]} · ${range[2]} min`
       : lang === 'zh' ? `波幅 ${range[1]} · ${range[2]} 分钟` : `値幅 ${range[1]}・${range[2]}分`;

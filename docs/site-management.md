@@ -62,9 +62,11 @@ The daily challenge records a first completed result and a consecutive-day
 completion count in browser-local storage. The count advances once per KST
 challenge day, only after finishing that day's official round; replaying an old
 date does not extend it. Crypto and U.S.-stock rounds share the streak key across
-the version change. No account, public ranking, analytics write or server-side
-record is introduced. Keep the local-only wording visible wherever the streak
-is shown.
+the version change. The homepage featured card can show the current or previous
+day's completed return beside the same-period buy-and-hold result and their gap;
+it reads only the existing local result and streak records. No account, public
+ranking, analytics write or server-side score record is introduced. Keep the
+local-only wording visible wherever the streak or personal result is shown.
 
 The daily challenge overlay also links to up to seven earlier fixed rounds.
 Older dates keep their original market version and deterministic data; completed

@@ -212,9 +212,19 @@ test('영어·중국어·일본어 라이브 페이지의 접근성 속성에 �
 test('연속 도전 카드도 게임 설명을 유지하고 네 언어에서 오늘 기록을 함께 안내한다',()=>{
  const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
  const locale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
- assert.match(rotation,/slides\[0\]\.copy = `\$\{slides\[0\]\.copy\} 어제까지 \$\{streak\.days\}일 연속 · 오늘 완주하면 이어집니다\.`/);
+ assert.match(rotation,/personalRoundCopy\(day, selection\.version, streak\)\s*\|\| `\$\{slides\[0\]\.copy\} 어제까지 \$\{streak\.days\}일 연속 · 오늘 완주하면 이어집니다\.`/);
  assert.match(locale,/로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요.*어제까지 \(\\d\+\)일 연속 · 오늘 완주하면 이어집니다/);
  for(const phrase of ['Yesterday’s ${dayCount}-day streak continues if you finish today.','截至昨天已连续完成 ${dayCount} 天，今天完赛即可延续。','昨日まで${dayCount}日連続。今日完走すれば記録が続きます。'])assert.ok(locale.includes(phrase),`missing localized streak text: ${phrase}`);
+});
+
+test('홈 오늘 판 카드는 브라우저에 저장된 직전 결과와 보유 대비 격차를 언어별로 보여준다',()=>{
+ const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
+ const locale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
+ assert.match(rotation,/daily\.read\(localStorage, version\)/,'개인 기록은 기존 브라우저 저장 기록에서만 읽어야 한다');
+ assert.match(rotation,/result\.roi - result\.bh/,'전략 결과와 같은 기간 보유의 격차를 보여야 한다');
+ assert.match(rotation,/recordDay = streak\.playedToday \? day : streak\.days \? streak\.lastDay : null/,'오늘 완료 또는 직전 연속 기록만 골라야 한다');
+ assert.match(locale,/const personalRound = value\.match\(/,'동적 성과 문구를 다국어로 처리해야 한다');
+ for(const phrase of ['This browser · ${isToday ? \'Today\' : \'Yesterday\'}','本浏览器 · ${isToday ? \'今日\' : \'昨日\'}','このブラウザー・${isToday ? \'今日\' : \'昨日\'}','Your return ${personalRound[2]}','我的收益 ${personalRound[2]}','自分のリターン ${personalRound[2]}'])assert.ok(locale.includes(phrase),`missing localized personal result: ${phrase}`);
 });
 
 test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게임 조작부까지 번역한다',()=>{
