@@ -534,6 +534,15 @@
           ? `在隐藏标的和日期的同一张图表上坚持完成200${period[1]}。结束后，将你的交易与同期持有收益进行比较。`
           : `銘柄と日付を伏せた同じチャートで200${period[2]}を体験。最後に、自分の売買と同期間の保有リターンを比べます。`;
     }
+    const dailyDebrief = value.match(/^매매 (\d+)회 · 모의 수수료 \$([0-9]+\.\d{2}) · 보유 대비 격차 ([+-]?\d+\.\d{2}%p)$/);
+    if (dailyDebrief) {
+      const gap = dailyDebrief[3].replace('%p','');
+      return lang === 'en'
+        ? `${dailyDebrief[1]} trades · simulated fees $${dailyDebrief[2]} · gap vs. holding ${gap} pp`
+        : lang === 'zh'
+          ? `模拟交易 ${dailyDebrief[1]} 笔 · 模拟手续费 $${dailyDebrief[2]} · 较同期持有 ${gap} 个百分点`
+          : `売買 ${dailyDebrief[1]}回・模擬手数料 $${dailyDebrief[2]}・同期間保有との差 ${gap}ポイント`;
+    }
     const savedProgress = value.match(/^이 기기에 D\+(\d+)까지 진행을 저장했습니다\. 브라우저를 닫았다 열어도 이어갈 수 있어요\.$/);
     if (savedProgress) return lang === 'en'
       ? `Progress through D+${savedProgress[1]} is saved on this device. Close your browser and come back anytime to continue.`

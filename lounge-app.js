@@ -2824,6 +2824,13 @@ async function blindFinish(early) {
     const first = recorded.first;
     const run = recorded.streak || {days:0,playedToday:false};
     const season = bgDailySeasonMarkup(bg.daily.version);
+    const orderCount = bg.trades.filter(t => t.intent !== 'LIQ').length;
+    const simulatedFees = bg.trades.reduce((sum,t) => {
+      const fee = Number(t.fee);
+      return sum + (Number.isFinite(fee) && fee > 0 ? fee : 0);
+    },0);
+    const holdGap = roi - bh;
+    const holdGapText = `${holdGap >= 0 ? '+' : ''}${holdGap.toFixed(2)}%p`;
     const runCopy = bg.daily.day===window.BlindDaily.dayKey() ? run.playedToday ? `오늘 출전 완료 · ${run.days}일 연속` : '오늘 판을 완주하면 연속 출전 기록이 갱신됩니다.' : '';
     const runBadge = runCopy ? `<span class="bgStreakBadge">♠ ${runCopy}</span>` : '';
     const unit = bg.daily.version===2 ? '거래일' : '일';
@@ -2831,6 +2838,7 @@ async function blindFinish(early) {
       <p>이 판의 정체는 <b style="color:var(--gold)">${name}</b><br><span style="color:var(--dim)">${bg.realStart} ~ ${bg.realDates[bg.idx]} · ${bg.idx-bg.base}${unit}</span></p>
       <div class="big num" style="color:${roi>=0?'var(--grn)':'var(--red)'}">${roi>=0?'+':''}${roi.toFixed(2)}%</div>
       <p>같은 기간 보유 <b>${bh>=0?'+':''}${bh.toFixed(2)}%</b> <small>(수수료 전)</small><br>${roi>=bh?'이번 판에서는 보유 수익률을 앞섰습니다.':'이번 판에서는 보유 수익률이 더 높았습니다.'}</p>
+      <p class="bgDailyInfo">매매 ${orderCount}회 · 모의 수수료 $${simulatedFees.toFixed(2)} · 보유 대비 격차 ${holdGapText}</p>
       <p class="bgDailyInfo">${recorded.saved?'첫 완주 기록을 이 브라우저에 저장했습니다.':first?`이 브라우저의 첫 완주 ${first.roi>=0?'+':''}${first.roi.toFixed(2)}%` : completed?'브라우저 기록을 저장하지 못했습니다.':'200일을 끝까지 마치면 첫 완주 기록이 남습니다.'}${runBadge?`<br>${runBadge}`:''}<br>남아 있는 포지션은 마지막 종가로 평가합니다.</p>
       ${season}
       <div class="resultWatermark">tapelounge.com</div><div class="bgDailyActions"><button type="button" class="go" onclick="bgOpenDailyShare()">결과 카드 저장·공유</button><button type="button" class="go" onclick="bgCopyDailyResult()">결과·도전 링크 복사</button><button type="button" class="go" onclick="blindStart()">같은 판 연습</button></div>
