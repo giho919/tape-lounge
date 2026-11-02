@@ -559,6 +559,15 @@ def render(lang, page, data, letters, generated, root=False):
     alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+locale_url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+locale_url("ko",page)}">'
     schema=[{'@context':'https://schema.org','@type':'WebSite','name':'Tape Lounge','url':BASE+'/'}, {'@context':'https://schema.org','@type':'WebPage','name':search_title,'description':search_desc,'url':current,'inLanguage':lang,'isPartOf':{'@type':'WebSite','url':BASE+'/'}}]
     if guide:
+        schema.append({
+            '@context':'https://schema.org',
+            '@type':'BreadcrumbList',
+            'itemListElement':[
+                {'@type':'ListItem','position':1,'name':c['nav'][3],
+                 'item':BASE+url(lang,'learn')},
+                {'@type':'ListItem','position':2,'name':title},
+            ],
+        })
         schema.append({'@context':'https://schema.org','@type':'Article','headline':title,'description':desc,'inLanguage':lang,'datePublished':article_date,'dateModified':guide_modified(guide),'author':{'@type':'Organization','name':'Tape Lounge','url':BASE+'/ko/about/'},'mainEntityOfPage':current})
         if guide[0]=='kimchi-premium':
             schema.append({'@context':'https://schema.org','@type':'FAQPage','mainEntity':[{'@type':'Question','name':question,'acceptedAnswer':{'@type':'Answer','text':answer}} for question,answer in KIMCHI_TOOL_COPY[lang]['faqs']]})
