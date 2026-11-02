@@ -397,6 +397,23 @@ test('블라인드 차트 안내문에서 오늘의 판으로 바로 갈 수 있
  }
 });
 
+test('블라인드 차트 안내문에서 맥락이 더해진 판단 게임으로 이동할 수 있다',()=>{
+ const routes={
+  ko:['../ko/learn/blind-chart-practice/index.html','/decision/','그때 나라면? 시작 ↗','전일 공포·탐욕, 당시 펀딩비','뉴스 원문이나 커뮤니티 게시물은 포함하지 않습니다.'],
+  en:['../en/learn/blind-chart-practice/index.html','/en/decision/','Play “What would you have done?” ↗','prior-day Fear &amp; Greed and historical funding','Historical headlines and community posts are not included.'],
+  zh:['../zh/learn/blind-chart-practice/index.html','/zh/decision/','开始“如果当时是你？” ↗','前一日恐惧与贪婪指数及当时的资金费率','不包含历史新闻原文或社区帖子。'],
+  ja:['../ja/learn/blind-chart-practice/index.html','/ja/decision/','「あの時、自分なら？」を始める ↗','前日の恐怖・強欲指数、当時の資金調達率','過去のニュース記事やコミュニティ投稿は含みません。'],
+ };
+ for(const [lang,[path,href,label,context,limit]] of Object.entries(routes)){
+  const page=fs.readFileSync(require.resolve(path),'utf8');
+  const callout=page.slice(page.indexOf('<section class="learn-callout"'),page.indexOf('</section>',page.indexOf('<section class="learn-callout"'))+10);
+  assert.ok(callout.includes(`href="${href}"`),`${lang} decision game link must use the localized route`);
+  assert.ok(callout.includes(label),`${lang} decision game CTA must be localized`);
+  assert.ok(callout.includes('1D')&&callout.includes('4H')&&callout.includes('1H'),`${lang} CTA must describe the available chart intervals`);
+  assert.ok(callout.includes(context)&&callout.includes(limit),`${lang} CTA must describe included context and exclude unavailable news`);
+ }
+});
+
 // 배지: 라운지가 이미 들고 있는 macroData 로만 만든다
 function badge(events, nowIso){
   const src=app.match(/function setTabBadge[\s\S]*?\nsetInterval\(refreshTabBadges, 60000\);/)[0];

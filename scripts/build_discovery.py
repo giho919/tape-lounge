@@ -561,10 +561,18 @@ def render(lang, page, data, letters, generated, root=False):
         game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Play today’s market replay ↗','zh':'开始今天的行情回放 ↗','ja':'今日の相場リプレイを始める ↗'}
         game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'
         game_cta=f'<p>{link(game_path+"?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
+        decision_copy={
+            'ko':('한 판 더, 다른 방식으로 판단하기','1D·4H·1H 차트와 전일 공포·탐욕, 당시 펀딩비를 살펴보고 매수·대기·보유·청산을 선택합니다. 뉴스 원문이나 커뮤니티 게시물은 포함하지 않습니다.','그때 나라면? 시작 ↗'),
+            'en':('Try a different kind of market decision','Review 1D, 4H and 1H candles, prior-day Fear & Greed and historical funding before choosing to buy, wait, hold or exit. Historical headlines and community posts are not included.','Play “What would you have done?” ↗'),
+            'zh':('换一种方式练习市场判断','查看1D、4H、1H K线、前一日恐惧与贪婪指数及当时的资金费率，再选择买入、等待、持有或退出。不包含历史新闻原文或社区帖子。','开始“如果当时是你？” ↗'),
+            'ja':('別の形で相場判断を練習する','1D・4H・1H足、前日の恐怖・強欲指数、当時の資金調達率を見て、買い・待機・保有・決済を選びます。過去のニュース記事やコミュニティ投稿は含みません。','「あの時、自分なら？」を始める ↗'),
+        }[lang]
+        decision_path={'ko':'/decision/','en':'/en/decision/','zh':'/zh/decision/','ja':'/ja/decision/'}[lang]
+        decision_callout=(f'<section class="learn-callout" aria-labelledby="decision-game-title"><p class="eyebrow">ANOTHER TABLE</p><h2 id="decision-game-title">{e(decision_copy[0])}</h2><p>{e(decision_copy[1])}</p>{link(decision_path,decision_copy[2])}</section>' if guide[0]=='blind-chart-practice' else '')
         kimchi=guide[0]=='kimchi-premium'
         tool=kimchi_calculator(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
