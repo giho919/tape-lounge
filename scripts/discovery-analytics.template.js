@@ -14,7 +14,7 @@ function send(seconds=0,view=false,keepalive=false){if(internal||automated)retur
 function qualify(){if(qualified||automated||hidden)return;const now=performance.now(),visibleSeconds=qualificationVisibleSeconds+(visibleSince===null?0:Math.max(0,(now-visibleSince)/1000));qualified=true;clearTimeout(qualifyTimer);qualifyTimer=null;qualificationVisibleSeconds=0;visibleSince=null;input=last=now;send(visibleSeconds,true);}
 function scheduleQualification(){if(qualified||automated||hidden||qualifyTimer!==null)return;qualifyTimer=setTimeout(()=>{qualifyTimer=null;qualify();},5000);}
 function flush(keepalive=false){const now=performance.now();if(qualified&&!hidden){const seconds=Math.max(0,(Math.min(now,input+300000)-last)/1000);if(seconds>=1)send(seconds,false,keepalive);}last=now;}
-['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();qualify();},{capture:true,passive:true}));
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{input=performance.now();scheduleQualification();},{capture:true,passive:true}));
 scheduleQualification();const timer=setInterval(()=>{if(qualified)flush();},60000);
 document.addEventListener('visibilitychange',()=>{const now=performance.now();flush(document.hidden);if(!qualified){if(document.hidden){if(visibleSince!==null)qualificationVisibleSeconds+=Math.max(0,(now-visibleSince)/1000);visibleSince=null;}else visibleSince=now;}hidden=document.hidden;last=now;if(hidden){clearTimeout(qualifyTimer);qualifyTimer=null;}else scheduleQualification();});
 addEventListener('pagehide',()=>{if(ended)return;ended=true;flush(true);clearInterval(timer);clearTimeout(qualifyTimer);});

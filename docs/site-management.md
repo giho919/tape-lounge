@@ -9,16 +9,15 @@ browsers rather than independently verified people. Exclude internal visits and
 inspect engagement and traffic quality before claiming the milestone. Do not
 add daily unique counts together and call the sum weekly unique visitors.
 
-The analytics visitor count now starts only after a visible page has stayed open
-for five seconds or the visitor makes a first pointer, keyboard, wheel, touch or
-scroll interaction. Known crawlers, preview agents and WebDriver sessions are
-excluded client-side without storing their user-agent string. This is an
+The analytics visitor count starts only after the page has remained visible for
+five cumulative seconds. Pointer, keyboard, wheel, touch or scroll input does
+not bypass that threshold. Known crawlers, preview agents and WebDriver sessions
+are excluded client-side without storing their user-agent string. This is an
 engagement-qualified browser count, not independently verified human identity.
-Active time includes visible time leading up to the qualifying event and later
-foreground time; hidden-tab intervals are excluded. Historical activity totals
-from before this change omit that initial visible interval and understate dwell.
-Pre-change totals include immediate page loads and must not be compared as if
-the collection rule had been identical.
+Active time includes visible time leading up to qualification and later
+foreground time; hidden-tab intervals are excluded. Historical totals from
+before the five-second interaction threshold may include brief accidental taps
+and should not be compared as if the collection rule had been identical.
 
 Keep the original casino/lounge presentation. Small improvements should solve
 an observed problem or have a measurable acquisition or retention hypothesis.
