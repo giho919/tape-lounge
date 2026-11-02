@@ -965,6 +965,20 @@ const LETTER_CARD = {
   andy: ['andyRecentMeta', 'andyRecentText', '스캔 전보'],
   justin: ['justinRecentMeta', 'justinRecentText', '월간 소견서'],
 };
+const JUSTIN_REVIEW_COPY = {
+  ko: { meta:'10/28 데이터 기준 · 임시 판정', value:'임시 판정', note:'정상 데이터 수집 후 재학습 시 자동 갱신', body:'현재 표시된 11월 예측값은 10월 28일까지의 데이터로 계산한 임시값입니다. 데이터가 정상적으로 수집되어 재학습이 완료되면 새 예측값으로 자동 교체됩니다.' },
+  en: { meta:'Provisional · data through Oct 28', value:'Provisional', note:'Will refresh after complete data is retrained', body:'The November forecast shown here is provisional and uses data through Oct 28. It will be replaced automatically after complete data is collected and the model is retrained.' },
+  zh: { meta:'截至10月28日数据 · 临时判断', value:'临时判断', note:'完整数据重训后自动更新', body:'当前显示的11月预测值是基于截至10月28日数据计算的临时值。数据正常收集并完成重新训练后，将自动替换为新预测值。' },
+  ja: { meta:'10月28日までのデータ · 暫定判定', value:'暫定判定', note:'完全なデータで再学習後に自動更新', body:'現在表示されている11月の予測値は、10月28日までのデータによる暫定値です。データが正常に収集され、再学習が完了すると新しい予測値に自動で置き換わります。' },
+};
+function justinLetterConflicts(m) {
+  if (m?.cls !== 'justin') return false;
+  const body = String(m.body || ''), value = String(m.kpi?.value || ''), note = String(m.kpi?.note || '');
+  const bodyAllows = /진입\s*허용/.test(body), bodyBlocks = /진입\s*(차단|제한)/.test(body);
+  const valueAllows = /진입\s*허용/.test(value), valueBlocks = /진입\s*(차단|제한)/.test(value);
+  const noteAllows = /판정\s*허용/.test(note), noteBlocks = /판정\s*(차단|제한)/.test(note);
+  return (bodyAllows && (valueBlocks || noteBlocks)) || (bodyBlocks && (valueAllows || noteAllows)) || (valueAllows && noteBlocks) || (valueBlocks && noteAllows);
+}
 async function loadLetters() {
   let list = null, updated = '';
   try {
@@ -976,18 +990,19 @@ async function loadLetters() {
   } catch(e) {}
   if (!list) list = LETTER_FALLBACK;
   list.forEach((m, i) => {
+    const review = justinLetterConflicts(m) ? (JUSTIN_REVIEW_COPY[document.documentElement.lang] || JUSTIN_REVIEW_COPY.ko) : null;
     const card = LETTER_CARD[m.cls];
     if (card) {
-      $(card[0]).textContent = `${m.at || updated || '최근 갱신'} · ${card[2]}`;
-      $(card[1]).textContent = String(m.body || '');
+      $(card[0]).textContent = `${review?.meta || m.at || updated || '최근 갱신'} · ${card[2]}`;
+      $(card[1]).textContent = review?.body || String(m.body || '');
     }
     const tile = document.querySelector(`#stratKpi .kpiTile[data-kpi="${m.cls}"]`);
     if (tile && m.kpi) {
       tile.querySelector('.l').textContent = String(m.kpi.label || '');
-      tile.querySelector('.v').textContent = String(m.kpi.value || '—');
+      tile.querySelector('.v').textContent = review?.value || String(m.kpi.value || '—');
       const d = tile.querySelector('.d');
-      d.textContent = String(m.kpi.note || '');
-      d.className = 'd ' + (['pos','neg','flat'].includes(m.kpi.tone) ? m.kpi.tone : 'flat');
+      d.textContent = review?.note || String(m.kpi.note || '');
+      d.className = 'd ' + (review ? 'flat' : (['pos','neg','flat'].includes(m.kpi.tone) ? m.kpi.tone : 'flat'));
     } else if (tile) {
       tile.querySelector('.v').textContent = '—';
       const d = tile.querySelector('.d');

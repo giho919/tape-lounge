@@ -26,6 +26,26 @@ def stable_bytes(path):
     return raw.replace(b'\r\n', b'\n') if path.suffix.lower() in TEXT_SUFFIXES else raw
 
 
+def normalize_conflicting_justin_letter(letters):
+    """Do not publish opposing current regime labels as a single Justin verdict."""
+    for message in letters.get('messages', []):
+        if message.get('cls') != 'justin':
+            continue
+        body = str(message.get('body') or '')
+        kpi = message.get('kpi') or {}
+        value = str(kpi.get('value') or '')
+        note = str(kpi.get('note') or '')
+        body_allows, body_blocks = '진입 허용' in body, any(x in body for x in ('진입 차단', '진입 제한'))
+        value_allows, value_blocks = '진입 허용' in value, any(x in value for x in ('진입 차단', '진입 제한'))
+        note_allows, note_blocks = '판정 허용' in note, any(x in note for x in ('판정 차단', '판정 제한'))
+        conflict = (body_allows and (value_blocks or note_blocks)) or (body_blocks and (value_allows or note_allows)) or (value_allows and note_blocks) or (value_blocks and note_allows)
+        if conflict:
+            message['body'] = '현재 표시된 11월 예측값은 10월 28일까지의 데이터로 계산한 임시값입니다. 데이터가 정상적으로 수집되어 재학습이 완료되면 새 예측값으로 자동 교체됩니다.'
+            kpi.update(value='임시 판정', note='10/28 데이터 기준 · 재학습 후 자동 갱신', tone='flat')
+            message['kpi'] = kpi
+    return letters
+
+
 BASE = 'https://tapelounge.com'
 HOME_OG_VERSION = '20261102'
 HOME_OG_ALT = {
@@ -642,7 +662,7 @@ def build(force=False):
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
         return {'changed':False}
-    data=read('data/andy-watch.json'); letters=read('reports/letters.json')
+    data=read('data/andy-watch.json'); letters=normalize_conflicting_justin_letter(read('reports/letters.json'))
     generated=datetime.now(timezone.utc).isoformat()
     generated_kst=datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
     tool_hash=sha256(stable_bytes(ROOT/'classic-home.html')+json.dumps(TOOL_PAGES,ensure_ascii=False).encode()+b''.join(stable_bytes(ROOT/p) for p in TOOL_ASSETS)).hexdigest()
@@ -736,7 +756,7 @@ def build(force=False):
 def build_editorial_only():
     """Refresh localized discovery/editorial pages without generating blind-game rounds."""
     data=read('data/discovery.json')
-    letters=read('reports/letters.json')
+    letters=normalize_conflicting_justin_letter(read('reports/letters.json'))
     generated=datetime.now(timezone.utc).isoformat()
     pages=['','markets','watch','research','learn','about']+['learn/'+g[0] for g in COPY['en']['guides']]
     for lang in LANGS:
