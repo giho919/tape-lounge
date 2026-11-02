@@ -176,6 +176,7 @@
     '일봉 200개 뒤 종목·날짜가 공개되고, 같은 구간 보유 수익률과 비교합니다.':['After 200 daily candles, the asset and dates are revealed. Compare your trades with holding over the same period.','200根日K线后揭晓标的和日期，并与同期持有收益率比较。','日足200本後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
     '오늘의 판 시작':['Start today’s round','开始今日牌局','今日の一局を始める'],
     '오늘의 판 시작 →':['Start today’s round →','开始今日牌局 →','今日の一局を始める →'],
+    '처음부터 다시':['Start over','从头开始','最初からやり直す'],
     '지난 판 다시 하기':['Replay this round','重玩本局','この一局を再プレイ'],
     '지난 판 다시 하기 →':['Replay this round →','重玩本局 →','この一局を再プレイ →'],
     '같은 판 다시 연습 →':['Practice this round again →','再次练习本局 →','同じ一局をもう一度練習 →'],
@@ -448,6 +449,26 @@
           : `昨日まで${dayCount}日連続。今日完走すれば記録が続きます。`;
       return `${translatedIntro} ${translatedStreak}`;
     }
+    const dailyPanelIntro = value.match(/^종목과 날짜를 가린 같은 차트로 200(거래일|일) 동안 버텨 보세요\. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다\.$/);
+    if (dailyPanelIntro) {
+      const period = dailyPanelIntro[1] === '거래일'
+        ? ['trading days', '个交易日', '取引日'] : ['days', '天', '日'];
+      return lang === 'en'
+        ? `Trade through 200 ${period[0]} on the same chart with the asset and dates hidden. At the end, compare your trades with holding over the same period.`
+        : lang === 'zh'
+          ? `在隐藏标的和日期的同一张图表上坚持完成200${period[1]}。结束后，将你的交易与同期持有收益进行比较。`
+          : `銘柄と日付を伏せた同じチャートで200${period[2]}を体験。最後に、自分の売買と同期間の保有リターンを比べます。`;
+    }
+    const savedProgress = value.match(/^이 기기에 D\+(\d+)까지 진행을 저장했습니다\. 브라우저를 닫았다 열어도 이어갈 수 있어요\.$/);
+    if (savedProgress) return lang === 'en'
+      ? `Progress through D+${savedProgress[1]} is saved on this device. Close your browser and come back anytime to continue.`
+      : lang === 'zh'
+        ? `进度已保存在此设备，当前至 D+${savedProgress[1]}。关闭浏览器后再回来也能继续。`
+        : `D+${savedProgress[1]}までの進行状況をこの端末に保存しました。ブラウザーを閉じても、後から続けられます。`;
+    const resumeProgress = value.match(/^D\+(\d+)부터 이어하기 →$/);
+    if (resumeProgress) return lang === 'en'
+      ? `Continue from D+${resumeProgress[1]} →`
+      : lang === 'zh' ? `从 D+${resumeProgress[1]} 继续 →` : `D+${resumeProgress[1]}から再開 →`;
     const firstFinish = value.match(/^첫 완주 ([+-]?\d+(?:\.\d+)?%) · 같은 기간 보유 ([+-]?\d+(?:\.\d+)?%)$/);
     if (firstFinish) return lang === 'en'
       ? `First finish ${firstFinish[1]} · hold over the same period ${firstFinish[2]}`

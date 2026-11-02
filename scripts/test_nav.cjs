@@ -37,6 +37,24 @@ test('오늘의 판 카드가 4분 소요와 매수·매도 연습 방식을 앞
  assert.match(homeLocale,/200\(거래일\|일\) 후 같은 기간 보유와 비교합니다/);
 });
 
+test('오늘의 판 소개와 저장된 진행 안내가 선택한 언어로 표시된다',()=>{
+ assert.match(homeLocale,/const dailyPanelIntro = value\.match\(\/\^종목과 날짜를 가린 같은 차트로 200\(거래일\|일\) 동안 버텨 보세요/);
+ assert.match(homeLocale,/const savedProgress = value\.match\(\/\^이 기기에 D\\\+\(\\d\+\)까지 진행을 저장했습니다/);
+ assert.match(homeLocale,/const resumeProgress = value\.match\(\/\^D\\\+\(\\d\+\)부터 이어하기/);
+ for(const phrase of [
+  'Trade through 200 ${period[0]} on the same chart with the asset and dates hidden.',
+  '在隐藏标的和日期的同一张图表上坚持完成200${period[1]}。',
+  '銘柄と日付を伏せた同じチャートで200${period[2]}を体験。',
+  'Progress through D+${savedProgress[1]} is saved on this device.',
+  '进度已保存在此设备，当前至 D+${savedProgress[1]}。',
+  'D+${savedProgress[1]}までの進行状況をこの端末に保存しました。',
+  'Continue from D+${resumeProgress[1]} →',
+  '从 D+${resumeProgress[1]} 继续 →',
+  'D+${resumeProgress[1]}から再開 →',
+ ]) assert.ok(homeLocale.includes(phrase),`missing daily round translation: ${phrase}`);
+ assert.match(homeLocale,/'처음부터 다시':\['Start over','从头开始','最初からやり直す'\]/);
+});
+
 test('국가별 언어 제안은 본문을 밀지 않고 화면 위에 표시된다',()=>{
  const htmlFiles=[];
  const collect=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collect(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
