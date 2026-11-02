@@ -442,6 +442,8 @@ body.shake { animation:shake .5s; }
 .loungeRotationCopy { margin:6px 0 0; color:#9ba0a9; font-size:10.5px; line-height:1.65; }
 .loungeRotationLink { position:relative; z-index:2; display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 16px; border:1px solid rgba(212,175,55,.62); border-radius:8px; background:rgba(212,175,55,.12); color:#f1d776; font-size:11px; font-weight:800; white-space:nowrap; text-decoration:none; }
 .loungeRotationLink:hover { background:rgba(212,175,55,.16); border-color:var(--gold); }
+.loungeRotation[data-current="0"] .loungeRotationLink { border-color:#e7c75f; background:linear-gradient(180deg,#e1c34f,#c9a736); color:#15130d; font-size:12px; box-shadow:0 4px 14px rgba(212,175,55,.18); }
+.loungeRotation[data-current="0"] .loungeRotationLink:hover { border-color:#f1d776; background:linear-gradient(180deg,#efd56c,#d7b749); box-shadow:0 5px 18px rgba(212,175,55,.24); }
 .loungeRotationActions { position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
 .loungeRotationShare { appearance:none; display:inline-flex; align-items:center; justify-content:center; min-height:29px; padding:0 10px; border:1px solid rgba(255,255,255,.13); border-radius:8px; background:rgba(255,255,255,.025); color:#a9a7a0; font:600 9px/1.3 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; white-space:nowrap; cursor:pointer; }
 .loungeRotationShare:hover { color:#f1d776; border-color:rgba(212,175,55,.42); background:rgba(212,175,55,.06); }
@@ -459,7 +461,7 @@ body.shake { animation:shake .5s; }
 .loungeRotationButtons button:hover { color:var(--gold); border-color:var(--gold-dim); }
 .loungeRotation.is-changing .loungeRotationMain { animation:loungeRotationIn .26s ease-out; }
 @keyframes loungeRotationIn { from { opacity:.35; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-@media(max-width:620px) { .loungeRotation { padding:13px 13px 10px; } .loungeRotationMain { grid-template-columns:1fr; gap:9px; min-height:0; padding:9px 0; } .loungeRotationActions { flex-direction:row; align-items:center; flex-wrap:wrap; gap:6px; } .loungeRotationLink { width:max-content; min-height:44px; } .loungeRotationCopy { max-width:52ch; } .loungeRotationShareStatus { text-align:left; } }
+@media(max-width:620px) { .loungeRotation { padding:13px 13px 10px; } .loungeRotationMain { grid-template-columns:1fr; gap:9px; min-height:0; padding:9px 0; } .loungeRotationActions { flex-direction:row; align-items:center; flex-wrap:wrap; gap:6px; } .loungeRotationLink { width:max-content; min-height:44px; } .loungeRotation[data-current="0"] .loungeRotationActions { width:100%; } .loungeRotation[data-current="0"] .loungeRotationLink { width:100%; min-height:48px; } .loungeRotationCopy { max-width:52ch; } .loungeRotationShareStatus { text-align:left; } }
 @media(prefers-reduced-motion:reduce) { .loungeRotation.is-changing .loungeRotationMain { animation:none; } .loungeRotationDots button:before { transition:none; } }
 .spectatorFloor { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
 .spectatorGrid { display:grid; grid-template-columns:1fr; gap:12px; }
@@ -859,7 +861,7 @@ body.shake { animation:shake .5s; }
   <strong class="homeQuotePrice num" id="homeBtcPrice">—</strong>
   <div class="homeQuoteChange"><b class="num" id="homeBtcChange">—</b><small>24H</small></div>
 </div>
-<section class="loungeRotation" id="loungeRotation" aria-label="라운지 주요 기록" aria-roledescription="carousel">
+<section class="loungeRotation" id="loungeRotation" data-current="0" aria-label="라운지 주요 기록" aria-roledescription="carousel">
   <div class="loungeRotationTop"><span>AT THE TABLE</span><span class="loungeRotationCount" id="loungeRotationCount">01 / 04</span></div>
   <div class="loungeRotationMain" id="loungeRotationMain" aria-live="off">
     <div><p class="loungeRotationEyebrow" id="loungeRotationEyebrow">TODAY'S DEAL</p><h2 class="loungeRotationTitle" id="loungeRotationTitle">오늘의 판 · 약 4분</h2><p class="loungeRotationCopy" id="loungeRotationCopy">로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요. 200일 후 같은 기간 보유와 비교합니다. 기본 2×로 약 4분.</p></div>
