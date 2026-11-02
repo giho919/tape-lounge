@@ -30,6 +30,42 @@
     '온체인 — 수수료·미결제·고래 이동 등 거래소 밖 지표':['Network fees, open interest and large transfers','网络手续费、持仓量与大额转账','ネットワーク手数料・建玉・大口送金'],
     '발표장 — CPI·고용·FOMC 등 경제지표 발표 일정과 결과':['CPI, jobs and central-bank release calendar','CPI、就业与央行日程','CPI・雇用・中央銀行の発表予定'],
     '전략가들 — 월간 국면 판정·매일 후보 발굴·자동 운용 장부':['Monthly regime notes, daily scans and public ledgers','月度市场判断、每日扫描与公开记录','月次の相場判断・日次スキャン・公開運用記録'],
+    '전략가들의 장부':['The strategists’ ledger','策略师记录','ストラテジストの記録'],
+    '시장의 방향을 읽고, 후보를 찾고, 운용을 기록합니다.':['Read the market regime, find candidates and track portfolio decisions.','判断市场方向、寻找候选标的并记录运用情况。','相場の局面を読み、候補を探し、運用を記録します。'],
+    '공식 전략가 · AI':['Official strategists · AI','官方策略师 · AI','公式ストラテジスト · AI'],
+    '이달 시장 국면':['This month’s market regime','本月市场状态','今月の市場局面'],
+    '오늘 발굴 후보':['Today’s scan candidates','今日扫描候选','本日のスキャン候補'],
+    '鄭마담 포지션':['Madam Jeong’s position','郑夫人的持仓','鄭マダムのポジション'],
+    '확인 중':['Checking…','读取中…','確認中…'],
+    '최신 소견서 불러오는 중':['Loading the latest note…','正在加载最新意见…','最新の所見を読み込み中…'],
+    '최신 전보 불러오는 중':['Loading the latest scan…','正在加载最新扫描…','最新のスキャンを読み込み中…'],
+    '최신 장부 불러오는 중':['Loading the latest ledger…','正在加载最新记录…','最新の台帳を読み込み中…'],
+    '세 가지 시선':['Three perspectives','三个视角','三つの視点'],
+    '최근 서신과 전체 리포트':['Recent notes and full reports','最新简报与完整报告','最近の所見と全レポート'],
+    'BTC · 금 자동 운용':['Automated BTC · gold allocation','BTC · 黄金自动配置','BTC・金の自動運用'],
+    '01 · 운용 장부':['01 · Portfolio ledger','01 · 运用记录','01 · 運用台帳'],
+    '지금 무엇을 보유하고 있나':['What is the portfolio holding?','当前持有什么？','現在の保有資産は？'],
+    '시장 국면과 추세에 따른 BTC·금 선택, 그리고 과거 운용 결과를 기록합니다.':['Tracks BTC and gold allocation by market regime and trend, with historical results.','记录根据市场状态与趋势配置 BTC 或黄金的运用情况及历史结果。','相場局面とトレンドに応じたBTC・金の配分と、過去の運用結果を記録します。'],
+    '최근 서신':['Latest note','最新简报','最新の所見'],
+    '운용 장부 읽기 ↗':['Read ledger · Korean original ↗','查看运用记录 · 韩文原文 ↗','運用台帳を読む・韓国語原文 ↗'],
+    '02 · 후보 관찰':['02 · Candidate watch','02 · 候选观察','02 · 候補の観察'],
+    '다음에 살펴볼 종목은 무엇인가':['Which assets are worth watching next?','接下来值得关注哪些标的？','次に注目する銘柄は？'],
+    '일봉 후보와 4시간봉의 돌파 후 지지를 나눠 봅니다. 이미 멀리 오른 종목은 따로 둡니다.':['Separates daily candidates from 4-hour breakout retests, and flags assets that have already run far.','区分日线候选与4小时突破后的回踩支撑，并单独标出涨幅已大的标的。','日足候補と4時間足のブレイク後の押し目を分け、すでに大きく上昇した銘柄も別に示します。'],
+    '최근 전보':['Latest scan','最新扫描','最新のスキャン'],
+    '최신 전보 확인 중':['Checking the latest scan…','正在读取最新扫描…','最新のスキャンを確認中…'],
+    '후보 관찰 목록 ↗':['Candidate watchlist · Korean original ↗','候选观察列表 · 韩文原文 ↗','候補リスト・韓国語原文 ↗'],
+    '월간 국면 판정':['Monthly regime research','月度市场状态研究','月次の相場局面分析'],
+    '03 · 시장 판정':['03 · Market regime','03 · 市场状态','03 · 市場局面'],
+    '이번 달 시장을 어떻게 읽나':['How does the model read this month?','模型如何解读本月市场？','今月の市場をどう読むか'],
+    '온체인·심리·거시 흐름으로 시장 국면을 판정하고, 최근 판단의 변화를 살펴봅니다.':['Reviews the model’s regime assessment across on-chain, sentiment and macro signals, and how it has changed.','结合链上、情绪与宏观信息查看模型对市场状态的判断及近期变化。','オンチェーン・センチメント・マクロ指標による相場判定と、その変化を確認します。'],
+    '최근 소견서':['Latest monthly note','最新月度意见','最新の月次所見'],
+    '최신 소견서 확인 중':['Checking the latest note…','正在读取最新意见…','最新の所見を確認中…'],
+    '월간 소견서 읽기 ↗':['Read monthly note · Korean original ↗','查看月度意见 · 韩文原文 ↗','月次所見を読む・韓国語原文 ↗'],
+    '금 보유':['Holding gold','持有黄金','金を保有'],
+    'BTC 보유':['Holding BTC','持有 BTC','BTC を保有'],
+    'PAXG 보유':['Holding PAXG','持有 PAXG','PAXG を保有'],
+    '추세 이탈 구간':['Trend invalidation zone','趋势失效区间','トレンド崩れの局面'],
+    '임시 판정':['Provisional','临时判断','暫定判定'],
     '라운지 주요 기록':['Lounge rotation','大厅轮播','ラウンジ表示'], '오늘의 판':['Today’s chart','今日盲图','今日のチャート'],
     '오늘의 판, 일봉 200개 버텨볼래?':['Today’s chart: can you make it through 200 candles?','今日盲图：你能坚持走完200根K线吗？','今日のチャート、日足200本を乗り切れる？'],
     '오늘 이어서 도전 ↗':['Continue today’s round ↗','继续今天的牌局 ↗','今日の一局を続ける ↗'],
@@ -397,6 +433,32 @@
   }, true);
 
   const dynamic = value => {
+    const scanSchedule = value.match(/^매일 (\d{1,2})시 후보 발굴$/);
+    if (scanSchedule) return lang === 'en'
+      ? `Daily scan at ${scanSchedule[1]}:00 KST`
+      : lang === 'zh' ? `每日韩国时间 ${scanSchedule[1]}:00 扫描` : `毎日KST ${scanSchedule[1]}:00にスキャン`;
+    const strategistMeta = value.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) · (아침 서신|스캔 전보|월간 소견서)$/);
+    if (strategistMeta) {
+      const labels = {
+        '아침 서신':['Morning note','早间简报','朝の所見'],
+        '스캔 전보':['Scan note','扫描简报','スキャン速報'],
+        '월간 소견서':['Monthly note','月度意见','月次所見'],
+      };
+      return `${strategistMeta[1]} KST · ${labels[strategistMeta[2]][langIndex]}`;
+    }
+    const monthlyVerdict = value.match(/^(\d{1,2})월 소견 · 판정 (허용|제한|차단)$/);
+    if (monthlyVerdict) {
+      const monthName = ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(monthlyVerdict[1]) - 1];
+      const states = {
+        '허용':['entry allowed','允许入场','エントリー許容'],
+        '제한':['entry restricted','限制入场','エントリー制限'],
+        '차단':['entry blocked','禁止入场','エントリー停止'],
+      };
+      return lang === 'en'
+        ? `${monthName} note · ${states[monthlyVerdict[2]][0]}`
+        : lang === 'zh' ? `${monthlyVerdict[1]}月意见 · ${states[monthlyVerdict[2]][1]}`
+          : `${monthlyVerdict[1]}月所見・${states[monthlyVerdict[2]][2]}`;
+    }
     if (value === '오늘의 미국 주식 판 · 약 4분') return lang === 'en'
       ? 'Today’s U.S. stock chart · about 4 min'
       : lang === 'zh' ? '今日美股盲图 · 约4分钟' : '今日の米国株チャート・約4分';
@@ -567,7 +629,25 @@
     const value = node.nodeValue;
     const trimmed = value.trim();
     const normalized = trimmed.replace(/\s+/g, ' ');
-    const replacement = textMap.get(trimmed) || textMap.get(normalized) || dynamic(normalized);
+    const parent = node.parentElement;
+    const kpi = parent?.closest?.('.kpiTile')?.dataset.kpi;
+    let replacement = textMap.get(trimmed) || textMap.get(normalized) || dynamic(normalized);
+    if (!replacement && kpi === 'andy' && parent?.classList.contains('v')) {
+      const count = normalized.match(/^(\d+)건$/);
+      if (count) replacement = lang === 'en' ? `${count[1]} candidates`
+        : lang === 'zh' ? `${count[1]} 个候选` : `${count[1]}件の候補`;
+    }
+    if (!replacement && kpi === 'andy' && parent?.classList.contains('d')) {
+      const count = normalized.match(/^(\d+)종 스캔$/);
+      if (count) replacement = lang === 'en' ? `${count[1]} assets scanned`
+        : lang === 'zh' ? `已扫描 ${count[1]} 个币种` : `${count[1]}銘柄をスキャン`;
+    }
+    const sourceNote = {
+      madamRecentText:['Latest portfolio note is in Korean; open the ledger for the full entry.','最新持仓简报为韩文；请打开运用记录查看原文。','最新の運用メモは韓国語です。台帳で全文を確認できます。'],
+      andyRecentText:['Latest scan note is in Korean; open the watchlist for the full candidate list.','最新扫描简报为韩文；请打开观察列表查看完整候选。','最新のスキャン速報は韓国語です。候補一覧で全文を確認できます。'],
+      justinRecentText:['The full monthly note is in Korean. The current regime status is shown above.','完整月度意见为韩文；当前市场状态见上方。','月次所見の全文は韓国語です。現在の相場局面は上に表示しています。'],
+    };
+    if (!replacement && sourceNote[parent?.id] && /[\uac00-\ud7a3]/.test(normalized)) replacement = sourceNote[parent.id][langIndex];
     if (replacement) node.nodeValue = value.replace(trimmed, replacement);
   }
   function translateElement(element) {
