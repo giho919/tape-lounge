@@ -1,0 +1,39 @@
+name: Blind round answer guard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'reports/blind_daily_stock_v2/**'
+      - 'scripts/prune_future_blind_rounds.py'
+      - 'scripts/test_prune_future_blind_rounds.py'
+      - '.github/workflows/blind-round-guard.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'reports/blind_daily_stock_v2/**'
+      - 'scripts/prune_future_blind_rounds.py'
+      - 'scripts/test_prune_future_blind_rounds.py'
+      - '.github/workflows/blind-round-guard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protect-answer-payloads:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Test future-round pruning
+        run: python -m unittest discover -s scripts -p 'test_prune_future_blind_rounds.py' -v
+      - name: Reject future answer files in the published branch
+        run: |
+          today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
+          python scripts/prune_future_blind_rounds.py "$today_payload"
+          git diff --exit-code HEAD -- reports/blind_daily_stock_v2/
