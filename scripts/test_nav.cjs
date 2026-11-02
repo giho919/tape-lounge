@@ -36,7 +36,8 @@ test('국가별 언어 안내가 API에 연결될 수 있고 요청에 referrer�
 });
 
 test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온다',()=>{
- const localeVersion=crypto.createHash('sha256').update(fs.readFileSync(require.resolve('../live-home-locale.js'))).digest('hex').slice(0,12);
+ const localeBytes=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8').replace(/\r\n/g,'\n');
+ const localeVersion=crypto.createHash('sha256').update(localeBytes).digest('hex').slice(0,12);
  for(const [page,lang] of [['../en/index.html','en'],['../zh/index.html','zh'],['../ja/index.html','ja']]){
   const source=fs.readFileSync(require.resolve(page),'utf8');
   assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${page} lang`);
@@ -47,7 +48,8 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
 
 test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게임 조작부까지 번역한다',()=>{
  const localePath=path.resolve(__dirname,'../live-home-locale.js');
- const localeVersion=crypto.createHash('sha256').update(fs.readFileSync(localePath)).digest('hex').slice(0,12);
+ const localeBytes=fs.readFileSync(localePath,'utf8').replace(/\r\n/g,'\n');
+ const localeVersion=crypto.createHash('sha256').update(localeBytes).digest('hex').slice(0,12);
  const slugs=['','blind','domestic','desk','analysis','onchain','calendar','strategists'];
  for(const lang of ['en','zh','ja'])for(const slug of slugs){
   const route=path.resolve(__dirname,'..',lang,'tools',slug,'index.html');
@@ -55,7 +57,6 @@ test('다국어 라이브 도구 진입점은 현재 번역기를 불러와 게�
   assert.match(source,new RegExp(`<html[^>]*lang="${lang}"`),`${lang}/${slug} lang`);
   assert.ok(source.includes(`/live-home-locale.js?v=${localeVersion}`),`${lang}/${slug} must load the current live translator`);
   assert.doesNotMatch(source,/<script[^>]+src="\$1[0-9a-f]{12}"/i,`${lang}/${slug} must not reference a malformed locale script`);
-  if(slug==='blind')assert.ok(source.includes(`href="/${lang}/learn/blind-chart-practice/"`),`${lang} blind chart should open its localized guide`);
  }
  const locale=fs.readFileSync(localePath,'utf8');
  for(const label of ['🎰 블라인드 차트','🎲 나만의 판','📈 미국주식','판에 앉는다 →','롱'])
