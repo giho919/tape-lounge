@@ -47,6 +47,7 @@
     '지금 무엇을 보유하고 있나':['What is the portfolio holding?','当前持有什么？','現在の保有資産は？'],
     '시장 국면과 추세에 따른 BTC·금 선택, 그리고 과거 운용 결과를 기록합니다.':['Tracks BTC and gold allocation by market regime and trend, with historical results.','记录根据市场状态与趋势配置 BTC 或黄金的运用情况及历史结果。','相場局面とトレンドに応じたBTC・金の配分と、過去の運用結果を記録します。'],
     '최근 서신':['Latest note','最新简报','最新の所見'],
+    '최신 장부 확인 중':['Checking the latest ledger…','正在读取最新记录…','最新の台帳を確認中…'],
     '운용 장부 읽기 ↗':['Read ledger · Korean original ↗','查看运用记录 · 韩文原文 ↗','運用台帳を読む・韓国語原文 ↗'],
     '02 · 후보 관찰':['02 · Candidate watch','02 · 候选观察','02 · 候補の観察'],
     '다음에 살펴볼 종목은 무엇인가':['Which assets are worth watching next?','接下来值得关注哪些标的？','次に注目する銘柄は？'],
@@ -437,14 +438,16 @@
     if (scanSchedule) return lang === 'en'
       ? `Daily scan at ${scanSchedule[1]}:00 KST`
       : lang === 'zh' ? `每日韩国时间 ${scanSchedule[1]}:00 扫描` : `毎日KST ${scanSchedule[1]}:00にスキャン`;
-    const strategistMeta = value.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}) · (아침 서신|스캔 전보|월간 소견서)$/);
+    const strategistMeta = value.match(/^(.+) · (아침 서신|스캔 전보|월간 소견서)$/);
     if (strategistMeta) {
       const labels = {
         '아침 서신':['Morning note','早间简报','朝の所見'],
         '스캔 전보':['Scan note','扫描简报','スキャン速報'],
         '월간 소견서':['Monthly note','月度意见','月次所見'],
       };
-      return `${strategistMeta[1]} KST · ${labels[strategistMeta[2]][langIndex]}`;
+      const prefix = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(strategistMeta[1])
+        ? `${strategistMeta[1]} KST` : strategistMeta[1];
+      return `${prefix} · ${labels[strategistMeta[2]][langIndex]}`;
     }
     const monthlyVerdict = value.match(/^(\d{1,2})월 소견 · 판정 (허용|제한|차단)$/);
     if (monthlyVerdict) {
