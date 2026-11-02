@@ -137,6 +137,16 @@
     ', 퍼지는 파문은 강제 청산.':['; expanding ripples mark liquidations.','；扩散的涟漪代表强制平仓。','、広がる波紋は強制清算です。'],
     '비가 어느 쪽에 많이 내리는지가 곧 지금의 힘싸움입니다.':['The heavier side of the rain shows the current buying-versus-selling flow.','哪一侧的雨点更多，反映当前买卖力量的对比。','雨がどちらに多く降るかで、今の売買の勢いが見えてきます。'],
     '본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다. · 데이터: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me, CoinGecko (실시간, 지연 가능) · TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026':['For information only, not investment advice. You are responsible for your investment decisions. · Data: Binance, Bithumb, Frankfurter, mempool.space, BLS, BEA, Federal Reserve, alternative.me and CoinGecko (live; may be delayed) · TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026','本网站仅供信息参考，不构成投资建议。投资决定与责任由用户自行承担。· 数据：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（实时，可能延迟）· TAPE LOUNGE · CRYPTO LOUNGE · EST. 2026','本サイトは情報提供を目的とし、投資助言ではありません。投資判断と責任は利用者ご自身にあります。・データ：Binance、Bithumb、Frankfurter、mempool.space、BLS、BEA、Federal Reserve、alternative.me、CoinGecko（リアルタイム、遅延の可能性あり）・TAPE LOUNGE・CRYPTO LOUNGE・EST. 2026'],
+    '자동 넘김 멈추기':['Pause automatic rotation','暂停自动轮播','自動切り替えを停止'],
+    '한마디 남기기…':['Leave a message…','留下一句话…','ひと言残す…'],
+    'BTC 장기 빗각 차트. 확대 후 좌우로 이동할 수 있습니다.':['BTC long-term channel chart. Zoom in, then scroll horizontally.','BTC长期通道图。放大后可左右滚动。','BTC長期チャネル図。拡大後、左右にスクロールできます。'],
+    '2017년 8월부터 2026년 10월까지 BTC 확정 주봉과 진행 중인 주봉, 2018년과 2022년 저점을 잇는 선형 평행 채널 13개.':['BTC weekly candles from August 2017 through October 2026, including the developing week, with 13 linear parallel channels anchored to the 2018 and 2022 lows.','2017年8月至2026年10月的BTC周线（含尚未收盘的本周），以及以2018年和2022年低点为锚的13条线性平行通道。','2017年8月から2026年10月までのBTC週足（未確定の週を含む）と、2018年・2022年の安値を基準にした13本の線形平行チャネル。'],
+    '2022년 이후 선형 채널 비교 차트':['Linear channel comparison chart since 2022','2022年以来的线性通道对比图','2022年以降の線形チャネル比較図'],
+    '2022년 11월부터 2026년 10월까지 BTC 주봉과 선형 평행 채널 13개.':['BTC weekly candles from November 2022 through October 2026 with 13 linear parallel channels.','2022年11月至2026年10月的BTC周线与13条线性平行通道。','2022年11月から2026年10月までのBTC週足と13本の線形平行チャネル。'],
+    '마켓 인텔리전스 화면':['Market intelligence panel','市场情报界面','マーケット情報パネル'],
+    '미결제약정 최근 1시간':['Open interest over the past hour','过去1小时未平仓合约','直近1時間の未決済建玉'],
+    '누적 체결 델타':['Cumulative volume delta','累计成交量差','累積約定デルタ'],
+    '鄭마담':['Madam Jeong','郑夫人','鄭マダム'],
   };
 
   // Blind chart controls and game copy use the Korean source markup. Keep the

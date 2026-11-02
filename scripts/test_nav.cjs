@@ -100,6 +100,25 @@ test('번역된 홈 화면에도 동적 실시간 문구 번역기를 불러온�
  }
 });
 
+test('영어·중국어·일본어 라이브 페이지의 접근성 속성에 한국어가 남지 않는다',()=>{
+ const copyStart=homeLocale.indexOf('const copy = {');
+ const copyEnd=homeLocale.indexOf('const textMap =',copyStart);
+ assert.ok(copyStart>=0&&copyEnd>copyStart,'translation dictionary boundaries are missing');
+ const translationSource=homeLocale.slice(copyStart,copyEnd);
+ const translatedKeys=new Set([...translationSource.matchAll(/'([^']+)'\s*:\s*\[/g)].map(match=>match[1]));
+ const slugs=['','blind','domestic','desk','analysis','onchain','calendar','strategists'];
+ for(const lang of ['en','zh','ja']){
+  const pages=[path.resolve(__dirname,'..',lang,'index.html'),...slugs.map(slug=>path.resolve(__dirname,'..',lang,'tools',slug,'index.html'))];
+  for(const page of pages){
+   const source=fs.readFileSync(page,'utf8');
+   for(const match of source.matchAll(/\b(?:aria-label|title|placeholder|alt)="([^"]*)"/g)){
+    const value=match[1].replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g,' ').trim();
+    if(/[가-힣]/.test(value))assert.ok(translatedKeys.has(value),`${path.relative(path.resolve(__dirname,'..'),page)} has an untranslated accessibility attribute: ${value}`);
+   }
+  }
+ }
+});
+
 test('연속 도전 카드도 게임 설명을 유지하고 네 언어에서 오늘 기록을 함께 안내한다',()=>{
  const rotation=fs.readFileSync(require.resolve('../lounge-rotation.js'),'utf8');
  const locale=fs.readFileSync(require.resolve('../live-home-locale.js'),'utf8');
