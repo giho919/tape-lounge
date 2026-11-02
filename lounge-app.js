@@ -1037,7 +1037,7 @@ let analyticsQualificationVisibleSeconds = 0, analyticsVisibleSince = document.h
 // 이제 마지막 실제 조작 이후 IDLE_LIMIT_MS 가 지나면 적립을 멈춘다.
 const IDLE_LIMIT_MS = 5 * 60 * 1000;
 let analyticsLastInputAt = performance.now();
-const markUserInput = () => { analyticsLastInputAt = performance.now(); qualifySiteAnalytics(); };
+const markUserInput = () => { analyticsLastInputAt = performance.now(); scheduleSiteAnalyticsQualification(); };
 ['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev =>
   window.addEventListener(ev, markUserInput, { passive:true, capture:true }));
 
