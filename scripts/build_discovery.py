@@ -245,7 +245,7 @@ def locale_url(lang, page=''):
     return url(lang, page)
 
 DECISION_COPY = {
-    'ko': ('그때 나라면? BTC 의사결정 연습 게임 · Tape Lounge', '과거 BTC 차트에서 여러 시간대 봉과 전일 공포·탐욕 지수, 펀딩비를 참고해 매수·대기·보유·청산을 연습하고 이후 흐름과 수수료를 복기합니다.'),
+    'ko': ('비트코인 과거 차트 매매 연습 | 그때 나라면? · Tape Lounge', '과거 비트코인 차트에서 매수·대기·보유·청산을 12번 선택해 보세요. 다음 5일의 흐름과 같은 기간 보유, 최대 낙폭·수수료를 비교하는 무료 모의 연습입니다. 실전 주문은 없습니다.'),
     'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice historical Bitcoin decisions with multiple chart timeframes, the prior-day Fear & Greed Index and historical funding, then review the outcome and fees.'),
     'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中查看多个周期、前一日恐惧与贪婪指数及历史资金费率，练习买入、等待、持有和卖出，并回顾后续走势与手续费。'),
     'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', 'ビットコインの過去チャートを複数時間軸で見て、前日のFear & Greed指数とFundingを参考に判断し、その後の値動きや手数料を振り返ります。'),
