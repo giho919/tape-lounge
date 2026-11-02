@@ -2149,6 +2149,7 @@ window.visualViewport?.addEventListener('resize', scheduleBlindChartRecovery, {p
 document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleBlindChartRecovery(); });
 let bgLoadGeneration = 0;
 const bgDailyQuery = new URLSearchParams(location.search).get('daily');
+const bgStartRequested = new URLSearchParams(location.search).get('start') === '1';
 let bgDailySelection = null;
 function bgSaveDailyProgress() {
   if (!bg || bg.gameMode !== 'daily' || bg.over || !bg.daily) return false;
@@ -3564,6 +3565,15 @@ if (STUDY_INVITE_CODE) setTimeout(() => {
 else if (bgDailyQuery !== null) setTimeout(() => {
   document.querySelector('.tab[data-tab="game"]')?.click();
   bgSetMode('daily');
+  if (bgStartRequested) {
+    const day = window.BlindDaily.requestedDay(bgDailyQuery);
+    const selection = window.BlindDaily.selection(day);
+    const completed = window.BlindDaily.read(localStorage, selection.version).some(result => result.day === day);
+    if (!completed) {
+      const progress = Boolean(window.BlindDaily.readProgress(localStorage, day, selection.version));
+      void blindStart(progress);
+    }
+  }
 }, 0);
 
 // ═══ 📣 거시 발표장 ═══

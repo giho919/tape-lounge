@@ -31,7 +31,7 @@
     '라운지 주요 기록':['Lounge rotation','大厅轮播','ラウンジ表示'], '오늘의 판':['Today’s chart','今日盲图','今日のチャート'],
     '오늘의 판, 일봉 200개 버텨볼래?':['Today’s chart: can you make it through 200 candles?','今日盲图：你能坚持走完200根K线吗？','今日のチャート、日足200本を乗り切れる？'],
     '오늘 이어서 도전 ↗':['Continue today’s round ↗','继续今天的牌局 ↗','今日の一局を続ける ↗'],
-    '오늘의 판 열기 ↗':['Play today’s chart ↗','开始今日盲图 ↗','今日のチャートを始める ↗'],
+    '오늘 판 바로 시작 ↗':['Start today’s round ↗','立即开始今日牌局 ↗','今日の一局を始める ↗'],
     '오늘의 판 · 약 4분':['Today’s chart · about 4 min','今日盲图 · 约4分钟','今日のチャート・約4分'],
     '오늘의 미국 주식 판 · 약 4분':['Today’s U.S. stock chart · about 4 min','今日美股盲图 · 约4分钟','今日の米国株チャート・約4分'],
     '종목과 날짜를 가린 실제 과거 차트. 기본 2× 속도로 약 4분이면 끝나고, 같은 기간 보유와 비교합니다.':['A real historical chart with its ticker and dates hidden. A round takes about 4 minutes at the default 2× speed; compare your result with holding.','在隐藏标的和日期的真实历史图表上进行练习。默认2倍速约4分钟；结束后与同期持有比较。','銘柄と日付を伏せた実際の過去チャートで練習。標準の2倍速で約4分、同期間の保有と比べます。'],

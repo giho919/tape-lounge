@@ -29,8 +29,8 @@
       eyebrow: "TODAY'S DEAL",
       title: '오늘의 판 · 약 4분',
       copy: '로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요. 200일 후 같은 기간 보유와 비교합니다. 기본 2×로 약 4분.',
-      link: '/blind/?daily=1',
-      label: '오늘의 판 열기 ↗',
+      link: '/blind/?daily=1&start=1',
+      label: '오늘 판 바로 시작 ↗',
     },
     {
       eyebrow: 'YOUR CALL',
@@ -122,7 +122,7 @@
       slides[0].copy = selection.track === 'stock'
         ? '로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요. 200거래일 후 같은 기간 보유와 비교합니다. 기본 2×로 약 4분.'
         : '로그인 없이 종목·날짜를 가린 실제 차트에서 매수·매도를 연습하세요. 200일 후 같은 기간 보유와 비교합니다. 기본 2×로 약 4분.';
-      slides[0].label = '오늘의 판 열기 ↗';
+      slides[0].label = '오늘 판 바로 시작 ↗';
       if (streak.playedToday) {
         slides[0].copy = `오늘 완주했어요. ${streak.days}일 연속 출전 기록을 다시 보고 같은 판을 공유해 보세요.`;
         slides[0].label = '오늘 결과 다시 보기 ↗';
@@ -130,7 +130,9 @@
         slides[0].copy = `${slides[0].copy} 어제까지 ${streak.days}일 연속 · 오늘 완주하면 이어집니다.`;
         slides[0].label = '오늘 이어서 도전 ↗';
       }
-      slides[0].link = daily.url(day, selection.version);
+      const target = new URL(daily.url(day, selection.version), window.location.origin);
+      if (!streak.playedToday) target.searchParams.set('start', '1');
+      slides[0].link = `${target.pathname}${target.search}`;
       if (active === 0) show(active);
     } catch { /* Keep the useful static invitation if local date or storage is unavailable. */ }
   }

@@ -24,6 +24,16 @@ test('오늘의 판 홈 카드에서 친구 초대와 추적 가능한 공유 �
  for(const label of ['친구와 한 판 ↗','오늘의 판 초대','복사할 초대 문구와 링크']) assert.ok(homeLocale.includes(`'${label}'`),`${label} 번역이 없다`);
 });
 
+test('라운지의 오늘 판 CTA는 완료하지 않은 판만 바로 시작하고 완료 판은 결과를 보여준다',()=>{
+ assert.match(rotation,/link: '\/blind\/\?daily=1&start=1'/);
+ assert.match(rotation,/if \(!streak\.playedToday\) target\.searchParams\.set\('start', '1'\)/);
+ assert.match(rotation,/오늘 판 바로 시작 ↗/);
+ assert.match(app,/const bgStartRequested = new URLSearchParams\(location\.search\)\.get\('start'\) === '1'/);
+ assert.match(app,/const completed = window\.BlindDaily\.read\(localStorage, selection\.version\)\.some\(result => result\.day === day\)/);
+ assert.match(app,/void blindStart\(progress\)/);
+ for(const label of ['Start today’s round ↗','立即开始今日牌局 ↗','今日の一局を始める ↗']) assert.ok(homeLocale.includes(label),`${label} 번역이 없다`);
+});
+
 test('오늘의 판 첫 화면 버튼은 모바일에서 누르기 쉬운 높이와 대비를 유지한다',()=>{
  for(const [name,page] of [
   ['template',classicHome],['Korean home',html],
