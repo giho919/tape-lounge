@@ -59,6 +59,19 @@ test('세션 관전석 카드가 실시간 값 도착 뒤 높이를 늘리지 �
  for(const page of pages) assert.match(page,/\.sessionCard \{ min-height:90px; box-sizing:border-box;/);
 });
 
+test('모바일 세션 챔피언십은 제목과 배지를 한 줄에, 설명은 다음 줄에 둔다',()=>{
+ const htmlFiles=[];
+ const collect=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collect(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
+ collect(path.resolve(__dirname,'..'));
+ const pages=htmlFiles.map(file=>fs.readFileSync(file,'utf8')).filter(page=>page.includes('id="sessionPanel"'));
+ assert.ok(pages.length>=30,'다국어 라운지 페이지의 세션 패널을 찾지 못했다');
+ for(const page of pages){
+  assert.match(page,/\.sessionPanel h3\{display:grid;grid-template-columns:minmax\(0,1fr\) auto;/,'모바일 제목 영역이 배지 공간을 분리하지 않는다');
+  assert.match(page,/\.sessionPanel h3 small\{grid-column:1\/-1;grid-row:2;/,'설명이 제목 줄의 공간을 차지한다');
+  assert.match(page,/\.sessionPanel h3>\.deckTrack\{grid-column:2;grid-row:1;[^}]*white-space:nowrap/,'배지가 제목 줄에 고정되지 않는다');
+ }
+});
+
 test('실시간 소켓을 기다리는 동안 채팅 기록을 먼저 보이고 연결 지연을 번역한다',()=>{
  const chat=app.slice(app.indexOf('// ═══ 채팅 실시간 연결'),app.indexOf('renderNick();',app.indexOf('// ═══ 채팅 실시간 연결')));
  const create=chat.indexOf('chatChannel = channel;'),subscribe=chat.indexOf('channel.subscribe(status =>',create);
