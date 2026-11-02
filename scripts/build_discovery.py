@@ -29,10 +29,10 @@ def stable_bytes(path):
 BASE = 'https://tapelounge.com'
 HOME_OG_VERSION = '20261102'
 HOME_OG_ALT = {
-    'ko': '이름과 날짜를 숨긴 과거 미국 주식·비트코인 차트에서 가상 매매를 연습하고 보유 결과와 비교하는 Tape Lounge',
-    'en': 'Practice virtual trades on historical US stock and Bitcoin charts with the ticker and date hidden, then compare with holding on Tape Lounge',
-    'zh': '在隐藏标的和日期的美股与比特币历史图表上进行虚拟交易练习，并与持有结果比较',
-    'ja': '銘柄と日付を隠した米国株・ビットコインの過去チャートで仮想売買を練習し、保有結果と比べるTape Lounge',
+    'ko': '종목과 날짜를 숨긴 미국주식 차트 게임에서 매매를 연습하고 보유 결과와 비교하는 Tape Lounge',
+    'en': 'A daily U.S. stock chart game with the ticker and dates hidden, compared with buy-and-hold at Tape Lounge',
+    'zh': 'Tape Lounge 每日美股盲图练习：隐藏代码和日期，完成后与同期持有比较',
+    'ja': '銘柄名と日付を隠した米国株の毎日チャート練習。結果を同期間保有と比べるTape Lounge',
 }
 TOOL_OG_ALT = {
     'ko': 'Tape Lounge 실시간 시장 정보와 차트 분석 화면',
@@ -298,7 +298,7 @@ LIVE_TAB_SLUGS = {
 }
 LIVE_PAGE_COPY = {
     'en': {
-        '': ('Blind chart practice & live crypto markets | Tape Lounge', 'Practice on hidden-date historical stock and crypto charts, compare your trades with holding, and follow live market data.'),
+        '': ('U.S. Stock Chart Game & Live Crypto Data | Tape Lounge', 'No login needed: play a free daily U.S. stock chart game with ticker and dates hidden. Trade 200 real daily candles, then compare with buy-and-hold. Live crypto markets, too.'),
         'blind': ('Blind chart practice | Tape Lounge', 'Practice on historical stock and crypto charts with the same live lounge layout.'),
         'domestic': ('Korean Crypto Prices & Kimchi Premium | Tape Lounge', 'Compare live Upbit and Bithumb KRW prices with overseas USDT spot markets; the premium uses the selected exchange’s latest USDT/KRW trade.'),
         'desk': ('Bitcoin futures desk | Tape Lounge', 'Review Bitcoin futures context, funding, open interest and order flow.'),
@@ -308,7 +308,7 @@ LIVE_PAGE_COPY = {
         'strategists': ('Strategist reports | Tape Lounge', 'Read the public market observations and research notes.'),
     },
     'zh': {
-        '': ('盲图交易练习与实时行情 | Tape Lounge', '在隐藏标的和日期的历史美股与加密货币图表上练习，比较交易结果与同期持有，并查看实时行情。'),
+        '': ('美股历史图表练习游戏与实时行情 | Tape Lounge', '无需登录，免费挑战每日美股图表。隐藏代码和日期，在真实历史日K线上完成200步交易，再与同期持有比较；另有实时加密行情。'),
         'blind': ('盲图练习 | Tape Lounge', '在统一的大厅界面中，用历史美股和加密货币图表练习。'),
         'domestic': ('韩国加密货币行情与溢价 | Tape Lounge', '比较 Upbit、Bithumb 的韩元实时价格与海外 USDT 现货价格，并说明溢价换算基准。'),
         'desk': ('比特币合约行情台 | Tape Lounge', '查看比特币合约背景、资金费率、持仓量与订单流。'),
@@ -318,7 +318,7 @@ LIVE_PAGE_COPY = {
         'strategists': ('策略师报告 | Tape Lounge', '阅读公开市场观察与研究记录。'),
     },
     'ja': {
-        '': ('ブラインドチャート練習とリアルタイム相場 | Tape Lounge', '銘柄名と日付を隠した過去の株式・暗号資産チャートで練習し、同期間の保有と比較しながらリアルタイム相場を確認できます。'),
+        '': ('米国株チャート売買練習ゲームとリアルタイム相場 | Tape Lounge', 'ログイン不要の無料・毎日チャートゲーム。銘柄名と日付を隠した実際の米国株の日足200本で売買し、同期間の保有結果と比較できます。暗号資産の相場も確認できます。'),
         'blind': ('ブラインドチャート練習 | Tape Lounge', '同じラウンジ画面で、株式と暗号資産の過去チャートを練習できます。'),
         'domestic': ('韓国暗号資産価格・プレミアム | Tape Lounge', 'Upbit・Bithumbのウォン建て価格と海外USDT現物価格を比較し、換算基準も確認できます。'),
         'desk': ('ビットコイン先物デスク | Tape Lounge', 'ビットコイン先物の背景、資金調達率、建玉、注文フローを確認します。'),
