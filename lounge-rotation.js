@@ -51,7 +51,7 @@
       eyebrow: "ANDY'S WATCH",
       title: 'Andy의 후보 관찰 기록',
       copy: '돌파와 눌림이 어떻게 이어졌는지 공개된 기록에서 확인해 보세요.',
-      link: '/domestic/',
+      link: '/ko/watch/',
       label: '관찰 목록 보기 ↗',
     },
   ];
@@ -65,6 +65,7 @@
     const toolPath = target.pathname.replace(/^\/+|\/+$/g, '');
     const pageLang = document.documentElement.lang;
     if (liveToolsRoot && toolPath === 'decision' && ['en', 'zh', 'ja'].includes(pageLang)) target.pathname = `/${pageLang}/decision/`;
+    else if (toolPath === 'watch' && ['ko', 'en', 'zh', 'ja'].includes(pageLang)) target.pathname = `/${pageLang}/watch/`;
     else if (liveToolsRoot && liveToolPages.has(toolPath)) target.pathname = `${liveToolsRoot}/${toolPath}/`;
     for (const key of ['internal', 'utm_source', 'utm_medium', 'utm_campaign']) {
       const current = currentUrl.searchParams.get(key);
