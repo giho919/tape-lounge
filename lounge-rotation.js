@@ -65,6 +65,7 @@
     const toolPath = target.pathname.replace(/^\/+|\/+$/g, '');
     const pageLang = document.documentElement.lang;
     if (liveToolsRoot && toolPath === 'decision' && ['en', 'zh', 'ja'].includes(pageLang)) target.pathname = `/${pageLang}/decision/`;
+    else if (toolPath === 'ko/learn/bitcoin-decision-practice' && ['en', 'zh', 'ja'].includes(pageLang)) target.pathname = `/${pageLang}/learn/bitcoin-decision-practice/`;
     else if (toolPath === 'watch' && ['ko', 'en', 'zh', 'ja'].includes(pageLang)) target.pathname = `/${pageLang}/watch/`;
     else if (liveToolsRoot && liveToolPages.has(toolPath)) target.pathname = `${liveToolsRoot}/${toolPath}/`;
     for (const key of ['internal', 'utm_source', 'utm_medium', 'utm_campaign']) {
@@ -114,7 +115,15 @@
     copy.textContent = item.copy;
     link.href = withVisitContext(item.link);
     link.textContent = item.label;
-    if (decisionLink) decisionLink.hidden = active === 1;
+    if (decisionLink) {
+      const showGuide = active === 1;
+      decisionLink.href = withVisitContext(showGuide ? '/ko/learn/bitcoin-decision-practice/' : '/decision/');
+      decisionLink.textContent = showGuide ? '진행 방식 보기 ↗' : '그때 나라면 한 판 ↗';
+      decisionLink.setAttribute('aria-label', showGuide
+        ? '과거 비트코인 판단 연습 진행 방식과 데이터 설명'
+        : '그때 나라면, 과거 시장에서 선택 연습하기');
+      decisionLink.hidden = false;
+    }
     // Keep the invitation visible while other lounge cards rotate so visitors
     // do not have to wait for the daily-deal slide to share today's round.
     if (share) share.hidden = false;
