@@ -10,10 +10,13 @@ import sys
 from urllib.parse import urlsplit, urlunsplit
 from xml.etree.ElementTree import Element, SubElement, tostring
 from zoneinfo import ZoneInfo
-from discovery_content import COPY, KIMCHI_HISTORY_COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
+from discovery_content import COPY, DECISION_GUIDE_COPY, KIMCHI_HISTORY_COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
 from frontend_config import read_public_config
+
+for language in LANGS:
+    COPY[language]['guides'].append(DECISION_GUIDE_COPY[language])
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {'.css', '.csv', '.html', '.js', '.json', '.md', '.py', '.sql', '.txt', '.xml'}
@@ -71,7 +74,9 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
                'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
-               'home-og-zh-20261103.png', 'home-og-ja-20261103.png', 'lounge-rotation.js',
+               'home-og-zh-20261103.png', 'home-og-ja-20261103.png',
+               'decision-og-ko-20261101.png', 'decision-og-en-20261101.png',
+               'decision-og-zh-20261101.png', 'decision-og-ja-20261101.png', 'lounge-rotation.js',
                'live-home-locale.js']
 SHARE_ASSETS = ['article-share.js', 'article-share.css']
 SHARE_VERSION = sha256(b''.join(stable_bytes(ROOT / p) for p in SHARE_ASSETS)).hexdigest()[:12]
@@ -599,6 +604,17 @@ def render(lang, page, data, letters, generated, root=False):
         social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
                            f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
                            f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
+    elif guide and guide[0]=='bitcoin-decision-practice':
+        social_image=f'{BASE}/decision-og-{lang}-20261101.png?v=20261101a'
+        social_image_alt={
+            'ko':'과거 비트코인 차트에서 12번 판단하고 5일 뒤를 확인하는 Tape Lounge 모의 연습',
+            'en':'Tape Lounge BTC decision practice: 12 historical chart decisions, with five days revealed after each choice.',
+            'zh':'Tape Lounge比特币历史行情判断练习：进行12次选择，每次揭晓之后五天走势。',
+            'ja':'Tape LoungeのBTC過去チャート判断練習。12回判断し、その後5日間の値動きを確認します。',
+        }[lang]
+        social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
+                           f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+                           f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
     else:
         social_image_alt=TOOL_OG_ALT[lang]
         social_image_tags=(f'<meta property="og:image" content="{BASE}/og.png"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
@@ -638,9 +654,15 @@ def render(lang, page, data, letters, generated, root=False):
     elif page=='research':
         body=f'<div class="page-opening"><p class="eyebrow">RESEARCH ROOM / AI PERSONAS</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{reports(lang)}<section>{section_head(c["next"])}<div class="tool-links">{link(url(lang,"watch"),c["radar"]+" ↗")}{link("/terminal/#onchain","On-chain ↗")}{link("/terminal/#calendar","Calendar ↗")}{link("/terminal/#analysis","BTC channels ↗")}</div></section>'
     elif guide:
-        game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Play today’s market replay ↗','zh':'开始今天的行情回放 ↗','ja':'今日の相場リプレイを始める ↗'}
-        game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'
-        game_cta=f'<p>{link(game_path+"?daily=1",game_labels[lang])}</p>' if guide[0]=='blind-chart-practice' else ''
+        practice_cta=''
+        if guide[0]=='blind-chart-practice':
+            game_labels={'ko':'오늘의 판 플레이하기 ↗','en':'Play today’s market replay ↗','zh':'开始今天的行情回放 ↗','ja':'今日の相場リプレイを始める ↗'}
+            game_path='/blind/' if lang=='ko' else f'/{lang}/tools/blind/'
+            practice_cta=f'<p>{link(game_path+"?daily=1",game_labels[lang])}</p>'
+        elif guide[0]=='bitcoin-decision-practice':
+            decision_labels={'ko':'과거 BTC 판단 연습 시작하기 ↗','en':'Try the BTC decision round ↗','zh':'开始BTC历史判断练习 ↗','ja':'BTCの過去チャート判断を始める ↗'}
+            decision_paths={'ko':'/decision/','en':'/en/decision/','zh':'/zh/decision/','ja':'/ja/decision/'}
+            practice_cta=f'<p>{link(decision_paths[lang],decision_labels[lang])}</p>'
         decision_copy={
             'ko':('한 판 더, 다른 방식으로 판단하기','1D·4H·1H 차트와 전일 공포·탐욕, 당시 펀딩비를 살펴보고 매수·대기·보유·청산을 선택합니다. 뉴스 원문이나 커뮤니티 게시물은 포함하지 않습니다.','그때 나라면? 시작 ↗'),
             'en':('Try a different kind of market decision','Review 1D, 4H and 1H candles, prior-day Fear & Greed and historical funding before choosing to buy, wait, hold or exit. Historical headlines and community posts are not included.','Play “What would you have done?” ↗'),
@@ -653,7 +675,7 @@ def render(lang, page, data, letters, generated, root=False):
         tool=kimchi_calculator(lang) if kimchi else ''
         history=kimchi_history_chart(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{game_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{game_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
@@ -833,7 +855,13 @@ def build_editorial_only():
             loc=BASE+url(lang,'learn/'+guide[0])
             pattern=rf'(<loc>{re.escape(loc)}</loc><lastmod>)[^<]*(</lastmod>)'
             sitemap,count=re.subn(pattern,lambda m:m.group(1)+guide_modified(guide)+m.group(2),sitemap,count=1)
-            if count!=1:
+            if count==0:
+                closing=sitemap.rfind('</urlset>')
+                if closing<0:
+                    raise ValueError('Could not find the closing sitemap urlset element')
+                entry=f'<url><loc>{loc}</loc><lastmod>{guide_modified(guide)}</lastmod></url>'
+                sitemap=sitemap[:closing]+entry+sitemap[closing:]
+            elif count!=1:
                 raise ValueError(f'Could not update sitemap lastmod for {loc}')
     write('sitemap.xml',sitemap)
 

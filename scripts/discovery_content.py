@@ -165,6 +165,37 @@ KIMCHI_TOOL_COPY = {
     'ja': {'kicker':'価格差 / クイック計算','title':'韓国プレミアム計算機','intro':'ほぼ同じ時刻の4つの価格を入力し、ドル換算と現地テザー価格を分けて比較します。入力値はこのブラウザー内で計算され、サーバーへ送信されません。','local':'韓国 BTC/KRW','binance':'海外 BTC/USDT','usd':'USD/KRW 参考レート','usdt':'韓国 USDT/KRW','hintLocal':'例：106,500,000','hintBinance':'例：75,000','hintUsd':'例：1,400','hintUsdt':'例：1,410','example':'計算例を入力','clear':'クリア','usdResult':'USD/KRW換算の海外価格','usdNote':'ドル基準の韓国プレミアム','usdtResult':'USDT/KRW換算の海外価格','usdtNote':'現地テザー価格を反映した差','basisResult':'USDTとUSDのウォン価格差','pending':'4つの値を入力すると結果を表示します。','invalid':'すべての欄に0より大きい数値を入力してください。','disclaimer':'入力した価格による参考計算です。リアルタイム価格・約定可能価格ではなく、取引コストも含みません。','live':'国内外のリアルタイム価格を見る','faqTitle':'よくある質問','faqs':[('韓国プレミアムはどう計算しますか？','韓国のBTC/KRWと、BTC/USDTにUSD/KRW参考レートを掛けた値を比較します。このページでは韓国のUSDT/KRWを使った別の比較も表示します。'),('逆プレミアムとは何ですか？','同じ基準で換算したとき、韓国価格が海外基準価格を下回る状態です。取引所、為替の前提、観測時刻によって数値は変わります。'),('逆プレミアムなら裁定取引できますか？','それだけでは判断できません。両市場の約定可能価格、手数料、スリッページ、入出金制限、送金時間、為替を確認してください。')]}
 }
 
+DECISION_GUIDE_COPY = {
+    'ko': ['bitcoin-decision-practice','과거 비트코인 차트 판단 연습: 그때 나라면?','날짜를 가린 BTC 과거 차트에서 12번 판단하고 매번 다음 5일을 확인합니다. 1D·4H·1H 봉, 전일 공포·탐욕과 당시 펀딩비를 함께 보는 무료 가상 매매 연습입니다.',
+        ['이 판은 Binance BTCUSDT 현물의 2022~2025년 과거 구간에서 12번 판단합니다. 날짜와 아직 보이지 않은 가격은 가려져 있고, 선택할 때마다 다음 5일을 공개합니다. 로그인이나 실제 주문은 필요 없습니다.',
+         '판단 시점에 이미 마감된 봉만 볼 수 있습니다. 1D·4H·1H를 바꾸고 SMA20 대비 위치, 최근 5일 변화와 20일 변동폭을 살펴보세요. 현금이면 대기하거나 25% 비중으로 진입하고, 포지션이 있으면 보유하거나 청산합니다.',
+         '추가 패널에는 전날 공개된 Alternative.me 공포·탐욕 지수와 해당 시점의 Binance BTCUSDT 무기한 펀딩비가 나옵니다. 판단 시점 전 7일 안에 FOMC 결정이 있었을 때는 연준의 공식 조치와 목표 금리 범위도 확인할 수 있습니다. 과거 뉴스 기사나 커뮤니티 게시글은 포함하지 않으며, 공포·탐욕 지수도 커뮤니티 의견을 직접 집계한 수치는 아닙니다.',
+         '선택 뒤에는 다음 5일의 가격 움직임이 열립니다. 마지막에는 모의 수익률을 같은 구간 매수 후 보유와 비교하고 최대 낙폭, 시장 노출 시간, 왕복 거래 수와 수수료를 함께 확인합니다. 같은 판 링크를 공유해 서로의 선택을 비교할 수 있습니다.',
+         '진입과 청산 수수료는 각각 0.10%로 가정합니다. 펀딩비는 맥락으로만 보여주며 모의 손익에서 차감하지 않습니다. 슬리피지와 세금도 반영하지 않습니다. 이미 끝난 가격 경로를 되짚는 연습이므로 미래 수익이나 실제 의사결정 능력을 증명하지 않습니다.'],
+        '2026-11-06','2026-11-06'],
+    'en': ['bitcoin-decision-practice','Bitcoin historical chart practice: what would you have done?','Make 12 decisions on a date-hidden BTC chart and reveal five days after each choice. Review 1D, 4H and 1H candles with prior-day Fear & Greed and historical funding in a free paper-trading exercise.',
+        ['A round uses a historical Binance BTCUSDT spot segment from 2022–2025 UTC, with 12 decision points. The date and unrevealed prices stay hidden; each choice opens the next five days. No account or live order is involved.',
+         'Only candles already closed by the decision time are available. Switch between 1D, 4H and 1H, and review price versus SMA20, the latest five-day return and the 20-day range. From cash, wait or enter with 25% of equity; with a position open, hold or exit.',
+         'Context panels show the previous day’s published Alternative.me Fear & Greed value and Binance BTCUSDT perpetual funding around that historical cutoff. If an FOMC decision was announced in the prior seven days, the panel shows the Fed’s action and target range. Historical news articles and community posts are not included. Fear & Greed is an index, not a direct count of community opinion.',
+         'After each choice, the next five days are revealed. At the end, compare simulated return with buy-and-hold over the same interval, alongside maximum drawdown, time in the market, round trips and fees. Share the same round link to compare decisions.',
+         'The simulation assumes a 0.10% fee on entry and exit. Funding is shown as context but is not charged to simulated P&L; slippage and taxes are excluded. This is hindsight practice on a completed price path, not evidence of future returns or real-world decision skill.'],
+        '2026-11-06','2026-11-06'],
+    'zh': ['bitcoin-decision-practice','比特币历史图表判断练习：如果当时是你？','在隐藏日期的BTC历史图表中做12次判断，每次揭晓后续五天。结合1D、4H、1H K线、前一日恐惧与贪婪指数及当时资金费率，进行免费的模拟交易练习。',
+        ['每局使用2022至2025年UTC的Binance BTCUSDT现货历史行情，共有12个判断点。日期和尚未揭晓的价格会隐藏；每次选择后显示接下来的五天。无需注册，也不会下达真实订单。',
+         '只能查看判断时已经收盘的K线。可切换1D、4H、1H，并查看价格相对SMA20的位置、最近五日涨跌和20日波动范围。空仓时可等待或用25%资金入场；持仓时可继续持有或退出。',
+         '背景面板显示前一天已公布的Alternative.me恐惧与贪婪指数，以及当时的Binance BTCUSDT永续合约资金费率。若判断日前七天内公布过FOMC决议，也会显示美联储正式公布的措施和目标利率区间。不包含历史新闻报道或社区帖子；恐惧与贪婪指数也不是对社区意见的直接统计。',
+         '每次选择后都会揭晓之后五天的行情。结束时可将模拟收益与同一时段买入持有比较，并查看最大回撤、在场时间、往返交易次数和手续费。分享同一局链接即可比较彼此的选择。',
+         '模拟假设买入和卖出各收取0.10%手续费。资金费率只作为背景信息，不计入模拟盈亏；滑点和税费也未计入。这是对已发生行情的回顾练习，不能证明未来收益或真实交易中的判断能力。'],
+        '2026-11-06','2026-11-06'],
+    'ja': ['bitcoin-decision-practice','ビットコイン過去チャート判断練習：あの時、自分なら？','日付を伏せたBTCの過去チャートで12回判断し、選択ごとにその後5日間を確認します。1D・4H・1H足、前日のFear & Greed、当時のFundingを見ながら行う無料の模擬売買です。',
+        ['2022〜2025年（UTC）のBinance BTCUSDT現物の過去区間を使い、1ラウンドで12回判断します。日付と未公開の値動きは隠され、選択するたびにその後5日間が明らかになります。登録も実注文もありません。',
+         '判断時点までに確定したローソク足だけを表示します。1D・4H・1Hを切り替え、SMA20との位置、直近5日間の変化、20日間の値幅を確認できます。現金なら待つか資金の25%で入るか、保有中なら継続か決済を選びます。',
+         '補助パネルには前日に公表済みのAlternative.me Fear & Greedと、その時点のBinance BTCUSDT無期限契約のFundingを表示します。直近7日以内にFOMC決定があれば、FRBの正式な措置と目標レンジも確認できます。過去のニュース記事やコミュニティ投稿は含みません。Fear & Greedは市場心理指数で、コミュニティ意見を直接集計したものではありません。',
+         '選択後に次の5日間が公開されます。最後に模擬リターンを同じ期間の買い持ちと比較し、最大ドローダウン、市場にいた時間、往復取引数、手数料も確認します。同じラウンドのリンクを共有して判断を比べられます。',
+         '売買それぞれ0.10%の手数料を仮定します。Fundingは背景情報として表示するだけで模擬損益から差し引かず、スリッページと税金も含みません。過去の値動きを振り返る練習であり、将来の利益や実際の判断力を証明するものではありません。'],
+        '2026-11-06','2026-11-06'],
+}
+
 KIMCHI_HISTORY_COPY = {
     'ko': {
         'kicker':'90-DAY PREMIUM HISTORY','title':'김치 프리미엄, 흐름으로 보기',
