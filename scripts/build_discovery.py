@@ -672,10 +672,17 @@ def render(lang, page, data, letters, generated, root=False):
         decision_path={'ko':'/decision/','en':'/en/decision/','zh':'/zh/decision/','ja':'/ja/decision/'}[lang]
         decision_callout=(f'<section class="learn-callout" aria-labelledby="decision-game-title"><p class="eyebrow">ANOTHER TABLE</p><h2 id="decision-game-title">{e(decision_copy[0])}</h2><p>{e(decision_copy[1])}</p>{link(decision_path,decision_copy[2])}</section>' if guide[0]=='blind-chart-practice' else '')
         kimchi=guide[0]=='kimchi-premium'
+        market_cta_copy={
+            'ko':('실시간 김프 시세표','업비트 원화 시세를 해외 USDT 가격과 USD/KRW 참고환율로 비교하고, 거래대금과 테더 기준 차이도 함께 확인하세요.','실시간 시세표 보기 ↗'),
+            'en':('Compare the live Korean premium','Compare Upbit KRW prices with overseas USDT quotes using the USD/KRW reference rate, alongside turnover and the separate USDT/KRW comparison.','Open the live table ↗'),
+            'zh':('查看实时韩元市场溢价','按 USD/KRW 参考汇率比较 Upbit 韩元报价与海外 USDT 价格，并查看成交额及 USDT/KRW 的单独差异。','打开实时行情表 ↗'),
+            'ja':('韓国市場のプレミアムをリアルタイムで比較','UpbitのKRW価格を海外USDT価格とUSD/KRW参考レートで比較し、売買代金とUSDT/KRW基準の差も確認できます。','リアルタイムの一覧を見る ↗'),
+        }[lang]
+        market_cta=(f'<section class="learn-callout" aria-labelledby="kimchi-live-title"><p class="eyebrow">LIVE MARKET</p><h2 id="kimchi-live-title">{e(market_cta_copy[0])}</h2><p>{e(market_cta_copy[1])}</p>{link(url(lang,"markets"),market_cta_copy[2])}</section>' if kimchi else '')
         tool=kimchi_calculator(lang) if kimchi else ''
         history=kimchi_history_chart(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+market_cta+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
