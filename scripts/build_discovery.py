@@ -291,16 +291,16 @@ def locale_url(lang, page=''):
     return url(lang, page)
 
 DECISION_COPY = {
-    'ko': ('비트코인 과거 차트 매매 연습 | 그때 나라면? · Tape Lounge', '과거 BTC 차트에서 12번 판단하고 다음 5일을 확인하세요. 1D·4H·1H 봉, 전일 공포·탐욕과 당시 펀딩비를 살펴본 뒤 같은 구간 보유·최대 낙폭·수수료를 비교하는 모의 연습입니다.'),
-    'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice 12 historical BTC decisions with 1D, 4H and 1H charts, the prior-day Fear & Greed reading and historical funding. Reveal five days at a time, then compare your result, buy and hold, drawdown and fees. Paper trading only.'),
-    'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中进行12次判断，查看1D、4H、1H图表、前一日恐惧与贪婪指数和历史资金费率。每次揭晓后续五天，并比较收益、同期持有、回撤与手续费。仅为模拟练习。'),
-    'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', '過去のBTC相場で12回判断し、1D・4H・1H足、前日のFear & Greedと当時のFundingを確認。5日後の値動きを開き、同期間保有・最大DD・手数料と比較する模擬練習です。'),
+    'ko': ('비트코인 과거 차트 매매 연습 | 그때 나라면? · Tape Lounge', '과거 BTC 차트에서 12번 판단하고 다음 5일을 확인하세요. 1D·4H·1H 봉, 전일 공포·탐욕과 당시 펀딩비를 살펴보고, 직전 7일 안에 FOMC 결정이 있으면 발표된 조치와 목표 금리 범위도 확인합니다. 같은 구간 보유·낙폭·수수료와 비교하는 모의 연습입니다.'),
+    'en': ('What Would You Have Done? BTC Decision Practice · Tape Lounge', 'Practice 12 historical BTC decisions with 1D, 4H and 1H candles, prior-day Fear & Greed and historical funding. See an FOMC action and target range when a decision was announced in the preceding seven days; reveal five days, then compare with buy and hold, drawdown and fees. Paper only.'),
+    'zh': ('如果当时是你？BTC决策练习 · Tape Lounge', '在比特币历史行情中进行12次判断，查看1D、4H、1H图表、前一日恐惧与贪婪指数及历史资金费率。若此前7天内有FOMC决议，还可查看公布的措施与目标利率区间。揭晓后续五天，并比较收益、同期持有、回撤与手续费。仅为模拟练习。'),
+    'ja': ('あの時、自分なら？BTC判断練習ゲーム · Tape Lounge', '過去のBTC相場で12回判断し、1D・4H・1H足、前日のFear & Greed、当時のFundingを確認します。直近7日以内にFOMC決定があれば、その措置と目標レンジも表示。5日後の値動きを開き、同期間保有・最大DD・手数料と比較する模擬練習です。'),
 }
 DECISION_LANDING_COPY = {
-    'ko': ('과거 비트코인 차트, 그때 나라면?', '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인하세요. 1D·4H·1H 봉과 전일 공포·탐욕, 당시 펀딩비를 함께 살펴보며 선택 이유와 위험을 돌아봅니다.'),
-    'en': ('What would you have done?', 'Choose buy, wait, hold or exit on a historical BTC chart, then reveal the next five days. Switch between 1D, 4H and 1H candles and check the prior-day Fear & Greed reading and historical funding as you review each choice.'),
-    'zh': ('如果当时是你，会怎么做？', '在BTC历史行情中选择买入、等待、持有或卖出，再揭晓之后五天。每次判断都可切换1D、4H、1H图表，并查看前一日恐惧与贪婪指数和当时的资金费率。'),
-    'ja': ('あの時、自分ならどうした？', '過去のBTCチャートで買う・待つ・保有・決済を選び、その後5日間を確認します。1D・4H・1H足を切り替え、前日のFear & Greedと当時のFundingも見ながら、選択理由とリスクを振り返れます。'),
+    'ko': ('과거 비트코인 차트, 그때 나라면?', '과거 BTC 차트에서 매수·대기·보유·청산을 고르고 다음 5일을 확인하세요. 1D·4H·1H 봉, 전일 공포·탐욕과 당시 펀딩비를 살펴보고, 직전 7일 안에 FOMC 결정이 있으면 발표된 조치와 목표 금리 범위도 확인합니다.'),
+    'en': ('What would you have done?', 'Choose buy, wait, hold or exit on a historical BTC chart, then reveal the next five days. Review 1D, 4H and 1H candles, prior-day Fear & Greed and historical funding, plus any FOMC action and target range announced in the preceding seven days.'),
+    'zh': ('如果当时是你，会怎么做？', '在BTC历史行情中选择买入、等待、持有或卖出，再揭晓之后五天。可切换1D、4H、1H图表并查看前一日恐惧与贪婪指数、历史资金费率；若此前7天内有FOMC决议，也会显示公布的措施和目标利率区间。'),
+    'ja': ('あの時、自分ならどうした？', '過去のBTCチャートで買う・待つ・保有・決済を選び、その後5日間を確認します。1D・4H・1H足、前日のFear & Greed、当時のFundingに加え、直近7日以内にFOMC決定があれば、その措置と目標レンジも振り返れます。'),
 }
 
 def decision_url(lang):
