@@ -29,10 +29,10 @@ assert.equal(link.searchParams.get('internal'),null);assert.equal(link.searchPar
 assert.equal([...link.searchParams.keys()].length,5);
 assert.equal(new URL(campaign.tag('https://tapelounge.com/blind/?daily=2026-10-31','x','daily_blind')).searchParams.get('daily'),'2026-10-31');
 const directBlind=new URL(campaign.tagDailyBlindShare('https://tapelounge.com/blind/?daily=2026-11-02&v=2&internal=1&session=PRIVATE'));
-assert.equal(directBlind.href,'https://tapelounge.com/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind');
+assert.equal(directBlind.href,'https://tapelounge.com/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind&start=1');
 for(const lang of ['en','zh','ja']){
  const localizedBlind=new URL(campaign.tagDailyBlindShare(`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2&internal=1`));
- assert.equal(localizedBlind.href,`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind`);
+ assert.equal(localizedBlind.href,`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind&start=1`);
  assert.equal(new URL(campaign.tag(`https://tapelounge.com/${lang}/tools/blind/?daily=2026-11-02`,'threads','daily_blind')).searchParams.get('daily'),'2026-11-02');
 }
 for(const target of ['https://tapelounge.com/blind/?daily=2026-02-30','https://tapelounge.com/blind/?daily=2026-11-02&v=1','https://tapelounge.com/decision/?daily=2026-11-02','https://evil.example/blind/?daily=2026-11-02'])assert.throws(()=>campaign.tagDailyBlindShare(target));
@@ -63,7 +63,7 @@ assert.equal(vm.runInNewContext(`${resultHelper}; bgDailyShareText({day:'2026-11
  const english=await run('en',2,true);
  assert.match(english.payload.title,/today’s round/);
  assert.match(english.payload.text,/U\.S\. stock chart.*200 trading days/);
- assert.equal(english.payload.url,'https://tapelounge.com/en/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind');
+ assert.equal(english.payload.url,'https://tapelounge.com/en/tools/blind/?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind&start=1');
  assert.equal(english.status.textContent,'Choose an app to share with.');
  const copied=await run('ko',2,false);
  assert.match(copied.clip,/미국 주식 차트/);

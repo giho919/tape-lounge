@@ -55,6 +55,7 @@
     url.searchParams.set('utm_source','share');
     url.searchParams.set('utm_medium','referral');
     url.searchParams.set('utm_campaign','daily_blind');
+    url.searchParams.set('start','1');
     return url.href;
   }
   const api = Object.freeze({parse,route,tag,tagDailyBlindShare,topics:Object.freeze(topics)});

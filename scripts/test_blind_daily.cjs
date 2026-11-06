@@ -42,10 +42,10 @@ for(const [lang,expected] of Object.entries(cardCopyExpectations)){
  assert.ok(copy.dialogNote&&!/[가-힣]/.test(copy.dialogNote)||lang==='ko',`${lang} share note must be localized`);
  shareWindow.document.documentElement.lang=lang;shareWindow.BlindDaily=localized(lang);
  const path=lang==='ko'?'/blind/':`/${lang}/tools/blind/`;
- assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-11-02',version:2}),`https://tapelounge.com${path}?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind`,`${lang} result image link attribution`);
+ assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-11-02',version:2}),`https://tapelounge.com${path}?daily=2026-11-02&v=2&utm_source=share&utm_medium=referral&utm_campaign=daily_blind&start=1`,`${lang} result image link attribution`);
 }
 shareWindow.document.documentElement.lang='ko';shareWindow.BlindDaily=localized('ko');
-assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-10-31',version:1}),'https://tapelounge.com/blind/?daily=2026-10-31&utm_source=share&utm_medium=referral&utm_campaign=daily_blind','crypto result image link attribution');
+assert.equal(shareWindow.TapeDailyShare.shareUrlFor({day:'2026-10-31',version:1}),'https://tapelounge.com/blind/?daily=2026-10-31&utm_source=share&utm_medium=referral&utm_campaign=daily_blind&start=1','crypto result image link attribution');
 const shareVersion=crypto.createHash('sha256').update(shareSource.replace(/\r\n/g,'\n')).digest('hex').slice(0,12),htmlFiles=[];
 const collectHtml=dir=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())collectHtml(full);else if(entry.isFile()&&entry.name.endsWith('.html'))htmlFiles.push(full);}};
 collectHtml(path.resolve(__dirname,'..'));
