@@ -1232,14 +1232,46 @@ window.addEventListener('pagehide', () => { siteAnalyticsFlush(true); stopSitePr
 syncSiteAudience();
 // 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
 const TURNSTILE_SITEKEY = '0x4AAAAAAEDtJF9PJ4ZwYXIl';
-let captchaWidgetId = null, captchaPending = null;
+let captchaWidgetId = null, captchaPending = null, turnstileLoadPending = null;
 function waitForTurnstile() {
-  return new Promise((resolve, reject) => {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileLoadPending) return turnstileLoadPending;
+  turnstileLoadPending = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
     const until = Date.now() + 10000;
-    const check = () => window.turnstile ? resolve() :
-      Date.now() >= until ? reject(new Error('보안 인증을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.')) : setTimeout(check, 100);
-    check();
+    let pollTimer = null, loadTimer = null, settled = false;
+    const cleanup = () => {
+      clearTimeout(pollTimer);
+      clearTimeout(loadTimer);
+      script.onload = null;
+      script.onerror = null;
+    };
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      script.remove();
+      reject(new Error('보안 인증을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'));
+    };
+    const check = () => {
+      if (window.turnstile) {
+        settled = true;
+        cleanup();
+        resolve();
+      } else if (Date.now() >= until) fail();
+      else pollTimer = setTimeout(check, 100);
+    };
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.onload = check;
+    script.onerror = fail;
+    loadTimer = setTimeout(fail, 10000);
+    document.head.appendChild(script);
+  }).catch(error => {
+    turnstileLoadPending = null;
+    throw error;
   });
+  return turnstileLoadPending;
 }
 async function getCaptchaToken() {
   if (captchaPending) return captchaPending;
