@@ -21,7 +21,7 @@ COPY = {
 'aboutText':'Tape Lounge는 암호화폐 시장의 가격, 추세 후보, 공개 리포트를 연결하는 독립적인 관찰 공간입니다. 거래소가 아니며 이 웹사이트에서 실제 주문을 집행하지 않습니다. 가상의 인기 순위나 방문자 수를 만들지 않습니다.',
 'sourceText':'해외 가격: Binance 공개 현물 API. 원화 가격: Upbit 공개 API. 테더 원화 시세: Bithumb 공개 API. 환율: Frankfurter 일일 기준환율. 레이더: 당시 게시된 Andy 리포트. 원문과 관측 시각을 함께 확인하세요. API 장애나 거래소별 종목 불일치 시 해당 값을 비워둡니다.',
 'dataText':'공개 관찰 JSON과 RSS를 제공합니다. JSON의 reportAt이 관찰 시각이며 웹페이지 생성 시각이 아닙니다. 과거 최초 관측은 보관 범위 안에서의 최초이며 전체 시장의 최초 신호가 아닙니다. 백테스트와 실제 매매 성과를 합치지 않습니다.',
-'analyticsText':'기존 익명 방문 통계를 사용합니다. 무작위 브라우저 ID, 화면 종류, 실제 활동 시간, 유입 도메인만 기록하며 IP·기기 지문·검색어를 수집하지 않습니다. 화면이 보이는 상태로 5초 머물거나 처음 조작한 뒤 방문으로 집계합니다. 내부 방문 표시는 유지됩니다. 원본 세션은 14일 뒤 일별 집계만 남깁니다.',
+'analyticsText':'익명 방문 통계는 무작위 브라우저 ID의 해시, 페이지 종류, 활동 시간, 유입 도메인을 기록합니다. 화면이 보이는 상태로 5초 이상 지나면 방문으로 집계합니다. 오늘의 판은 한국시간 날짜별로 브라우저마다 시작과 200개 일봉 완주를 각각 한 번씩 집계합니다. 매매 내역과 수익률은 수집하지 않습니다. IP·기기 지문·검색어도 수집하지 않습니다. 내부 방문 표시는 유지합니다. 브라우저별 세션과 게임 이벤트 원자료는 14일 뒤 삭제하고, 일별 집계만 남깁니다.',
 'roles':['정마담 · 운용의 판단','Andy · 추세의 발견','Prof. Justin · 국면의 근거'],
 'roleCopy':['공개된 운용 상태와 판단의 맥락을 읽습니다. 개인 계좌의 잔고·진입가는 공개하지 않습니다.','일봉 후보와 4시간봉 눌림 관찰을 나누어 봅니다. 신호가 나온 뒤 무엇이 달라졌는지도 남깁니다.','모형의 시장 국면 판단을 읽습니다. 진입 허용은 확률적 분류이지 수익 약속이 아닙니다.'],
 'guides':[
@@ -50,7 +50,7 @@ COPY = {
 'aboutText':'Tape Lounge is an independent space connecting crypto prices, trend candidates and public reports. It is not an exchange and this website does not execute real orders. We do not fabricate popularity rankings or visitor counts.',
 'sourceText':'Overseas prices: Binance public spot API. Korean BTC quotes: Upbit public API. Korean tether quotes: Bithumb public API. FX: Frankfurter daily reference. Radar: Andy reports as originally published. Check the source and observation time. Missing APIs or unmatched listings are left blank.',
 'dataText':'Public observation JSON and RSS are available. reportAt is the observation time, not the page build time. First seen means first within the retained archive, not the first signal in the market. Backtests are not merged into live trading performance.',
-'analyticsText':'Existing anonymous analytics record a random browser ID, screen category, active time and referring domain. A visit is counted after the page has remained visible for 5 seconds or a visitor first interacts with it. We do not collect IPs, fingerprints or search terms. Internal traffic flags persist. Raw sessions are retained for 14 days, then only daily aggregates remain.',
+'analyticsText':'Anonymous analytics use a hash of a random browser ID and record page category, active time, and referring domain. A visit is counted after the page has been visible for at least 5 seconds. For the daily round, we count each browser’s start and completion of all 200 daily bars once per KST date. We do not collect trades or returns, IPs, device fingerprints, or search terms. Internal traffic flags persist. Browser-level session and game-event records are deleted after 14 days; only daily totals remain.',
 'roles':['Madam · Portfolio perspective','Andy · Trend discovery','Prof. Justin · Regime research'],
 'roleCopy':['Read the public portfolio state and the reasoning around it. Private account balances and entry prices are not published.','Separate daily candidates from four-hour retest observations, and follow how published observations change.','Read the model’s market-regime assessment. Entry allowed is a probabilistic classification, not a return guarantee.'],
 'guides':[
@@ -77,7 +77,7 @@ COPY = {
 'aboutText':'Tape Lounge 是连接加密市场报价、趋势候选和公开报告的独立观察空间，并非交易所，也不会通过此网站执行真实订单。我们不虚构人气排行或访问人数。',
 'sourceText':'海外价格来自 Binance 公开现货 API，韩国 BTC/KRW 报价来自 Upbit，韩国 USDT/KRW 报价来自 Bithumb，汇率来自 Frankfurter 每日参考数据，雷达来自当时发布的 Andy 报告。请核对来源与观测时间。接口不可用或交易对不匹配时留空。',
 'dataText':'提供公开观察 JSON 与 RSS。reportAt 是观察时间，不是网页构建时间。首次观察仅指保留存档内的首次，不是全市场首次信号。不会将回测与实盘业绩合并。',
-'analyticsText':'沿用匿名访问统计，仅记录随机浏览器标识、页面类别、活跃时间和来源域名。页面在前台停留5秒或用户首次操作后，才计为一次访问。不采集 IP、设备指纹或搜索词。保留内部访问标记。原始会话保存14天，之后仅保留每日汇总。',
+'analyticsText':'匿名访问统计使用随机浏览器 ID 的哈希值，并记录页面类别、活跃时间和来源域名。页面在前台可见至少5秒后计为访问。每日盲图按韩国时间日期，对每个浏览器的开始和完整走完200根日线各计一次。不会收集交易明细或收益率，也不收集 IP、设备指纹或搜索词。内部访问标记会保留。浏览器级会话和游戏事件原始记录在14天后删除，仅保留每日汇总。',
 'roles':['郑女士 · 运用判断','Andy · 趋势发现','Prof. Justin · 市场状态研究'],
 'roleCopy':['阅读公开运用状态与判断背景，不公开私人账户余额或入场价格。','区分日线候选与4小时回踩观察，继续追踪发布后的变化。','阅读模型的市场状态判断。允许入场只是概率分类，不是收益保证。'],
 'guides':[
@@ -104,7 +104,7 @@ COPY = {
 'aboutText':'Tape Lounge は暗号資産の価格、トレンド候補、公開レポートをつなぐ独立した観察空間です。取引所ではなく、このサイトから実注文を執行しません。人気順位や訪問者数を捏造しません。',
 'sourceText':'海外価格は Binance 公開現物 API、韓国の BTC/KRW は Upbit、韓国の USDT/KRW は Bithumb、為替は Frankfurter 日次参考レート、レーダーは当時公開された Andy レポートが出典です。観測時刻と原文を確認してください。障害や銘柄の不一致時は空欄にします。',
 'dataText':'公開観察 JSON と RSS を提供します。reportAt は観測時刻でありページ生成時刻ではありません。初観測は保存範囲内の最初で、市場全体の初シグナルではありません。バックテストと実運用成績を合算しません。',
-'analyticsText':'従来の匿名統計を使用し、ランダムなブラウザー ID、画面分類、活動時間、流入ドメインのみ記録します。ページが表示された状態で5秒経過するか、最初の操作があった時点で訪問として数えます。IP、端末指紋、検索語は収集しません。内部アクセス設定を維持します。元セッションは14日後に日次集計のみ残します。',
+'analyticsText':'匿名アクセス統計ではランダムなブラウザー ID のハッシュ、ページ分類、活動時間、参照元ドメインを記録します。ページが前面に5秒以上表示されると訪問として数えます。今日の共通チャレンジでは、KSTの日付ごとにブラウザー単位で開始と日足200本の完走をそれぞれ1回集計します。売買履歴や損益率は収集しません。IP、端末指紋、検索語も収集しません。内部アクセス設定を維持します。ブラウザー単位のセッションとゲームイベント原データは14日後に削除し、日別集計だけを残します。',
 'roles':['鄭マダム · 運用判断','Andy · トレンド発見','Prof. Justin · 相場局面研究'],
 'roleCopy':['公開された運用状態と判断の文脈を読みます。個人の残高やエントリー価格は公開しません。','日足候補と4時間足の押し目観察を分け、公開後の変化を追います。','モデルの市場局面判断を読みます。エントリー許容は確率的分類で、利益の約束ではありません。'],
 'guides':[

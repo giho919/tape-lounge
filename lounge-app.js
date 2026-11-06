@@ -1083,6 +1083,46 @@ const analyticsQualificationDelayMs = 5000;
 let analyticsQualified = analyticsInternal, analyticsQualificationTimer = null;
 
 const analyticsCampaignRoute = window.TapeCampaign?.route(location.search) || {rpc:'record_site_activity',fields:{}};
+let blindMetricsReady = false;
+const pendingBlindMetrics = new Map(), blindMetricsInFlight = new Set();
+
+async function postBlindMetric(key, metric) {
+  try {
+    const response = await fetch(`${SUPA_URL}/rest/v1/rpc/record_blind_daily_event`, {
+      method:'POST', keepalive:true,
+      headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' },
+      body:JSON.stringify({
+        p_visitor_id:analyticsVisitorId, p_event_day:metric.day,
+        p_round_version:metric.version, p_event_type:metric.type,
+        p_internal:analyticsInternal,
+      }),
+    });
+    if (!response.ok) return false;
+    pendingBlindMetrics.delete(key);
+    return true;
+  } catch(e) { return false; }
+}
+
+function flushBlindMetrics() {
+  if (!blindMetricsReady || !analyticsQualified || analyticsInternal || analyticsAutomated) return;
+  for (const [key, metric] of pendingBlindMetrics) {
+    if (blindMetricsInFlight.has(key)) continue;
+    blindMetricsInFlight.add(key);
+    postBlindMetric(key, metric).finally(() => blindMetricsInFlight.delete(key));
+  }
+}
+
+function recordBlindRoundEvent(type, day, version) {
+  if (!sbc || !analyticsVisitorId || analyticsInternal || analyticsAutomated) return;
+  if (!['start','complete'].includes(type) || !window.BlindDaily?.validDay(day) || ![1,2].includes(version)) return;
+  const today = window.BlindDaily.dayKey();
+  const age = Date.parse(`${today}T00:00:00Z`) - Date.parse(`${day}T00:00:00Z`);
+  if (age < 0 || age > 14 * 86400000 || (type === 'start' && day !== today)) return;
+  const key = `${day}:${version}:${type}`;
+  pendingBlindMetrics.set(key, {day,version,type});
+  flushBlindMetrics();
+}
+window.TapeAnalytics = Object.freeze({recordBlindRoundEvent});
 
 function analyticsPayload(activeSeconds = 0, isView = false) {
   return {
@@ -1093,18 +1133,26 @@ function analyticsPayload(activeSeconds = 0, isView = false) {
   };
 }
 async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView = false) {
-  if (!sbc || !analyticsVisitorId || analyticsAutomated) return;
+  if (!sbc || !analyticsVisitorId || analyticsAutomated) return false;
   const body = analyticsPayload(activeSeconds, isView);
+  let recorded = false;
   try {
     if (keepalive) {
-      await fetch(`${SUPA_URL}/rest/v1/rpc/${analyticsCampaignRoute.rpc}`, {
+      const response = await fetch(`${SUPA_URL}/rest/v1/rpc/${analyticsCampaignRoute.rpc}`, {
         method:'POST', keepalive:true, headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body)
       });
+      recorded = response.ok;
     } else {
       const { error } = await sbc.rpc(analyticsCampaignRoute.rpc, body);
       if (error) console.warn('analytics off', error.message);
+      else recorded = true;
     }
   } catch(e) { console.warn('analytics off'); }
+  if (recorded) {
+    blindMetricsReady = true;
+    flushBlindMetrics();
+  }
+  return recorded;
 }
 function qualifySiteAnalytics() {
   if (analyticsQualified || analyticsAutomated || document.hidden) return false;
@@ -2591,6 +2639,9 @@ async function bgStartDaily(generation, resumeRequested = false) {
     bgLev = resumeState?.leverage ?? 1; bgPct = resumeState?.orderPct ?? 25; bgSpeed = resumeState?.speed ?? 2;
     bgLevRender(); bgRenderSpeed();
     bgSetupSolo(kl, symbol, track, 'daily', resumeState);
+    if (chosen.day === window.BlindDaily.dayKey()) {
+      window.TapeAnalytics?.recordBlindRoundEvent('start', chosen.day, chosen.version);
+    }
   } catch (error) {
     if (generation !== bgLoadGeneration || bgMode !== 'daily') return;
     $('bgOverBox').innerHTML = `<h4>🎴 오늘의 판</h4><p>${esc(error.message)}</p><button type="button" class="go" onclick="blindStart()">같은 판 재시도</button>`;
@@ -2850,6 +2901,9 @@ async function blindFinish(early) {
   if (bg.daily) {
     bgClearDailyProgress(bg.daily);
     const completed = bg.idx === bg.norm.length - 1;
+    if (completed) {
+      window.TapeAnalytics?.recordBlindRoundEvent('complete', bg.daily.day, bg.daily.version);
+    }
     let recorded = {saved:false,first:null,streak:{days:0,playedToday:false}};
     try { recorded = window.BlindDaily.record(localStorage, bg.daily.day, {roi,bh,completed,finishedAt:new Date().toISOString()},bg.daily.version); } catch {}
     window.dispatchEvent(new Event('tape-blind-daily-updated'));
