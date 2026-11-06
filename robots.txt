@@ -5,5 +5,7 @@ Disallow: /supabase/
 Disallow: /scripts/
 Disallow: /docs/
 Disallow: /data/ai_dialogue_library.jsonl
+Disallow: /reports/blind_daily_stock_v2/
+Disallow: /reports/stocks.json
 
 Sitemap: https://tapelounge.com/sitemap.xml
