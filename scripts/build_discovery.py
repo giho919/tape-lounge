@@ -100,11 +100,23 @@ REPORT_METADATA = [
      'Prof. Justin의 월간 시장 국면 판정과 최근 흐름을 확인하세요. 모형 판정은 단독 매수·매도 신호가 아니며, 판단 수치와 기준값은 공개하지 않습니다.'),
 ]
 
+def scope_chain_source_credit(text, selected):
+    """Keep the inactive on-chain placeholder from polluting unrelated route text."""
+    if selected == 'chain':
+        return text
+    placeholder = '<b>Coin Metrics Community</b> 일일 데이터 연결 대기'
+    scoped_placeholder = '<b>온체인 스냅샷</b> 일일 데이터 연결 대기'
+    text, count = text.replace(placeholder, scoped_placeholder, 1), text.count(placeholder)
+    if count != 1:
+        raise ValueError('Could not scope the inactive on-chain source placeholder')
+    return text
+
 def tool_page(classic, slug, selected, title, description, lang='ko', live_tools=False):
     """Serve one tab from the shared live-app shell, optionally under a locale route."""
     route = live_app_url(lang, slug) if live_tools else ('/' + slug.rstrip('/') + '/' if slug else '/')
     canonical = BASE + route
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
+    text = scope_chain_source_credit(text, selected)
     if live_tools:
         text = text.replace('<html lang="ko">',
                             f'<html lang="{lang}" data-live-tools-root="/{lang}/tools">', 1)
@@ -446,6 +458,7 @@ def write_live_home_pages(classic):
     site_schema = json.dumps(website_schema(), ensure_ascii=False, separators=(',', ':'))
     site_schema_tag = f'<script type="application/ld+json">{site_schema}</script>'
     korean_home = home_shell.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
+    korean_home = scope_chain_source_credit(korean_home, 'lounge')
     write('index.html', korean_home)
     write('ko/index.html', korean_home)
     for lang in LIVE_PAGE_COPY:

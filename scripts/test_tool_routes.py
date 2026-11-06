@@ -38,6 +38,18 @@ for tab, route in ROUTES.items():
     assert [k for k,a in page.panels.items() if 'hidden' not in a.get('class','').split()]==[tab], route
     assert 'https://tapelounge.com'+route in listed, route
     assert '<base href="/">' in source, route
+    if tab == 'chain':
+        assert '<b>Coin Metrics Community</b>' in source, route
+    else:
+        assert '<b>Coin Metrics Community</b>' not in source, route
+        assert '<b>온체인 스냅샷</b>' in source, route
+
+for lang in ('en', 'zh', 'ja'):
+    for tab, slug in [('lounge', ''), ('game', 'blind'), ('chain', 'onchain')]:
+        route = ROOT/lang/'tools'/slug/'index.html' if slug else ROOT/lang/'tools'/'index.html'
+        source = route.read_text(encoding='utf-8')
+        has_onchain_credit = '<b>Coin Metrics Community</b>' in source
+        assert has_onchain_credit == (tab == 'chain'), (lang, tab)
 
 assert 'https://tapelounge.com/classic-home.html' not in listed
 assert 'https://tapelounge.com/terminal/' not in listed
