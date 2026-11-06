@@ -55,10 +55,10 @@ HOME_OG_ALT = {
     'ja': '全員が銘柄と日付を隠した同じ米国株チャートに挑戦し、模擬売買を同期間保有と比べるTape Lounge',
 }
 TOOL_OG_ALT = {
-    'ko': 'Tape Lounge 실시간 시장 정보와 차트 분석 화면',
-    'en': 'Live market information and chart analysis at Tape Lounge',
-    'zh': 'Tape Lounge 实时行情与图表分析页面',
-    'ja': 'Tape Loungeのリアルタイム相場情報とチャート分析',
+    'ko': '검은 배경에 금색 Tape Lounge 로고와 실시간 시세·선물 데스크·온체인·블라인드 차트 게임 안내가 적힌 카드',
+    'en': 'Tape Lounge gold wordmark on a dark card, with a Korean tagline for live prices, futures desk, on-chain and blind-chart game',
+    'zh': '深色卡片上的金色 Tape Lounge 标志，配有实时行情、合约交易台、链上数据和盲图游戏的韩文标语',
+    'ja': '暗いカードに金色の Tape Lounge ロゴ。リアルタイム相場、先物デスク、オンチェーン、ブラインドチャートゲームの韓国語タグライン',
 }
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-03'
@@ -255,8 +255,14 @@ def ensure_report_metadata():
              f"<meta property='og:url' content='{canonical}'>"),
             (r'<meta\s+property=["\']og:image["\'][^>]*>',
              f"<meta property='og:image' content='{BASE}/og.png'>"),
+            (r'<meta\s+property=["\']og:image:alt["\'][^>]*>',
+             f"<meta property='og:image:alt' content='{e(TOOL_OG_ALT['ko'], quote=True)}'>"),
             (r'<meta\s+name=["\']twitter:card["\'][^>]*>',
              "<meta name='twitter:card' content='summary_large_image'>"),
+            (r'<meta\s+name=["\']twitter:image["\'][^>]*>',
+             f"<meta name='twitter:image' content='{BASE}/og.png'>"),
+            (r'<meta\s+name=["\']twitter:image:alt["\'][^>]*>',
+             f"<meta name='twitter:image:alt' content='{e(TOOL_OG_ALT['ko'], quote=True)}'>"),
             (r'<link\s+rel=["\']canonical["\'][^>]*>',
              f"<link rel='canonical' href='{canonical}'>"),
         ]
@@ -594,7 +600,10 @@ def render(lang, page, data, letters, generated, root=False):
                            f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
                            f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
     else:
-        social_image_tags=f'<meta property="og:image" content="{BASE}/og.png">'
+        social_image_alt=TOOL_OG_ALT[lang]
+        social_image_tags=(f'<meta property="og:image" content="{BASE}/og.png"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
+                           f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+                           f'<meta name="twitter:image" content="{BASE}/og.png"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
     nav=''.join(link(url(lang,p),c['nav'][i], 'selected' if page==p or (p=='learn' and guide) else '') for i,p in enumerate(['','markets','watch','learn']))
     languages=''.join(f'<a href="{locale_url(l,page)}" lang="{l}" hreflang="{l}" data-language="{l}" '+('aria-current="true"' if l==lang else '')+f'>{label}</a>' for l,label in LANGS.items())
     alts=''.join(f'<link rel="alternate" hreflang="{l}" href="{BASE+locale_url(l,page)}">' for l in LANGS)+f'<link rel="alternate" hreflang="x-default" href="{BASE+locale_url("ko",page)}">'
@@ -778,6 +787,7 @@ def build(force=False):
 
 def build_editorial_only():
     """Refresh localized discovery/editorial pages without generating blind-game rounds."""
+    ensure_report_metadata()
     data=read('data/discovery.json')
     letters=normalize_conflicting_justin_letter(read('reports/letters.json'))
     generated=datetime.now(timezone.utc).isoformat()
