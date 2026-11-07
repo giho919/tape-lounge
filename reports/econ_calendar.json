@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T02:27:01.840949Z",
+  "generated_at": "2026-11-07T12:32:01.497123Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -26,26 +26,6 @@
     "BLS 공식 2026 일정 스냅샷으로 대체"
   ],
   "events": [
-    {
-      "id": "0bf10535ca12b926",
-      "source": "BLS",
-      "code": "ECI",
-      "title": "고용비용지수",
-      "importance": "SIDE",
-      "scheduled_at": "2026-10-30T12:30:00Z",
-      "previous": null,
-      "actual": null,
-      "actual_supported": false,
-      "unit": null,
-      "note": "2026 Q3 관측 · 공식 일정 스냅샷",
-      "source_url": "https://www.bls.gov/schedule/2026/home.htm",
-      "btc": {
-        "m5": 0.013,
-        "m15": -0.171,
-        "m60": -0.235
-      },
-      "status": "observed"
-    },
     {
       "id": "fa80b144d8188358",
       "source": "BLS",
