@@ -49,6 +49,11 @@ it retries the non-fast-forward race up to two times by fetching, rebasing, and
 rebuilding that allowlist. It never force-pushes; unresolved conflicts are left
 for the next hourly run.
 
+The three strategist portraits use 512px WebP assets (`avatars/madam.webp`,
+`avatars/andy.webp`, and `avatars/prof.webp`) in both the homepage cards and chat.
+Keep them in the publisher allowlist and lazy-load the offscreen profile cards;
+the original JPEG files are retained as source assets.
+
 The Korean live lounge exposes direct links to the localized editorial entry
 pages (`/en/`, `/zh/`, `/ja/`) from its header. Those pages label the full live
 tools as Korean so visitors know what opens before leaving the translated view.

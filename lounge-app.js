@@ -918,7 +918,7 @@ function chatTimeElement(createdAt) {
   return time;
 }
 const CHAT_AVA = {
-  madam: 'avatars/madam.jpg?v=069975a', andy: 'avatars/andy.jpg?v=069975a', justin: 'avatars/prof.jpg?v=069975a',
+  madam: 'avatars/madam.webp?v=20261108', andy: 'avatars/andy.webp?v=20261108', justin: 'avatars/prof.webp?v=20261108',
   degen: 'avatars/degen.png', hermit: 'avatars/hermit.png', wolf: 'avatars/wolf.png'
 };
 function say(cls, who, body) {
