@@ -1083,6 +1083,9 @@ const analyticsQualificationDelayMs = 5000;
 let analyticsQualified = analyticsInternal, analyticsQualificationTimer = null;
 
 const analyticsCampaignRoute = window.TapeCampaign?.route(location.search) || {rpc:'record_site_activity',fields:{}};
+const analyticsRpc = analyticsCampaignRoute.rpc === 'record_site_campaign_activity'
+  ? 'record_site_campaign_activity_page' : 'record_site_activity_page';
+const analyticsPageKey = window.TapeCampaign?.pageKey(location.pathname) || 'other';
 let blindMetricsReady = false;
 const pendingBlindMetrics = new Map(), blindMetricsInFlight = new Set();
 
@@ -1129,6 +1132,7 @@ function analyticsPayload(activeSeconds = 0, isView = false) {
     p_visitor_id: analyticsVisitorId, p_session_id: analyticsSessionId, p_tab: activeTab,
     p_active_seconds: Math.max(0, Math.min(60, Math.round(activeSeconds))), p_is_view:isView,
     p_referrer_host: analyticsReferrerHost, p_internal: analyticsInternal,
+    p_page_key: analyticsPageKey,
     ...analyticsCampaignRoute.fields,
   };
 }
@@ -1138,12 +1142,12 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
   let recorded = false;
   try {
     if (keepalive) {
-      const response = await fetch(`${SUPA_URL}/rest/v1/rpc/${analyticsCampaignRoute.rpc}`, {
+      const response = await fetch(`${SUPA_URL}/rest/v1/rpc/${analyticsRpc}`, {
         method:'POST', keepalive:true, headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body)
       });
       recorded = response.ok;
     } else {
-      const { error } = await sbc.rpc(analyticsCampaignRoute.rpc, body);
+      const { error } = await sbc.rpc(analyticsRpc, body);
       if (error) console.warn('analytics off', error.message);
       else recorded = true;
     }

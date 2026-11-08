@@ -7,6 +7,34 @@
   const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/strategists/',...blindPaths];
   const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$/;
   const sourceName = value => value === 'twitter' ? 'x' : value;
+  const pageKeys = Object.freeze({
+    '/':'lounge','/terminal/':'lounge','/tools/':'lounge',
+    '/blind/':'blind','/tools/blind/':'blind',
+    '/decision/':'decision',
+    '/desk/':'desk','/tools/desk/':'desk',
+    '/onchain/':'onchain','/tools/onchain/':'onchain',
+    '/calendar/':'calendar','/tools/calendar/':'calendar',
+    '/analysis/':'analysis','/tools/analysis/':'analysis',
+    '/domestic/':'domestic','/tools/domestic/':'domestic',
+    '/strategists/':'strategists','/tools/strategists/':'strategists',
+    '/markets/':'markets','/watch/':'watch','/research/':'research','/about/':'about',
+    '/learn/':'learn_index',
+    '/learn/bitcoin-decision-practice/':'learn_bitcoin_decision_practice',
+    '/learn/blind-chart-practice/':'learn_blind_chart_practice',
+    '/learn/kimchi-premium/':'learn_kimchi_premium',
+    '/learn/market-sessions/':'learn_market_sessions',
+    '/learn/trend-retest/':'learn_trend_retest',
+    '/reports/andy_scan.html':'report_andy_scan',
+    '/reports/justin_lab.html':'report_justin_lab',
+    '/reports/madam_daily.html':'report_madam_daily',
+  });
+  function pageKey(pathname) {
+    let path = String(pathname || '/').toLowerCase().replace(/\/{2,}/g, '/');
+    path = path.replace(/^\/(?:ko|en|ja|zh)(?=\/|$)/, '') || '/';
+    path = path.replace(/\/index\.html$/, '/');
+    if (path.length > 1 && !path.endsWith('/') && !/\.html$/.test(path)) path += '/';
+    return pageKeys[path] || 'other';
+  }
   function parse(search) {
     const params = new URLSearchParams(search);
     for (const key of ['utm_source','utm_medium','utm_campaign']) if (params.getAll(key).length !== 1) return null;
@@ -58,7 +86,7 @@
     url.searchParams.set('start','1');
     return url.href;
   }
-  const api = Object.freeze({parse,route,tag,tagDailyBlindShare,topics:Object.freeze(topics)});
+  const api = Object.freeze({parse,route,tag,tagDailyBlindShare,pageKey,topics:Object.freeze(topics)});
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.TapeCampaign=api;
 })(typeof window === 'undefined' ? globalThis : window);
