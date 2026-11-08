@@ -7,5 +7,6 @@ Disallow: /docs/
 Disallow: /data/ai_dialogue_library.jsonl
 Disallow: /reports/blind_daily_stock_v2/
 Disallow: /reports/stocks.json
+Disallow: /reports/stocks-v1/
 
 Sitemap: https://tapelounge.com/sitemap.xml

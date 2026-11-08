@@ -1,4 +1,4 @@
-"""Create small, immutable US-stock payloads for shared daily blind rounds."""
+"""Create compact US-stock shards and immutable shared daily blind rounds."""
 from datetime import date, datetime, timedelta
 from hashlib import sha256
 import json
@@ -12,6 +12,43 @@ LAUNCH = date(2026, 11, 2)
 EARLIEST_END = date(2024, 1, 1)
 LATEST_END = date(2025, 12, 31)
 EARLIEST_PLAY = date(2020, 1, 1)
+
+
+def _write_if_changed(path: Path, payload: bytes) -> bool:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file() and path.read_bytes() == payload:
+        return False
+    temporary = path.with_suffix(path.suffix + '.tmp')
+    temporary.write_bytes(payload)
+    temporary.replace(path)
+    return True
+
+
+def ensure_stock_shards(root: Path, stock_data: dict) -> bool:
+    """Publish one compact file per eligible symbol plus a small lookup index."""
+    target_dir = root / 'reports' / 'stocks-v1'
+    symbols = sorted(
+        symbol for symbol, rows in stock_data.items()
+        if isinstance(symbol, str) and isinstance(rows, list) and len(rows) >= TOTAL
+    )
+    if not symbols:
+        raise ValueError('No US-stock history has enough bars for a blind round')
+
+    entries = []
+    changed = False
+    for symbol in symbols:
+        filename = sha256(symbol.encode('utf-8')).hexdigest()[:16] + '.json'
+        payload = json.dumps(stock_data[symbol], separators=(',', ':'), allow_nan=False).encode('utf-8') + b'\n'
+        changed = _write_if_changed(target_dir / filename, payload) or changed
+        entries.append({'symbol': symbol, 'file': filename})
+
+    index = json.dumps(
+        {'schema': 1, 'symbols': entries},
+        ensure_ascii=False,
+        separators=(',', ':'),
+        sort_keys=True,
+    ).encode('utf-8') + b'\n'
+    return _write_if_changed(target_dir / 'index.json', index) or changed
 
 
 def _make_payload(day: date, stock_data: dict) -> dict:
@@ -58,12 +95,13 @@ def ensure_rounds(root: Path) -> bool:
     source = root / 'reports' / 'stocks.json'
     if not source.is_file():
         raise FileNotFoundError(f'Missing stock history bundle: {source}')
-    stock_data = json.loads(source.read_text(encoding='utf-8'))
+    source_bytes = source.read_bytes()
+    stock_data = json.loads(source_bytes)
     if not isinstance(stock_data, dict):
         raise ValueError('US-stock history bundle must be a symbol-to-bars object')
+    changed = ensure_stock_shards(root, stock_data)
     today = datetime.now(ZoneInfo('Asia/Seoul')).date()
     target_dir = root / 'reports' / 'blind_daily_stock_v2'
-    changed = False
     for offset in range(3):
         day = today + timedelta(days=offset)
         if day < LAUNCH:

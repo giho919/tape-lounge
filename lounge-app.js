@@ -2218,14 +2218,29 @@ const BG_POOL = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT','SOLUSDT','DO
 const BG_HIST = 800, BG_PLAY = 200, BG_TOTAL = BG_HIST + BG_PLAY;   // 1000 = Binance klines 1회 상한
 // 상장이 늦은 종목은 1000봉이 안 나온다 — 받은 만큼만 쓰되 최소 이 정도는 있어야 판을 연다
 const BG_MIN_TOTAL = BG_PLAY + 260;
-// 미국주식은 브라우저에서 Yahoo CORS 불가 → 서버가 전체 이력을 받아 만든 번들(reports/stocks.json)을 1회 로드
-let stockBundle = null;
-async function loadStockBundle() {
-  if (stockBundle) return stockBundle;
-  const r = await fetch('reports/stocks.json');
-  if (!r.ok) throw new Error('bundle fetch ' + r.status);
-  stockBundle = await r.json();
-  return stockBundle;
+// 미국주식은 전체 묶음을 내려받지 않고, 작은 색인과 선택한 종목 이력만 불러온다.
+let stockSymbolIndex = null;
+const stockHistoryCache = new Map();
+async function loadStockSymbolIndex() {
+  if (stockSymbolIndex) return stockSymbolIndex;
+  const r = await fetch('/reports/stocks-v1/index.json');
+  if (!r.ok) throw new Error('stock index fetch ' + r.status);
+  const payload = await r.json();
+  if (payload?.schema !== 1 || !Array.isArray(payload.symbols) || !payload.symbols.length) {
+    throw new Error('invalid stock index');
+  }
+  stockSymbolIndex = payload.symbols;
+  return stockSymbolIndex;
+}
+async function loadStockHistory(entry) {
+  if (stockHistoryCache.has(entry.symbol)) return stockHistoryCache.get(entry.symbol);
+  if (!/^[a-f0-9]{16}\.json$/.test(entry.file)) throw new Error('invalid stock shard path');
+  const r = await fetch('/reports/stocks-v1/' + entry.file);
+  if (!r.ok) throw new Error('stock shard fetch ' + r.status);
+  const bars = await r.json();
+  if (!Array.isArray(bars) || bars.length < BG_TOTAL) throw new Error('invalid stock shard');
+  stockHistoryCache.set(entry.symbol, bars);
+  return bars;
 }
 // 종목 배열에서 endMs(이하) 마지막 캔들 기준 460봉 슬라이스 (부족하면 null)
 function stockSlice(arr, endMs) {
@@ -2455,19 +2470,17 @@ async function blindStart(resumeDaily = false) {
   const generation = ++bgLoadGeneration;
   if (bgMode === 'daily') { await bgStartDaily(generation, resumeDaily); return; }
   const track = bgTrack;
-  $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>과거의 판을 뒤지는 중…</p>';
+  $('bgOverBox').innerHTML = `<h4>🎲 나만의 판</h4><p>${track === 'stock' ? '미국주식 과거 차트를 불러오는 중…' : '과거의 판을 뒤지는 중…'}</p>`;
   if (track === 'stock') {
     try {
-      const b = await loadStockBundle();
+      const syms = await loadStockSymbolIndex();
       if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
-      const syms = Object.keys(b);
-      for (let t = 0; t < 12; t++) {
-        const sym = syms[Math.floor(Math.random() * syms.length)];
-        const arr = b[sym];
-        const endIdx = BG_TOTAL - 1 + Math.floor(Math.random() * (arr.length - BG_TOTAL + 1));
-        const kl = arr.slice(endIdx - BG_TOTAL + 1, endIdx + 1);
-        if (kl.length === BG_TOTAL) { bgSetupSolo(kl, sym, 'stock'); return; }
-      }
+      const entry = syms[Math.floor(Math.random() * syms.length)];
+      const arr = await loadStockHistory(entry);
+      if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
+      const start = Math.floor(Math.random() * (arr.length - BG_TOTAL + 1));
+      const kl = arr.slice(start, start + BG_TOTAL);
+      if (kl.length === BG_TOTAL) { bgSetupSolo(kl, entry.symbol, 'stock'); return; }
     } catch (e) { /* 아래 실패 메시지 */ }
     if (generation !== bgLoadGeneration || bgMode !== 'solo' || track !== bgTrack) return;
     $('bgOverBox').innerHTML = '<h4>🎲 나만의 판</h4><p>주식 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p><button type="button" class="go" onclick="blindStart()">재시도</button>';

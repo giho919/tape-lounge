@@ -86,6 +86,12 @@ The friend-invite action uses the visitor's native share sheet when available.
 Clipboard fallback copies the Korean invitation and the exact round URL together;
 it never publishes to a social account automatically.
 
+The optional solo U.S.-stock game loads a small symbol index and then only the
+selected symbol's history shard. `reports/stocks.json` remains the source for
+daily round generation; `ensure_rounds()` refreshes the shards when the weekly
+bundle changes, and the hourly publisher stages `reports/stocks-v1/`. Keep this
+directory disallowed in `robots.txt`; the game fetches its files directly.
+
 An unfinished daily or archive round is checkpointed in that browser's local
 storage after trades, speed or pause changes, on page exit, and every five
 revealed bars. The intro offers resume or restart, and restores the hidden
