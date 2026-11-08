@@ -576,7 +576,9 @@ body.shake { animation:shake .5s; }
 #bgOver { position:absolute; inset:0; z-index:6; background:rgba(10,12,16,.88); backdrop-filter:blur(4px);
   display:flex; align-items:center; justify-content:center; text-align:center; }
 #bgOver.hidden { display:none; }
-.bgChartControls.prestart~#bgOver { top:0; align-items:flex-start; justify-content:center; overflow-y:auto; padding:60px 12px 12px; }
+.bgChartControls.prestart~#bgOver { top:0; align-items:flex-start; justify-content:center; overflow-y:auto; padding:82px 12px 12px; }
+.bgChartControls.prestart~#bgOver .box { max-width:520px; padding:20px 24px; }
+.bgChartControls.prestart~#bgOver .box p { line-height:1.65; }
 .bgChartControls.prestart~#bgOver .box > .go { min-height:44px; border-color:#e7c65d; background:linear-gradient(135deg,#e2c65d,#bd9630); color:#17140c; font-weight:800; letter-spacing:.8px; }
 #bgOver .box { max-width:460px; padding:26px 30px; border:1px solid var(--gold-dim); border-radius:12px; background:var(--panel); }
 #bgOver h4 { font-family:Georgia,serif; color:var(--gold); font-size:17px; letter-spacing:2px; margin-bottom:12px; }
@@ -612,7 +614,7 @@ body.shake { animation:shake .5s; }
   .main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
   #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
-  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:0;padding:48px 8px 12px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
+  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:100px;padding:8px 8px 12px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
   .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
