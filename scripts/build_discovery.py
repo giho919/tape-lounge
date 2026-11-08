@@ -322,7 +322,7 @@ def build_decision_pages():
     alternates=''.join(f'<link rel="alternate" hreflang="{lang}" href="{BASE+decision_url(lang)}">' for lang in LANGS)
     alternates+=f'<link rel="alternate" hreflang="x-default" href="{BASE}/decision/">'
     image_alt = {
-        'ko': 'Tape Lounge BTC decision practice: 12 historical chart decisions, revealed five days at a time.',
+        'ko': 'Tape Lounge 비트코인 과거 차트 판단 연습. 12번 판단하고 선택마다 다음 5일의 움직임을 확인합니다.',
         'en': 'Tape Lounge BTC decision practice: 12 historical chart decisions, revealed five days at a time.',
         'zh': 'Tape Lounge 比特币历史行情决策练习：12 次选择，每次揭晓后续五天走势。',
         'ja': 'Tape LoungeのBTC判断練習。過去チャートで12回判断し、5日後の値動きを確認。',
