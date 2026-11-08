@@ -73,6 +73,7 @@ NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', '
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
+               'blind-og-20261101.png',
                'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
                'home-og-zh-20261103.png', 'home-og-ja-20261103.png',
                'decision-og-ko-20261101.png', 'decision-og-en-20261101.png',
@@ -141,9 +142,13 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
     if slug == 'blind':
         # Social shares of translated routes must preview in that route's language.
-        # The localized home card already describes this exact blind-chart game.
-        image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
-        image_alt = HOME_OG_ALT[lang]
+        # Use the dedicated game card for Korean; other locales keep localized cards.
+        if lang == 'ko':
+            image = BASE + '/blind-og-20261101.png'
+            image_alt = '종목과 날짜를 숨긴 실제 과거 차트 200거래일을 가상 매매하고 보유 결과와 비교하는 Tape Lounge 블라인드 차트 게임'
+        else:
+            image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
+            image_alt = HOME_OG_ALT[lang]
     elif live_tools and not slug:
         image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
         image_alt = HOME_OG_ALT[lang]
