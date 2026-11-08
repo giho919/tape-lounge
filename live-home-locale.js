@@ -24,6 +24,8 @@
     '판을 시작 →':['Take a seat →','开始这一局 →','ゲームを始める →'],
     '국내 시세·김프·관심 코인·Andy 후보':['Korean prices, premium, watchlist and Andy picks','韩国行情、溢价、自选与 Andy 观察','韓国価格・プレミアム・ウォッチリスト・Andy候補'],
     '국내 원화 가격과 해외 USDT 현물가를 비교합니다. 김프는 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.':['Compare Korean won prices with overseas USDT spot prices. The premium is converted using the latest USDT/KRW trade on the selected Korean exchange.','将韩国韩元价格与海外 USDT 现货价格进行比较。溢价使用所选韩国交易所最新的 USDT/KRW 成交价换算。','韓国ウォン建て価格と海外USDT現物価格を比較します。プレミアムは、選択した韓国取引所のUSDT/KRW最新約定価格で換算します。'],
+    '김치 프리미엄':['Kimchi premium','韩国溢价','韓国プレミアム'],
+    '업비트·빗썸의 원화 시세와 해외 USDT 시세를 비교합니다. 김치 프리미엄은 선택한 국내 거래소의 USDT/KRW 최근 체결가로 환산합니다.':['Compare Upbit and Bithumb KRW prices with overseas USDT prices. The premium is converted using the latest USDT/KRW trade on the selected Korean exchange.','比较 Upbit、Bithumb 的韩元价格与海外 USDT 价格。溢价按所选韩国交易所最新的 USDT/KRW 成交价换算。','Upbit・Bithumbのウォン建て価格と海外USDT価格を比較します。プレミアムは、選択した韓国取引所のUSDT/KRW最新約定価格で換算します。'],
     'BTC 김프 90일 추이 ↗':['BTC premium · 90-day history ↗','BTC 溢价 · 90天走势 ↗','BTCプレミアム・90日推移 ↗'],
     '데스크 — 선물 시장 추세·주요 가격대·펀딩·호가를 한 화면에서':['Futures trend, key levels, funding and order book','合约趋势、关键价位、资金费率与盘口','先物トレンド・重要水準・資金調達率・板情報'],
     '차트 분석 — BTC 장기 빗각과 선형 평행 채널':['BTC long-term channels and chart analysis','BTC 长期通道与图表分析','BTC長期チャネルとチャート分析'],
