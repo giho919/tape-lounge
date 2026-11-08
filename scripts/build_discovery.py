@@ -230,6 +230,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     text = re.sub(r'<(div|section) id="tab-([a-z]+)"([^>]*)>', panel, text)
     text = re.sub(r'<a([^>]*\bdata-tab="([a-z]+)"[^>]*)>', nav, text)
     text = defer_home_shell_styles(text, selected)
+    text = with_open_graph_locale(text, lang)
     return text
 
 def read(path):
@@ -504,6 +505,18 @@ def live_app_url(lang, slug=''):
 def locale_home_url(lang):
     return '/' if lang == 'ko' else f'/{lang}/'
 
+OG_LOCALES = {'ko': 'ko_KR', 'en': 'en_US', 'zh': 'zh_CN', 'ja': 'ja_JP'}
+
+def with_open_graph_locale(text, lang):
+    """Keep social previews aligned with the page language and its alternates."""
+    text = re.sub(r'\s*<meta property="og:locale(?::alternate)?" content="[^"]*">', '', text)
+    tags = [f'<meta property="og:locale" content="{OG_LOCALES[lang]}">']
+    tags.extend(
+        f'<meta property="og:locale:alternate" content="{OG_LOCALES[code]}">'
+        for code in LANGS if code != lang
+    )
+    return text.replace('</head>', ''.join(tags) + '\n</head>', 1)
+
 def prepare_classic_home():
     """Prepare the shared lounge shell for the public root and tool entries."""
     classic=(ROOT/'classic-home.html').read_text(encoding='utf-8')
@@ -593,6 +606,7 @@ def write_live_home_pages(classic):
     site_schema = json.dumps(website_schema(), ensure_ascii=False, separators=(',', ':'))
     site_schema_tag = f'<script type="application/ld+json">{site_schema}</script>'
     korean_home = home_shell.replace('</head>', alternates + site_schema_tag + '\n</head>', 1)
+    korean_home = with_open_graph_locale(korean_home, 'ko')
     korean_home = scope_chain_source_credit(korean_home, 'lounge')
     write('index.html', korean_home)
     write('ko/index.html', korean_home)
