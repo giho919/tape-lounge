@@ -54,14 +54,16 @@ The three strategist portraits use 512px WebP assets (`avatars/madam.webp`,
 Keep them in the publisher allowlist and lazy-load the offscreen profile cards;
 the original JPEG files are retained as source assets.
 
-The Korean live lounge exposes direct links to the localized editorial entry
-pages (`/en/`, `/zh/`, `/ja/`) from its header. Those pages label the full live
-tools as Korean so visitors know what opens before leaving the translated view.
-The Korean live app also offers a first-visit language suggestion based on the
-connection country, with browser-language fallback. It never redirects
-automatically, remembers an explicit language choice or dismissal, and states
-that country.is receives the lookup request IP while Tape Lounge does not store
-IP or location. Translated editorial pages are linked; live tools remain Korean.
+The live lounge at `/`, `/en/`, `/zh/`, and `/ja/` uses the same shared
+`classic-home.html` shell and keeps the same panel order, layout, and
+interactions across languages. `live-home-locale.js` translates the live
+interface strings for English, Chinese, and Japanese; exchange names, tickers,
+and the branded “At the Table” labels remain shared. Editorial and guide pages
+are available beneath each locale route. The Korean live app also offers a
+first-visit language suggestion based on the connection country, with
+browser-language fallback. It never redirects automatically, remembers an
+explicit language choice or dismissal, and states that country.is receives the
+lookup request IP while Tape Lounge does not store IP or location.
 
 ## Daily blind-chart return loop
 
