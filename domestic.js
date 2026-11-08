@@ -183,8 +183,10 @@ function render(){
  if(restore&&safeSymbol(restore[1]))el.querySelector(`[data-${restore[0]}="${restore[1]}"]`)?.focus({preventScroll:true});
 }
 async function get(url,epoch,asText=false){
- const c=new AbortController();state.controllers.add(c);const t=setTimeout(()=>c.abort(),12000);
- try{const r=await fetch(url,{signal:c.signal,cache:'no-store',credentials:'omit'});if(!r.ok)throw Error('HTTP '+r.status);const data=asText?await r.text():await r.json();if(epoch!==state.epoch)throw Error('Cancelled');return data;}finally{clearTimeout(t);state.controllers.delete(c);}
+ const c=new AbortController();state.controllers.add(c);let timedOut=false;const t=setTimeout(()=>{timedOut=true;c.abort();},12000);
+ try{const r=await fetch(url,{signal:c.signal,cache:'no-store',credentials:'omit'});if(!r.ok)throw Error('HTTP '+r.status);const data=asText?await r.text():await r.json();if(epoch!==state.epoch)throw Error('Cancelled');return data;}
+ catch(e){if(timedOut)throw Error('Request timed out');throw e;}
+ finally{clearTimeout(t);state.controllers.delete(c);}
 }
 async function job(key,fn){try{await fn();delete state.errors[key];state.tries[key]=0;if(key==='andy')state.andyStatus='ready';}catch(e){if(e.name!=='AbortError'&&e.message!=='Cancelled'){state.errors[key]=true;state.tries[key]=(state.tries[key]||0)+1;if(key==='andy')state.andyStatus='failed';}}}
 async function domestic(venue,epoch){
