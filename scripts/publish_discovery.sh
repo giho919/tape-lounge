@@ -17,7 +17,7 @@ stage_public_files() {
   # Keep the active day's game payload available, but never publish future answers early.
   git add -u -- reports/blind_daily_stock_v2/
   local today_payload="reports/blind_daily_stock_v2/$(TZ=Asia/Seoul date +%F).json"
-  if [[ -f "$today_payload" ]]; then git add -- "$today_payload"; fi
+  if [[ -f "$today_payload" ]]; then git add -f -- "$today_payload"; fi
   # Keep historical rounds for replay, but publish no future answer payloads.
   python3 scripts/prune_future_blind_rounds.py "$today_payload"
 }

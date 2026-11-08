@@ -1,3 +1,5 @@
 .DS_Store
 __pycache__/
 .env.ai-chat
+# Round payloads are generated ahead; the publisher force-adds only today's file.
+reports/blind_daily_stock_v2/*.json
