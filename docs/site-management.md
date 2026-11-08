@@ -16,6 +16,8 @@ are excluded client-side and at the anonymous database RPC boundary, without
 storing their user-agent string. Daily rollups, the live overview and tab
 summaries all require at least five active seconds. This is an
 engagement-qualified browser count, not independently verified human identity.
+Internal preview browsers also skip the shared realtime-presence channel, so they
+cannot appear in or be confused with the public live-viewer count.
 Active time includes visible time leading up to qualification and later
 foreground time; hidden-tab intervals are excluded. Historical totals from
 before the five-second interaction threshold may include brief accidental taps

@@ -1200,6 +1200,10 @@ window.siteAnalyticsTabLeaving = siteAnalyticsTabLeaving;
 window.siteAnalyticsTabEntered = siteAnalyticsTabEntered;
 
 function renderViewerCount() {
+  if (analyticsInternal) {
+    $('viewerCount').textContent = '집계 제외';
+    return;
+  }
   if (!presenceChannel) return;
   if (presenceRealtimeState !== 'connected') {
     $('viewerCount').textContent = presenceRealtimeLabel();
@@ -1209,6 +1213,7 @@ function renderViewerCount() {
   $('viewerCount').textContent = `${count}명 관전 중`;
 }
 function presenceRealtimeLabel() {
+  if (analyticsInternal) return '집계 제외';
   if (presenceRealtimeState === 'connected') return `${Object.keys(presenceChannel?.presenceState() || {}).length}명 관전 중`;
   if (presenceRealtimeState === 'reconnecting') return '재연결 중';
   if (presenceRealtimeState === 'delayed') return '접속자 확인 지연';
@@ -1224,6 +1229,10 @@ function armPresenceConnectionTimer(channel) {
   }, PRESENCE_REALTIME_TIMEOUT_MS);
 }
 function startSitePresence() {
+  if (analyticsInternal) {
+    $('viewerCount').textContent = presenceRealtimeLabel();
+    return;
+  }
   if (!sbc || document.hidden || presenceChannel || analyticsAutomated || !analyticsQualified) return;
   // 고정 채널명 — 세션마다 다른 이름을 쓰면(구 -${presenceSeq}) 탭 전환 후 재구독한 사람이
   // 새 채널로 옮겨가 버려 같은 순간에도 서로 다른 채널에 흩어지고 인원수가 실제보다 적게 잡혔다.
@@ -1237,10 +1246,8 @@ function startSitePresence() {
     if (status === 'SUBSCRIBED' && presenceChannel === channel) {
       presenceRealtimeState = 'connected';
       clearTimeout(presenceConnectionTimer); presenceConnectionTimer = null;
-      if (!analyticsInternal) {
-        try { await channel.track({ online_at:new Date().toISOString() }); }
-        catch (error) { console.warn('presence track unavailable'); }
-      }
+      try { await channel.track({ online_at:new Date().toISOString() }); }
+      catch (error) { console.warn('presence track unavailable'); }
       renderViewerCount();
     } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
       presenceRealtimeState = 'reconnecting';
