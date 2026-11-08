@@ -1,10 +1,10 @@
 # Tape Lounge
 
-> An interactive market lounge for reading crypto price action, exchange flows, and historical chart behaviour.
+> An interactive market lounge with live crypto market context, a shared daily U.S.-stock chart challenge, and historical BTC decision practice.
 
 ## Start here
 - [Live lounge](https://tapelounge.com/): market-session comparison, a short crypto race, candle deck, BTC chart and indicators, simulated position panel, lounge chat, live trade flow, and order book.
-- [Blind chart challenge](https://tapelounge.com/blind/?daily=1): trade a shared historical stock or crypto chart with virtual funds, then compare the result with holding over the same period.
+- [Blind chart challenge](https://tapelounge.com/blind/?daily=1): everyone gets the same hidden U.S.-stock chart in the free daily round; trade 200 historical sessions with virtual funds and compare the result with holding over the same period. Solo practice also offers crypto. Localized: [English](https://tapelounge.com/en/tools/blind/?daily=1) · [中文](https://tapelounge.com/zh/tools/blind/?daily=1) · [日本語](https://tapelounge.com/ja/tools/blind/?daily=1).
 - [BTC decision practice (English)](https://tapelounge.com/en/decision/): choose buy, wait, hold, or exit at historical BTC chart moments; inspect 1d/4h/1h candles, prior-day Bitcoin Fear & Greed (Alternative.me), and historical Binance funding; then reveal the next five days and compare the virtual result with holding. The sentiment and funding context are historical only, not live signals or proof of predictive skill. Localized: [한국어](https://tapelounge.com/decision/) · [中文](https://tapelounge.com/zh/decision/) · [日本語](https://tapelounge.com/ja/decision/).
 - [How the blind chart challenge works](https://tapelounge.com/ko/learn/blind-chart-practice/): scoring, limitations, and practice details.
 - [English edition](https://tapelounge.com/en/)
