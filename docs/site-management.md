@@ -43,6 +43,12 @@ The sitemap's tool dates follow the source hash instead of changing hourly when
 only a report refreshes. This enables discovery; it does not prove indexing or
 promise a ranking. Check search-console evidence when available.
 
+Localized live-app home and tool entries share the Korean shell and navigation
+structure, while `localize_live_navigation()` in `scripts/build_discovery.py`
+translates visible tab names, hover descriptions, and the mobile overflow menu
+for English, Simplified Chinese, and Japanese. Keep all locale routes generated
+through `tool_page()` so their navigation stays consistent.
+
 The hourly publisher uses a private temporary clone and stages only an explicit
 public-file allowlist. If another report job advances `main` during publication,
 it retries the non-fast-forward race up to two times by fetching, rebasing, and

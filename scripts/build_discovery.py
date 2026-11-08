@@ -124,6 +124,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
     text = scope_chain_source_credit(text, selected)
     if live_tools:
+        text = localize_live_navigation(text, lang)
         text = text.replace('<html lang="ko">',
                             f'<html lang="{lang}" data-live-tools-root="/{lang}/tools">', 1)
         text = text.replace('<meta name="robots" content="index,follow">',
@@ -344,6 +345,124 @@ LIVE_TAB_SLUGS = {
     'lounge':'', 'game':'blind', 'domestic':'domestic', 'desk':'desk',
     'analysis':'analysis', 'chain':'onchain', 'macro':'calendar', 'chars':'strategists',
 }
+LIVE_NAV_COPY = {
+    'en': {
+        'aria':'Lounge sections', 'more':'More', 'moreMenu':'More lounge tools',
+        'tabs':{
+            'lounge':('Lounge','Main screen with live prices, liquidations and chat'),
+            'game':('Blind chart','Practice on a real chart with its ticker and date hidden'),
+            'domestic':('Korea','Korean exchange prices, premium, watchlist and Andy’s watchlist'),
+            'desk':('Desk','Bitcoin futures trends, key levels, funding and order book'),
+            'analysis':('Chart analysis','Long-term Bitcoin channels and chart analysis'),
+            'chain':('On-chain','Network fees, open interest and whale transfers'),
+            'macro':('Calendar','CPI, jobs, GDP and FOMC dates and results'),
+            'chars':('Strategists','Monthly regimes, daily watchlists and operating ledgers'),
+        },
+        'mobile':{'analysis':'Chart analysis','chain':'On-chain','macro':'Calendar','chars':'Strategists'},
+    },
+    'zh': {
+        'aria':'大厅分区', 'more':'更多', 'moreMenu':'更多大厅工具',
+        'tabs':{
+            'lounge':('大厅','实时价格、清算和聊天的主页面'),
+            'game':('盲图练习','隐藏标的和日期的真实历史图表练习'),
+            'domestic':('韩国市场','韩国交易所价格、溢价、自选和 Andy 观察名单'),
+            'desk':('交易台','比特币期货趋势、关键价位、资金费率和盘口'),
+            'analysis':('图表分析','比特币长期通道与图表分析'),
+            'chain':('链上','网络手续费、未平仓合约和大额转账'),
+            'macro':('经济日历','CPI、就业、GDP 和 FOMC 日程与结果'),
+            'chars':('策略师','月度市场判断、每日观察名单和运行记录'),
+        },
+        'mobile':{'analysis':'图表分析','chain':'链上','macro':'经济日历','chars':'策略师'},
+    },
+    'ja': {
+        'aria':'ラウンジのセクション', 'more':'もっと見る', 'moreMenu':'その他のラウンジ機能',
+        'tabs':{
+            'lounge':('ラウンジ','リアルタイム価格・清算・チャットのメイン画面'),
+            'game':('ブラインドチャート','銘柄名と日付を隠した実際の過去チャートで練習'),
+            'domestic':('韓国市場','韓国取引所の価格・プレミアム・ウォッチリスト・Andyの候補'),
+            'desk':('デスク','ビットコイン先物のトレンド・価格帯・資金調達率・板情報'),
+            'analysis':('チャート分析','ビットコインの長期チャネルとチャート分析'),
+            'chain':('オンチェーン','ネットワーク手数料・未決済建玉・大口送金'),
+            'macro':('経済指標','CPI・雇用・GDP・FOMCの日程と結果'),
+            'chars':('ストラテジスト','月次の相場判断・日々の候補・運用記録'),
+        },
+        'mobile':{'analysis':'チャート分析','chain':'オンチェーン','macro':'経済指標','chars':'ストラテジスト'},
+    },
+}
+
+def localize_live_navigation(text, lang):
+    """Keep the shared live-app navigation structure while translating its visible labels."""
+    copy = LIVE_NAV_COPY.get(lang)
+    if not copy:
+        return text
+
+    text, count = re.subn(
+        r'(<div\b(?=[^>]*\bclass="tabs")[^>]*\baria-label=")[^"]*(")',
+        lambda m: m.group(1) + copy['aria'] + m.group(2), text, count=1)
+    if count != 1:
+        raise ValueError(f'Could not localize the {lang} live tab-list label')
+
+    found = set()
+    def localize_tab(match):
+        key = match.group(1)
+        if key not in copy['tabs']:
+            return match.group(0)
+        label, title = copy['tabs'][key]
+        opening, body, closing = match.group(0)[:match.group(0).find('>') + 1], match.group(2), '</a>'
+        opening, changed = re.subn(r'\btitle="[^"]*"',
+                                   lambda _: f'title="{e(title, quote=True)}"',
+                                   opening, count=1)
+        if changed != 1:
+            raise ValueError(f'Could not localize the {lang} {key} tab tooltip')
+        body, changed = re.subn(r'(<span class="nm">).*?(</span>)',
+                                lambda m: m.group(1) + e(label) + m.group(2),
+                                body, count=1, flags=re.S)
+        if changed != 1:
+            raise ValueError(f'Could not localize the {lang} {key} tab label')
+        found.add(key)
+        return opening + body + closing
+
+    text = re.sub(r'<a\b[^>]*\bdata-tab="([^"]+)"[^>]*>(.*?)</a>',
+                  localize_tab, text, flags=re.S)
+    if found != set(copy['tabs']):
+        raise ValueError(f'Incomplete {lang} tab set: {sorted(found)}')
+
+    text, count = re.subn(r'(<button\b[^>]*\bid="mobileMoreToggle"[^>]*\baria-label=")[^"]*(")',
+                          lambda m: m.group(1) + e(copy['more'], quote=True) + m.group(2),
+                          text, count=1)
+    if count != 1:
+        raise ValueError(f'Could not localize the {lang} mobile more button')
+    text, count = re.subn(r'(<span class="nm">)더보기(</span>)',
+                          lambda m: m.group(1) + e(copy['more']) + m.group(2),
+                          text, count=1)
+    if count != 1:
+        raise ValueError(f'Could not localize the {lang} mobile more label')
+    text, count = re.subn(r'(<nav\b[^>]*\bid="mobileMoreMenu"[^>]*\baria-label=")[^"]*(")',
+                          lambda m: m.group(1) + e(copy['moreMenu'], quote=True) + m.group(2),
+                          text, count=1)
+    if count != 1:
+        raise ValueError(f'Could not localize the {lang} mobile menu label')
+
+    mobile_found = set()
+    def localize_mobile_item(match):
+        key = match.group(1)
+        label = copy['mobile'].get(key)
+        if label is None:
+            return match.group(0)
+        body, changed = re.subn(r'(<span>).*?(</span>)',
+                                lambda m: m.group(1) + e(label) + m.group(2),
+                                match.group(2), count=1, flags=re.S)
+        if changed != 1:
+            raise ValueError(f'Could not localize the {lang} mobile {key} label')
+        mobile_found.add(key)
+        return match.group(0)[:match.group(0).find('>') + 1] + body + '</a>'
+
+    text = re.sub(r'<a\b[^>]*\bdata-mobile-nav="([^"]+)"[^>]*>(.*?)</a>',
+                  localize_mobile_item, text, flags=re.S)
+    if mobile_found != set(copy['mobile']):
+        raise ValueError(f'Incomplete {lang} mobile menu: {sorted(mobile_found)}')
+    return text
+
 LIVE_PAGE_COPY = {
     'en': {
         '': ('U.S. Stock Chart Game & Live Crypto Data | Tape Lounge', 'No login needed: play a free daily U.S. stock chart game with ticker and dates hidden. Trade 200 real daily candles, then compare with buy-and-hold. Live crypto markets, too.'),
