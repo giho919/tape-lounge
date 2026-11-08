@@ -12,7 +12,9 @@ add daily unique counts together and call the sum weekly unique visitors.
 The analytics visitor count starts only after the page has remained visible for
 five cumulative seconds. Pointer, keyboard, wheel, touch or scroll input does
 not bypass that threshold. Known crawlers, preview agents and WebDriver sessions
-are excluded client-side without storing their user-agent string. This is an
+are excluded client-side and at the anonymous database RPC boundary, without
+storing their user-agent string. Daily rollups, the live overview and tab
+summaries all require at least five active seconds. This is an
 engagement-qualified browser count, not independently verified human identity.
 Active time includes visible time leading up to qualification and later
 foreground time; hidden-tab intervals are excluded. Historical totals from
