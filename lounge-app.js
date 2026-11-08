@@ -3774,6 +3774,9 @@ else if (bgDailyQuery !== null) setTimeout(() => {
     }
   }
 }, 0);
+else if (document.body.dataset.entryTab === 'game') setTimeout(() => {
+  bgSetMode('daily');
+}, 0);
 
 // ═══ 📣 거시 발표장 ═══
 let macroData = null, macroStarted = false, macroClockTimer = null, macroRefreshTimer = null;
