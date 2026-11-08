@@ -5,6 +5,14 @@
 
 **Live** → https://tapelounge.com
 
+## Try the room · 바로 체험하기
+
+- **Today's hidden stock chart / 오늘의 미국 주식 판:** [English](https://tapelounge.com/en/tools/blind/?daily=1&start=1) · [한국어](https://tapelounge.com/blind/?daily=1&start=1) — play 200 hidden sessions in about four minutes, then compare with buy-and-hold. Login-free paper trading / 종목과 날짜를 가린 200거래일을 약 4분간 플레이하고 같은 기간 보유와 비교합니다.
+- **BTC decision practice / 과거 BTC 판단 연습:** [English](https://tapelounge.com/en/decision/) · [한국어](https://tapelounge.com/decision/) — review 1D, 4H and 1H charts with historical context, then reveal the next five days / 1D·4H·1H 차트와 당시 시장 정보를 보고 선택마다 다음 5일을 엽니다.
+- **Live lounge / 라운지 입장:** [English](https://tapelounge.com/en/) · [한국어](https://tapelounge.com/)
+
+## Project notes
+
 **2026-10-25 rollback:** the public root is restored to the lounge that preceded the
 2026-10-22 redesign: live futures desk, on-chain data, macro-release board, blind-chart
 game and strategist reports. The locale research pages and report URLs remain available.
