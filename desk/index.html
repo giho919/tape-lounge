@@ -28,7 +28,7 @@
 <link rel="dns-prefetch" href="https://api.upbit.com">
 <link rel="dns-prefetch" href="https://data-api.binance.vision">
 <link rel="preload" as="style" href="domestic.css?v=20261103a" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="domestic.css?v=20261103a"></noscript>
-<link rel="preload" as="style" href="chart-analysis.css?v=20261010c" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="chart-analysis.css?v=20261010c"></noscript>
+<link rel="preload" as="style" href="chart-analysis.css?v=20261109a" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="chart-analysis.css?v=20261109a"></noscript>
 <link rel="preload" as="style" href="chart-share.css?v=20261031a" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="chart-share.css?v=20261031a"></noscript>
 
 
@@ -69,7 +69,7 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .wrap { max-width:1500px; margin:0 auto; padding:0 22px 40px; padding-right:158px; }
 
 .hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 0 12px; border-bottom:1px solid var(--gold-dim); }
-.brand { font-family:Georgia,serif; font-size:22px; letter-spacing:6px; color:var(--gold); }
+.brand { margin:0; font-family:Georgia,serif; font-size:22px; font-weight:400; letter-spacing:6px; color:var(--gold); }
 .brand small { display:block; font-size:9px; letter-spacing:4px; color:var(--dim); margin-top:2px; }
 /* 측면 인덱스 — 화면 오른쪽에 고정돼 스크롤 중에도 탭을 바로 전환한다. */
 .tabsWrap { position:fixed; top:50%; right:max(0px, calc((100vw - 1500px) / 2));
@@ -124,8 +124,9 @@ body { background:var(--bg); color:var(--tx); font-family:'Apple SD Gothic Neo',
 .nickBtn { padding:3px 9px; border:1px solid var(--gold-dim); border-radius:14px; background:rgba(212,175,55,.07); font:700 10px Menlo,monospace; letter-spacing:.5px; color:var(--gold); cursor:pointer; white-space:nowrap; }
 .nickBtn:hover { background:rgba(212,175,55,.16); }
 .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
-.panel h3 { font-size:11px; letter-spacing:3px; color:var(--gold); padding:11px 15px 9px; border-bottom:1px solid var(--line); font-weight:600; display:flex; justify-content:space-between; align-items:baseline; }
-.panel h3 small { color:var(--dim); letter-spacing:1px; font-weight:400; }
+.panel h3,.panel h1.bgGameHeading { font-size:11px; letter-spacing:3px; color:var(--gold); padding:11px 15px 9px; border-bottom:1px solid var(--line); font-weight:600; display:flex; justify-content:space-between; align-items:baseline; }
+.panel h1.bgGameHeading { margin:1em 0; }
+.panel h3 small,.panel h1.bgGameHeading small { color:var(--dim); letter-spacing:1px; font-weight:400; }
 canvas { display:block; }
 
 #chart { height:400px; }
@@ -281,8 +282,8 @@ canvas { display:block; }
 #livePx span.flap { animation:flap .28s; }
 @keyframes flap { 0% { transform:rotateX(0); } 50% { transform:rotateX(90deg); opacity:.4; } 100% { transform:rotateX(0); } }
 /* 네온 */
-.panel h3 { text-shadow:0 0 8px rgba(212,175,55,.25); }
-body.neon .panel h3, body.neon .brand { animation:neonflk 1.8s; }
+.panel h3,.panel h1.bgGameHeading { text-shadow:0 0 8px rgba(212,175,55,.25); }
+body.neon .panel h3, body.neon .panel h1.bgGameHeading, body.neon .brand { animation:neonflk 1.8s; }
 @keyframes neonflk { 0%,18%,22%,54%,58%,100% { text-shadow:0 0 8px rgba(212,175,55,.9),0 0 22px rgba(212,175,55,.5); } 20%,56% { text-shadow:none; opacity:.6; } }
 /* 스포트라이트 */
 #spot { position:fixed; inset:0; pointer-events:none; z-index:92; opacity:0; }
@@ -642,7 +643,7 @@ body.shake { animation:shake .5s; }
 /* ═══ 블록 금고 ═══ */
 .chainHero { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:14px 0; padding:18px 20px; border:1px solid var(--gold-dim); border-radius:12px; background:linear-gradient(105deg,rgba(212,175,55,.12),rgba(18,21,28,.95) 48%,rgba(34,211,238,.06)); }
 .chainKicker { font-size:10px; letter-spacing:3px; color:var(--gold); margin-bottom:5px; }
-.chainTitle { font-family:Georgia,serif; font-size:clamp(20px,2.4vw,30px); color:#f4e6b6; }
+.chainTitle { margin:0; font-family:Georgia,serif; font-size:clamp(20px,2.4vw,30px); font-weight:400; color:#f4e6b6; }
 .chainDesc { font-size:12px; color:var(--dim); margin-top:7px; line-height:1.6; }
 .chainLive { min-width:190px; text-align:right; }
 .chainLive b { display:block; font-size:18px; color:var(--cyan); font-family:Menlo,monospace; }
@@ -677,7 +678,7 @@ body.shake { animation:shake .5s; }
 .macroHero { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center; min-height:180px; padding:24px 26px; border:1px solid #59658a; border-radius:12px; background:radial-gradient(circle at 78% 30%,rgba(34,211,238,.13),transparent 28%),linear-gradient(110deg,rgba(72,61,130,.24),rgba(18,21,28,.98) 52%,rgba(212,175,55,.08)); }
 .macroHero:after { content:'ECONOMIC WIRE'; position:absolute; right:-24px; bottom:-13px; font:800 42px Menlo,monospace; letter-spacing:-3px; color:rgba(255,255,255,.025); }
 .macroKicker { font-size:9px; letter-spacing:3px; color:var(--cyan); }
-.macroTitle { margin-top:5px; font:700 clamp(21px,2.5vw,32px) Georgia,serif; color:#eef7ff; }
+.macroTitle { margin:5px 0 0; font:700 clamp(21px,2.5vw,32px) Georgia,serif; color:#eef7ff; }
 .macroDesc { margin-top:7px; max-width:650px; font-size:11.5px; line-height:1.7; color:var(--dim); }
 .macroNext { position:relative; z-index:1; min-width:270px; padding:15px 17px; border:1px solid #3f4964; border-radius:10px; background:rgba(9,12,18,.78); }
 .macroNextTop { display:flex; justify-content:space-between; gap:14px; font-size:9px; letter-spacing:1.5px; color:var(--dim); }
@@ -761,7 +762,7 @@ body.shake { animation:shake .5s; }
 .deskHero { position:relative; overflow:hidden; display:grid; grid-template-columns:1fr auto; align-items:end; gap:30px; padding:26px 28px; border:1px solid #2d3949; border-radius:18px; background:radial-gradient(circle at 84% 0,rgba(34,211,238,.10),transparent 38%),linear-gradient(145deg,#151b24,#0f131a); }
 .deskHero:after { content:''; position:absolute; right:-70px; bottom:-135px; width:330px; height:210px; border:1px solid rgba(34,211,238,.13); border-radius:50%; transform:rotate(-14deg); pointer-events:none; }
 .deskKicker { color:var(--cyan); font:700 9px Menlo,monospace; letter-spacing:2.6px; }
-.deskTitle { margin-top:7px; color:#f4f7fb; font:700 clamp(25px,3vw,38px) Georgia,serif; }
+.deskTitle { margin:7px 0 0; color:#f4f7fb; font:700 clamp(25px,3vw,38px) Georgia,serif; }
 .deskLead { max-width:700px; margin-top:8px; color:#8e98a8; font-size:12px; line-height:1.7; }
 .deskTape { position:relative; z-index:1; min-width:190px; text-align:right; }
 .deskTape b { display:block; color:#fff; font:800 25px Menlo,monospace; }
@@ -835,7 +836,7 @@ body.shake { animation:shake .5s; }
 @media(max-width:760px){.deskWrap{margin-top:10px}.deskHero{grid-template-columns:1fr;padding:21px 18px;gap:17px}.deskTape{text-align:left}.deskNav{top:0}.deskNav button{padding:9px 5px;font-size:10px}.deskGrid{grid-template-columns:1fr}.deskCard,.deskCard.wide,.deskCard.narrow,.deskCard.full{grid-column:auto}.deskStats{grid-template-columns:1fr 1fr}.deskCardHead{padding:14px 15px 11px}.deskBody{padding:14px 15px 16px}.deskContext{grid-template-columns:58px 1fr}.deskContextScore{width:58px;height:58px;border-radius:16px;font-size:17px}.deskWalls{grid-template-columns:1fr}.deskFootnote{text-align:left}}
 @media(max-width:380px){.deskStats{grid-template-columns:1fr}.deskNav button{font-size:9px}.deskFlowSide b{font-size:19px}}
 </style>
-<link rel="preload" as="style" href="strategists.css?v=20260909" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="strategists.css?v=20260909"></noscript>
+<link rel="preload" as="style" href="strategists.css?v=20261109a" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="strategists.css?v=20261109a"></noscript>
 <style id="mobileNavCss">
 .mobileMoreToggle,.mobileMoreMenu { display:none; }
 .mobileMoreMenu[hidden] { display:none !important; }
@@ -1120,7 +1121,7 @@ body.shake { animation:shake .5s; }
 <div id="tab-desk">
   <div class="deskWrap">
     <div class="deskHero">
-      <div><div class="deskKicker">MARKET INTELLIGENCE · BTCUSDT PERPETUAL</div><div class="deskTitle">프로 트레이딩 데스크</div><p class="deskLead">추세 정렬, 주요 가격대, 파생 포지셔닝과 실제 주문 흐름을 서로 교차 확인합니다. 한 지표의 방향보다 여러 조건의 합류를 우선합니다.</p></div>
+      <div><div class="deskKicker">MARKET INTELLIGENCE · BTCUSDT PERPETUAL</div><h1 class="deskTitle">프로 트레이딩 데스크</h1><p class="deskLead">추세 정렬, 주요 가격대, 파생 포지셔닝과 실제 주문 흐름을 서로 교차 확인합니다. 한 지표의 방향보다 여러 조건의 합류를 우선합니다.</p></div>
       <div class="deskTape"><b id="deskPrice">—</b><span><i id="deskDot"></i><span id="deskStatus" style="display:inline">탭을 열면 연결</span></span></div>
     </div>
 
