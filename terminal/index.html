@@ -45,8 +45,9 @@
 <script src="chart-share.js?v=20261031a" defer></script>
 <script defer src="blind-daily.js?v=bd18cac8228a"></script>
 <script src="blind-daily-share.js?v=38e6aa211cf2" defer></script>
-<script defer src="/site-campaign.js?v=de8d7dc446497"></script>
-<script defer src="/lounge-rotation.js?v=de8d7dc446497"></script>
+<script defer src="/site-campaign.js?v=dbec2ef104d71"></script>
+<script defer src="/lounge-rotation.js?v=dbec2ef104d71"></script>
+<script defer src="/calendar-share.js?v=95f6a5614839"></script>
 <script src="chart-analysis-20261101.js" defer></script>
 <script defer src="btc-long-channel.js?v=20261010d"></script>
 <script src="domestic-stream.js?v=20260911f" defer></script>
@@ -680,6 +681,11 @@ body.shake { animation:shake .5s; }
 .macroKicker { font-size:9px; letter-spacing:3px; color:var(--cyan); }
 .macroTitle { margin:5px 0 0; font:700 clamp(21px,2.5vw,32px) Georgia,serif; color:#eef7ff; }
 .macroDesc { margin-top:7px; max-width:650px; font-size:11.5px; line-height:1.7; color:var(--dim); }
+.macroShareActions { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin-top:13px; }
+.macroShareButton { min-height:40px; padding:0 13px; border:1px solid rgba(212,175,55,.48); border-radius:8px; background:rgba(212,175,55,.09); color:#e5ce79; font:600 11px/1.3 'Apple SD Gothic Neo','Noto Sans KR',sans-serif; cursor:pointer; touch-action:manipulation; }
+.macroShareButton:hover { border-color:var(--gold); background:rgba(212,175,55,.15); color:#f4dc8a; }
+.macroShareButton:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.macroShareStatus { min-height:1.4em; color:var(--dim); font-size:10px; line-height:1.5; }
 .macroNext { position:relative; z-index:1; min-width:270px; padding:15px 17px; border:1px solid #3f4964; border-radius:10px; background:rgba(9,12,18,.78); }
 .macroNextTop { display:flex; justify-content:space-between; gap:14px; font-size:9px; letter-spacing:1.5px; color:var(--dim); }
 .macroNextTop b { color:var(--gold); }
@@ -1392,6 +1398,10 @@ body.shake { animation:shake .5s; }
         <div class="macroKicker">OFFICIAL WIRE · KST SETTLEMENT</div>
         <div class="macroTitle">거시 발표장</div>
         <p class="macroDesc">미국 공식 발표 시각을 기다리고, 숫자가 찍히는 순간과 비트코인의 5·15·60분 여진을 한 장부에서 지켜봅니다.</p>
+        <div class="macroShareActions">
+          <button class="macroShareButton" id="macroShareButton" type="button">발표장 공유 ↗</button>
+          <span class="macroShareStatus" id="macroShareStatus" role="status" aria-live="polite"></span>
+        </div>
       </div>
       <div class="macroNext">
         <div class="macroNextTop"><span>NEXT EVENT TABLE</span><b id="macroNextGrade">—</b></div>
