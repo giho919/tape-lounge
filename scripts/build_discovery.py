@@ -63,6 +63,12 @@ TOOL_OG_ALT = {
     'zh': '深色卡片上的金色 Tape Lounge 标志，配有实时行情、合约交易台、链上数据和盲图游戏的韩文标语',
     'ja': '暗いカードに金色の Tape Lounge ロゴ。リアルタイム相場、先物デスク、オンチェーン、ブラインドチャートゲームの韓国語タグライン',
 }
+CALENDAR_OG_ALT = {
+    'ko': '미국 CPI·고용·GDP·FOMC 발표 일정과 발표 뒤 비트코인 반응을 기록하는 Tape Lounge 발표장',
+    'en': 'Tape Lounge macro calendar for U.S. CPI, jobs, GDP and FOMC releases, with Bitcoin reactions after each event',
+    'zh': 'Tape Lounge宏观发布厅：美国CPI、就业、GDP和FOMC日程及发布后的比特币反应',
+    'ja': '米国CPI・雇用・GDP・FOMCの日程と発表後のビットコイン反応を記録するTape Lounge発表フロア',
+}
 # Bump when the localized market index copy or search metadata changes.
 MARKET_PAGE_UPDATED = '2026-11-03'
 WATCH_PAGE_UPDATED = '2026-11-02'
@@ -75,6 +81,8 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
                'calendar-share.js',
                'blind-og-20261101.png',
+               'calendar-og-ko-20261110.png', 'calendar-og-en-20261110.png',
+               'calendar-og-zh-20261110.png', 'calendar-og-ja-20261110.png',
                'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
                'home-og-zh-20261103.png', 'home-og-ja-20261103.png',
                'decision-og-ko-20261101.png', 'decision-og-en-20261101.png',
@@ -197,6 +205,9 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
         else:
             image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
             image_alt = HOME_OG_ALT[lang]
+    elif slug == 'calendar':
+        image = BASE + f'/calendar-og-{lang}-20261110.png'
+        image_alt = CALENDAR_OG_ALT[lang]
     elif live_tools and not slug:
         image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
         image_alt = HOME_OG_ALT[lang]
