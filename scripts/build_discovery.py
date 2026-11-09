@@ -133,8 +133,8 @@ def apply_route_heading(text, selected, lang='ko'):
         old = '<div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>'
         new = '<h1 class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></h1>'
     elif selected == 'domestic':
-        old = '<h1>김치 프리미엄</h1>'
-        new = f'<h1>{localized or "김치 프리미엄"}</h1>'
+        old = '<h2 class="dmTitle">김치 프리미엄</h2>'
+        new = f'<h1 class="dmTitle">{localized or "김치 프리미엄"}</h1>'
     elif selected == 'desk':
         old = '<div class="deskTitle">프로 트레이딩 데스크</div>'
         new = f'<h1 class="deskTitle">{localized or "프로 트레이딩 데스크"}</h1>'

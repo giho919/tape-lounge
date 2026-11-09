@@ -4,7 +4,8 @@
 #tab-domestic .dm-intro{max-width:900px;margin:-8px 0 14px;color:#8d95a6;font-size:12px;line-height:1.6}
 #tab-domestic .dm-intro a{display:inline-flex;align-items:center;margin:2px 0 2px 6px;padding:3px 8px;border:1px solid rgba(212,175,55,.38);border-radius:999px;color:#e6c755;font-size:11px;font-weight:650;text-decoration:none;white-space:nowrap}
 #tab-domestic .dm-intro a:hover{border-color:var(--gold);background:rgba(212,175,55,.09);color:#f1d776}
-#tab-domestic h1{font-size:24px;color:var(--gold);font-weight:600}
+#tab-domestic h1,#tab-domestic .dmTitle{font-size:24px;color:var(--gold);font-weight:600}
+#tab-domestic .dmTitle{margin:.67em 0}
 #tab-domestic h2{font-size:17px;margin-bottom:8px}
 #tab-domestic a{color:var(--gold)}
 #tab-domestic p{margin:6px 0}
