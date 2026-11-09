@@ -73,6 +73,7 @@ NAMES = ['Bitcoin', 'Ethereum', 'Solana', 'XRP', 'BNB', 'Dogecoin', 'Cardano', '
 TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.js',
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
+               'calendar-share.js',
                'blind-og-20261101.png',
                'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
                'home-og-zh-20261103.png', 'home-og-ja-20261103.png',
@@ -585,7 +586,7 @@ def prepare_classic_home():
         classic, count=1)
     if rotation_script_count != 1:
         raise ValueError('Could not refresh the lounge rotation script version in the lounge template')
-    for asset in ['blind-daily.js','blind-daily-share.js','domestic.js']:
+    for asset in ['blind-daily.js','blind-daily-share.js','domestic.js','calendar-share.js']:
         asset_version=sha256(stable_bytes(ROOT/asset)).hexdigest()[:12]
         pattern=rf'(<script\b[^>]*\bsrc="/?{re.escape(asset)}\?v=)[^"]+("[^>]*></script>)'
         classic, asset_count = re.subn(pattern,lambda m:m.group(1)+asset_version+m.group(2),classic,count=1)
