@@ -863,10 +863,17 @@ def render(lang, page, data, letters, generated, root=False):
             'ja':('韓国市場のプレミアムをリアルタイムで比較','UpbitのKRW価格を海外USDT価格とUSD/KRW参考レートで比較し、売買代金とUSDT/KRW基準の差も確認できます。','リアルタイムの一覧を見る ↗'),
         }[lang]
         market_cta=(f'<section class="learn-callout" aria-labelledby="kimchi-live-title"><p class="eyebrow">LIVE MARKET</p><h2 id="kimchi-live-title">{e(market_cta_copy[0])}</h2><p>{e(market_cta_copy[1])}</p>{link(url(lang,"markets"),market_cta_copy[2])}</section>' if kimchi else '')
+        session_cta_copy={
+            'ko':('지금 세션 흐름 이어보기','오늘 BTC 움직임을 아시아·유럽·미국 시간대로 나눈 실시간 등락과 진행 상태를 확인하세요. 글에서 읽은 기준을 현재 흐름에 적용해 볼 수 있습니다.','실시간 세션 표 보기 ↗'),
+            'en':('Carry the session read into today','See live BTC returns and session status across Asia, Europe and the U.S. Apply the guide’s comparison to the market now.','Open the live session tape ↗'),
+            'zh':('把时段分析带回今天的行情','查看 BTC 在亚洲、欧洲和美国时段的实时涨跌与进度，并将文中的比较方法用于当前行情。','查看实时分时走势 ↗'),
+            'ja':('今日のセッション分析へ続ける','アジア・欧州・米国の時間帯別BTC騰落率と進行状況を確認し、記事の見方を現在の相場に当てはめられます。','リアルタイムのセッションを見る ↗'),
+        }[lang]
+        session_cta=(f'<section class="learn-callout" aria-labelledby="session-live-title"><p class="eyebrow">LIVE SESSION TAPE</p><h2 id="session-live-title">{e(session_cta_copy[0])}</h2><p>{e(session_cta_copy[1])}</p>{link(url(lang)+"#sessionPanel",session_cta_copy[2])}</section>' if guide[0]=='market-sessions' else '')
         tool=kimchi_calculator(lang) if kimchi else ''
         history=kimchi_history_chart(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+market_cta+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+market_cta+session_cta+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
