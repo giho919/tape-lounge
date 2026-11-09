@@ -143,6 +143,8 @@ def apply_route_heading(text, selected):
         new = '<h1>전략가들의 장부</h1>'
     else:
         return text
+    if new in text:
+        return text
     updated, count = text.replace(old, new, 1), text.count(old)
     if count != 1:
         raise ValueError(f'Could not set the visible H1 for route {selected!r}')
