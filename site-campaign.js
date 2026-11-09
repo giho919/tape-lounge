@@ -1,11 +1,11 @@
 /* Owned social campaign labels only. Never retain full incoming URLs or arbitrary values. */
 ((root) => {
   'use strict';
-  const topics = ['andy_scan','kimchi_fx','session_championship','daily_blind','site_launch'];
+  const topics = ['andy_scan','kimchi_fx','session_championship','daily_blind','site_launch','market_event'];
   const socialSources = ['threads','x','instagram'];
   const blindPaths = new Set(['/blind/','/en/tools/blind/','/zh/tools/blind/','/ja/tools/blind/']);
   const paths = ['/','/domestic/','/desk/','/analysis/','/onchain/','/calendar/','/strategists/',...blindPaths];
-  const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch)(_[0-9]{8})?$/;
+  const campaignPattern = /^(andy_scan|kimchi_fx|session_championship|daily_blind|site_launch|market_event)(_[0-9]{8})?$/;
   const sourceName = value => value === 'twitter' ? 'x' : value;
   const pageKeys = Object.freeze({
     '/':'lounge','/terminal/':'lounge','/tools/':'lounge',

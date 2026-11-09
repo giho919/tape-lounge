@@ -272,7 +272,9 @@ and normal solo play at desktop/mobile widths. Block writes with
 
 `site-campaign.js` recognizes owned Threads/X/Instagram links with `utm_medium=social`
 and a known topic: `andy_scan`, `kimchi_fx`, `session_championship`, `daily_blind`,
-or `site_launch`, optionally followed by `_YYYYMMDD`. `twitter` normalizes to `x`.
+`site_launch`, or `market_event`, optionally followed by `_YYYYMMDD`.
+`market_event` is for verified macro or market catalysts such as CPI releases;
+`twitter` normalizes to `x`.
 The legacy `blind_chart_game` topic normalizes to `daily_blind` so existing shared
 links retain campaign attribution.
 Unknown, partial or duplicate labels use the unchanged seven-argument analytics
