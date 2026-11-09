@@ -290,6 +290,12 @@ such as internal-access or prior campaign parameters. Decision pages load the
 campaign parser before analytics so these visits are recorded as shared-game
 referrals.
 
+The macro-calendar share action uses the fixed
+`share` / `referral` / `market_calendar` label and preserves only the supported
+Korean, English, Chinese or Japanese calendar route. It removes unrelated query
+values, including internal-access and earlier campaign parameters, so calendar
+shares can be measured separately from game invitations.
+
 The result-share control is user-initiated and reports what happened: native
 sharing when available, clipboard copy otherwise, and a visible localized text
 area when clipboard access is denied or takes longer than four seconds. A cancelled native share does not copy or
@@ -302,9 +308,11 @@ adds nullable session labels, private aggregate views and an RLS-protected daily
 table. The later `allow_instagram_campaign_attribution` migration expands only the
 source allowlist; its reviewed SQL snapshot is
 `supabase/site_campaign_instagram_source.sql`. The
-`allow_decision_game_share_attribution` migration adds the single fixed share
-campaign pair; its reviewed snapshot is
-`supabase/site_campaign_direct_share.sql`. The existing maintenance job rolls
+`allow_decision_game_share_attribution` migration adds the fixed game-share
+pairs; `supabase/site_campaign_direct_share.sql` records its reviewed SQL.
+`supabase/migrations/20261110121500_market_calendar_share_attribution.sql`
+adds the fixed calendar-share label and matching database validation. The
+existing maintenance job rolls
 campaigns before its raw-session purge; its owner, ACL, schedule and other actions
 are preserved. No public read access is added. The public anonymous write-only
 SECURITY DEFINER endpoint is intentional.

@@ -45,7 +45,7 @@
     // standardized to daily_blind; the database only receives the canonical label.
     campaign = campaign.replace(/^blind_chart_game(?=_|$)/, 'daily_blind');
     const isSocial = socialSources.includes(source) && medium === 'social' && campaignPattern.test(campaign);
-    const isDirectShare = source === 'share' && medium === 'referral' && ['decision_game','daily_blind'].includes(campaign);
+    const isDirectShare = source === 'share' && medium === 'referral' && ['decision_game','daily_blind','market_calendar'].includes(campaign);
     if (!isSocial && !isDirectShare) return null;
     return {source,campaign};
   }
@@ -86,7 +86,19 @@
     url.searchParams.set('start','1');
     return url.href;
   }
-  const api = Object.freeze({parse,route,tag,tagDailyBlindShare,pageKey,topics:Object.freeze(topics)});
+  function tagMacroShare(target) {
+    const original = new URL(target);
+    const localizedCalendarPaths = new Set(['/calendar/','/en/tools/calendar/','/zh/tools/calendar/','/ja/tools/calendar/']);
+    if (original.origin !== 'https://tapelounge.com' || original.username || original.password || !localizedCalendarPaths.has(original.pathname)) {
+      throw new Error('Only a public Tape Lounge calendar page can be shared');
+    }
+    const url = new URL(original.pathname, 'https://tapelounge.com');
+    url.searchParams.set('utm_source','share');
+    url.searchParams.set('utm_medium','referral');
+    url.searchParams.set('utm_campaign','market_calendar');
+    return url.href;
+  }
+  const api = Object.freeze({parse,route,tag,tagDailyBlindShare,tagMacroShare,pageKey,topics:Object.freeze(topics)});
   if (typeof module === 'object' && module.exports) module.exports=api;
   else root.TapeCampaign=api;
 })(typeof window === 'undefined' ? globalThis : window);

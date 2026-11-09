@@ -33,7 +33,7 @@
   };
 
   button.textContent = copy.button;
-  const pageUrl = () => new URL(location.pathname, location.origin).href;
+  const pageUrl = () => window.TapeCampaign?.tagMacroShare(location.href) || new URL(location.pathname, location.origin).href;
   async function copyLink(url) {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(url);
