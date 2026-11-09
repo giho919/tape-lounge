@@ -117,12 +117,44 @@ def scope_chain_source_credit(text, selected):
         raise ValueError('Could not scope the inactive on-chain source placeholder')
     return text
 
+
+def apply_route_heading(text, selected):
+    """Give each directly addressable app route a visible, topic-specific H1."""
+    if selected == 'lounge':
+        old = '<div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>'
+        new = '<h1 class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></h1>'
+    elif selected == 'desk':
+        old = '<div class="deskTitle">프로 트레이딩 데스크</div>'
+        new = '<h1 class="deskTitle">프로 트레이딩 데스크</h1>'
+    elif selected == 'analysis':
+        old = '<h2>장기 빗각</h2>'
+        new = '<h1>비트코인 장기 빗각</h1>'
+    elif selected == 'game':
+        old = '<h3 class="bgGameHeading"><span>🎰 블라인드 차트</span><small id="bgModeDesc">랜덤 과거 차트 · 종목·날짜는 정산 때 공개</small></h3>'
+        new = '<h1 class="bgGameHeading"><span>🎰 블라인드 차트</span><small id="bgModeDesc">랜덤 과거 차트 · 종목·날짜는 정산 때 공개</small></h1>'
+    elif selected == 'chain':
+        old = '<div class="chainTitle">블록 금고</div>'
+        new = '<h1 class="chainTitle">블록 금고</h1>'
+    elif selected == 'macro':
+        old = '<div class="macroTitle">거시 발표장</div>'
+        new = '<h1 class="macroTitle">거시 발표장</h1>'
+    elif selected == 'chars':
+        old = '<h2>전략가들의 장부</h2>'
+        new = '<h1>전략가들의 장부</h1>'
+    else:
+        return text
+    updated, count = text.replace(old, new, 1), text.count(old)
+    if count != 1:
+        raise ValueError(f'Could not set the visible H1 for route {selected!r}')
+    return updated
+
 def tool_page(classic, slug, selected, title, description, lang='ko', live_tools=False):
     """Serve one tab from the shared live-app shell, optionally under a locale route."""
     route = live_app_url(lang, slug) if live_tools else ('/' + slug.rstrip('/') + '/' if slug else '/')
     canonical = BASE + route
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
     text = scope_chain_source_credit(text, selected)
+    text = apply_route_heading(text, selected)
     if live_tools:
         text = localize_live_navigation(text, lang)
         text = text.replace('<html lang="ko">',
@@ -598,7 +630,7 @@ def localized_live_home(classic, lang):
 
 def write_live_home_pages(classic):
     """Write the canonical shared lounge home for Korean and all translated locales."""
-    home_shell = defer_home_shell_styles(classic)
+    home_shell = apply_route_heading(defer_home_shell_styles(classic), 'lounge')
     alternates = ''.join(
         f'<link rel="alternate" hreflang="{lang}" href="{BASE + locale_home_url(lang)}">'
         for lang in LANGS
