@@ -1158,6 +1158,8 @@ async function recordSiteActivity(activeSeconds = 0, keepalive = false, isView =
   }
   return recorded;
 }
+const analyticsInitialVisit = recordSiteActivity(0, true, true);
+analyticsStarted = true;
 function qualifySiteAnalytics() {
   if (analyticsQualified || analyticsAutomated || document.hidden) return false;
   const now = performance.now();
@@ -1167,7 +1169,7 @@ function qualifySiteAnalytics() {
   clearTimeout(analyticsQualificationTimer); analyticsQualificationTimer = null;
   analyticsQualificationVisibleSeconds = 0; analyticsVisibleSince = null;
   analyticsLastActiveAt = analyticsLastInputAt = now;
-  recordSiteActivity(visibleSeconds, false, !analyticsStarted);
+  analyticsInitialVisit.then(recorded => recordSiteActivity(visibleSeconds, false, !recorded));
   analyticsStarted = true;
   startSitePresence();
   if (!analyticsTimer) analyticsTimer = setInterval(() => siteAnalyticsFlush(false), 60000);
@@ -1287,7 +1289,15 @@ function syncSiteAudience() {
   }
 }
 document.addEventListener('visibilitychange', syncSiteAudience);
-window.addEventListener('pagehide', () => { siteAnalyticsFlush(true); stopSitePresence(); });
+window.addEventListener('pagehide', () => {
+  if (!analyticsQualified && !analyticsAutomated) {
+    const now = performance.now();
+    const seconds = analyticsQualificationVisibleSeconds +
+      (analyticsVisibleSince === null ? 0 : Math.max(0, (now - analyticsVisibleSince) / 1000));
+    if (seconds >= 1) recordSiteActivity(seconds, true, false);
+  }
+  siteAnalyticsFlush(true); stopSitePresence();
+});
 syncSiteAudience();
 // 익명 인증 — 쓰기(점수·채팅) 첫 시도 때만 세션 발급 (구경만 하면 계정 안 만듦)
 const TURNSTILE_SITEKEY = '0x4AAAAAAEDtJF9PJ4ZwYXIl';
