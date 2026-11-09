@@ -118,29 +118,41 @@ def scope_chain_source_credit(text, selected):
     return text
 
 
-def apply_route_heading(text, selected):
+def apply_route_heading(text, selected, lang='ko'):
     """Give each directly addressable app route a visible, topic-specific H1."""
+    localized = {
+        'domestic': {'en':'Kimchi premium','zh':'韩国溢价','ja':'韓国プレミアム'},
+        'desk': {'en':'Professional trading desk','zh':'专业交易台','ja':'プロトレーディングデスク'},
+        'analysis': {'en':'Bitcoin long-term channels','zh':'比特币长期通道','ja':'ビットコイン長期チャネル'},
+        'game': {'en':'🎰 Blind chart','zh':'🎰 盲图挑战','ja':'🎰 ブラインドチャート'},
+        'chain': {'en':'Block vault','zh':'区块金库','ja':'ブロック金庫'},
+        'macro': {'en':'Macro floor','zh':'宏观发布厅','ja':'マクロ発表フロア'},
+        'chars': {'en':'The strategists’ ledger','zh':'策略师记录','ja':'ストラテジストの記録'},
+    }.get(selected, {}).get(lang)
     if selected == 'lounge':
         old = '<div class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></div>'
         new = '<h1 class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></h1>'
+    elif selected == 'domestic':
+        old = '<h1>김치 프리미엄</h1>'
+        new = f'<h1>{localized or "김치 프리미엄"}</h1>'
     elif selected == 'desk':
         old = '<div class="deskTitle">프로 트레이딩 데스크</div>'
-        new = '<h1 class="deskTitle">프로 트레이딩 데스크</h1>'
+        new = f'<h1 class="deskTitle">{localized or "프로 트레이딩 데스크"}</h1>'
     elif selected == 'analysis':
         old = '<h2>장기 빗각</h2>'
-        new = '<h1>비트코인 장기 빗각</h1>'
+        new = f'<h1>{localized or "비트코인 장기 빗각"}</h1>'
     elif selected == 'game':
         old = '<h3 class="bgGameHeading"><span>🎰 블라인드 차트</span><small id="bgModeDesc">랜덤 과거 차트 · 종목·날짜는 정산 때 공개</small></h3>'
-        new = '<h1 class="bgGameHeading"><span>🎰 블라인드 차트</span><small id="bgModeDesc">랜덤 과거 차트 · 종목·날짜는 정산 때 공개</small></h1>'
+        new = f'<h1 class="bgGameHeading"><span>{localized or "🎰 블라인드 차트"}</span><small id="bgModeDesc">랜덤 과거 차트 · 종목·날짜는 정산 때 공개</small></h1>'
     elif selected == 'chain':
         old = '<div class="chainTitle">블록 금고</div>'
-        new = '<h1 class="chainTitle">블록 금고</h1>'
+        new = f'<h1 class="chainTitle">{localized or "블록 금고"}</h1>'
     elif selected == 'macro':
         old = '<div class="macroTitle">거시 발표장</div>'
-        new = '<h1 class="macroTitle">거시 발표장</h1>'
+        new = f'<h1 class="macroTitle">{localized or "거시 발표장"}</h1>'
     elif selected == 'chars':
         old = '<h2>전략가들의 장부</h2>'
-        new = '<h1>전략가들의 장부</h1>'
+        new = f'<h1>{localized or "전략가들의 장부"}</h1>'
     else:
         return text
     if new in text:
@@ -156,7 +168,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     canonical = BASE + route
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
     text = scope_chain_source_credit(text, selected)
-    text = apply_route_heading(text, selected)
+    text = apply_route_heading(text, selected, lang=lang)
     if live_tools:
         text = localize_live_navigation(text, lang)
         text = text.replace('<html lang="ko">',
