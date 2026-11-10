@@ -616,8 +616,11 @@ body.shake { animation:shake .5s; }
   .wrap{padding:0 10px calc(70px + env(safe-area-inset-bottom))}.hdr{flex-wrap:wrap;gap:10px;padding-top:13px}.brand{font-size:17px;letter-spacing:3px}.brand small{letter-spacing:2px}.hdr .live{padding:4px 7px;font-size:9px}.hdr .live b{font-size:9px}
   .main,.bgWrap,.chars{grid-template-columns:1fr}.bgWrap{gap:10px}.kpiRow{grid-template-columns:1fr}.kpiTile{padding:12px 14px}.kpiTile .v{font-size:21px}
   #tab-game>.bgWrap>.panel{min-height:0}#bgChart{height:clamp(300px,86vw,380px)!important}
-  #bgGameModeRow .bgModeBtn{flex:1;min-height:34px;font-size:11px}#bgTrackRow{padding-bottom:8px}#bgTrackRow .bgModeBtn{flex:0 0 auto}
-  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto}.bgChartControls.prestart~#bgOver{top:100px;padding:8px 8px 12px}#bgOver .box{width:100%;max-width:none;padding:18px 14px}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px}
+  .bgGameHeading small{flex:1 1 100%;min-width:0;white-space:normal;overflow-wrap:anywhere}
+  #bgGameModeRow{gap:6px}#bgGameModeRow .bgModeBtn{flex:1 1 calc(33.333% - 6px);min-width:0;min-height:40px;padding:6px 4px;font-size:11px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+  #bgTrackRow{padding-bottom:8px;flex-wrap:wrap}#bgTrackRow .bgModeBtn{flex:0 1 auto;min-width:0;white-space:normal}
+  .bgChartControls{justify-content:flex-start;max-width:100%;overflow:hidden}.bgSpeedControl{flex-wrap:wrap;max-width:100%}
+  #bgOver{align-items:flex-start;padding:8px 8px 12px;overflow-y:auto;overflow-x:hidden}.bgChartControls.prestart~#bgOver{top:100px;padding:8px 8px 12px}#bgOver .box{width:100%;max-width:none;padding:18px 14px;overflow-wrap:anywhere}#bgOver h4{font-size:15px}#bgOver p{font-size:11.5px;line-height:1.7}#bgOver .go{padding:9px 16px;letter-spacing:.7px;white-space:normal}#bgOver .bgDailyActions .go{flex:1 1 130px;min-width:0;line-height:1.4}
   .studyHome{grid-template-columns:1fr}.studyCode{font-size:23px;letter-spacing:5px}.studyBtns{display:grid;grid-template-columns:1fr 1fr}.studyBtns .go{width:100%;padding:9px 7px!important}.studyResultRow{grid-template-columns:1fr 62px 52px}.studyRoomLine{align-items:center;flex-wrap:wrap}
   #bgStat{gap:7px 10px;padding:11px 13px}#bgStat .r .v2{font-size:14px}.ordBox{margin-left:13px;margin-right:13px}.gRow{padding-left:13px;padding-right:13px}.gbtn{padding:10px 3px;font-size:10.5px}
   #chatPanel{min-height:420px}.chars{gap:10px}.char{padding:16px}
