@@ -57,6 +57,13 @@ HOME_OG_ALT = {
     'zh': 'Tape Lounge 每日同一张美股盲图挑战：隐藏标的和日期，完成模拟交易后与同期持有比较',
     'ja': '全員が銘柄と日付を隠した同じ米国株チャートに挑戦し、模擬売買を同期間保有と比べるTape Lounge',
 }
+WATCH_OG_VERSION = '20261110'
+WATCH_OG_ALT = {
+    'ko': '돌파 이후 일봉 추세 전환과 4시간봉 눌림·지지 관찰 흐름을 설명하는 Tape Lounge 코인 추세 레이더 공유 카드. 실제 차트나 매수 신호가 아닌 예시.',
+    'en': 'Tape Lounge crypto trend radar card showing an illustrative breakout, retest and support observation flow, not a live chart or buy signal.',
+    'zh': 'Tape Lounge加密趋势雷达分享卡：展示突破、回踩与支撑的示意观察流程，并非实时图表或买入信号。',
+    'ja': 'Tape Lounge暗号資産トレンドレーダーの共有カード。ブレイク、押し目、支持の観察例を示すもので、リアルチャートや売買シグナルではありません。',
+}
 TOOL_OG_ALT = {
     'ko': '검은 배경에 금색 Tape Lounge 로고와 실시간 시세·선물 데스크·온체인·블라인드 차트 게임 안내가 적힌 카드',
     'en': 'Tape Lounge gold wordmark on a dark card, with a Korean tagline for live prices, futures desk, on-chain and blind-chart game',
@@ -196,7 +203,10 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
                               ('property', 'og:url', canonical)]:
         text = re.sub(r'<meta '+attr+'="'+name+r'" content="[^"]*">',
                       lambda _: f'<meta {attr}="{name}" content="{e(value, quote=True)}">', text, count=1)
-    if slug == 'blind':
+    if slug == 'watch':
+        image = BASE + f'/watch-og-{lang}-{WATCH_OG_VERSION}.png'
+        image_alt = WATCH_OG_ALT[lang]
+    elif slug == 'blind':
         # Social shares of translated routes must preview in that route's language.
         # Use the dedicated game card for Korean; other locales keep localized cards.
         if lang == 'ko':
@@ -794,7 +804,13 @@ def render(lang, page, data, letters, generated, root=False):
     search_desc=c.get('marketSeoDescription',desc) if page=='markets' else c.get('radarSeoDescription',desc) if page=='watch' else desc
     article_date=guide_date(guide) if guide else None
     current=BASE+url(lang,page)
-    if guide and guide[0]=='blind-chart-practice':
+    if page == 'watch':
+        social_image=f'{BASE}/watch-og-{lang}-{WATCH_OG_VERSION}.png'
+        social_image_alt=WATCH_OG_ALT[lang]
+        social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
+                           f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+                           f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
+    elif guide and guide[0]=='blind-chart-practice':
         social_image=f'{BASE}/home-og-{lang}-{HOME_OG_VERSION}.png'
         social_image_alt=HOME_OG_ALT[lang]
         social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
@@ -921,7 +937,7 @@ def build(force=False):
     daily_changed=ensure_rounds(ROOT)
     report_metadata_changed=ensure_report_metadata()
     classic=prepare_classic_home()
-    inputs=['scripts/build_discovery.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
+    inputs=['scripts/build_discovery.py','scripts/generate_watch_og.py','scripts/frontend_config.py','scripts/decision-template.html','scripts/discovery_content.py','scripts/stage_content.py','scripts/blind_daily_stock_rounds.py','scripts/discovery-analytics.template.js','data/andy-watch.json','reports/letters.json','classic-home.html'] + [item[0] for item in REPORT_METADATA] + ASSETS + TOOL_ASSETS + SHARE_ASSETS
     fingerprint=sha256(b''.join(stable_bytes(ROOT/p) for p in inputs)).hexdigest()
     target=ROOT/'data/discovery.json'
     if not force and not daily_changed and not report_metadata_changed and target.exists() and read('data/discovery.json').get('sourceHash')==fingerprint:
