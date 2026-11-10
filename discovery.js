@@ -51,6 +51,7 @@ if(page==='markets')symbols.sort((a,b)=>sort==='change'?(quotes[b]?.change??-Inf
 const total=symbols.length;
 symbols=symbols.slice(0,page==='markets'?limit:5);
 $('market-rows').innerHTML=symbols.length?symbols.map(s=>{const q=quotes[s],p=premium(s),live=fresh(quoteAt),andy=marketAndyMark(s);return '<tr data-market-symbol="'+s+'"><td><button class="star" data-star="'+s+'" aria-label="'+s+' · '+esc(c.save)+'" aria-pressed="'+favorites.has(s)+'">'+(favorites.has(s)?'★':'☆')+'</button><a href="'+trackSymbol(s)+'">'+s+'</a><small>USDT</small>'+andy+'</td><td>'+(q?money(q.price):'—')+'</td><td class="'+(q&&live?tone(q.change):'')+'">'+(q&&live?pct(q.change):'—')+'</td><td class="'+(Number.isFinite(p)?tone(p):'')+'">'+(Number.isFinite(p)?pct(p):'—')+'</td><td>'+(q&&live?compact(q.volume):'—')+'</td></tr>';}).join(''):'<tr><td colspan="5">'+esc(c.empty)+'</td></tr>';
+if($('market-rows'))$('market-rows').dataset.observedAt=quoteAt?String(quoteAt):'';
 if($('market-more'))$('market-more').hidden=total<=limit;
 const quoteStatus=quoteAt?c.observed+': '+time(new Date(quoteAt).toISOString())+' · Binance / Upbit · '+(fresh(quoteAt)?'60s':c.stale):c.snapshot;
 $('quote-status').textContent=[quoteStatus,krwError?dataStatus.krwOffline:''].filter(Boolean).join(' · ');

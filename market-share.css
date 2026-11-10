@@ -1,0 +1,9 @@
+.market-share-tools{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:24px 0 4px;padding:20px 22px;border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--white)}
+.market-share-tools .eyebrow{margin:0 0 4px;color:var(--accent);font-size:9px;letter-spacing:.16em}
+.market-share-tools h2{font-size:19px;margin:0 0 4px}
+.market-share-tools p:last-child{margin:0;color:var(--muted);font-size:11px;line-height:1.65}
+.market-share-tools button{flex:none;background:var(--ink);border-color:var(--ink);color:var(--white);font-size:12px;font-weight:650;padding:12px 17px}
+.market-share-tools button:hover:not(:disabled){background:#3a4540}
+.market-share-tools button:disabled{cursor:wait;opacity:.5}
+.market-share-status{min-height:20px;margin:0 0 8px;color:var(--muted);font-size:10px}
+@media(max-width:600px){.market-share-tools{align-items:stretch;flex-direction:column;gap:14px;margin-top:18px;padding:17px}.market-share-tools h2{font-size:18px}.market-share-tools button{width:100%;min-height:44px}.market-share-status{font-size:9px}}
