@@ -2585,6 +2585,7 @@ function bgShowDailyOverlay() {
     ? `<button class="go" type="button" onclick="blindStart(true)">D+${progress.dayIndex}부터 이어하기 →</button><button class="go" type="button" onclick="blindStart(false)">처음부터 다시</button>`
     : `<button class="go" type="button" onclick="blindStart(false)">${first?'같은 판 다시 연습':day===today?'오늘의 판 시작':'지난 판 다시 하기'} →</button>`;
   $('bgOverBox').innerHTML = `<h4>${heading}</h4><p><b style="color:var(--gold)">${day} · ${marketName}</b><br>종목과 날짜를 가린 같은 차트로 200${unit} 동안 버텨 보세요. 끝나면 내 매매와 같은 기간 보유 수익률을 비교합니다.</p>
+    <p class="bgDailyInfo"><b style="color:var(--gold)">무료 · 로그인 없이 바로 시작</b></p>
     <div class="bgDailyActions">${startAction}<button class="go bgDailyInvite" type="button" onclick="bgShareDailyChallenge()">친구와 같은 판 하기 ↗</button></div>
     ${progress?`<p class="bgDailyInfo">이 기기에 D+${progress.dayIndex}까지 진행을 저장했습니다. 브라우저를 닫았다 열어도 이어갈 수 있어요.</p>`:''}
     <p class="bgDailyInfo">가상 자금 $10,000 · 실제 주문 없음 · 기본 속도 2×로 약 4분. 시작 전이나 진행 중에 속도를 바꾸고 잠시 멈출 수 있어요.</p>

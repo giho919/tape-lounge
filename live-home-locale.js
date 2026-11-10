@@ -253,6 +253,7 @@
     '가상 자금':['Virtual funds','虚拟资金','仮想資金'],
     '으로 매매합니다. 실제 주문은 없습니다.':[' to trade. No real orders are placed.','用于模拟交易，不会下达真实订单。','で売買します。実際の注文は行いません。'],
     '가상 자금 $10,000 · 실제 주문 없음 · 기본 속도 2×로 약 4분. 시작 전이나 진행 중에 속도를 바꾸고 잠시 멈출 수 있어요.':['Virtual $10,000 · no real orders · about 4 minutes at 2× speed. You can change speed or pause before or during the round.','虚拟资金 $10,000 · 不会下达真实订单 · 2×速度下约需4分钟。开始前或进行中都可以调整速度或暂停。','仮想資金 $10,000・実際の注文なし・2倍速で約4分。開始前やプレイ中に速度を変更したり、一時停止したりできます。'],
+    '무료 · 로그인 없이 바로 시작':['Free · start without an account','免费 · 无需登录即可开始','無料・ログイン不要ですぐ開始'],
     '시간이 저절로 흐르며 재생·일시정지·속도를 조절할 수 있습니다.':['Candles advance automatically. You can play, pause, or change the pace.','行情自动推进，可播放、暂停或调整速度。','チャートは自動で進み、再生・一時停止・速度を変更できます。'],
     '일봉 200개 뒤 종목·날짜를 공개하고, 같은 구간 보유 수익률과 비교합니다.':['After 200 daily candles, the asset and dates are revealed. Compare your trades with holding over the same period.','200根日K线后揭晓标的和日期，并与同期持有收益率比较。','日足200本後に銘柄と日付を公開し、同期間の保有リターンと比較します。'],
     '판에 앉는다 →':['Take your seat →','入座 →','席に着く →'],
