@@ -207,14 +207,9 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
         image = BASE + f'/watch-og-{lang}-{WATCH_OG_VERSION}.png'
         image_alt = WATCH_OG_ALT[lang]
     elif slug == 'blind':
-        # Social shares of translated routes must preview in that route's language.
-        # Use the dedicated game card for Korean; other locales keep localized cards.
-        if lang == 'ko':
-            image = BASE + '/blind-og-20261101.png'
-            image_alt = '종목과 날짜를 숨긴 실제 과거 차트 200거래일을 가상 매매하고 보유 결과와 비교하는 Tape Lounge 블라인드 차트 게임'
-        else:
-            image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
-            image_alt = HOME_OG_ALT[lang]
+        # Use the current localized daily-round card for every locale route.
+        image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
+        image_alt = HOME_OG_ALT[lang]
     elif slug == 'calendar':
         image = BASE + f'/calendar-og-{lang}-20261110.png'
         image_alt = CALENDAR_OG_ALT[lang]
