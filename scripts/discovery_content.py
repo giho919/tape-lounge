@@ -196,6 +196,41 @@ DECISION_GUIDE_COPY = {
         '2026-11-06','2026-11-06'],
 }
 
+CHANNEL_GUIDE_COPY = {
+    'ko': ['bitcoin-long-term-channel','비트코인 장기 채널 분석: 주봉 선형 채널의 지지·저항 읽는 법','2018년·2022년 저점과 2021년 고점을 기준으로 그린 비트코인 주봉 선형 평행 채널을 읽습니다. 로그 차트와의 차이, 기준점 선택, 지지·저항 해석의 한계까지 설명합니다.',
+        ['이 차트는 비트코인의 주봉 전체 구간에 선형 가격축을 적용한 장기 채널입니다. 기준선은 2018년 12월과 2022년 11월의 저점 두 곳을 잇고, 2021년 11월의 고점을 추가 기준으로 삼았습니다. 이는 유일한 정답선이 아니라 어떤 구간을 설명하려고 선택했는지 공개한 하나의 분석입니다.',
+         '두 저점을 지나는 기울기선을 만든 뒤 2021년 고점과 기준선 사이의 간격을 네 구간으로 나눠 평행선을 배치했습니다. 화면의 13개 선은 이 한 기준선에서 일정한 간격으로 계산한 레일입니다. 여러 선이 보인다고 해서 각각이 서로 독립적으로 확인된 지지·저항이라는 뜻은 아닙니다.',
+         '이 차트는 로그축이 아닌 선형축입니다. 선형축에서는 가격이 1만 달러 움직이는 간격이 어느 가격대에서나 같습니다. 그래서 오래전 낮은 가격대의 같은 비율 움직임은 화면에서 더 작게 보일 수 있습니다. 로그축은 같은 퍼센트 변화를 비슷한 간격으로 보여주므로 장기 수익률 비교에 도움이 될 때가 있지만, 두 축은 서로 다른 질문에 답합니다. 어느 한쪽이 항상 더 정확한 것은 아닙니다.',
+         '채널 선은 지지·저항을 확정하는 신호가 아니라 가격의 장기 위치를 보는 참고선입니다. 선에 닿은 꼬리 하나만으로 반등이나 이탈을 단정하지 말고, 주봉 종가가 선을 넘었는지, 이후 되돌림에서 그 구간을 지켰는지, 거래량과 스윙 고점·저점이 어떻게 바뀌었는지를 함께 보세요.',
+         '오른쪽으로 이어지는 선은 기준점에서 계산한 기하학적 연장입니다. 미래 가격 데이터나 목표가가 아니며, 선이 미래까지 그려졌다는 사실 자체가 예측 근거가 되지는 않습니다. 가격이 레일을 벗어나거나 새로운 저점·고점이 형성되면 이 해석을 다시 검토해야 합니다.',
+         '기준점을 어디에 두는지, 주봉의 꼬리와 종가 중 무엇을 쓰는지에 따라 채널 모양은 달라집니다. 거래소, 종목 표기, 데이터 구간이 다르면 값도 달라질 수 있습니다. 따라서 이 그림은 장기 맥락을 정리하는 한 가지 지도이며, 매수·매도 지시나 미래 수익의 보장이 아닙니다.'],
+        '2026-11-10','2026-11-10'],
+    'en': ['bitcoin-long-term-channel','How to Read Bitcoin’s Long-Term Channel: Linear Weekly Support and Resistance','A guide to a linear weekly Bitcoin channel anchored to selected 2018 and 2022 lows and a 2021 high. Learn how the rails are constructed, how linear and logarithmic charts differ, and what the channel cannot tell you.',
+        ['This chart applies a linear price scale to Bitcoin’s long weekly history. Its baseline joins two selected lows from December 2018 and November 2022; a November 2021 high provides another reference point. These anchors are disclosed choices for one analysis, not a uniquely correct trend line.',
+         'The baseline through the two lows is extended, and the gap between that line and the selected 2021 high is divided into four equal steps to place parallel rails. The 13 displayed lines are offsets from the same baseline. They are not 13 independently confirmed support or resistance levels.',
+         'The chart uses a linear scale, not a logarithmic one. On a linear axis, a $10,000 move occupies the same vertical distance at every price. As a result, an equal percentage move at an earlier, lower price can look smaller. A logarithmic axis gives equal percentage changes more comparable spacing and can help with long-run proportional moves, but the scales answer different questions; neither is universally more accurate.',
+         'Treat the rails as context for Bitcoin’s long-term location, not as confirmed support or a trading signal. A wick touching a line is not enough to establish a reversal or a breakdown. Check the weekly close, the response on a retest, volume and changes in swing highs and lows.',
+         'The lines extending to the right are geometric projections from the chosen anchors. They are not future price data or targets, and their extension does not make them forecasts. If price leaves the rails or new major pivots form, reassess the interpretation.',
+         'The drawing changes when the anchors, candle wicks versus closes, exchange or data window change. This is one map for organizing long-term context, not an instruction to buy or sell and not a promise of future returns.'],
+        '2026-11-10','2026-11-10'],
+    'zh': ['bitcoin-long-term-channel','如何读懂比特币长期通道：周线线性支撑与阻力','介绍以2018年、2022年低点和2021年高点为参考的比特币周线线性平行通道，说明线性轴与对数轴的区别、基准点选择以及通道判断的局限。',
+        ['这张图以线性价格轴展示比特币的长期周线走势。基准线连接选定的2018年12月和2022年11月低点，另以2021年11月高点作为参考。这些是为一种分析而公开选择的锚点，并非唯一正确的趋势线。',
+         '先延长经过两个低点的基准线，再把该线在2021年高点处与高点之间的距离分为四等份，绘制平行轨道。图中的13条线都从同一条基准线等距偏移而来，并不是13个彼此独立、已经确认的支撑或阻力位。',
+         '本图使用线性轴，而不是对数轴。在线性轴上，价格每变动1万美元，垂直距离相同。因此，早期低价区间中相同百分比的变化看起来可能更小。对数轴会让相同百分比变化呈现更接近的间距，有时更适合比较长期比例变化；两种坐标回答的问题不同，没有一种在所有情况下都更准确。',
+         '这些轨道用于观察比特币的长期位置，不是已经确认的支撑位或交易信号。仅凭一根影线触线，不能断定反弹或跌破。还应观察周线收盘、回踩后的反应、成交量以及波段高低点的变化。',
+         '向右延伸的线只是根据所选锚点进行的几何延长，不是未来价格数据或目标价。线画到了未来，不代表它具有预测能力。如果价格离开通道，或出现新的重要高低点，应重新评估这种解读。',
+         '锚点、使用影线还是收盘价、交易所以及数据区间不同，通道形状都会改变。这只是整理长期背景的一种图示，不构成买卖指令，也不保证未来收益。'],
+        '2026-11-10','2026-11-10'],
+    'ja': ['bitcoin-long-term-channel','ビットコイン長期チャネルの読み方：週足の線形サポートとレジスタンス','2018年・2022年の安値と2021年の高値を基準にした週足の線形平行チャネルを解説。線形と対数スケールの違い、基準点の選び方、チャネル解釈の限界を確認します。',
+        ['このチャートは線形価格軸でビットコインの長期週足を表示します。基準線は2018年12月と2022年11月に選んだ安値を結び、2021年11月の高値を別の基準点として使います。これは分析対象を説明するために選んだ一つの方法で、唯一正しいトレンドラインではありません。',
+         '二つの安値を通る基準線を延長し、2021年の高値とその時点の基準線との距離を4等分して平行線を配置します。画面の13本は同じ基準線から等間隔にずらした線です。13個の独立したサポート・レジスタンスが確認されたという意味ではありません。',
+         'このチャートは対数ではなく線形スケールです。線形軸では、価格が1万ドル動く距離は価格帯にかかわらず同じです。そのため、過去の低い価格帯で同じ割合だけ動いても小さく見えることがあります。対数軸では同じパーセント変化が近い間隔で表示され、長期の比率比較に役立つ場合がありますが、両者は異なる問いに答えます。常に優れた方があるわけではありません。',
+         '線はビットコインの長期的な位置を整理するための目安であり、確定したサポートや売買シグナルではありません。ヒゲが線に触れただけで反転やブレイクと決めず、週足終値、再テスト時の反応、出来高、スイング高値・安値の変化も確認してください。',
+         '右側へ伸びる線は選んだ基準点からの幾何学的な延長です。将来の価格データや目標値ではなく、未来まで線が描かれていること自体は予測の根拠になりません。価格がレールを外れたり新たな重要高値・安値ができたりしたら、見方を見直します。',
+         '基準点、ローソク足のヒゲか終値か、取引所、データ範囲を変えるとチャネルの形も変わります。長期の文脈を整理する一つの地図であり、売買の指示や将来利益の保証ではありません。'],
+        '2026-11-10','2026-11-10'],
+}
+
 KIMCHI_HISTORY_COPY = {
     'ko': {
         'kicker':'90-DAY PREMIUM HISTORY','title':'김치 프리미엄, 흐름으로 보기',

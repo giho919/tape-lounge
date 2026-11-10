@@ -10,13 +10,14 @@ import sys
 from urllib.parse import urlsplit, urlunsplit
 from xml.etree.ElementTree import Element, SubElement, tostring
 from zoneinfo import ZoneInfo
-from discovery_content import COPY, DECISION_GUIDE_COPY, KIMCHI_HISTORY_COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
+from discovery_content import CHANNEL_GUIDE_COPY, COPY, DECISION_GUIDE_COPY, KIMCHI_HISTORY_COPY, KIMCHI_LIVE_COPY, KIMCHI_LIVE_INTRO, KIMCHI_TOOL_COPY, LANGS, STAGES
 from stage_content import WORDS, stage_body
 from blind_daily_stock_rounds import ensure_rounds
 from frontend_config import read_public_config
 
 for language in LANGS:
     COPY[language]['guides'].append(DECISION_GUIDE_COPY[language])
+    COPY[language]['guides'].append(CHANNEL_GUIDE_COPY[language])
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_SUFFIXES = {'.css', '.csv', '.html', '.js', '.json', '.md', '.py', '.sql', '.txt', '.xml'}
@@ -836,6 +837,17 @@ def render(lang, page, data, letters, generated, root=False):
         social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
                            f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
                            f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
+    elif guide and guide[0]=='bitcoin-long-term-channel':
+        social_image=f'{BASE}/analysis-share-ko-20261110.png'
+        social_image_alt={
+            'ko':'2018년·2022년 저점과 2021년 고점을 기준으로 한 비트코인 장기 선형 채널, Tape Lounge 차트 스냅샷',
+            'en':'Tape Lounge weekly Bitcoin linear channel chart with selected 2018 and 2022 lows and a 2021 high.',
+            'zh':'Tape Lounge比特币周线线性通道图，以选定的2018、2022年低点和2021年高点为参考。',
+            'ja':'2018年・2022年の安値と2021年の高値を基準にしたTape Loungeのビットコイン週足線形チャネル。',
+        }[lang]
+        social_image_tags=(f'<meta property="og:image" content="{social_image}"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
+                           f'<meta property="og:image:width" content="1200"><meta property="og:image:height" content="628">'
+                           f'<meta name="twitter:image" content="{social_image}"><meta name="twitter:image:alt" content="{e(social_image_alt,quote=True)}">')
     else:
         social_image_alt=TOOL_OG_ALT[lang]
         social_image_tags=(f'<meta property="og:image" content="{BASE}/og.png"><meta property="og:image:alt" content="{e(social_image_alt,quote=True)}">'
@@ -907,10 +919,17 @@ def render(lang, page, data, letters, generated, root=False):
             'ja':('今日のセッション分析へ続ける','アジア・欧州・米国の時間帯別BTC騰落率と進行状況を確認し、記事の見方を現在の相場に当てはめられます。','リアルタイムのセッションを見る ↗'),
         }[lang]
         session_cta=(f'<section class="learn-callout" aria-labelledby="session-live-title"><p class="eyebrow">LIVE SESSION TAPE</p><h2 id="session-live-title">{e(session_cta_copy[0])}</h2><p>{e(session_cta_copy[1])}</p>{link(url(lang)+"#sessionPanel",session_cta_copy[2])}</section>' if guide[0]=='market-sessions' else '')
+        channel_cta_copy={
+            'ko':('현재 차트에서 채널 위치 확인하기','같은 장기 채널을 최신 주봉 차트에서 살펴보세요. 선은 과거 기준점으로 계산한 관찰 도구이며 매매 신호가 아닙니다.','비트코인 차트 분석 열기 ↗'),
+            'en':('See the channel on the current chart','View the same long-term channel on the latest weekly chart. Its rails are a reference built from historical anchors, not trading signals.','Open Bitcoin chart analysis ↗'),
+            'zh':('在当前图表中查看通道位置','在最新周线图上查看同一长期通道。轨道由历史参考点计算，仅供观察，不是交易信号。','打开比特币图表分析 ↗'),
+            'ja':('現在のチャートで位置を確認する','最新の週足チャートで同じ長期チャネルを確認できます。線は過去の基準点から作った参考であり、売買シグナルではありません。','ビットコインチャート分析を開く ↗'),
+        }[lang]
+        channel_cta=(f'<section class="learn-callout" aria-labelledby="channel-live-title"><p class="eyebrow">WEEKLY CHART</p><h2 id="channel-live-title">{e(channel_cta_copy[0])}</h2><p>{e(channel_cta_copy[1])}</p>{link(live_app_url(lang,"analysis"),channel_cta_copy[2])}</section>' if guide[0]=='bitcoin-long-term-channel' else '')
         tool=kimchi_calculator(lang) if kimchi else ''
         history=kimchi_history_chart(lang) if kimchi else ''
         faq=kimchi_faq(lang) if kimchi else ''
-        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+market_cta+session_cta+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
+        body=f'<article class="guide"><nav class="breadcrumbs">{link(url(lang,"learn"),c["nav"][3])} / FIELD NOTES</nav><p class="eyebrow">TAPE LOUNGE / EDITORIAL</p><h1>{e(title)}</h1><p class="standfirst">{e(desc)}</p><p class="byline">Tape Lounge · <time datetime="{article_date}">{article_date}</time></p>{practice_cta}{tool}{history}'+''.join(f'<section><span class="paragraph-number">0{i+1}</span><p>{e(p)}</p></section>' for i,p in enumerate(guide[3]))+decision_callout+faq+market_cta+session_cta+channel_cta+f'<aside class="article-end">{practice_cta}{e(c["disclaimer"])}<p>{link(url(lang,"about"),c["method"]+" ↗")}</p>{guide_share(lang)}</aside></article><section>{section_head(c["next"])}{guide_cards(lang, exclude=guide[0])}</section>'
     elif page=='learn':
         body=f'<div class="page-opening"><p class="eyebrow">FIELD NOTES</p><h1>{e(title)}</h1><p>{e(desc)}</p></div>{guide_cards(lang)}<section class="learn-callout"><h2>{e(c["radar"])}</h2><p>{e(c["radarIntro"])}</p>{link(url(lang,"watch"),c["all"]+" ↗")}</section>'
     else:
