@@ -15,8 +15,9 @@ test('장기 차트가 기본이고 최근 차트는 접힌 비교 자료다',()
  assert(/<details class="ca-recent" id="caRecent">/.test(section));
  assert.equal((section.match(/data-ca-image/g)||[]).length,2);
  assert(!/<img[^>]+\ssrc=/.test(section),'숨은 탭은 이미지를 요청하면 안 된다');
- assert(section.includes('확정 주봉 2017.08–2026.10.25'));
- assert(section.includes('2026.11.01 스냅샷'));
+ assert(section.includes('확정 주봉 데이터(봉 시작일) 2017.08–2026-11-02'));
+ assert(section.includes('마지막 완결 주봉은 2026-11-02에 시작해 2026-11-09 08:59 KST에 마감했다.'));
+ assert(section.includes('2026.11.10 14:00 KST 스냅샷'));
  assert(section.includes('분석 원본'));
 });
 test('분석 자료는 시세·주문을 조회하지 않고 공통 익명 통계에 참여한다',()=>{
@@ -32,7 +33,7 @@ test('hash 첫 진입과 lazy 초기화 경합을 처리한다',()=>{
  assert(js.includes("recent.addEventListener('toggle'"));
 });
 test('새 스크립트와 기존 인라인 스크립트가 모두 문법 검증을 통과한다',()=>{
- new vm.Script(js);new vm.Script(app);for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(match[1].trim())new vm.Script(match[1]);
+ new vm.Script(js);new vm.Script(app);for(const match of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)){if(/type=["']application\/ld\+json["']/.test(match[1]))continue;if(match[2].trim())new vm.Script(match[2]);}
 });
 test('독립 경로는 리디렉션 없이 분석 탭으로 바로 열린다',()=>{
  const page=fs.readFileSync(path.join(root,'analysis','index.html'),'utf8');
