@@ -186,6 +186,7 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     text = classic.replace('data-entry-tab="lounge"', f'data-entry-tab="{selected}"', 1)
     text = scope_chain_source_credit(text, selected)
     text = apply_route_heading(text, selected, lang=lang)
+    text = localize_channel_guide_link(text, lang)
     if live_tools:
         text = localize_live_navigation(text, lang)
         text = text.replace('<html lang="ko">',
@@ -579,6 +580,21 @@ def live_app_url(lang, slug=''):
     if lang == 'ko':
         return '/' + (slug.rstrip('/') + '/' if slug else '')
     return f'/{lang}/tools/' + (slug.rstrip('/') + '/' if slug else '')
+
+def localize_channel_guide_link(text, lang):
+    labels = {
+        'ko': '채널 기준점과 해석 한계 보기 ↗',
+        'en': 'How this channel is drawn and what it can’t tell you ↗',
+        'zh': '查看通道的基准点与解读限制 ↗',
+        'ja': 'チャネルの基準点と解釈の限界を見る ↗',
+    }
+    replacement = f'<a href="{url(lang, "learn/bitcoin-long-term-channel")}" data-channel-guide-link>{e(labels[lang])}</a>'
+    text, count = re.subn(
+        r'<a href="/ko/learn/bitcoin-long-term-channel/" data-channel-guide-link>[^<]*</a>',
+        lambda _: replacement, text, count=1)
+    if count != 1:
+        raise ValueError(f'Could not localize the {lang} BTC channel guide link')
+    return text
 
 def locale_home_url(lang):
     return '/' if lang == 'ko' else f'/{lang}/'
