@@ -7,6 +7,7 @@
 
   const copy = {
     '언어 선택':['Choose language','选择语言','言語を選択'],
+    '본문으로 건너뛰기':['Skip to main content','跳到主要内容','メインコンテンツへ移動'],
     '다른 언어 페이지 열기':['Open this lounge in another language','以其他语言打开大厅','別の言語でラウンジを開く'],
     '언어별 Tape Lounge 페이지':['Tape Lounge languages','Tape Lounge 语言','Tape Lounge の言語'],
     '라운지 섹션':['Lounge sections','大厅栏目','ラウンジのセクション'],

@@ -861,14 +861,19 @@ body.shake { animation:shake .5s; }
   .mobileMoreItem.on{border-color:var(--gold-dim);background:rgba(212,175,110,.1);color:var(--gold)}
   .mobileMoreItem:focus-visible,.mobileMoreToggle:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 }
+.skip{position:fixed;top:-64px;left:12px;z-index:9999;padding:10px 14px;border:1px solid var(--gold);border-radius:8px;background:var(--gold);color:#0b0f17;font-size:12px;font-weight:700;text-decoration:none;transition:top .15s ease}
+.skip:focus-visible{top:12px;outline:2px solid #fff;outline-offset:2px}
+#main-content{scroll-margin-top:12px}
+#main-content:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 </style>
 <script defer src="/home-language.js?v=8c5c652ab244"></script>
-<script defer src="/live-home-locale.js?v=741a89081602"></script>
+<script defer src="/live-home-locale.js?v=8e06babf5a20"></script>
 <meta property="og:locale" content="ja_JP"><meta property="og:locale:alternate" content="ko_KR"><meta property="og:locale:alternate" content="en_US"><meta property="og:locale:alternate" content="zh_CN">
 <link rel="alternate" hreflang="ko" href="https://tapelounge.com/"><link rel="alternate" hreflang="en" href="https://tapelounge.com/en/"><link rel="alternate" hreflang="zh" href="https://tapelounge.com/zh/"><link rel="alternate" hreflang="ja" href="https://tapelounge.com/ja/"><link rel="alternate" hreflang="x-default" href="https://tapelounge.com/"><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"Tape Lounge","alternateName":["테이프라운지","tapelounge.com"],"url":"https://tapelounge.com/"},{"@context":"https://schema.org","@type":"WebPage","name":"米国株チャート売買練習ゲームとリアルタイム相場 | Tape Lounge","description":"ログイン不要の無料・毎日チャートゲーム。銘柄名と日付を隠した実際の米国株の日足200本で売買し、同期間の保有結果と比較できます。暗号資産の相場も確認できます。","url":"https://tapelounge.com/ja/","inLanguage":"ja","isPartOf":{"@type":"WebSite","url":"https://tapelounge.com/"}}]</script>
 </head>
 <body data-entry-tab="lounge">
-<div class="wrap" role="main">
+<a class="skip" href="/ja/#main-content">본문으로 건너뛰기</a>
+<div class="wrap">
 
 <div class="hdr">
   <h1 class="brand">TAPE LOUNGE<small>CRYPTO LOUNGE · EST. 2026</small></h1>
@@ -908,6 +913,7 @@ body.shake { animation:shake .5s; }
 <div class="homeLocale" id="homeLocaleSuggestion" role="status" aria-live="polite" hidden></div>
 
 <!-- ═══════════ 라운지 탭 ═══════════ -->
+<main id="main-content" tabindex="-1">
 <div id="tab-lounge">
 <div class="homeQuote" aria-label="BTC/USDT spot price and 24-hour change">
   <div class="homeQuoteSymbol"><span class="homeQuoteDot" aria-hidden="true"></span><span>BTC / USDT</span><small>SPOT</small></div>
@@ -1491,6 +1497,8 @@ body.shake { animation:shake .5s; }
   </div>
 </div>
 </div>
+
+</main>
 
 <div class="foot">
   본 사이트는 정보 제공 목적이며 투자 권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.
