@@ -33,6 +33,7 @@ python3 scripts/generate_home_og.py
 python3 scripts/generate_watch_og.py
 python3 scripts/collect_scenes.py --collect || echo 'Public scene refresh unavailable; retaining the last archive.' >&2
 python3 scripts/build_discovery.py
+python3 scripts/ensure_andy_scan_metadata.py
 stage_public_files
 if git diff --cached --quiet; then exit 0; fi
 git diff --cached --check
