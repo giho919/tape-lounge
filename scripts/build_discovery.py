@@ -87,7 +87,7 @@ TOOL_ASSETS = ['domestic.js', 'domestic-stream.js', 'domestic.css', 'lounge-app.
                'chart-analysis-20261101.js', 'chart-analysis.css', 'btc-long-channel.js',
                'chart-share.js', 'chart-share.css', 'blind-daily.js', 'blind-daily-share.js',
                'calendar-share.js',
-               'blind-og-20261101.png',
+               'blind-og-20261101.png', 'analysis-share-ko-20261110.png',
                'calendar-og-ko-20261110.png', 'calendar-og-en-20261110.png',
                'calendar-og-zh-20261110.png', 'calendar-og-ja-20261110.png',
                'site-campaign.js', 'home-og-ko-20261103.png', 'home-og-en-20261103.png',
@@ -206,8 +206,14 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     if slug == 'watch':
         image = BASE + f'/watch-og-{lang}-{WATCH_OG_VERSION}.png'
         image_alt = WATCH_OG_ALT[lang]
+    elif slug == 'analysis' and not live_tools and lang == 'ko':
+        image = BASE + '/analysis-share-ko-20261110.png'
+        image_alt = '\ube44\ud2b8\ucf54\uc778 \uc7a5\uae30 \uc120\ud615 \uc8fc\ubd09 \ucc44\ub110 \ucc28\ud2b8, 2026\ub144 11\uc6d4 10\uc77c 14\uc2dc \uae30\uc900 \uc2a4\ub0c5\uc0f7. tapelounge.com'
+    elif slug == 'blind' and not live_tools and lang == 'ko':
+        image = BASE + '/blind-og-20261101.png'
+        image_alt = '\ubbf8\uad6d\uc8fc\uc2dd \uacfc\uac70 \ucc28\ud2b8 \ube14\ub77c\uc778\ub4dc \ub9e4\ub9e4 \uc5f0\uc2b5 \uac8c\uc784. \uc2e4\uc81c \uc8fc\ubb38 \uc5c6\uc74c.'
     elif slug == 'blind':
-        # Use the current localized daily-round card for every locale route.
+        # Localized live-tool routes use the current localized daily-round card.
         image = BASE + f'/home-og-{lang}-{HOME_OG_VERSION}.png'
         image_alt = HOME_OG_ALT[lang]
     elif slug == 'calendar':
@@ -225,6 +231,14 @@ def tool_page(classic, slug, selected, title, description, lang='ko', live_tools
     if image:
         text = re.sub(r'<meta property="og:image" content="[^"]*">',
                       f'<meta property="og:image" content="{image}">', text, count=1)
+        if image.lower().split('?', 1)[0].endswith('.png') and slug in ('analysis', 'blind') and not live_tools and lang == 'ko':
+            type_tag = '<meta property="og:image:type" content="image/png">'
+            type_pattern = r'<meta\s+property=["\']og:image:type["\'][^>]*>'
+            if re.search(type_pattern, text, flags=re.IGNORECASE):
+                text = re.sub(type_pattern, type_tag, text, count=1, flags=re.IGNORECASE)
+            else:
+                image_tag = f'<meta property="og:image" content="{image}">'
+                text = text.replace(image_tag, image_tag + chr(10) + type_tag, 1)
         text = re.sub(r'<meta property="og:image:alt" content="[^"]*">',
                       lambda _: f'<meta property="og:image:alt" content="{e(image_alt, quote=True)}">',
                       text, count=1)
