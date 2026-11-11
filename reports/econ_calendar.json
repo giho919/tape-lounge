@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-11T22:17:01.461364Z",
+  "generated_at": "2026-11-11T23:22:02.046097Z",
   "timezone": "Asia/Seoul",
   "consensus_available": false,
   "method": "공식 무료 일정·실제치 + Binance BTC 1분봉. 컨센서스 미사용.",
@@ -57,7 +57,7 @@
       "actual": "165",
       "actual_supported": true,
       "unit": "K",
-      "note": "2026-10 관측 · 2026-10 관측 · 공식 일정 스냅샷",
+      "note": "2026-10 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {
         "m5": -0.15,
@@ -77,7 +77,7 @@
       "actual": "4.1",
       "actual_supported": true,
       "unit": "%",
-      "note": "2026-10 관측 · 2026-10 관측 · 공식 일정 스냅샷",
+      "note": "2026-10 관측 · 공식 일정 스냅샷",
       "source_url": "https://www.bls.gov/schedule/2026/home.htm",
       "btc": {
         "m5": -0.563,
